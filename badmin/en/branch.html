@@ -7,12 +7,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link href="/badmin/css/bootstrap.css" rel="stylesheet" type="text/css">
+        <link href="/badmin/css/bootstrap.min.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="/badmin/css/style.css" type="text/css" />
         <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/bootstrap.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/badmin.js"></script>
     </head>
     <body>
         <div id="pagecontainer" class="page-container">
@@ -22,6 +21,12 @@
                     <a href="#" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
                 </div>
                 <ul>
+                    <li>
+                        <a href="#calls" title="Calls">
+                            <i class="glyphicon glyphicon-earphone"></i>
+                            <span>Calls</span>
+                        </a>
+                    </li>
                     <li>
                         <a href="#extensions" title="Extensions">
                             <i class="glyphicon glyphicon-signal"></i>
@@ -92,13 +97,6 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" data-kind="routes" title="Routing">
-                            <i class="glyphicon glyphicon-transfer"></i>
-                            <span>Routing</span>
-                            <i class="glyphicon glyphicon-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li>
                         <a href="#" data-kind="conference" title="Conferences">
                             <i class="glyphicon glyphicon-comment"></i>
                             <span>Conferences</span>
@@ -110,6 +108,19 @@
                             <i class="glyphicon glyphicon-calendar"></i>
                             <span>Timers</span>
                             <i class="glyphicon glyphicon-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-kind="routes" title="Routing">
+                            <i class="glyphicon glyphicon-transfer"></i>
+                            <span>Routing</span>
+                            <i class="glyphicon glyphicon-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#records" title="Records">
+                            <i class="glyphicon glyphicon-time"></i>
+                            <span>Records</span>
                         </a>
                     </li>
                 </ul>
@@ -327,8 +338,11 @@
                                     <th>Number</th>
                                     <th>Strip</th>
                                     <th>Prefix</th>
-                                    <th><input type="checkbox" class="delall"></th>
-                                    <th class="addrow transrow"><span class="glyphicon glyphicon-plus"></span></th>
+                                    <th>
+                                        <a href="" class="add-clr transrow">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                        </a>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -342,8 +356,11 @@
                                     <th>Number</th>
                                     <th>Strip</th>
                                     <th>Prefix</th>
-                                    <th><input type="checkbox" class="delall"></th>
-                                    <th class="addrow transrow"><span class="glyphicon glyphicon-plus"></span></th>
+                                    <th>
+                                        <a href="" class="add-clr transrow">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                        </a>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -358,8 +375,11 @@
                                     <th>Number</th>
                                     <th>Strip</th>
                                     <th>Prefix</th>
-                                    <th><input type="checkbox" class="delall"></th>
-                                    <th class="addrow transrow"><span class="glyphicon glyphicon-plus"></span></th>
+                                    <th>
+                                        <a href="" class="add-clr transrow">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                        </a>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -375,8 +395,11 @@
                                     <th>Number</th>
                                     <th>Strip</th>
                                     <th>Prefix</th>
-                                    <th><input type="checkbox" class="delall"></th>
-                                    <th class="addrow transrow"><span class="glyphicon glyphicon-plus"></span></th>
+                                    <th>
+                                        <a href="" class="add-clr transrow">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                        </a>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -385,5 +408,7 @@
                 </div>
             </div>
         </div>
+        <script type="text/javascript" src="/badmin/js/badmin.js"></script>
+        <script type="text/javascript" src="/badmin/js/objects.js"></script>
     </body>
 </html>
