@@ -576,7 +576,7 @@ function getFriendlyCodeName(code){
  */
 
 function load_bgroup(result){
-    
+    console.log(result);
     switch_tab(result.kind);
     var i, cl, enabled, 
         d = document, 
