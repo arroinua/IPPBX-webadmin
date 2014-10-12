@@ -50,8 +50,8 @@
         var language = result.lang || 'en',
             path = 'badmin/'+language+'/branch.html';
 
-        w.sessionStorage.setItem('pbxLanguage', language);
-        // w.sessionStorage.setItem('pbxOptions', options);
+        w.localStorage.setItem('pbxLanguage', language);
+        // w.localStorage.setItem('pbxOptions', options);
         w.location.pathname = path;
         
     };

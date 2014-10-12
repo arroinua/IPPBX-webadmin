@@ -16,6 +16,9 @@ html,body{
 .page-content.squeezed-right{
     margin-left: 250px;
 }
+.hidden{
+    display: none;
+}
 .visible{
     opacity: 1;
 }

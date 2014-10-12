@@ -174,8 +174,8 @@ function loadOptions(result){
     var options = JSON.stringify(result), 
         language = result.lang || 'en';
 
-    window.sessionStorage.setItem('pbxLanguage', language);
-    window.sessionStorage.setItem('pbxOptions', options);
+    window.localStorage.setItem('pbxLanguage', language);
+    window.localStorage.setItem('pbxOptions', options);
 
     init_page();
 
@@ -214,7 +214,8 @@ function init_page(){
 
     json_rpc_async('getPbxOptions', null, load_pbx_options);
 
-    PbxObject.lang = window.sessionStorage.getItem('pbxLanguage');
+    PbxObject.groups = {};
+    PbxObject.lang = window.localStorage.getItem('pbxLanguage');
     PbxObject.smallScreen = isSmallScreen();
 
     $(window).resize(function(){
@@ -244,6 +245,7 @@ function set_listeners(){
     addEvent(window, 'hashchange', get_object);
     $('.sidebar-toggle', '#pagecontent').click(toggle_sidebar);
     $('.options-open', '#pagecontent').click(open_options);
+    // $('#pbxmenu li a').click(showGroups);
     $('.options-close', '#pbxoptions').click(close_options);
 
     $('#pbxmenu li a').click(function() {
@@ -313,6 +315,49 @@ function set_listeners(){
         }
     }); 
 }
+
+// function showGroups(e){
+//     var e = e || window.event;
+//     var targ = e.target;
+//     var list = getClosest(e.target, 'li');
+//     var parent = list.parentNode;
+//     var checkElement = list.querySelector('ul');
+//     var kind = targ.getAttribute('data-kind');
+
+//     if(!kind && checkElement == undefined) return; //get groups list from PbxObject
+    
+//     if(kind){
+//         var result, ul, li, a;
+
+//         if(typeof PbxObject.groups[kind] !== 'object') {
+//             result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
+//             PbxObject.groups[kind] = result;
+//         }
+
+//         ul = document.createElement('ul');
+//         li = document.createElement('li');
+//         a = document.createElement('a');
+
+//         ul.id = 'ul-'+kind;
+//         li.className = 'add-group-object';
+//         a.href = '#'+kind;
+//         a.innerHTML ='<i class="glyphicon glyphicon-plus"></i><span>'+PbxObject.frases.add[PbxObject.lang]+'</span>';
+
+//         li.appendChild(a);
+//         ul.appendChild(li);
+
+//         ressult.forEach(function(item, i){
+//             li = '<li><a href="#'+kind+'?'+item.oid+'">'+item.name+'</a></li>';
+//             ul.appendChild(li);
+//         });
+
+//         parent.appendChild(ul);
+//     }
+//     if(checkElement.style.display == 'none')
+//         checkElement.style.display == ''
+//     else
+//         checkElement.style.display == 'none';
+// }
 
 function get_object(result){
 
@@ -1223,7 +1268,7 @@ function set_pbx_options(e) {
 
     if (lang !== PbxObject.lang) {
         PbxObject.lang = lang;
-        window.sessionStorage.setItem('pbxLanguage', lang);
+        window.localStorage.setItem('pbxLanguage', lang);
         handler = set_options_success;
     }
     else {
