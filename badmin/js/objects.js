@@ -32,7 +32,7 @@ function CallsBoard(){
         // json_rpc_async('getCurrentCalls', null, this.setCurrentCalls.bind(this));
         // json_rpc_async('getCurrentState', null, this.setCurrentState.bind(this));
 
-        console.log('update');
+        // console.log('update');
     };
 
     this.setCurrentState = function(result){
@@ -140,7 +140,7 @@ function CallsBoard(){
     };
 
     this.stopUpdate = function(){
-        console.log('update removed');
+        // console.log('update removed');
         clearInterval(this.update);
         removeEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
@@ -305,7 +305,7 @@ function load_calls(){
                 // hours: selhours.options[selhours.selectedIndex].value,
                 // minutes: selminutes.options[selminutes.selectedIndex].value
             };
-        console.log(date);
+        // console.log(date);
         if(!date.day || !date.month || !date.year) return;
 
         now = Date.now();
@@ -386,13 +386,13 @@ function load_calls(){
             params += ', "order": ' + order;
 
         // params = JSON.stringify(params);
-        console.log(params);
+        // console.log(params);
         json_rpc_async('getCalls', params, this._showRecords.bind(this));
 
     };
 
     this._showRecords = function(result){
-        console.log(result);
+        // console.log(result);
 
         // if(!rows.value && result.length > 50) rows.value = 50;
         var rlength = rows.value ? parseInt(rows.value) : result.length,
@@ -576,7 +576,7 @@ function getFriendlyCodeName(code){
  */
 
 function load_bgroup(result){
-    console.log(result);
+    // console.log(result);
     switch_tab(result.kind);
     var i, cl, enabled, 
         d = document, 
@@ -1343,7 +1343,7 @@ function createExtRow(ext, oid, kind, status, name, group, reg){
 }
 
 function load_extensions(result) {
-    console.log(result);
+    // console.log(result);
     var row, obj, oid, ext, kind, state, info, status, className, name, group, reg,
         table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
         fragment = document.createDocumentFragment();
@@ -1373,69 +1373,10 @@ function load_extensions(result) {
         row.className = className;
 
         fragment.appendChild(row);
-
-        // cell = row.insertCell(0);
-        // a = document.createElement('a');
-        // if(result[i].oid){
-        //     if(result[i].kind == 'user' || result[i].kind == 'phone'){
-        //         a.href = '#';
-        //         a.setAttribute('data-oid', result[i].oid);
-        //         addEvent(a, 'click', get_extension);
-        //     }
-        //     else{
-        //         a.href = '#' + result[i].kind + '?' + result[i].oid;
-        //     }
-                
-        // }
-        
-        // a.innerHTML = result[i].ext;
-        // cell.appendChild(a);
-        
-        // cell = row.insertCell(1);
-        // cell.innerHTML = result[i].name || "";
-        
-        // cell = row.insertCell(2);
-        // cell.innerHTML = result[i].group;
-        
-        // cell = row.insertCell(3);
-        // cell.innerHTML = result[i].reg;
-
-        // cell = row.insertCell(4);
-        // cell.innerHTML = result[i].kind;
-
-        // cell = row.insertCell(5);
-        // if(status) cell.innerHTML = status;
-        
-        // cell = row.insertCell(6);
-        // a = document.createElement('a');
-        // a.href = '#';
-        // a.innerHTML = '<i class="glyphicon glyphicon-pencil"></i>';
-        // addEvent(a, 'click', editExtension);
-        // cell.appendChild(a);
-
-        // cell = row.insertCell(7);
-        // button = document.createElement('button');
-        // button.className = 'btn btn-danger btn-sm';
-        // button.innerHTML = '<i class="glyphicon glyphicon-trash"></i>';
-        // if(state == -1){
-        //     button.setAttribute('disabled', 'true');
-        // }
-        // else{
-        //     addEvent(button, 'click', delete_extension);
-        // }
-        
-        // cell.appendChild(button);
     }
         
     table.appendChild(fragment);
-    // var ref = document.getElementById('extrefresh');
-    // ref.onclick = function(){
-    //     update_extansions();
-    // };
-    // var rep = document.getElementById('extrepeat');
-    // rep.onclick = function(){
-    //     set_update_interval();
-    // };
+    
     var inputs = document.getElementsByClassName('el-search');
     if(inputs.length){
         for(i=0;i<inputs.length;i++){
@@ -1454,7 +1395,7 @@ function load_extensions(result) {
 
 function updateExtension(data){
 
-    console.log(data);
+    // console.log(data);
 
     var row = document.getElementById(data.ext);
     if(!row) return;
@@ -1532,14 +1473,6 @@ function editExtension(e){
 
     cell = tr.insertCell(1);
     cell.innerHTML = '<input class="form-control extname" value="'+name+'">';
-    // div = document.createElement('div');
-    // div.innerHTML = '<input class="form-control" value="'+name+'">';
-    // div.className = 'form-group';
-
-    // inp = document.createElement('input');
-    // inp.className = 'form-control';
-    // inp.value = name;
-    // cell.appendChild(inp);
 
     cell = tr.insertCell(2);
     if(kind == 'user' || kind == 'phone'){
@@ -1563,16 +1496,6 @@ function editExtension(e){
     } else {
         cell.innerHTML = '<input class="form-control extreg" value="'+reg+'">';
     }
-
-    // cell.appendChild(div);
-    // inp = document.createElement('input');
-    // inp.className = 'form-control';
-    // inp.setAttribute('type', 'text');
-    // inp.value = reg;
-    // if(reg.indexOf('.') != -1){
-    //     inp.setAttribute('disabled', '');    
-    // }
-    // div.appendChild(inp);
 
     cell = tr.insertCell(4);
     cell.textContent = kind;
@@ -1619,7 +1542,7 @@ function set_extension_update(e){
     if(reg) jprms += '\"followme\":\"'+reg.value+'\",';
     json_rpc('setObject', jprms); 
 
-    console.log(jprms);
+    // console.log(jprms);
 
     row.parentNode.removeChild(row);
     trow.style.display = 'table-row';
@@ -1627,7 +1550,7 @@ function set_extension_update(e){
 }
 
 function load_extension(result){
-    console.log(result);
+    // console.log(result);
 
     var d = document,
         groupid = result.groupid,
@@ -1848,104 +1771,12 @@ function fill_group_choice(kind, groupid, select){
     }
 }
 
-// function update_extansions(event){
-//     var event = event || window.event;
-//     $('#extrefresh').addClass('spinner');
-//     json_rpc_async('getExtensions', null, update_extansions_);
-//     if(event) event.preventDefault();
-// }
-// function set_update_interval(event){
-//     var event = event || window.event;
-//     var button = document.getElementById('extrepeat');
-//     if(PbxObject.updext){
-//         clearInterval(PbxObject.updext);
-//         PbxObject.updext = false;
-//         if(button) button.className = '';
-//     }
-//     else{
-//         PbxObject.updext = setInterval(function(){update_extansions();}, 5000);
-//         if(button) button.className = 'nav-active';
-//     }
-//     event.preventDefault();
-// }
-
-// function update_extansions_(result){
-//     var obj, state, row, cells, status,
-//         table = document.getElementById('extensions');
-//         if(table) {
-//             var tbody = table.getElementsByTagName('tbody')[0],
-//                 trows = tbody.rows;
-//         }
-//         else 
-//             return;
-//     for(var i=0;i<result.length;i++){
-//         obj = result[i];
-//         state = obj.state;
-//         for(var j=0;j<trows.length;j++){
-//             row = trows[j];
-//             cells = row.cells;
-//             if(obj.ext == row.getAttribute('data-ext')){
-//                 if(state == 0){
-//                     status = 'Registered';
-//                     row.className = 'success';
-//                 }
-//                 else if(state == 3){
-//                     status = 'Connected';
-//                     row.className = 'connected';
-//                 }
-//                 else if(state == 6){
-//                     status = 'Forwarding';
-//                     row.className = 'warning';
-//                 }
-//                 else if(state == 5){
-//                     status = '';
-//                     row.className = '';
-//                 }
-//                 else if(state == 4){
-//                     status = 'Do not disturb';
-//                     row.className = 'danger';
-//                 }
-//                 else if(state == 1 || state == 2){
-//                     status = state == 1 ? 'Dialing' : 'Ringing';
-//                     row.className = 'info';
-//                 }
-//                 else{
-//                     status = '';
-//                     row.className = 'active';
-//                 }
-//                 if(cells[1].innerHTML != obj.name) {
-//                     cells[1].innerHTML = obj.name || "";
-//                 }
-//                 if(cells[2].innerHTML != obj.group) {
-//                     cells[2].innerHTML = obj.group;
-//                 }
-//                 if(cells[3].innerHTML != obj.reg) {
-//                     cells[3].innerHTML = obj.reg;
-//                 }
-//                 if(cells[4].innerHTML != obj.kind) {
-//                     cells[4].innerHTML = obj.kind;
-//                 }
-//                 if(cells[5].innerHTML != status) {
-//                     cells[5].innerHTML = status;
-//                 }
-//                 if(state == -1 && !cells[6].children[0].getAttribute('disabled')){
-//                     cells[6].children[0].setAttribute('disabled', 'disabled');
-//                 }
-//                 else if(state != -1 && cells[6].children[0].getAttribute('disabled')){
-//                     cells[6].children[0].removeAttribute('disabled');
-//                 }
-//             }
-//         }
-//     }
-//     $('#extrefresh').removeClass('spinner');
-// }
-
 /* 
  * UI for PBX routing tables
  */
 
 function load_routes(result){
-    console.log(result);
+    // console.log(result);
     
     PbxObject.oid = result.oid;
     PbxObject.kind = 'routes';
@@ -2081,7 +1912,7 @@ function set_routes(){
 
 function build_routes_table(routes){
     var result = json_rpc('getObjects', '\"kind\":\"all\"');
-    console.log(result);
+    // console.log(result);
     var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
     for(var i=0; i<routes.length; i++){
         tbody.appendChild(build_route_row(routes[i], result));
