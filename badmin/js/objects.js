@@ -576,7 +576,7 @@ function getFriendlyCodeName(code){
  */
 
 function load_bgroup(result){
-    // console.log(result);
+    console.log(result);
     switch_tab(result.kind);
     var i, cl, enabled, 
         d = document, 
@@ -1550,7 +1550,7 @@ function set_extension_update(e){
 }
 
 function load_extension(result){
-    // console.log(result);
+    console.log(result);
 
     var d = document,
         groupid = result.groupid,
@@ -1576,12 +1576,12 @@ function load_extension(result){
     if(kind == 'users'){
         d.getElementById('followme').disabled = false;
         d.getElementById('followme').value = result.followme;
-        d.getElementById('extpassword').type = 'password';
+        // d.getElementById('extpassword').type = 'password';
     }
     else{
         d.getElementById('followme').disabled = true;
         d.getElementById('followme').value = '';
-        d.getElementById('extpassword').type = 'text';
+        // d.getElementById('extpassword').type = 'text';
     }
     d.getElementById('extname').value = result.name;
     d.getElementById('extpin').value = result.pin;
@@ -1686,9 +1686,8 @@ function load_extension(result){
 }
 
 function set_extension(e){
-    var e = e || window.event;
-    if(e.type == 'click')
-        e.preventDefault();
+    // var e = e || window.event;
+    // if(e.type == 'click') e.preventDefault();
     var d = document,
         oid = PbxObject.oid,
         kind = PbxObject.kind;
@@ -1745,7 +1744,7 @@ function set_extension(e){
     if(d.getElementById("voicemail").disabled == false)    
         jprms += '\"voicemail\":'+d.getElementById("voicemail").checked+',';
     jprms += '}';  
-
+    console.log(jprms);
     json_rpc('setObject', jprms); 
     
     $('#el-extension').modal('hide');
@@ -2018,8 +2017,8 @@ function build_route_row(route, objects){
     cell.className = 'form-control';
     cell.setAttribute('type', 'text');
     cell.setAttribute('name', 'cost');
-    cell.setAttribute('size', '4');
-    cell.setAttribute('value', route != null ? route.cost : '0');
+    cell.setAttribute('size', '2');
+    cell.setAttribute('value', route != null ? route.cost.toFixed(2) : '0');
     div.appendChild(cell);
     td.appendChild(div);
     tr.appendChild(td);

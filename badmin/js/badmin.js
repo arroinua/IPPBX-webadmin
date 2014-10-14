@@ -5,7 +5,6 @@ window.onerror = function(msg, url, linenumber) {
 
 var PbxObject = PbxObject || {};
 
-
 $(document).ready(function(){    
 
     createWebsocket();
@@ -176,17 +175,17 @@ function changeOnResize(isSmall){
     }
 }
 
-function loadOptions(result){
+// function loadOptions(result){
+//     console.log(result);
+//     var options = JSON.stringify(result), 
+//         language = result.lang || 'en';
 
-    var options = JSON.stringify(result), 
-        language = result.lang || 'en';
+//     window.localStorage.setItem('pbxLanguage', language);
+//     window.localStorage.setItem('pbxOptions', options);
 
-    window.localStorage.setItem('pbxLanguage', language);
-    window.localStorage.setItem('pbxOptions', options);
+//     init_page();
 
-    init_page();
-
-}
+// }
 
 function handleMessage(data){
     var data = JSON.parse(data),
@@ -904,7 +903,7 @@ function removeEvent(obj, evType, fn) {
 }
 
 function load_pbx_options(result) {
-    
+    console.log(result);
     var options, chk, trow, tables, transforms, so;
 
     switch_options_tab('mainopt-tab');
@@ -924,6 +923,8 @@ function load_pbx_options(result) {
 
     //customizing upload element
     customize_upload('musonhold', result.options.holdmusicfile);
+
+    document.getElementById('adminname').value = result.adminname || '';
 
     if (result.options) {
         document.getElementById('holdreminterv').value = result.options.holdremindtime || '';
@@ -998,6 +999,6 @@ function set_pbx_options(e) {
     else {
         handler = set_object_success;
     }
-
+    console.log(jprms);
     json_rpc_async('setPbxOptions', jprms, handler);
 }
