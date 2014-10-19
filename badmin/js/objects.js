@@ -200,8 +200,10 @@ function load_calls(){
         addEvent(btn, 'click', this._getRecords.bind(this));
 
         this._fillFields();
-        this.date.from = this._currentDate(null, null, null, '00', '00');
-        this.date.to = this._currentDate();
+        // this.date.from = this._currentDate(null, null, null, '00', '00');
+        // this.date.to = this._currentDate(null, null, null, '23', '59');
+        this.date.from = this._currentDate({hours:'00', minutes:'00'});
+        this.date.to = this._currentDate({hours:'23', minutes:'59'});
         this._setResultDate();
 
     };
@@ -215,7 +217,7 @@ function load_calls(){
 
     };
 
-    this._currentDate = function(dday, mmonth, yyear, hhours, mminutes){
+    this._currentDate = function(udate){
 
         var date = new Date();
 
@@ -224,25 +226,25 @@ function load_calls(){
             day: (function(){
                 day = date.getDate();
                 if(day < 10) day = '0' + day;
-                return dday || day;
+                return udate.day || day;
             })(),
             month: (function(){
                 month = date.getMonth() + 1;
                 if(month < 10) month = '0' + month;
-                return mmonth || month;
+                return udate.month || month;
             })(),
             year: (function(){
-                return yyear || date.getFullYear();
+                return udate.year || date.getFullYear();
             })(),
             hours: (function(){
                 hours = date.getHours();
                 if(hours < 10) hours = '0' + hours;
-                return hhours || hours;
+                return udate.hours || hours;
             })(),
             minutes: (function(){
                 minutes = date.getMinutes();
                 if(minutes < 10) minutes = '0' + minutes;
-                return mminutes || minutes;
+                return udate.minutes || minutes;
             })()
         }
 
@@ -346,7 +348,9 @@ function load_calls(){
         el.appendChild(option);
     };
 
-    this._getRecords = function(){
+    this._getRecords = function(e){
+
+        show_loading_panel(e.target);
         
         var from = this.date.from,
             to = this.date.to,
@@ -387,13 +391,14 @@ function load_calls(){
 
         // params = JSON.stringify(params);
         // console.log(params);
+
         json_rpc_async('getCalls', params, this._showRecords.bind(this));
 
     };
 
     this._showRecords = function(result){
         // console.log(result);
-
+        show_content();
         // if(!rows.value && result.length > 50) rows.value = 50;
         var rlength = rows.value ? parseInt(rows.value) : result.length,
             pagnum = result.length > rlength ? Math.ceil(result.length / rlength) : 0,
@@ -427,10 +432,11 @@ function load_calls(){
         for (var i = 0; i < result.length; i++) {
             for(key in result[i]){
                 if(key == 'ch'){
-                    cost += result[i][key];
+                    cost += parseInt(result[i][key]);
                 }
             }
         };
+        cost = cost.toFixed(2);
 
         $('#sample-data').show();
         $('#sample-length').text(result.length);
@@ -527,10 +533,10 @@ function build_records_row(data, table){
     cell.textContent = getFriendlyCodeName(data['cs']);
 
     cell = row.insertCell(8);
-    cell.textContent = data['tr'];
+    cell.textContent = parseFloat(data['tr']).toFixed(2);
 
     cell = row.insertCell(9);
-    cell.textContent = data['ch'];
+    cell.textContent = parseFloat(data['ch']).toFixed(2);
 }
 
 function getFriendlyCodeName(code){
@@ -1380,9 +1386,10 @@ function load_extensions(result) {
     var inputs = document.getElementsByClassName('el-search');
     if(inputs.length){
         for(i=0;i<inputs.length;i++){
-            inputs[i].oninput = function(){
-                filter_table();
-            };
+            addEvent(inputs[i], 'input', filter_table);
+            // inputs[i].oninput = function(){
+            //     filter_table();
+            // };
         }
     }
     
@@ -1897,7 +1904,7 @@ function set_routes(){
                 str += '"target":{"oid":"'+inp.value+'"},';
             }
             else if(name == 'priority'){
-                str += '"priority":'+inp.value+',';
+                str += '"priority":'+parseInt(inp.value)+',';
             }
             else if(name == 'cost'){
                 str += '"cost":'+inp.value+',';
@@ -1913,25 +1920,28 @@ function build_routes_table(routes){
     var result = json_rpc('getObjects', '\"kind\":\"all\"');
     // console.log(result);
     var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
+    var fragment = document.createDocumentFragment();
     for(var i=0; i<routes.length; i++){
-        tbody.appendChild(build_route_row(routes[i], result));
+        fragment.appendChild(build_route_row(routes[i], result));
     }
-    tbody.appendChild(build_route_row(null, result));
+    tbody.appendChild(fragment);
+    if(!routes.length) tbody.appendChild(build_route_row(null, result));
     
     show_content();
 }
 
-function add_route(){
+function add_route(e){
+    var e = e || window.event;
+    if(e) e.preventDefault();
+
     var result = json_rpc('getObjects', '\"kind\":\"all\"');
+    console.log(result);
     var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
-    tbody.appendChild(build_route_row(null, result));
+    tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
+    // tbody.appendChild(build_route_row(null, result));
 }
 
 function build_route_row(route, objects){
-
-    var e = e || window.event;
-    if(e.type == 'click')
-        e.preventDefault();
 
     var tr = document.createElement('tr');
     var td = document.createElement('td');
@@ -2018,7 +2028,12 @@ function build_route_row(route, objects){
     cell.setAttribute('type', 'text');
     cell.setAttribute('name', 'cost');
     cell.setAttribute('size', '2');
-    cell.setAttribute('value', route != null ? route.cost.toFixed(2) : '0');
+    if(route != null) {
+        cell.setAttribute('value', parseFloat(route.cost).toFixed(2));    
+    } else {
+        cell.setAttribute('value', 0);
+    }
+    
     div.appendChild(cell);
     td.appendChild(div);
     tr.appendChild(td);
@@ -2470,19 +2485,19 @@ function set_trunk(){
         jprms += '"dtmfmode":"'+document.getElementById('dtmfsip').value+'",';
     }
     jprms += '},';
-    jprms += '"inboundbnumbertransforms":[';
+    jprms += '"inboundanumbertransforms":[';
     jprms += encode_transforms('transforms1');
     jprms += '],';
-    jprms += '"inboundanumbertransforms":[';
+    jprms += '"inboundbnumbertransforms":[';
     jprms += encode_transforms('transforms2');
     jprms += '],';
-    jprms += '"outboundbnumbertransforms":[';
+    jprms += '"outboundanumbertransforms":[';
     jprms += encode_transforms('transforms3');
     jprms += '],';
-    jprms += '"outboundanumbertransforms":[';
+    jprms += '"outboundbnumbertransforms":[';
     jprms += encode_transforms('transforms4');
     jprms += ']';
-
+console.log(jprms);
     json_rpc_async('setObject', jprms, handler); 
 };
 

@@ -485,7 +485,7 @@ function toggle_presentation() {
     });
 }
 
-function show_loading_panel(){
+function show_loading_panel(container){
     if(document.getElementById('el-loading')) return;
     var back = document.createElement('div');
     back.id = 'el-loading';
@@ -493,8 +493,9 @@ function show_loading_panel(){
     var load = document.createElement('img');
     load.src = '/badmin/images/sprites_white.png';
     load.className = 'loader';
-    var cont = document.getElementById('pagecontainer');
     back.appendChild(load);
+
+    var cont = container || document.getElementById('pagecontainer');
     cont.appendChild(back);    
 }
 
@@ -506,7 +507,8 @@ function show_content(){
         $('#pagecontent').toggleClass('squeezed-right');
         $('#pbxmenu').toggleClass('squeezed-right');
     }
-    $('#dcontainer').removeClass('faded');
+    if($('#dcontainer').hasClass('faded')) 
+        $('#dcontainer').removeClass('faded');
 
 }
 
@@ -534,13 +536,14 @@ function switch_options_tab(tabid){
     }
 }
 
-function filter_table(event){
-    var event = event || window.event;
+function filter_table(e){
+    var e = e || window.event;
     var text, val, row,
-        input = event.target,
+        input = e.target || this,
         tid = input.getAttribute('data-table'),
         table = document.getElementById(tid);
         val = input.value.toLowerCase();
+
     for(var i=1; i<table.rows.length; i++){
         row = table.rows[i];
         text = row.textContent.toLowerCase();
@@ -947,7 +950,8 @@ function load_pbx_options(result) {
 
 function set_pbx_options(e) {
 
-    e.preventDefault();
+    var e = e || window.event;
+    if(e) e.preventDefault();
 
     var jprms, 
         handler,
