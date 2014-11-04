@@ -199,12 +199,21 @@ input[readonly].readonly-custom{
   border-bottom: none;
   background-color: #222
 }
+/*.pbx-menu li.active > ul {
+    display: block;
+}*/
 .pbx-menu li.active > a {
   color: #fff;
 }
 
 .pbx-menu li.active > a span {
   background: #222;
+}
+.pbx-menu li.menu-name{
+    display: none;
+    padding: 10px 20px;
+    color: #fff;
+    font-size: 1.2em;
 }
 .add-group-object a{
     font-style: italic;
@@ -218,8 +227,15 @@ input[readonly].readonly-custom{
     z-index: 300;
     overflow: visible;
 }
+.pbx-menu.squeezed-menu li.menu-name{
+    display: block;
+}
 .pbx-menu.squeezed-menu .nav-logo{
     width: 60px;
+    -moz-transition: all 300ms ease-in-out;
+    -o-transition: all 300ms ease-in-out;
+    -webkit-transition: all 300ms ease-in-out;
+    transition: all 300ms ease-in-out;
 }
 .pbx-menu.squeezed-menu .small-logo{
     transform:translateX(60px);
@@ -309,7 +325,10 @@ ul.nav-bar-nav a.nav-active{
     -ms-transform:translateX(50px);
     -webkit-transform:translateX(50px);
 }
-
+.custom.breadcrumb {
+    margin-bottom: 0;
+    background-color: transparent;
+}
 .data-container{
     position: relative;
     -moz-transition: all 300ms ease-in-out;
@@ -337,7 +356,14 @@ ul.nav-bar-nav a.nav-active{
     background-color: #fff;
     margin-bottom: 20px;
 }
-
+.panel.minimized .panel-body{
+    display: none;
+}
+.panel.minimized .panel-header i{
+    transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+}
 .panel-header{
     background-color: #333;
     border-bottom: 1px solid #ccc;
@@ -354,8 +380,10 @@ ul.nav-bar-nav a.nav-active{
     font-size: 1em;
 }
 .panel-body{
+    position: relative;
     padding: 10px;
     background-color: #fff;
+    overflow: hidden;
 }
 .panel.panel-min{
     padding: 0;
@@ -444,6 +472,12 @@ ul.nav-bar-nav a.nav-active{
     overflow: hidden;
 }
 
+.pl-kind{
+    display: none;
+}
+.pl-kind.revealed{
+    display: block;
+}
 /*Page Content Styles End*/
 
 /*Page Options Styles*/
@@ -659,6 +693,10 @@ ul.tab-toggles li a{
 
 /*Spinner Animation End*/
 
+.nav-tabs.custom-nav-tabs > li > a {
+    border-radius: 0;
+}
+
 /*Notifications Styles*/
 
 .el-notifier-ok span,
@@ -683,6 +721,110 @@ a.remove-clr:hover{
 }
     
 /*Notifications Styles End*/
+
+.preventer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255,255,255,0.9);
+}
+.preventer p {
+    padding: 15px;
+    font-style: italic;
+    color: #333;
+}
+
+/*Toggle switch styles*/
+.switch {
+    position: relative;
+    width: 32px;
+    height: 18px;
+}
+.switch-md {
+    width: 40px;
+    height: 24px;
+}
+.switch-lg {
+    width: 50px;
+    height: 30px;
+}
+.cmn-toggle {
+    position: absolute;
+    margin-left: -9999px;
+    visibility: hidden;
+}
+.cmn-toggle + label {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+}
+input.cmn-toggle-round + label {
+    padding: 2px;
+    width: 100%;
+    height: 100%;
+    background-color: #dddddd;
+    border-radius: 60px;
+}
+input.cmn-toggle-round + label:before,
+input.cmn-toggle-round + label:after {
+    display: block;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    bottom: 1px;
+    content: "";
+}
+input.cmn-toggle-round + label:before {
+    content: '';
+    /*padding-left: 45%;*/
+    /*padding-left: 15px;*/
+    right: 1px;
+    background-color: #F7A8A8;
+    border-radius: 60px;
+    -moz-transition: background 0.3s;
+    -o-transition: background 0.3s;
+    -webkit-transition: background 0.3s;
+    transition: background 0.3s;
+}
+input.cmn-toggle-round:disabled + label:before {
+    opacity: 0.3;
+}
+input.cmn-toggle-round + label:after {
+    width: 50%;
+    background-color: #fff;
+    border-radius: 100%;
+    /*box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);*/
+    -moz-transition: -moz-transform 0.3s;
+    -o-transition: -o-transform 0.3s;
+    -webkit-transition: -webkit-transform 0.3s;
+    transition: transform 0.3s;
+}
+input.cmn-toggle-round:checked + label:before {
+    content: '';
+    /*padding-right: 45%;*/
+    /*padding-left: 15px;*/
+    background-color: #8ce196;
+}
+.switch input.cmn-toggle-round:checked + label:after {
+    transform:translateX(14px);
+    -ms-transform:translateX(14px);
+    -webkit-transform:translateX(14px);
+}
+.switch-md input.cmn-toggle-round:checked + label:after {
+    transform:translateX(18px);
+    -ms-transform:translateX(18px);
+    -webkit-transform:translateX(18px);
+}
+.switch-lg input.cmn-toggle-round:checked + label:after {
+    transform:translateX(23px);
+    -ms-transform:translateX(23px);
+    -webkit-transform:translateX(23px);
+}
+/*Toggle switch styles end*/
 
 @media only screen and (max-width: 767px) {
 
