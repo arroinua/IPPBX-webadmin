@@ -1649,7 +1649,7 @@ function createExtRow(data){
 }
 
 function load_extensions(result) {
-    console.log(result);
+    // console.log(result);
     var row,
         table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
         fragment = document.createDocumentFragment();
@@ -1866,18 +1866,13 @@ function load_extension(result){
     
     document.getElementById('el-extension-num').innerHTML = 'Extension '+result.number;
     
-    var select = document.getElementById("extgroup");
-    for(var i=0;i<=select.options.length;i++){
-        select.remove(select.selectedIndex[i]);
-    }
-    
     if(groupid){
-        select.disabled = false;
+        // select.disabled = false;
         fill_group_choice(kind, groupid);
     }
-    else {
-        select.disabled = true;
-    }
+    // else {
+    //     select.disabled = true;
+    // }
     if(kind == 'users'){
         d.getElementById('followme').disabled = false;
         d.getElementById('followme').value = result.followme;
@@ -2053,22 +2048,31 @@ function set_extension(kind){
     // update_extansions();
 }
 
-function fill_group_choice(kind, groupid, select){ 
-    var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
-    var gid, name, option, i;
+function fill_group_choice(kind, groupid, select){
+    // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
     var select = select || document.getElementById("extgroup");
-
-    for(i=0; i<result.length; i++){
-        gid = result[i].oid;
-        name = result[i].name;
-        option = document.createElement('option');
-        option.setAttribute('value', gid);
-        if(gid == groupid || name == groupid) {
-            option.selected = "true";
-        }
-        option.innerHTML = result[i].name;
-        select.appendChild(option);
+    // for(var i=0;i<=select.options.length;i++){
+    //     select.remove(select.selectedIndex[i]);
+    // }
+    while(select.firstChild) {
+        select.removeChild(select.firstChild);
     }
+    json_rpc_async('getObjects', '\"kind\":\"'+kind+'\"', function(result){
+        var gid, name, option, i;
+        if(select) {
+            for(i=0; i<result.length; i++){
+                gid = result[i].oid;
+                name = result[i].name;
+                option = document.createElement('option');
+                option.setAttribute('value', gid);
+                if(gid == groupid || name == groupid) {
+                    option.selected = "true";
+                }
+                option.innerHTML = result[i].name;
+                select.appendChild(option);
+            }    
+        }
+    });
 }
 
 /* 
@@ -2213,6 +2217,13 @@ function set_routes(){
 function build_routes_table(routes){
     var result = json_rpc('getObjects', '\"kind\":\"all\"');
     // console.log(result);
+    routes = routes.sort(function(a, b){
+        if (a.number < b.number)
+            return -1;
+        if (a.number > b.number)
+            return 1;
+        return 0;
+    });
     var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
     var fragment = document.createDocumentFragment();
     for(var i=0; i<routes.length; i++){

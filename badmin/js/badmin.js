@@ -315,13 +315,92 @@ function set_listeners(){
     addEvent(window, 'hashchange', get_object);
     $('.sidebar-toggle', '#pagecontent').click(toggle_sidebar);
     $('.options-open', '#pagecontent').click(open_options);
-    // $('#pbxmenu li a').click(showGroups);
     $('.options-close', '#pbxoptions').click(close_options);
+    $('#pbxmenu li a').click(showGroups);
+    // $('#pbxmenu li a').click(function() {
+    //     var parent = $(this).parent();
+    //     var kind = $(this).attr('data-kind');
+    //     if(kind && !parent.hasClass('active')){
+    //         var ul = document.createElement('ul');
+    //         ul.id = 'ul-'+kind;
 
-    $('#pbxmenu li a').click(function() {
-        var parent = $(this).parent();
-        var kind = $(this).attr('data-kind');
-        if(kind && !parent.hasClass('active')){
+    //         if(kind != 'equipment' && kind != 'unit' && kind != 'users' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
+    //             likind = document.createElement('li');
+    //             likind.className = 'menu-name';
+    //             likind.innerHTML = PbxObject.frases.KINDS[kind];
+    //             ul.appendChild(likind);
+    //         }
+
+    //         var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
+    //         var li = document.createElement('li');
+    //         li.className = 'add-group-object';
+    //         var a = document.createElement('a');
+    //         if(kind == 'application') {
+    //             var inp = document.createElement('input');
+    //             inp.type = "file";
+    //             inp.id = "uploadapp";
+    //             inp.className = "upload-custom";
+    //             inp.accept = ".application";
+    //             addEvent(inp, 'change', function(){
+    //                 upload('uploadapp');
+    //             });
+    //             li.appendChild(inp);
+    //             a.href = '#';
+    //             addEvent(a, 'click', function(e){
+    //                 document.getElementById('uploadapp').click();
+    //                 if(e) e.preventDefault;
+    //             });
+    //         }
+    //         else{
+    //             a.href = '#'+kind;
+    //         }
+    //         a.innerHTML ='<i class="glyphicon glyphicon-plus"></i><span>Add</span>';
+    //         li.appendChild(a);
+    //         ul.appendChild(li);
+    //         var i, gid, name, li, a, rem;
+    //         for(i=0; i<result.length; i++){
+    //             gid = result[i].oid;
+    //             name = result[i].name;
+    //             li = document.createElement('li');
+    //             a = document.createElement('a');
+    //             a.href = '#'+kind+'?'+gid;
+    //             a.innerHTML = name;
+    //             li.appendChild(a);
+    //             ul.appendChild(li);
+    //         }
+    //         $(this).siblings().remove('ul');
+    //         parent.append(ul);
+    //     }
+
+    //     parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
+    //     parent.addClass('active'); 
+
+    //     var checkElement = $(this).next();
+    //     if((checkElement.is('ul')) && (checkElement.is(':visible'))) {
+    //         parent.removeClass('active');
+    //         checkElement.slideUp('normal');
+
+    //     }
+    //     if((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
+    //         checkElement.slideDown('normal');
+    //     }
+
+    //     if(parent.find('ul').children().length == 0) {
+    //         return true;
+    //     } else {
+    //         return false; 
+    //     }
+    // }); 
+}
+
+function showGroups(e){
+    var self = this;
+    var href = this.href;
+    if(href && href.substring(href.length-1) === "#") e.preventDefault();    
+    var parent = $(self).parent();
+    var kind = $(self).attr('data-kind');
+    if(!parent.hasClass('active')){
+        if(kind) {
             var ul = document.createElement('ul');
             ul.id = 'ul-'+kind;
 
@@ -332,66 +411,70 @@ function set_listeners(){
                 ul.appendChild(likind);
             }
 
-            var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
-            var li = document.createElement('li');
-            li.className = 'add-group-object';
-            var a = document.createElement('a');
-            if(kind == 'application') {
-                var inp = document.createElement('input');
-                inp.type = "file";
-                inp.id = "uploadapp";
-                inp.className = "upload-custom";
-                inp.accept = ".application";
-                addEvent(inp, 'change', function(){
-                    upload('uploadapp');
-                });
-                li.appendChild(inp);
-                a.href = '#';
-                addEvent(a, 'click', function(e){
-                    document.getElementById('uploadapp').click();
-                    if(e) e.preventDefault;
-                });
-            }
-            else{
-                a.href = '#'+kind;
-            }
-            a.innerHTML ='<i class="glyphicon glyphicon-plus"></i><span>Add</span>';
-            li.appendChild(a);
-            ul.appendChild(li);
-            var i, gid, name, li, a, rem;
-            for(i=0; i<result.length; i++){
-                gid = result[i].oid;
-                name = result[i].name;
-                li = document.createElement('li');
-                a = document.createElement('a');
-                a.href = '#'+kind+'?'+gid;
-                a.innerHTML = name;
+            // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
+            json_rpc_async('getObjects', '\"kind\":\"'+kind+'\"', function(result){
+                console.log(result);
+                var li = document.createElement('li');
+                li.className = 'add-group-object';
+                var a = document.createElement('a');
+                if(kind == 'application') {
+                    var inp = document.createElement('input');
+                    inp.type = "file";
+                    inp.id = "uploadapp";
+                    inp.className = "upload-custom";
+                    inp.accept = ".application";
+                    addEvent(inp, 'change', function(){
+                        upload('uploadapp');
+                    });
+                    li.appendChild(inp);
+                    a.href = '#';
+                    addEvent(a, 'click', function(e){
+                        document.getElementById('uploadapp').click();
+                        if(e) e.preventDefault;
+                    });
+                }
+                else{
+                    a.href = '#'+kind;
+                }
+                a.innerHTML ='<i class="glyphicon glyphicon-plus"></i><span>Add</span>';
                 li.appendChild(a);
                 ul.appendChild(li);
+                var i, gid, name, li, a, rem;
+                for(i=0; i<result.length; i++){
+                    gid = result[i].oid;
+                    name = result[i].name;
+                    li = document.createElement('li');
+                    a = document.createElement('a');
+                    a.href = '#'+kind+'?'+gid;
+                    a.innerHTML = name;
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                }
+                $(self).siblings().remove('ul');
+                parent.append(ul);
+
+                show_content(false);
+
+                var checkElement = $(self).next('ul');
+                if(checkElement) checkElement.slideDown('normal');
+                parent.addClass('active');
+            });
+            show_loading_panel(parent[0]);
+        } else {
+            var checkElement = $(self).next('ul');
+            if(checkElement) {
+                parent.addClass('active');
+                checkElement.slideDown('normal');
             }
-            $(this).siblings().remove('ul');
-            parent.append(ul);
         }
-
-        parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
-        parent.addClass('active'); 
-
-        var checkElement = $(this).next();
-        if((checkElement.is('ul')) && (checkElement.is(':visible'))) {
+    } else {
+        var checkElement = $(self).next('ul');
+        if(checkElement) {
             parent.removeClass('active');
             checkElement.slideUp('normal');
-
         }
-        if((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
-            checkElement.slideDown('normal');
-        }
-
-        if(parent.find('ul').children().length == 0) {
-            return true;
-        } else {
-            return false; 
-        }
-    }); 
+    }
+    parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
 }
 
 function get_object(result){
@@ -1164,17 +1247,17 @@ function removePreventInteraction(){
     });
 }
 
-function sortSelect(selectElement) {
-    var options = [].slice.call(selectElement.options);
+// function sortSelect(selectElement) {
+//     var options = [].slice.call(selectElement.options);
  
-    options.sort(function(a,b) {
-        if (a.text.toUpperCase() > b.text.toUpperCase()) return 1;
-        else if (a.text.toUpperCase() < b.text.toUpperCase()) return -1;
-        else return 0;
-    });
+//     options.sort(function(a,b) {
+//         if (a.text.toUpperCase() > b.text.toUpperCase()) return 1;
+//         else if (a.text.toUpperCase() < b.text.toUpperCase()) return -1;
+//         else return 0;
+//     });
  
-    $(selectElement).empty().append( options );
-}
+//     $(selectElement).empty().append( options );
+// }
 
 function addEvent(obj, evType, fn) {
   if (obj.addEventListener) obj.addEventListener(evType, fn, false); 
