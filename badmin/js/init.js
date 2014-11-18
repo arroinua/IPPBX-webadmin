@@ -5,47 +5,6 @@
 
 (function(w, d){
     
-    // var json_rpc_async = function(method, params, handler){
-        
-    //     var jsonrpc, request = new XMLHttpRequest(),
-
-    //     params = {
-    //         method: method,
-    //         id: 1
-    //     },
-
-    //     jsonrpc = JSON.stringify(params);
-
-    //     // if(params)
-    //     //     jsonrpc = '{\"method\":\"'+method+'\", \"params\":{'+params+'}, \"id\":'+1+'}';
-    //     // else
-    //     //     jsonrpc = '{\"method\":\"'+method+'\", \"id\":'+1+'}';
-
-    //     request.open('POST', '/', true);
-
-    //     request.onload = function (e) {
-    //         if (request.readyState === 4) {
-
-    //             // Check if the get was successful.
-
-    //             if (request.status === 200) {
-    //                 console.log(request.responseText);
-
-    //                 var parsedJSON = JSON.parse(request.responseText);
-    //                 if(handler) handler(parsedJSON.result);
-    //             } else {
-    //                 console.error(request.statusText);
-    //             }
-    //         }
-    //     };
-
-    //     request.onerror = function (e) {
-    //         console.error(request.statusText);
-    //     };
-    //     request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-    //     request.send(jsonrpc);
-    // },
-
     var json_rpc_async = function(method, params, handler){
         var xhr = new XMLHttpRequest(),
         data = {
@@ -82,7 +41,7 @@
     
     init = function(result){ 
         // var language = result.lang || 'en',
-        var path = '/badmin/views/branch.html';
+        var path = '/badmin/branch.html';
 
         var options = JSON.stringify(result);
         w.localStorage.setItem('pbxOptions', options);

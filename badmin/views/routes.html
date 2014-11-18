@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="input-group object-name">
-                <input type=text id="objname" class="form-control" placeholder="{{ROUTESNAME}}" autofocus>
+                <input type="text" id="objname" class="form-control" placeholder="{{ROUTESNAME}}" autofocus>
                 <span class="input-group-addon">
                     <div class="switch switch-lg">
                         <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
@@ -86,19 +86,25 @@
                 </div>
                 <div class="panel-body">
                     <div class="table-responsive">
-                        <table class="table" id="rtable">
+                        <table class="table table-condensed table-hover" id="rtable">
                             <thead>
                                 <tr>
                                     <th>{{NUMBER}}</th>
-                                    <th>{{DESCRIPTION}}</th>
+                                    <th>{{ROUTEDESC}}</th>
                                     <th>{{OBJECT}}</th>
-                                    <th>{{STATE}}</th>
+                                    <th>{{PRIORITY}}</th>
                                     <th>{{COST}}</th>
-                                    <th>
+                                    <th style="width:5px"></th>
+                                    <th style="width:5px">
+                                        <button type="button" id="add-route" class="btn btn-primary btn-sm">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                        </button>
+                                    </th>
+                                    <!-- <th>
                                         <a href="#" class="add-clr routerow">
                                             <i class="glyphicon glyphicon-plus"></i>
                                         </a>
-                                    </th>
+                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,8 +120,8 @@
         <div class="col-xs-12 col-custom">
             <div class="panel">
                 <div class="panel-body">
-                    <button type="button" id="el-set-object" class="btn btn-primary btn-lg">{{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj">{{DELETE}}</button>
+                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="glyphicon glyphicon-ok"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="glyphicon glyphicon-trash"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>

@@ -2,9 +2,9 @@
     <div class="row">
         <div class="col-xs-12 col-custom">
             <div class="input-group object-name">
-                <input type=text id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
+                <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
                 <span class="input-group-addon">
-                    <div class="switch switch-lg">
+                    <div class="switch switch-lg pl-kind pl-all pl-no-users pl-no-equipment">
                         <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
                         <label for="enabled"></label>
                     </div>
@@ -13,108 +13,98 @@
         </div>
     </div>
     <div class="row pl-kind pl-users">
-        <div class="col-md-4 col-sm-12 col-custom">
-            <div class="panel minimized">
-                <div class="panel-header"> {{ADDUSER}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal" id="new-user-form">
-                        <div class="form-group">
-                            <div class="col-xs-12">
-                                <div class="col-xs-6">
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="userType" value="local"> {{LOCAL}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="userType" value="global"> {{GLOBAL}}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 col-xs-6">
-                            <div class="form-group">
-                                <label for="user-ext" class="col-xs-12">{{NUMBER}}</label>
-                                <div class="col-xs-12">
-                                    <select id="available-users" class="form-control"></select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="user-name" class="col-xs-12">{{NAME}}</label>
-                                <div class="col-xs-12">
-                                    <input type="text" class="form-control" id="user-name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="user-dname" class="col-xs-12">{{ALIAS}}</label>
-                                <div class="col-xs-12">
-                                    <input type="text" class="form-control" id="user-alias">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 col-xs-6">
-                            <div class="form-group object-type global">
-                                <label for="user-num" class="col-xs-12">{{TELEPHONE}}</label>
-                                <div class="col-xs-12">
-                                    <input type="text" class="form-control" id="user-num">
-                                </div>
-                            </div>
-                            <div class="object-type local">
-                                <div class="form-group">
-                                    <label for="user-login" class="col-xs-12">{{LOGIN}}</label>
-                                    <div class="col-xs-12">
-                                        <input type="text" class="form-control" id="user-login">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="user-pass" class="col-xs-12">{{PASSWORD}}</label>
-                                    <div class="col-xs-12">
-                                        <input type="text" class="form-control" id="user-pass">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <div class="col-xs-6">
-                                    <button type="button" class="btn btn-primary btn-lg" id="add-user">{{ADD}}</button>
-                                </div>
-                                <div class="col-xs-6">
-                                    <button type="button" class="btn btn-default btn-lg" id="clear-input">{{CLEAR}}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8 col-sm-12 col-custom">
+        <div class="col-sm-12 col-custom">
             <div class="panel">
                 <div class="panel-header"> {{KINDS.users}}
                     <i class="glyphicon glyphicon-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <div class="table-responsive">
-                        <table class="table" id="group-extensions">
-                            <thead>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th>{{NAME}}</th>
-                                    <th>{{ALIAS}}</th>
-                                    <th>{{TELEPHONE}}</th>
-                                    <th style="width:5px"></th>
-                                    <!-- <th style="width:5px"></th> -->
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <div class="panel minimized">
+                        <div class="panel-header custom-header-2">
+                            <i class="glyphicon glyphicon-plus"></i> {{ADDUSER}}
+                        </div>
+                        <div class="panel-body">
+                            <!-- <div class="row"> -->
+                                <form class="form-horizontal" id="new-user-form">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">{{USERTYPE}}</label>
+                                            <div class="col-sm-10">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="userType" value="local"> {{LOCAL}}
+                                                </label>
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="userType"value="global"> {{GLOBAL}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="user-ext" class="col-sm-4 control-label">{{NUMBER}}</label>
+                                                <div class="col-sm-4">
+                                                    <select id="available-users" class="form-control"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="user-name" class="col-sm-4 control-label">{{NAME}}</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" id="user-name" placeholder="{{NAME}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group object-type local">
+                                                <label for="user-pass" class="col-sm-4 control-label">{{PASSWORD}}</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" id="user-pass" placeholder="{{PASSWORD}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group object-type global">
+                                                <label for="user-num" class="col-sm-4 control-label">{{TELEPHONE}}</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" id="user-num" placeholder="{{TELEPHONE}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="user-dname" class="col-sm-4 control-label">{{ALIAS}}</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" id="user-alias" placeholder="{{ALIAS}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <div class="form-group">
+                                            <div class="col-xs-12">
+                                                <button type="button" class="btn btn-success btn-md" id="add-user">{{ADD}}</button>
+                                                <button type="button" class="btn btn-default btn-md" id="clear-input">{{CLEAR}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="table-responsive">
+                                <table class="table table-condensed table-hover" id="group-extensions">
+                                    <thead>
+                                        <tr>
+                                            <th>{{NUMBER}}</th>
+                                            <th>{{NAME}}</th>
+                                            <th>{{ALIAS}}</th>
+                                            <th>{{TELEPHONE}}</th>
+                                            <th style="width:5px"></th>
+                                            <!-- <th style="width:5px"></th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,14 +119,20 @@
                 <div class="panel-body">
                     <div class="selectable-cont">
                         <div class="selectable-box selectable-ext">
-                            <p>{{AVAILABLE}}</p>             
+                            <p class="panel-header">{{AVAILABLE}}
+                                <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="available">
+                            </p>
                             <ul id="available"></ul>
                         </div>
                         <div>
-                            <span class="glyphicon glyphicon-transfer"></span>
+                            <p><button type="button" class="btn btn-default btn-sm assign-all">>></button></p>
+                            <p><button type="button" class="btn btn-default btn-sm unassign-all"><<</button></p>
+                            <!-- <span class="glyphicon glyphicon-transfer"></span> -->
                         </div>
                         <div class="selectable-box selectable-ext">
-                            <p>{{SELECTED}}</p>
+                            <p class="panel-header">{{SELECTED}}
+                                <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="members">
+                            </p>
                             <ul id="members" class="el-sortable"></ul>
                         </div>
                     </div>
@@ -145,82 +141,73 @@
         </div>
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-equipment">
             <div class="panel">
-                <div class="panel-header">{{DEVTYPE}}
+                <div class="panel-header">{{GROUPSETTS}}
                     <i class="glyphicon glyphicon-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                              <div class="radio">
-                                <label>
-                                    <input type="radio" name="equipment" id="ipphones" value="ipphones"> IP {{TELEPHONE}}
-                                </label>
-                              </div>
+                            <label for="devtype" class="col-sm-4 control-label">{{DEVTYPE}}</label>
+                            <div class="col-sm-8">
+                                <select id="devtype" class="form-control">
+                                    <option value="ipphones">IP {{TELEPHONE}}</option>
+                                    <option value="gateway">VoIP {{GATEWAY}}</option>
+                                    <option value="trunk">VoIP {{TRUNK}}</option>
+                                </select>
                             </div>
                         </div>
+                        <div class="tab-content">
+                            <div id="tab-ipphones"></div>
+                            <div id="tab-gateway">
+                                <div class="form-group">    
+                                    <label for="regname" class="col-sm-4 control-label">{{LOGIN}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="gateway" id="regname" placeholder="{{LOGIN}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="regpass" class="col-sm-4 control-label">{{PASSWORD}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" name="gateway" id="regpass" placeholder="{{PASSWORD}}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab-trunk">
+                                <div class="form-group">
+                                    <label for="address" class="col-sm-4 control-label">{{DOMAIN}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="trunk" id="address" placeholder="{{DOMAIN}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">    
+                                    <label for="username" class="col-sm-4 control-label">{{LOGIN}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="trunk" id="username" placeholder="{{LOGIN}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password" class="col-sm-4 control-label">{{PASSWORD}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" name="trunk" id="password" placeholder="{{PASSWORD}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                              <div class="radio">
-                                <label>
-                                    <input type="radio" name="equipment" id="gateway" value="gateway"> VoIP {{GATEWAY}}
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="regname" class="col-sm-2">{{LOGIN}}</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="gateway" id="regname" placeholder="{{LOGIN}}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="regpass" class="col-sm-2">{{PASSWORD}}</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" name="gateway" id="regpass" placeholder="{{PASSWORD}}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                              <div class="radio">
-                                <label>
-                                    <input type="radio" name="equipment" id="trunk" value="trunk"> VoIP {{TRUNK}}
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="address" class="col-sm-2">{{DOMAIN}}</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="trunk" id="address" placeholder="{{DOMAIN}}">
-                            </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="username" class="col-sm-2">{{LOGIN}}</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" name="trunk" id="username" placeholder="{{LOGIN}}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="password" class="col-sm-2">{{PASSWORD}}</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" name="trunk" id="password" placeholder="{{PASSWORD}}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="starflash" checked> {{USEASTERISK}}
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-2">
+                            <label for="phonelines" class="col-sm-4 control-label">{{LINESNUM}}</label>
+                            <div class="col-sm-2">
                                 <input type="text" class="form-control" id="phonelines" value="1">
                             </div>
-                            <label for="phonelines" class="col-sm-8">{{LINESNUM}}</label>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="starflash" checked> {{USEASTERISK}}
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -234,19 +221,19 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">    
-                            <label for="groupno1" class="col-sm-4">{{KINDS.pickup}}</label>
+                            <label for="groupno1" class="col-sm-4 control-label">{{KINDS.pickup}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="groupno1">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="timeout1" class="col-sm-4">{{CALLTOUT}}</label>
+                            <label for="timeout1" class="col-sm-4 control-label">{{CALLTOUT}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="timeout1">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="huntmode1" class="col-sm-4">{{HUNTINGTYPE.HUNTINGTYPE}}</label>
+                            <label for="huntmode1" class="col-sm-4 control-label">{{HUNTINGTYPE.HUNTINGTYPE}}</label>
                             <div class="col-sm-4">
                                 <select id="huntmode1" class="form-control">
                                     <option value="0">{{HUNTINGTYPE.OFF}}</option>
@@ -257,11 +244,11 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-offset-4 col-sm-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="huntfwd1"> {{FORWFROMHUNT}}
-                                </label>
-                              </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="huntfwd1"> {{FORWFROMHUNT}}
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -276,13 +263,13 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="timeout2" class="col-sm-4">{{CALLTOUT}}</label>
+                            <label for="timeout2" class="col-sm-4 control-label">{{CALLTOUT}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="timeout2">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="huntmode2" class="col-sm-4">{{HUNTINGTYPE.HUNTINGTYPE}}</label>
+                            <label for="huntmode2" class="col-sm-4 control-label">{{HUNTINGTYPE.HUNTINGTYPE}}</label>
                             <div class="col-sm-3">
                                 <select id="huntmode2" class="form-control">
                                     <option value="0">{{HUNTINGTYPE.SERIAL}}</option>
@@ -292,11 +279,11 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-offset-4 col-sm-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="huntfwd2"> {{FORWFROMHUNT}}
-                                </label>
-                              </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="huntfwd2"> {{FORWFROMHUNT}}
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -311,7 +298,7 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">    
-                            <label for="groupno2" class="col-sm-4">{{GROUPNUM}}</label>
+                            <label for="groupno2" class="col-sm-4 control-label">{{GROUPNUM}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="groupno2">
                             </div>
@@ -328,38 +315,38 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="groupno" class="col-sm-4">{{GROUPNUM}}</label>
+                            <label for="groupno" class="col-sm-4 control-label">{{GROUPNUM}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="groupno">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="maxlines" class="col-sm-4">{{SETTINGS.MAXCONN}}</label>
+                            <label for="maxlines" class="col-sm-4 control-label">{{SETTINGS.MAXCONN}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="maxlines">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="priority" class="col-sm-4">{{PRIORITY}}</label>
+                            <label for="priority" class="col-sm-4 control-label">{{PRIORITY}}</label>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" id="priority">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-xs-4">{{ALLOWFUNK}} Pickup</label>
-                            <div class="col-sm-8 pull-right">
-                                <div class="switch switch-md">
-                                    <input id="canpickup" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                    <label for="canpickup"></label>
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="canpickup"> {{ALLOWFUNK}} Pickup
+                                    </label>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-xs-4">{{AUTOREG}}</label>
-                            <div class="col-sm-8 pull-right">
-                                <div class="switch switch-md">
-                                    <input id="autologin" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                    <label for="autologin"></label>
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="autologin"> {{AUTOREG}}
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -379,137 +366,115 @@
                                 <div class="col-xs-6">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="objectType" value="local"> {{LOCALGROUP}}
+                                            <input type="radio" name="objectType" value="local"> {{LOCAL}}
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-xs-6">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="objectType" value="global"> {{GLOBALGROUP}}
+                                            <input type="radio" name="objectType" value="global"> {{GLOBAL}}
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <hr>
                         <div class="form-group pl-kind pl-selector">
-                            <label for="owner" class="col-sm-4">{{INITIATOR}}</label>
+                            <label for="owner" class="col-sm-4 control-label">{{INITIATOR}}</label>
                             <div class="col-sm-4">
                                 <select id="owner" class="form-control"></select>
                             </div>
                         </div>
                         <div class="form-group pl-kind pl-channel object-type global">
-                            <label for="out-number" class="col-sm-4">{{OUTNUM}}</label>
+                            <label for="out-number" class="col-sm-4 control-label">{{OUTNUM}}</label>
                             <div class="col-sm-8">
                                 <input type="text" class="form-control" id="out-number">
                             </div>
                         </div>
                         <div class="pl-kind pl-conference pl-selector">
                             <div class="form-group">
-                                <label for="dialuptt" class="col-sm-4">{{CALLTOUT}}</label>
+                                <label for="dialuptt" class="col-sm-4 control-label">{{CALLTOUT}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="dialuptt">
                                 </div>
                             </div>
                             <div class="form-group pl-kind pl-selector">
-                                <label class="col-xs-4">{{INITCONFCALL}}</label>
-                                <div class="col-sm-8 pull-right">
-                                    <div class="switch switch-md">
-                                        <input id="initcalls" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                        <label for="initcalls"></label>
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="initcalls"> {{INITCONFCALL}}
+                                        </label>
                                     </div>
                                 </div>
-                                <!-- <div class="col-sm-offset-4 col-sm-8">
-                                  <div class="checkbox">
-                                    <label>
-                                      <input type="checkbox" id="initcalls"> {{INITCONFCALL}}
-                                    </label>
-                                  </div>
-                                </div> -->
                             </div>
                             <div class="form-group">
-                                <label class="col-xs-4">{{AUTOREDIAL}}</label>
-                                <div class="col-sm-8 pull-right">
-                                    <div class="switch switch-md">
-                                        <input id="autoredial" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                        <label for="autoredial"></label>
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="autoredial"> {{AUTOREDIAL}}
+                                        </label>
                                     </div>
                                 </div>
-                                <!-- <div class="col-sm-offset-4 col-sm-8">
-                                  <div class="checkbox">
-                                    <label>
-                                      <input type="checkbox" id="autoredial"> {{AUTOREDIAL}}
-                                    </label>
-                                  </div>
-                                </div> -->
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="confrecord"> {{FUNCTIONS.RECORDING}}
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="object-type local">
                             <div class="form-group">
-                                <label class="col-xs-4">{{PLAYGREET}}</label>
-                                <div class="col-sm-8 pull-right">
-                                    <div class="switch switch-md">
-                                        <input id="playgreet" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                        <label for="playgreet"></label>
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="playgreet"> {{PLAYGREET}}
+                                        </label>
                                     </div>
                                 </div>
-                                <!-- <div class="col-sm-offset-4 col-sm-8">
-                                  <div class="checkbox">
-                                    <label>
-                                      <input type="checkbox" id="playgreet"> {{PLAYGREET}}
-                                    </label>
-                                  </div>
-                                </div> -->
                             </div>
                             <div class="form-group">
-                                <label for="greeting2" class="col-sm-4">{{GREETNAME}}:</label>
+                                <label for="greeting2" class="col-sm-4 control-label">{{GREETNAME}}:</label>
                                 <div class="col-sm-8">
                                     <input type="file" id="greeting2" class="upload-custom">
                                 </div>
                             </div>
                         </div>
                         <hr>
-                        <div class="form-group pl-kind pl-conference pl-selector">
-                            <label class="col-xs-4">{{FUNCTIONS.RECORDING}}</label>
-                            <div class="col-sm-8 pull-right">
-                                <div class="switch switch-md">
-                                    <input id="confrecord" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                    <label for="confrecord"></label>
-                                </div>
-                            </div>
-                            <!-- <div class="col-sm-offset-4 col-sm-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="confrecord"> {{FUNCTIONS.RECORDING}}
-                                </label>
-                              </div>
-                            </div> -->
-                        </div>
                         <div class="form-group object-type local">
-                            <label for="videoform" class="col-sm-4">{{VIDEOFORMAT}}</label>
+                            <label for="videoform" class="col-sm-4 control-label">{{VIDEOFORMAT}}</label>
                             <div class="col-sm-4">
                                 <select id="videoform" class="form-control"></select>
                             </div>
                         </div>
-                        <div class="pl-kind pl-channel object-type global">
-                            <div class="form-group">
-                                <label class="col-xs-4">{{VIDEO}}</label>
-                                <div class="col-sm-8 pull-right">
-                                    <div class="switch switch-md">
-                                        <input id="video" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                        <label for="video"></label>
+                        <div class="object-type global">
+                            <div class="form-group pl-kind pl-channel">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="video"> {{VIDEO}}
+                                        </label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="initmode" class="col-sm-4">{{CONFINIT.CONFINIT}}</label>
+                            <div class="form-group pl-kind pl-channel pl-selector">
+                                <label for="initmode" class="col-sm-4 control-label">{{CONFINIT.CONFINIT}}</label>
                                 <div class="col-sm-8">
                                     <select id="initmode" class="form-control">
                                         <option value="0">{{CONFINIT.LISTENONLY}}</option>
                                         <option value="1">{{CONFINIT.TALKANDLISTEN}}</option>
                                         <option value="3">{{CONFINIT.MULTINODE}}</option>
+                                        <option class="pl-kind pl-selector" value="2">{{CONFINIT.PLAYGREET}}</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-group pl-kind pl-selector" id="conf-greetfile">
+                                <label for="onhold2" class="col-sm-4 control-label">{{CONFINIT.GREETFILE}}:</label>
+                                <div class="col-sm-8">
+                                    <input type="file" id="onhold2" class="upload-custom">
                                 </div>
                             </div>
                         </div>
@@ -528,7 +493,7 @@
                     <div class="panel-body">
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <label for="method" class="col-sm-4">{{ROUTEMETH.ROUTEMETH}}</label>
+                                <label for="method" class="col-sm-4 control-label">{{ROUTEMETH.ROUTEMETH}}</label>
                                 <div class="col-sm-4">
                                     <select id="method" class="form-control">
                                         <option value="0">{{ROUTEMETH.UNIFORM}}</option>
@@ -538,13 +503,13 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="natimeout" class="col-sm-4">{{NOANSTOUT}}</label>
+                                <label for="natimeout" class="col-sm-4 control-label">{{NOANSTOUT}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="natimeout">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="resumetime" class="col-sm-4">{{RESUMETIME}}</label>
+                                <label for="resumetime" class="col-sm-4 control-label">{{RESUMETIME}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="resumetime">
                                 </div>
@@ -561,43 +526,43 @@
                     <div class="panel-body">
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <label for="greeting" class="col-sm-4">{{MUSICONHOLD}}:</label>
+                                <label for="greeting" class="col-sm-4 control-label">{{MUSICONHOLD}}:</label>
                                 <div class="col-sm-8">
                                     <input type="file" id="greeting" class="upload-custom">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="queuelen" class="col-sm-4">{{QUEUELEN}}</label>
+                                <label for="queuelen" class="col-sm-4 control-label">{{QUEUELEN}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="queuelen">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="overflowredirect" class="col-sm-4">{{OVERFLOWREDIR}}</label>
+                                <label for="overflowredirect" class="col-sm-4 control-label">{{OVERFLOWREDIR}}</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="overflowredirect">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="maxqwait" class="col-sm-4">{{MAXQWAIT}}</label>
+                                <label for="maxqwait" class="col-sm-4 control-label">{{MAXQWAIT}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="maxqwait">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="overtimeredirect" class="col-sm-4">{{OVERTIMEREDIR}}</label>
+                                <label for="overtimeredirect" class="col-sm-4 control-label">{{OVERTIMEREDIR}}</label>
                                 <div class="col-sm-8">
                                     <input type="text" class="form-control" id="overtimeredirect">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="indicationmode" class="col-sm-4">{{INDICMODE}}</label>
+                                <label for="indicationmode" class="col-sm-4 control-label">{{INDICMODE}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="indicationmode">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="indicationtime" class="col-sm-4">{{INDICTIME}}</label>
+                                <label for="indicationtime" class="col-sm-4 control-label">{{INDICTIME}}</label>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control" id="indicationtime">
                                 </div>
@@ -607,7 +572,7 @@
                 </div>
             </div>
         </div>
-        <div class="pl-kind pl-selector">
+        <!-- <div class="pl-kind pl-selector">
             <div class="col-md-6 col-xs-12 col-custom">
                 <div class="panel" id="conf-init-mode">
                     <div class="panel-header">{{CONFINIT.CONFINIT}}
@@ -619,7 +584,7 @@
                                 <div class="col-sm-12">
                                   <div class="radio">
                                     <label>
-                                    <input type="radio" name="mode" class='init-mode' value="0"> {{CONFINIT.LISTENONLY}}
+                                        <input type="radio" name="mode" class='init-mode' value="0"> {{CONFINIT.LISTENONLY}}
                                     </label>
                                   </div>
                                 </div>
@@ -628,7 +593,7 @@
                                 <div class="col-sm-12">
                                   <div class="radio">
                                     <label>
-                                      <input type="radio" name="mode" class='init-mode' value="1"> {{CONFINIT.TALKANDLISTEN}}
+                                        <input type="radio" name="mode" class='init-mode' value="1"> {{CONFINIT.TALKANDLISTEN}}
                                     </label>
                                   </div>
                                 </div>
@@ -637,7 +602,7 @@
                                 <div class="col-sm-12">
                                   <div class="radio">
                                     <label>
-                                    <input type="radio" name="mode" class='init-mode' value="3"> {{CONFINIT.MULTINODE}}
+                                        <input type="radio" name="mode" class='init-mode' value="3"> {{CONFINIT.MULTINODE}}
                                     </label>
                                   </div>
                                 </div>
@@ -652,7 +617,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <!-- <label for="onhold2" class="col-sm-4 control-label">{{CONFINIT.GREETFILE}}:</label> -->
+                                <label for="onhold2" class="col-sm-4 control-label">{{CONFINIT.GREETFILE}}:</label>
                                 <div class="col-sm-12">
                                     <input type="file" id="onhold2" class="upload-custom">
                                 </div>
@@ -661,158 +626,102 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="row pl-kind pl-users pl-equipment pl-unit" id="profile">
         <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel">
+            <div class="panel minimized">
                 <div class="panel-header">{{EXTFUNCTIONS}}
                     <i class="glyphicon glyphicon-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
-                        <div class="col-xs-12">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.CALLWAITING}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="callwaiting" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="callwaiting"></label>
-                                            </div>
-                                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="callwaiting"> {{FUNCTIONS.CALLWAITING}}
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.DND}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="dnd" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="dnd"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="hold"> {{FUNCTIONS.CALLHOLD}}
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.CALLHOLD}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="hold" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="hold"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="forwarding"> {{FORWARDING.FORWARDING}}
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.DNDOVER}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="dndover" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="dndover"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="callpickup"> {{FUNCTIONS.PICKUP}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="monitor"> {{FUNCTIONS.CALLMONITOR}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dnd"> {{FUNCTIONS.DND}}
+                                        </label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FORWARDING.FORWARDING}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="forwarding" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="forwarding"></label>
-                                            </div>
-                                        </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="clir"> {{FUNCTIONS.CLIR}}
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.CLIR}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="clir" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="clir"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="busyover"> {{FUNCTIONS.BUSYOVER}}
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.CALLMONITOR}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="monitor" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="monitor"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="pickupdeny"> {{FUNCTIONS.PICKUPDENY}}
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.MONITORDENY}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="monitordeny" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="monitordeny"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="busyoverdeny"> {{FUNCTIONS.BUSYOVERDENY}}
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.BUSYOVER}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="busyover" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="busyover"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="monitordeny"> {{FUNCTIONS.MONITORDENY}}
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.BUSYOVERDENY}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="busyoverdeny" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="busyoverdeny"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.PICKUP}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="callpickup" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="callpickup"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-xs-8">{{FUNCTIONS.PICKUPDENY}}</label>
-                                        <div class="col-sm-4 pull-right">
-                                            <div class="switch switch-md">
-                                                <input id="pickupdeny" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="pickupdeny"></label>
-                                            </div>
-                                        </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -822,7 +731,7 @@
             </div>
         </div>
         <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel">
+            <div class="panel minimized">
                 <div class="panel-header"> {{SETTINGS.NUMTRANSFORM}}
                     <i class="glyphicon glyphicon-chevron-down"></i>
                 </div>
@@ -830,18 +739,18 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                             <div class="col-sm-6">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
-                                </label>
-                              </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
+                                    </label>
+                                </div>
                             </div>
                             <div class="col-sm-6">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
-                                </label>
-                              </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -873,8 +782,8 @@
         <div class="col-xs-12 col-custom">
             <div class="panel">
                 <div class="panel-body">
-                    <button type="button" id="el-set-object" class="btn btn-primary btn-lg">{{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj">{{DELETE}}</button>
+                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="glyphicon glyphicon-ok"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="glyphicon glyphicon-trash"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>

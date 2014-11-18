@@ -42,13 +42,19 @@ input[readonly].readonly-custom{
     cursor: text;
 }
 
-.custom-pagination{
+.pagination-container{
+    position: relative;
     width: 100%;
-    text-align: center;
     margin: auto;
+    text-align: center;
 }
-.custom-pagination li{
-    display: inline-block;
+.pagination-container ul,
+.pagination-container p{
+    margin: 0;
+}
+.pagination-container p{
+    color: #999;
+    font-style: italic;
 }
 
 .calls-stat-mini{
@@ -152,13 +158,13 @@ input[readonly].readonly-custom{
 }
 
 .pbx-menu ul li a {
-    padding: 15px 20px;
+    padding: 15px 15px;
 }
 .pbx-menu ul ul li a {
-    padding: 12px 30px;
+    padding: 12px 15px 12px 20px;
 }
 .pbx-menu ul ul ul li a {
-    padding: 12px 0 12px 40px;
+    padding: 12px 15px 12px 30px;
 }
 .pbx-menu li a i,
 .panel-header i{
@@ -365,10 +371,11 @@ ul.nav-bar-nav a.nav-active{
     -webkit-transform: rotate(-90deg);
 }
 .panel-header{
+    margin: 0;
+    padding: 10px 15px;
     background-color: #333;
     border-bottom: 1px solid #ccc;
     color: #fff;
-    padding: 10px 15px;
     cursor: pointer;
 }
 .panel-header.custom-header-1{
@@ -378,6 +385,27 @@ ul.nav-bar-nav a.nav-active{
 .panel-header.custom-header-1 i{
     color: #333;
     font-size: 1em;
+}
+.panel-header.custom-header-2{
+    text-align: center;
+    background-color: #eee;
+    color: #428bca;
+    /*cursor: auto;*/
+}
+.panel-header.custom-header-2:hover{
+    color: #2a6496;
+    text-decoration: underline;
+    background-color: #ddd;
+}
+.panel-header.custom-header-2 i{
+    float: none;
+    margin-bottom: 4px;
+    color: #428bca;
+    font-size: 1em;
+
+    transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
 }
 .panel-body{
     position: relative;
@@ -411,14 +439,14 @@ ul.nav-bar-nav a.nav-active{
     width: 100%;
     max-width: 400px;
 }
-.selectable-cont div p{
+/*.selectable-cont div p{
     position: relative;
     margin: 0;
     padding: 5px 0;
     top: 0;
     color: #fff;
     background-color: #333;
-}
+}*/
 .selectable-cont div ul{
     position: relative;
     width: 100%;
@@ -501,10 +529,10 @@ ul.nav-bar-nav a.nav-active{
     font-size: 1.2em;
     line-height: 1.8em;
     color: #fff;
-    background-color: #428bca;
+    background-color: #4cae4c;
 }
 .pbx-options a.el-save-options:hover{
-    background-color: #285e8e;
+    background-color: #449d44;
 }
 
 .pbx-options .tab-pane form, 
@@ -572,6 +600,14 @@ ul.tab-toggles li a{
     color: #fff;
 }
 
+.form-control.custom-input{
+    height: auto;
+    padding: 0;
+    text-align: center;
+    font-style: italic;
+    font-size: 1em;
+}
+
 /*Page Options Styles End*/
 
 /*Loading Panel Styles*/
@@ -617,10 +653,11 @@ ul.tab-toggles li a{
     position: fixed;
     z-index: 1100;
     top: 0;
-    min-width: 200px;
-    max-width: 400px;
+    width: 400px;
+    /*min-width: 200px;
+    max-width: 400px;*/
     left: 50%;
-    margin-left: -100px; 
+    margin-left: -200px; 
     background: #333;
     text-align: center;
     line-height: 2.5;
@@ -840,10 +877,10 @@ input.cmn-toggle-round:checked + label:before {
         padding-left: 5px;
         padding-right: 5px;
     }
-    .panel-header{
+    /*.panel-header{
         font-size: 1.2em;
         padding: 15px 5px;
-    }
+    }*/
     .panel-body{
         padding: 5px;
     }

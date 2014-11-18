@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="col-xs-12 col-custom">
-                                            <label for="searchrows" class="col-sm-4 control-label">Кількість записів у видачі</label>
+                                            <label for="searchrows" class="col-sm-4 control-label">{{RECORDS.SAMPLELENGTH}}</label>
                                             <div class="col-sm-4">
                                                 <input type="text" class="form-control" id="searchrows">
                                             </div>
@@ -61,7 +61,7 @@
                                         <div class="col-sm-12">
                                           <div class="radio">
                                             <label>
-                                            <input type="radio" name="mode" class='init-mode' value="0"> всі дзвінки
+                                            <input type="radio" name="mode" class='init-mode' value="0"> {{RECORDS.ALL}}
                                             </label>
                                           </div>
                                         </div>
@@ -70,7 +70,7 @@
                                         <div class="col-sm-12">
                                           <div class="radio">
                                             <label>
-                                            <input type="radio" name="mode" class='init-mode' value="1"> тільки з'єднані дзвінки
+                                            <input type="radio" name="mode" class='init-mode' value="1"> {{RECORDS.CONNECTED}}
                                             </label>
                                           </div>
                                         </div>
@@ -79,7 +79,7 @@
                                         <div class="col-sm-12">
                                           <div class="radio">
                                             <label>
-                                            <input type="radio" name="mode" class='init-mode' value="2"> тільки зовнішні дзвінки
+                                            <input type="radio" name="mode" class='init-mode' value="2"> {{RECORDS.OUT}}
                                             </label>
                                           </div>
                                         </div>
@@ -88,7 +88,7 @@
                                         <div class="col-sm-12">
                                           <div class="radio">
                                             <label>
-                                            <input type="radio" name="mode" class='init-mode' value="3"> тільки зовнішні з'єднані дзвінки
+                                            <input type="radio" name="mode" class='init-mode' value="3"> {{RECORDS.OUTCONN}}
                                             </label>
                                           </div>
                                         </div>
@@ -98,7 +98,7 @@
                                         <div class="col-sm-12">
                                           <div class="radio">
                                             <label>
-                                            <input type="radio" name="order" class='init-order' value="0"> по зростанню дати
+                                            <input type="radio" name="order" class='init-order' value="0"> {{RECORDS.ASC}}
                                             </label>
                                           </div>
                                         </div>
@@ -107,7 +107,7 @@
                                         <div class="col-sm-12">
                                           <div class="radio">
                                             <label>
-                                            <input type="radio" name="order" class='init-order' value="1"> за зменшенням дати
+                                            <input type="radio" name="order" class='init-order' value="1"> {{RECORDS.DESC}}
                                             </label>
                                           </div>
                                         </div>
@@ -122,8 +122,8 @@
                     <div class="col-sm-offset-4 col-sm-4 col-xs-offset-2 col-xs-8 extended-btn">
                         <button type="button" id="getcalls-btn" class="btn btn-primary btn-lg btn-block">{{SEARCH}}</button>
                         <h5 id="sample-data">
-                            <span id="sample-length"></span><span> записів</span>
-                            <span > | загальна вартість </span><span id="sample-cost"></span>
+                            <span id="sample-length"></span><span> {{RECORDS.RECS}}</span>
+                            <span > | {{RECORDS.TOTALCOST}} </span><span id="sample-cost"></span>
                         </h5>
                     </div>
                 </div>
@@ -135,7 +135,7 @@
             <div class="panel">
                 <div class="panel-body">
                     <div class="table-responsive">
-                        <table class="table table-hover" id="records-table">
+                        <table class="table table-condensed table-hover" id="records-table">
                             <thead>
                                 <tr>
                                     <th>{{DATE}}</th>
@@ -153,10 +153,11 @@
                             <tbody></tbody>
                         </table>
                         <hr>
-                        <ul class="pagination custom-pagination">
-                          <!-- <li><a href="#">&laquo;</a></li>
-                          <li><a href="#">&raquo;</a></li> -->
-                        </ul>
+                        <div class="pagination-container"></div>
+                        <!-- <ul class="pagination custom-pagination">
+                          <li><a href="#">&laquo;</a></li>
+                          <li><a href="#">&raquo;</a></li>
+                        </ul> -->
                     </div>
                 </div>
             </div>
@@ -173,21 +174,15 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                             <div class="col-sm-4">
-                                <select id="dtday" class="form-control">
-                                    <option value="">день</option>
-                                </select>
+                                <select id="dtday" class="form-control"></select>
                                 <p> </p>
                             </div>
                             <div class="col-sm-4">
-                                <select id="dtmonth" class="form-control">
-                                    <option value="">місяць</option>
-                                </select>
+                                <select id="dtmonth" class="form-control"></select>
                                 <p> </p>
                             </div>
                             <div class="col-sm-4">
-                                <select id="dtyear" class="form-control">
-                                    <option value="">рік</option>
-                                </select>
+                                <select id="dtyear" class="form-control"></select>
                                 <p> </p>
                             </div>
                         </div>

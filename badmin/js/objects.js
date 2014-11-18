@@ -54,7 +54,8 @@ function CallsBoard(){
             if(conn[i].textContent != result.conn) conn[i].textContent = result.conn;
         };
         for (var i = 0; i < load.length; i++) {
-            load[i].textContent = Math.round(result.load) + '%';
+            // load[i].textContent = Math.round(result.load) + '%';
+            load[i].textContent = parseFloat(result.load).toFixed(1) + '%';
         };
 
         for (var i = 0; i < trunks.length; i++) {
@@ -68,9 +69,8 @@ function CallsBoard(){
                     ttrunks.rows[i].cells[2].textContent = trunks[i].in;
                 if(ttrunks.rows[i].cells[3].textContent != trunks[i].out)
                     ttrunks.rows[i].cells[3].textContent = trunks[i].out;
-                ttrunks.rows[i].cells[4].textContent = Math.round(trunks[i].load) + '%';
-            }
-            else{
+                ttrunks.rows[i].cells[4].textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
+            } else{
                 row = ttrunks.insertRow(i);
                 
                 cell = row.insertCell(0);
@@ -89,7 +89,7 @@ function CallsBoard(){
                 cell.textContent = trunks[i].out;
 
                 cell = row.insertCell(4);
-                cell.textContent = Math.round(trunks[i].load) + '%';
+                cell.textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
             }
 
         };
@@ -178,6 +178,7 @@ function load_calls(){
     this.pickers = {};
     this.date = {};
     this.records = {};
+    this.maxpagins = 5;
 
     this._init = function(){
 
@@ -397,34 +398,21 @@ function load_calls(){
     this._showRecords = function(result){
         // console.log(result);
         show_content();
-        if(!rows.value && result.length > 70) rows.value = 70;
-        var rlength = rows.value ? parseInt(rows.value) : result.length,
-            pagnum = result.length > rlength ? Math.ceil(result.length / rlength) : 0,
-            pagin = document.querySelector('.pagination');
+        if(!rows.value && result.length > 20) rows.value = 20; //if result is bigger than 20 records then "max rows" is set to 20
+        var rlength = rows.value ? parseInt(rows.value) : result.length, //the amount of rows on page is set based of the "max rows" parameter or is equal result.length
+            pagnum = result.length > rlength ? Math.ceil(result.length / rlength) : 1; //if the number rows is less "than max rows" then the number of pages is equal 1
 
+        this.rowsOnPage = rlength;
         this.records = result;
+        this.pagins = pagnum;
 
-        while (table.hasChildNodes()) {
-            table.removeChild(table.firstChild);
-        }
+        this._clearTable(table);
+        this._destroyPagination();
 
-        while (pagin.hasChildNodes()) {
-            pagin.removeChild(pagin.firstChild);
-        }
-
-        if(pagnum > 0){
-            for (var i = 1; i <= pagnum; i++) {
-                var li = document.createElement('li'),
-                a = '<a href="#">'+i+'</a>';
-                li.innerHTML = a;
-                addEvent(li, 'click', this._paginRecords.bind(this));
-                pagin.appendChild(li);
-            }
-        }
-
-        for (var i = 0; i < rlength; i++) {
-            build_records_row(result[i], table);
-        };
+        // if(pagnum > 1){ //if the number of pages is more than 1, then create Pagination
+            pagnum = pagnum > this.maxpagins ? this.maxpagins : pagnum;
+            this._createPagination(1, pagnum);
+        // }
 
         var key, cost = 0;
         for (var i = 0; i < result.length; i++) {
@@ -440,26 +428,177 @@ function load_calls(){
         $('#sample-length').text(result.length);
         $('#sample-cost').text(cost);
 
+        this._selectPage(1);
+
     }
 
-    this._paginRecords = function(e){
+    this._createPagination = function(startNum, endNumber){
 
-        e.preventDefault();
+        this.currentRange = []; //the currentRange array is needed to trach the current range of pages in pagination element
+        if(endNumber <= 1) return; //if the number of pages is more than 1, then create Pagination            
 
-        var targ = e.target;
-            ind = parseInt(targ.textContent) * parseInt(rows.value) - parseInt(rows.value),
-            len = targ.textContent * parseInt(rows.value);
+        var ul, li, a, 
+            container = document.querySelector('.pagination-container'),
+            pagin = document.createElement('ul'),
+            info = document.createElement('p');
 
-        len = len < this.records.length ? len : this.records.length;
+        pagin.className = 'pagination custom-pagination';
+        li = document.createElement('li');
+        li.innerHTML = '<a href="#" class="first">&laquo;</a>';
+        pagin.appendChild(li);
+        li = document.createElement('li');
+        li.innerHTML = '<a href="#" class="prev">-</a>';
+        pagin.appendChild(li);
+        for (var i = startNum; i <= endNumber; i++) {
+            li = document.createElement('li');
+            li.innerHTML = '<a href="#" data-page="'+i+'">'+i+'</a>';
+            pagin.appendChild(li);
 
-        while (table.hasChildNodes()) {
-            table.removeChild(table.firstChild);
+            if(i==number) this.lastPage = li;
+            this.currentRange.push(i);
         }
+        li = document.createElement('li');
+        li.innerHTML = '<a href="#" class="next">+</a>';
+        pagin.appendChild(li);
+        li = document.createElement('li');
+        li.innerHTML = '<a href="#" class="last">&raquo;</a>';
+        pagin.appendChild(li);
+
+        this.pagin = pagin;
+        this.paginInfo = info;
+        while(container.hasChildNodes()) {
+            container.removeChild(container.firstChild);
+        }
+        container.appendChild(pagin);
+        container.appendChild(info);
+
+        pagin.onclick = this._getSelectedPage.bind(this);
+    }
+
+    this._getSelectedPage = function(e){
+        e.preventDefault();
+        var target = e.target;
+        var page = this._isPagin(target); //if element has data-page attribute
+        if(!page) {
+            if(target.className == 'next') {
+                page = this.currentPage+1;
+            } else if(target.className == 'prev') {
+                page = this.currentPage-1;
+            } else if(target.className == 'first') {
+                page = 1;
+                if(this.pagins >= this.maxpagins) {
+                    this._destroyPagination();
+                    this._createPagination(1, this.maxpagins);
+                }
+            } else if(target.className == 'last') {
+                page = this.pagins;
+                if(this.pagins >= this.maxpagins) {
+                    this._destroyPagination();
+                    this._createPagination(this.pagins-this.maxpagins+1, this.pagins);
+                }
+            }
+        }
+        if(page > this.pagins || page < 1) return;
+        this._selectPage(page);
+    }
+
+    this._selectPage = function(page){
+        var page = parseInt(page);
+        var ind = parseInt(page) * parseInt(this.rowsOnPage) - parseInt(this.rowsOnPage); //starting row, based on the page number
+        var len = page * parseInt(rows.value); //index of the last row on the page, based on the page number
+        len = len < this.records.length ? len : this.records.length; //if index of the last row is more than total length of result, then index is equal to result.length
+
+        this.currentPage = page;
+        this._clearTable(table);
+
         for (var i = ind; i < len; i++) {
             build_records_row(this.records[i], table);
         };
 
+        if(this.currentRange.length) { //if number of pages is greater than 1
+            if(this.currentRange.indexOf(page) == this.currentRange.length-1 || this.currentRange.indexOf(page) == this.currentRange.length-2) {
+                this._appendPage();
+            } else if(this.currentRange.indexOf(page) == 0 || this.currentRange.indexOf(page) == 1) {
+                this._prependPage();
+            }
+            var currentLi = this.pagin.querySelector('li.active');
+            if(currentLi) currentLi.classList.remove('active');
+            this.pagin.querySelector('a[data-page="'+page+'"]').parentNode.classList.add('active');
+        }
+
+        if(this.paginInfo) 
+            this.paginInfo.innerHTML = PbxObject.frases.FROM.toLowerCase() + ' ' + 
+                                    ind + ' ' + 
+                                    PbxObject.frases.TO.toLowerCase() + ' ' + 
+                                    len + ' ' + 
+                                    PbxObject.frases.RECORDS.REC.toLowerCase();
     }
+
+    this._appendPage = function(){
+        var nextpage = this.currentRange[this.currentRange.length-1]+1;
+        if(nextpage > this.pagins) return;
+        var lastPageElement = this.pagin.querySelector('a[data-page="'+this.currentRange[this.currentRange.length-1]+'"]').parentNode;
+        var firstPageElement = this.pagin.querySelector('a[data-page="'+this.currentRange[0]+'"]').parentNode;
+        var li = document.createElement('li');
+        li.innerHTML = '<a href="#" data-page="'+nextpage+'">'+nextpage+'</a>';
+        this.pagin.insertBefore(li, lastPageElement.nextSibling);
+        this.pagin.removeChild(firstPageElement);
+
+        this.currentRange.push(nextpage);
+        this.currentRange.shift();
+    }
+
+    this._prependPage = function() {
+        var prevpage = this.currentRange[0]-1;
+        if(prevpage < 1) return;
+        var lastPageElement = this.pagin.querySelector('a[data-page="'+this.currentRange[this.currentRange.length-1]+'"]').parentNode;
+        var firstPageElement = this.pagin.querySelector('a[data-page="'+this.currentRange[0]+'"]').parentNode;
+        var li = document.createElement('li');
+        li.innerHTML = '<a href="#" data-page="'+prevpage+'">'+prevpage+'</a>';
+        this.pagin.insertBefore(li, firstPageElement);
+        this.pagin.removeChild(lastPageElement);
+
+        this.currentRange.unshift(prevpage);
+        this.currentRange.pop();
+    }
+
+    this._clearTable = function(table){
+        while (table.hasChildNodes()) {
+            table.removeChild(table.firstChild);
+        }
+    }
+
+    this._destroyPagination = function(){
+        while (this.pagin && this.pagin.hasChildNodes()) {
+            this.pagin.removeChild(this.pagin.firstChild);
+        }
+    }
+
+    this._isPagin = function(element){
+        return element.getAttribute('data-page');
+    }
+
+    // this._paginRecords = function(e){
+
+    //     e.preventDefault();
+
+    //     var targ = e.target;
+    //     var page = targ.getAttribute('data-page');
+    //     if(!page) return;
+    //     var pagin = document.querySelector('.pagination');
+    //     var ind = parseInt(page) * parseInt(rows.value) - parseInt(rows.value);
+    //     var len = page * parseInt(rows.value);
+
+    //     len = len < this.records.length ? len : this.records.length;
+
+    //     while (table.hasChildNodes()) {
+    //         table.removeChild(table.firstChild);
+    //     }
+    //     for (var i = ind; i < len; i++) {
+    //         build_records_row(this.records[i], table);
+    //     };
+
+    // }
 
     this._init();
 
@@ -614,7 +753,7 @@ function load_bgroup(result){
         var types = [].slice.call(cont.querySelectorAll('input[name="userType"]'));
         var available = document.getElementById('available-users');
         var form = document.getElementById('new-user-form');
-        var formclone = form.cloneNode(true);
+        // var formclone = form.cloneNode(true);
         var clear = document.getElementById('clear-input');
         var add = document.getElementById('add-user');
         var type;
@@ -638,26 +777,17 @@ function load_bgroup(result){
         } else {
             add.setAttribute('disabled', 'disabled'); // disable "add user" button
         }
-        if(!result.name) { // if it's a new group - save it first and then you'll be able to add users to it
-            preventInteraction(form);
-            add.setAttribute('disabled', 'disabled');
-        }
+        
         addEvent(add, 'click', function(){
             addUser(type);
-            cleanForm(formclone);
+            // cleanForm();
         });
         addEvent(clear, 'click', function(){
-            cleanForm(formclone);
+            cleanForm();
         });
 
         var num;
-        members = members.sort(function(a, b){
-            if (a.number < b.number)
-                return -1;
-            if (a.number > b.number)
-                return 1;
-            return 0;
-        });
+        sortByKey(members, 'number');
         members.forEach(function(item){
             table.appendChild(addMembersRow(item));
         });
@@ -667,17 +797,29 @@ function load_bgroup(result){
         changeGroupType(type);
 
     } else {
+        add_search_handler();
+        $('.selectable-cont').click(function(e){
+            if(e.target.getAttribute('data-value')) {
+                move_list_item(e);
+            } else if(e.target.classList.contains('assign-all')) {
+                move_list('members', 'available');
+            } else if(e.target.classList.contains('unassign-all')) {
+                move_list('available', 'members');
+            }
+        });
         if(result.available) fill_list_items('available', result.available);
         if(members) fill_list_items('members', members.sort());
     }
 
-    // fill_list_items('available', result.available);
-    // fill_list_items('members', result.members);
-
     if(result.options){
         if(kind == 'equipment'){
+            var devselect = document.getElementById('devtype');
             var eqtype = result.options.kind || 'ipphones';
-            d.getElementById(eqtype).checked = true;
+            devselect.value = eqtype;
+            switch_options_tab('tab-'+eqtype);
+            devselect.onchange = function(){
+                switch_options_tab('tab-'+this.options[this.selectedIndex].value);
+            }
             if(result.options.kind == 'gateway'){
                 d.getElementById('regname').value = result.options.regname || '';
                 d.getElementById('regpass').value = result.options.regpass || '';
@@ -728,7 +870,17 @@ function load_bgroup(result){
         } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
 
             var formats = [ "OFF", "320x240", "352x288", "640x360", "640x480", "704x576", "1024x768", "1280x720", "1920x1080" ];
-            PbxObject.videomax = result.maxvideomode;
+            var initmode = document.getElementById('initmode');
+            if(initmode) {
+                initmode.onchange = function(){
+                    if(initmode.options[initmode.selectedIndex].value == 2) {
+                        document.getElementById('conf-greetfile').style.display = 'block';
+                    } else {
+                        document.getElementById('conf-greetfile').style.display = 'none'    ;
+                    }
+                }
+            }
+            PbxObject.videomax = result.options.maxvideomode;
             //customizing upload element
             customize_upload('onhold2', null);
             customize_upload('greeting2', null);
@@ -762,16 +914,19 @@ function load_bgroup(result){
                         video.checked = false;
                 }
 
-                if(result.options.initmode) {
-                    var initmode = document.getElementById('initmode');
-                    if(initmode) initmode.value = result.options.initmode;                        
-                }
+                if(initmode) initmode.value = result.options.initmode;                        
 
                 changeGroupType(type);
             } else if(kind == 'selector') {
                 var owner = result.owner;
                 var elowner = document.getElementById('owner');
-                var initcalls = document.getElementById('initcalls');
+                if(initmode) initmode.value = result.options.initmode;
+                if(result.options.initmode == 2) {
+                    document.getElementById('conf-greetfile').style.display = 'block';
+                } else {
+                    document.getElementById('conf-greetfile').style.display = 'none'    ;
+                }
+
                 initcalls.checked = result.options.initcalls;
 
                 users.forEach(function(item){
@@ -792,14 +947,14 @@ function load_bgroup(result){
             if(greet.checked) 
                 greet.checked = result.options.greetingfile ? true : false;
                 
-            var modes = cont.querySelectorAll('.init-mode');
-            if(modes.length) {
-                for(i=0;i<modes.length;i++){
-                    if(result.options.initmode == modes[i].value){
-                        modes[i].checked = true;
-                    }
-                }
-            }
+            // var modes = cont.querySelectorAll('.init-mode');
+            // if(modes.length) {
+            //     for(i=0;i<modes.length;i++){
+            //         if(result.options.initmode == modes[i].value){
+            //             modes[i].checked = true;
+            //         }
+            //     }
+            // }
             var select = d.getElementById("videoform");
             if(select) {
                 for(i=0;i<formats.length;i++){
@@ -851,8 +1006,7 @@ function load_bgroup(result){
     set_page();
 }
 
-function set_bgroup(){
-
+function set_bgroup(param, callback){
     var jprms;
     var handler;
     var d = document;
@@ -868,7 +1022,7 @@ function set_bgroup(){
         jprms = '"name":"'+name+'",';
     else{
         alert(PbxObject.frases.MISSEDNAMEFIELD);
-        return false;
+        return;
     }
     
     show_loading_panel();
@@ -982,13 +1136,15 @@ function set_bgroup(){
 
     jprms += '"options":{';
     if(kind == 'equipment'){
-        if(d.getElementById("ipphones").checked){
+        var devselect = document.getElementById('devtype');
+        var devtype = devselect.options[devselect.selectedIndex].value;
+        if(devtype == "ipphones"){
             jprms += '"kind":"ipphones",';
-        } else if(d.getElementById("gateway").checked){
+        } else if(devtype == "gateway"){
             jprms += '"kind":"gateway",';
             jprms += '"regname":"'+d.getElementById("regname").value+'",';
             jprms += '"regpass":"'+d.getElementById("regpass").value+'",';
-        } else if(d.getElementById("trunk").checked){
+        } else if(devtype == "trunk"){
             jprms += '"kind":"trunk",';
             jprms += '"address":"'+d.getElementById("address").value+'",';
             jprms += '"regname":"'+d.getElementById("username").value+'",';
@@ -1032,6 +1188,8 @@ function set_bgroup(){
             upload('greeting');
         }
     } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
+        var initmodes = document.getElementById('initmode');
+        var initmode = initmodes.options[initmodes.selectedIndex].value;
         var greet = d.getElementById("playgreet");
         file = document.getElementById("greeting2");
 
@@ -1050,37 +1208,44 @@ function set_bgroup(){
         if(kind == 'selector') {
             var initcalls = document.getElementById('initcalls');
             jprms += '"initcalls":'+initcalls.checked+',';
-            var modes = d.querySelectorAll('.init-mode');
-            for(i=0;i<modes.length;i++){
-                if(modes[i].checked) {
-                    jprms += '"initmode":'+modes[i].value+',';
-                    if(modes[i].value == 2) {
-                        file = document.getElementById("onhold2");
-                        if(file.value){
-                            jprms += '"onholdfile":"'+file.files[0].name+'",';
-                            upload('onhold2');
-                        }
-                    }
+            if(initmode == 2) {
+                file = document.getElementById("onhold2");
+                if(file.value){
+                    jprms += '"onholdfile":"'+file.files[0].name+'",';
+                    upload('onhold2');
                 }
             }
+            // var modes = d.querySelectorAll('.init-mode');
+            // for(i=0;i<modes.length;i++){
+            //     if(modes[i].checked) {
+            //         jprms += '"initmode":'+modes[i].value+',';
+            //         if(modes[i].value == 2) {
+            //             file = document.getElementById("onhold2");
+            //             if(file.value){
+            //                 jprms += '"onholdfile":"'+file.files[0].name+'",';
+            //                 upload('onhold2');
+            //             }
+            //         }
+            //     }
+            // }
         }
         if(kind == 'channel') {
-            var initmode = document.getElementById('initmode');
             var video = document.getElementById('video');
             if(video.checked) jprms += '"videomode":"640x480",';
             else jprms += '"videomode":"OFF",';
 
-            jprms += '"initmode":'+initmode.options[initmode.selectedIndex].value+',';
+            // jprms += '"initmode":'+initmode+',';
         }
+        jprms += '"initmode":'+initmode+',';
     }
     jprms += '}';
-    console.log(jprms);
-    json_rpc_async('setObject', jprms, handler); 
+    json_rpc_async('setObject', jprms, function(){
+        if(typeof handler === 'function') handler();
+        if(typeof callback === 'function') callback(param);
+    }); 
 }
 
 function addMembersRow(data){
-    console.log('addMembersRow');
-    console.log(data);
 
     var row, cell, a;
     row = document.createElement('tr');
@@ -1122,15 +1287,15 @@ function fill_list_items(listid, items){
     var list = document.getElementById(listid);
     for(var i=0; i<items.length; i++){
         var item = document.createElement('li');
-        addEvent(item, 'click', move_list_item);
+        // addEvent(item, 'click', move_list_item);
         item.setAttribute('data-value', items[i]);
         item.innerHTML = items[i];
         list.appendChild(item);
     }
 }
 
-function move_list_item(){
-    var li = this;
+function move_list_item(e){
+    var li = e.target;
     var parent = li.parentNode;
     if(parent.id == 'available'){
         parent.removeChild(li);
@@ -1140,6 +1305,16 @@ function move_list_item(){
         parent.removeChild(li);
         document.getElementById('available').appendChild(li);
     }
+}
+
+function move_list(to, from){
+    var to = document.getElementById(to),
+        from = document.getElementById(from),
+        fromList = [].slice.call(from.querySelectorAll('li'));
+
+    fromList.forEach(function(item){
+        to.appendChild(item);
+    });
 }
 
 function changeGroupType(grouptype){
@@ -1162,11 +1337,15 @@ function addUser(type){
         name = document.getElementById('user-name'),
         alias = document.getElementById('user-alias'),
         followme = document.getElementById('user-num'),
-        login = document.getElementById('user-login'),
+        // login = document.getElementById('user-login'),
         pass = document.getElementById('user-pass');
 
     // if(!available.options.length) return;
-
+    console.log(PbxObject.name);
+    if(!PbxObject.name) {
+        set_bgroup(type, addUser);
+        return;
+    }
     var jprms = '"kind":"user",';
     jprms += '"groupid":"'+PbxObject.oid+'",';
     jprms += '"number":"'+ext+'",';
@@ -1184,9 +1363,9 @@ function addUser(type){
         data.followme = followme.value;
         jprms += '"followme":"'+followme.value+'",';
     } else if(type == 'local') {
-        data.localgin = login.value;
+        // data.localgin = login.value;
         data.password = pass.value;
-        jprms += '"localgin":"'+login.value+'",';
+        // jprms += '"localgin":"'+login.value+'",';
         jprms += '"password":"'+pass.value+'"';
     }
     // var stringdata = JSON.stringify(data);
@@ -1196,18 +1375,20 @@ function addUser(type){
         data.oid = result;
         var newrow = addMembersRow(data);
         var rows = table.rows;
-        if(!rows.length || ext > rows[rows.length-1].getAttribute('data-ext')) {
+        // if(!rows.length || ext > rows[rows.length-1].getAttribute('data-ext')) {
+        if(!rows.length) {
             table.appendChild(newrow);
         } else {
-            for(var i=0, nextrow = 0; i<rows.length-1; i++){
-                if(rows[i].id > ext) {
-                    nextrow = rows[i].id;
+            // for(var i=0, nextrow = 0; i<rows.length-1; i++){
+            //     if(rows[i].id > ext) {
+            //         nextrow = rows[i].id;
 
-                    // nextrow > rows[i].id ? nextrow : rows[i].id;
-                } 
-            }
-            console.log(nextrow);
-            table.insertBefore(newrow, document.getElementById(nextrow));
+            //         // nextrow > rows[i].id ? nextrow : rows[i].id;
+            //     } 
+            // }
+            // console.log(nextrow);
+            // table.insertBefore(newrow, document.getElementById(nextrow));
+            table.insertBefore(newrow, table.firstChild);
         }
         // table.appendChild(newrow);
         PbxObject.members.push(data);
@@ -1222,14 +1403,16 @@ function addUser(type){
             var add = document.getElementById('add-user');
             add.setAttribute('disabled', 'disabled');
         }
+
+        cleanForm();
     }
 }
 
-function cleanForm(cleanform){
+function cleanForm(){
     var name = document.getElementById('user-name').value = "",
         alias = document.getElementById('user-alias').value = "",
         followme = document.getElementById('user-num').value ="",
-        login = document.getElementById('user-login').value = "",
+        // login = document.getElementById('user-login').value = "",
         pass = document.getElementById('user-pass').value = "";
 }
 
@@ -1439,7 +1622,7 @@ function set_cli(){
     if(name)
         var jprms = '\"name\":\"'+name+'\",';
     else{
-        alert('Object name must be filled');
+        alert(PbxObject.frases.MISSEDNAMEFIELD);
         return false;
     }
         
@@ -1652,6 +1835,7 @@ function load_extensions(result) {
     // console.log(result);
     var row,
         table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
+        passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
         fragment = document.createDocumentFragment();
 
     PbxObject.extensions = result;
@@ -1667,19 +1851,16 @@ function load_extensions(result) {
         
     table.appendChild(fragment);
     
-    var inputs = document.getElementsByClassName('el-search');
-    if(inputs.length){
-        for(i=0;i<inputs.length;i++){
-            addEvent(inputs[i], 'input', filter_table);
-            // inputs[i].oninput = function(){
-            //     filter_table();
-            // };
-        }
+    if(passReveal.length) {
+        passReveal.forEach(function(item){
+            addEvent(item, 'click', revealPassword);
+        });
     }
-    
+
     var $modal = $('#el-extension');
     $($modal).insertBefore('#pagecontainer');
-    
+
+    add_search_handler();
     show_content();
 
 }
@@ -1885,7 +2066,7 @@ function load_extension(result){
     }
     d.getElementById('extname').value = result.name;
     d.getElementById('extpin').value = result.pin;
-    d.getElementById('extlogin').value = result.login;
+    d.getElementById('extlogin').innerHTML = result.login;
     d.getElementById('extpassword').value = result.password;
     d.getElementById('extdisplay').value = result.display;
     // if(result.features){
@@ -2080,7 +2261,7 @@ function fill_group_choice(kind, groupid, select){
  */
 
 function load_routes(result){
-    // console.log(result);
+    console.log(result);
     
     PbxObject.oid = result.oid;
     // PbxObject.kind = 'routes';
@@ -2101,7 +2282,7 @@ function load_routes(result){
     
     document.getElementById('enabled').checked = result.enabled;
     
-    var i, 
+    var i, table = document.getElementById('rtable'),
         ul = document.getElementById('priorities'),
         priorities = result.priorities;
     for(i=0; i<priorities.length; i++){
@@ -2116,8 +2297,7 @@ function load_routes(result){
         for(i=0; i<transforms.length; i++){
             append_transform(null, 'transforms1', transforms[i]);
         }
-    }
-    else { 
+    } else { 
         append_transform(null, 'transforms1');
     }
 
@@ -2126,19 +2306,92 @@ function load_routes(result){
         for(i=0; i<transforms.length; i++){
             append_transform(null, 'transforms2', transforms[i]);
         }
-    }
-    else{
+    } else{
         append_transform(null, 'transforms2');
     }
     
     if(result.routes != undefined){
         build_routes_table(result.routes);
-    }
-    else{
+    } else{
         show_content();
     }
+
     set_page();
 }
+
+// function set_routes(){
+        
+//     var name = document.getElementById('objname').value;
+//     if(name)
+//         var jprms = '\"name\":\"'+name+'\",';
+//     else{
+//         alert(PbxObject.frases.MISSEDNAMEFIELD);
+//         return false;
+//     }
+//     show_loading_panel();
+    
+//     var handler;
+//     if(PbxObject.name) {
+//         handler = set_object_success;
+//     }
+//     else{
+//         PbxObject.name = name;
+//         // handler = set_new_object;
+//         handler = null;
+//     }
+    
+//     if(PbxObject.oid) jprms += '\"oid\":\"'+PbxObject.oid+'\",';
+//     jprms += '\"kind\":\"routes\",';
+//     jprms += '\"enabled\":'+document.getElementById('enabled').checked+',';
+ 
+//     jprms += '\"priorities\":[';
+//     var ul = document.getElementById('priorities');
+//     var i, j;
+//     for(i=0; i<ul.children.length; i++){
+//         jprms += ul.children[i].getAttribute('data-value')+',';
+//     }
+    
+//     jprms += '],';
+//     jprms += '\"anumbertransforms\":[';
+//     jprms += encode_transforms('transforms1');
+//     jprms += '],';
+//     jprms += '\"bnumbertransforms\":[';
+//     jprms += encode_transforms('transforms2');
+//     jprms += '],';
+    
+//     jprms += '\"routes\":[';
+//     var str, name, row, els, inp, table = document.getElementById('rtable'); 
+//     for(i=1; i<table.rows.length; i++){
+//         row = table.rows[i];
+//         els = row.getElementsByClassName('form-group');
+//         str = '';
+//         for(j=0; j<els.length; j++){
+//             inp = els[j].firstChild;
+//             name = inp.getAttribute('name');
+//             if(name == 'number'){
+//                 if(inp.value)
+//                     str += '"number":"'+inp.value+'",';
+//                 else
+//                     break;
+//             }
+//             else if(name == 'description'){
+//                 str += '"description":"'+inp.value+'",';
+//             }
+//             else if(name == 'target'){
+//                 str += '"target":{"oid":"'+inp.value+'"},';
+//             }
+//             else if(name == 'priority'){
+//                 str += '"priority":'+parseInt(inp.value)+',';
+//             }
+//             else if(name == 'cost'){
+//                 str += '"cost":'+inp.value+',';
+//             }
+//         }
+//         if(str != '') jprms += '{'+str+'},';
+//     }
+//     jprms += ']';
+//     json_rpc_async('setObject', jprms, handler);     
+// }
 
 function set_routes(){
         
@@ -2146,7 +2399,7 @@ function set_routes(){
     if(name)
         var jprms = '\"name\":\"'+name+'\",';
     else{
-        alert('Object name must be filled');
+        alert(PbxObject.frases.MISSEDNAMEFIELD);
         return false;
     }
     show_loading_panel();
@@ -2154,8 +2407,7 @@ function set_routes(){
     var handler;
     if(PbxObject.name) {
         handler = set_object_success;
-    }
-    else{
+    } else {
         PbxObject.name = name;
         // handler = set_new_object;
         handler = null;
@@ -2181,185 +2433,279 @@ function set_routes(){
     jprms += '],';
     
     jprms += '\"routes\":[';
-    var str, name, row, els, inp, table = document.getElementById('rtable'); 
+    var str, row, table = document.getElementById('rtable'); 
     for(i=1; i<table.rows.length; i++){
         row = table.rows[i];
-        els = row.getElementsByClassName('form-group');
+        if(row.className == 'route-on-edit') continue;
         str = '';
-        for(j=0; j<els.length; j++){
-            inp = els[j].firstChild;
-            name = inp.getAttribute('name');
-            if(name == 'number'){
-                if(inp.value)
-                    str += '"number":"'+inp.value+'",';
-                else
-                    break;
-            }
-            else if(name == 'description'){
-                str += '"description":"'+inp.value+'",';
-            }
-            else if(name == 'target'){
-                str += '"target":{"oid":"'+inp.value+'"},';
-            }
-            else if(name == 'priority'){
-                str += '"priority":'+parseInt(inp.value)+',';
-            }
-            else if(name == 'cost'){
-                str += '"cost":'+inp.value+',';
-            }
-        }
+        str += '"number":"'+row.cells[0].textContent+'",';
+        str += '"description":"'+row.cells[1].textContent+'",';
+        str += '"target":{"oid":"'+row.cells[2].getAttribute('data-gid')+'"},';
+        str += '"priority":'+parseInt(row.cells[3].getAttribute('data-priority'))+',';
+        str += '"cost":'+parseFloat(row.cells[4].textContent)+',';
         if(str != '') jprms += '{'+str+'},';
     }
     jprms += ']';
-    json_rpc_async('setObject', jprms, handler);     
+    console.log(jprms);
+    json_rpc_async('setObject', jprms, handler);
 }
 
 function build_routes_table(routes){
-    var result = json_rpc('getObjects', '\"kind\":\"all\"');
-    // console.log(result);
-    routes = routes.sort(function(a, b){
-        if (a.number < b.number)
-            return -1;
-        if (a.number > b.number)
-            return 1;
-        return 0;
-    });
-    var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
-    var fragment = document.createDocumentFragment();
-    for(var i=0; i<routes.length; i++){
-        fragment.appendChild(build_route_row(routes[i], result));
+    var result, fragment,
+    tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
+
+    if(typeof PbxObject.objects === 'object') {
+        result = PbxObject.objects;
+    } else {
+        result = json_rpc('getObjects', '\"kind\":\"all\"');
+        sortByKey(result, 'name');
+        PbxObject.objects = result;
     }
-    tbody.appendChild(fragment);
+    result = result.filter(function(obj){
+        return (obj.kind !== 'equipment' && obj.kind !== 'cli' && obj.kind !== 'timer' && obj.kind !== 'routes' && obj.kind !== 'users' && obj.kind !== 'pickup');
+    });
+
     if(!routes.length) tbody.appendChild(build_route_row(null, result));
-    
+    else {
+        sortByKey(routes, 'number');
+        fragment = document.createDocumentFragment();
+        for(var i=0; i<routes.length; i++){
+            fragment.appendChild(add_route_row(routes[i], result));
+        }
+        tbody.appendChild(fragment);
+    }    
     show_content();
 }
 
-function add_route(e){
+function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    var result = json_rpc('getObjects', '\"kind\":\"all\"');
-    console.log(result);
+    var objects = PbxObject.objects.filter(function(obj){
+        return (obj.kind !== 'equipment' && obj.kind !== 'cli' && obj.kind !== 'timer' && obj.kind !== 'routes' && obj.kind !== 'users' && obj.kind !== 'pickup');
+    });
+
     var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
-    tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
-    // tbody.appendChild(build_route_row(null, result));
+    tbody.insertBefore(build_route_row(null, objects), tbody.children[0]);
+}
+
+function add_route_row(route, objects){
+    var row, cell;
+    row = document.createElement('tr');
+
+    cell = row.insertCell(0);
+    cell.textContent = route.number;
+
+    cell = row.insertCell(1);
+    cell.textContent = route.description;
+
+    cell = row.insertCell(2);
+    for(i=0; i<objects.length; i++){
+        if(objects[i].oid == route.target.oid){
+            cell.setAttribute('data-gid', route.target.oid);
+            cell.textContent = objects[i].name;
+        }
+    }
+
+    cell = row.insertCell(3);
+    cell.setAttribute('data-priority', route.priority);
+    cell.textContent = route.priority == 0 ? 'OFF' : route.priority == 10 ? 'EXV' : route.priority;
+
+    cell = row.insertCell(4);
+    cell.textContent = parseFloat(route.cost).toFixed(2);
+
+    cell = row.insertCell(5);
+    button = document.createElement('button');
+    button.className = 'btn btn-primary btn-sm';
+    button.innerHTML = '<i class="glyphicon glyphicon-edit"></i>';
+    addEvent(button, 'click', function(){
+        var newroute = build_route_row(route, objects);
+        row.parentNode.insertBefore(newroute, row);
+        row.style.display = 'none';
+    });
+    cell.appendChild(button);
+
+    cell = row.insertCell(6);
+    button = document.createElement('button');
+    button.className = 'btn btn-danger btn-sm';
+    button.innerHTML = '<i class="glyphicon glyphicon-trash"></i>';
+    addEvent(button, 'click', function(e){
+        // var c = confirm(PbxObject.frases.DELETE+' '+PbxObject.frases.ROUTE.toLowerCase()+'?');
+        // if(c) {
+            remove_row(e);
+            // set_routes();
+        // } else {
+        //     return false;
+        // }
+    });
+    cell.appendChild(button);
+
+    return row;
 }
 
 function build_route_row(route, objects){
-
+    var rowData = {};
     var tr = document.createElement('tr');
+    tr.className = "route-on-edit";
     var td = document.createElement('td');
     var div = document.createElement('div');
     div.className = 'form-group';
-    var cell = document.createElement('input');
-    cell.className = 'form-control';
-    cell.setAttribute('type', 'text');
-    cell.setAttribute('name', 'number');
-    cell.setAttribute('size', '12');
+    var number = document.createElement('input');
+    number.className = 'form-control';
+    number.setAttribute('type', 'text');
+    number.setAttribute('name', 'number');
+    number.setAttribute('size', '12');
     if(route != null) {
-        cell.setAttribute('value', route.number);
+        number.value = route.number;
     }
-    div.appendChild(cell);
+    rowData.number = number.value;
+    number.onchange = function(){ rowData.number = number.value };
+    div.appendChild(number);
     td.appendChild(div);
     tr.appendChild(td);
 
     td = document.createElement('td');
     var div = document.createElement('div');
     div.className = 'form-group';
-    cell = document.createElement('input');
-    cell.className = 'form-control';
-    cell.setAttribute('type', 'text');
-    cell.setAttribute('name', 'description');
+    descr = document.createElement('input');
+    descr.className = 'form-control';
+    descr.setAttribute('type', 'text');
+    descr.setAttribute('name', 'description');
     if(route != null) {
-        cell.setAttribute('value', route.description);
+        descr.value = route.description;
     }
-    div.appendChild(cell);
+    rowData.description = descr.value;
+    descr.onchange = function(){ rowData.description = descr.value };
+    div.appendChild(descr);
     td.appendChild(div);
     tr.appendChild(td);
 
     td = document.createElement('td');
     var div = document.createElement('div');
     div.className = 'form-group';
-    cell = document.createElement('select');
-    cell.setAttribute('name', 'target');
+    target = document.createElement('select');
+    target.className = 'form-control';
+    target.setAttribute('name', 'target');
     for(i=0; i<objects.length; i++){
-        var kind = objects[i].kind;
-        if(kind == 'equipment' || kind == 'cli' || kind == 'timer' || kind == 'routes' || kind == 'users' || kind == 'pickup') {
-            continue;
-        }
+        // var kind = objects[i].kind;
+        // if(kind == 'equipment' || kind == 'cli' || kind == 'timer' || kind == 'routes' || kind == 'users' || kind == 'pickup') {
+        //     continue;
+        // }
         var oid = objects[i].oid;
         var option = document.createElement('option');
         option.setAttribute('value', oid);
+        option.innerHTML = objects[i].name;
         if(route != null && oid == route.target.oid){
             option.setAttribute('selected', '');
         }
-        option.innerHTML = objects[i].name;
-        cell.appendChild(option);
+        target.appendChild(option);
     }
-    div.appendChild(cell);
+    rowData.target = {oid: target.options[target.selectedIndex].value};
+    target.onchange = function(){ rowData.target = {oid: target.options[target.selectedIndex].value} };
+    div.appendChild(target);
     td.appendChild(div);
     tr.appendChild(td);
     
     td = document.createElement('td');
     var div = document.createElement('div');
     div.className = 'form-group';
-    cell = document.createElement('select');
-    cell.setAttribute('name', 'priority');
-    for(i=0; i<10; i++){
+    priority = document.createElement('select');
+    priority.className = 'form-control';
+    priority.setAttribute('name', 'priority');
+    for(i=0; i<=10; i++){
         var option = document.createElement('option');
-        option.setAttribute('value', i);
+        option.value = i;
         if(route != null && i == route.priority){
             option.setAttribute('selected', '');
         }
         if(i == 0) {
             option.innerHTML = 'OFF';
         }
-        else if(i == 9) {
+        else if(i == 10) {
             option.innerHTML = 'EXV';
         }
         else option.innerHTML = i;
-        cell.appendChild(option);        
+        priority.appendChild(option);        
     }
-    div.appendChild(cell);
+    if(!route) priority.selectedIndex = 1;
+    div.appendChild(priority);
+    rowData.priority = priority.options[priority.selectedIndex].value;
+    priority.onchange = function(){ rowData.priority = priority.options[priority.selectedIndex].value };
     td.appendChild(div);
     tr.appendChild(td);
     
     td = document.createElement('td');
     var div = document.createElement('div');
     div.className = 'form-group';
-    cell = document.createElement('input');
-    cell.className = 'form-control';
-    cell.setAttribute('type', 'text');
-    cell.setAttribute('name', 'cost');
-    cell.setAttribute('size', '2');
+    cost = document.createElement('input');
+    cost.className = 'form-control';
+    cost.setAttribute('type', 'text');
+    cost.setAttribute('name', 'cost');
+    cost.setAttribute('size', '2');
     if(route != null) {
-        cell.setAttribute('value', parseFloat(route.cost).toFixed(2));    
+        cost.setAttribute('value', parseFloat(route.cost).toFixed(2));
     } else {
-        cell.setAttribute('value', 0);
+        cost.value = parseFloat(0).toFixed(2);
     }
-    
-    div.appendChild(cell);
+    rowData.cost = parseFloat(cost.value).toFixed(2);
+    cost.onchange = function(){ rowData.cost = parseFloat(cost.value).toFixed(2) };
+    div.appendChild(cost);
     td.appendChild(div);
     tr.appendChild(td);
 
-    if(route != null && route.huntstop != undefined){
-        td = document.createElement('td');
-        cell = document.createElement('input');
-        cell.setAttribute('type', 'checkbox');
-        cell.setAttribute('name', 'huntstop');
-        if(route.huntstop) cell.setAttribute('checked', route.huntstop);
-        td.appendChild(cell);
-        tr.appendChild(td);
-    }
+    // if(route != null && route.huntstop != undefined){
+    //     td = document.createElement('td');
+    //     cell = document.createElement('input');
+    //     cell.setAttribute('type', 'checkbox');
+    //     cell.setAttribute('name', 'huntstop');
+    //     if(route.huntstop) cell.setAttribute('checked', route.huntstop);
+    //     td.appendChild(cell);
+    //     tr.appendChild(td);
+    // }
     
+    // td = document.createElement('td');
+    // cell = document.createElement('a');
+    // cell.href = "#";
+    // cell.className = 'remove-clr';
+    // cell.innerHTML = '<i class="glyphicon glyphicon-remove"></i>';
+    // addEvent(cell, 'click', remove_row);
+    // td.appendChild(cell);
+    // tr.appendChild(td);
+
     td = document.createElement('td');
-    cell = document.createElement('a');
-    cell.href = "#";
-    cell.className = 'remove-clr';
-    cell.innerHTML = '<i class="glyphicon glyphicon-remove"></i>';
-    addEvent(cell, 'click', remove_row);
-    td.appendChild(cell);
+    button = document.createElement('button');
+    button.className = 'btn btn-default btn-sm';
+    button.innerHTML = '<i class="glyphicon glyphicon-chevron-left"></i>';
+    addEvent(button, 'click', function(){
+        var row = tr.nextSibling;
+        if(row && row.nodeName == 'TR' && row.style.display == 'none') {
+            row.style.display = 'table-row';
+        }
+        tr.parentNode.removeChild(tr);
+    });
+    td.appendChild(button);
+    tr.appendChild(td);
+
+    td = document.createElement('td');
+    button = document.createElement('button');
+    button.className = 'btn btn-success btn-sm';
+    button.innerHTML = '<i class="glyphicon glyphicon-ok"></i>';
+    addEvent(button, 'click', function(){
+        // var name = document.getElementById('objname').value;
+        // if(!name) {
+        //     alert(PbxObject.frases.MISSEDNAMEFIELD);
+        //     return;
+        // }
+        var row = tr.nextSibling;
+        var newrow = add_route_row(rowData, objects);
+        tr.parentNode.insertBefore(newrow, tr);
+        if(row && row.nodeName == 'TR' && row.style.display == 'none') {
+            row.parentNode.removeChild(row);
+        }
+        tr.parentNode.removeChild(tr);
+        // set_routes();
+    });
+    td.appendChild(button);
     tr.appendChild(td);
         
     return tr;
@@ -2441,7 +2787,7 @@ function set_timer(){
     if(name)
         jprms = '\"name\":\"'+name+'\",';
     else{
-        alert('Object name must be filled');
+        alert(PbxObject.frases.MISSEDNAMEFIELD);
         return false;
     }
     
@@ -2495,9 +2841,11 @@ function set_timer(){
 
 function timer_target_row(oid, name, action){
     var tr = document.createElement('tr');
-    tr.id = oid;
     var td = document.createElement('td');
     var a = document.createElement('a');
+    var action = action == "Enable" ? PbxObject.frases.ENABLE : PbxObject.frases.DISABLE;
+
+    tr.id = oid;
     a.href = '#';
     a.onclick = function(e){
         get_object_link(oid);
@@ -2507,12 +2855,12 @@ function timer_target_row(oid, name, action){
     td.appendChild(a);
     tr.appendChild(td);
     td = document.createElement('td');
-    td.innerHTML = action;
+    td.textContent = action;
     tr.appendChild(td);
     td = document.createElement('td');
     var button = document.createElement('button');
     button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = 'Del';
+    button.innerHTML = '<i class="glyphicon glyphicon-minus"></i>';
     button.onclick = function(){
         remove_listener(oid);
     };
@@ -2540,8 +2888,16 @@ function remove_listener(oid){
 }
 
 function fill_timer_targets(id){
-    var objects = document.getElementById(id);
-    var result = json_rpc('getObjects', '\"kind\":\"all\"');
+    var objects = document.getElementById(id),
+        result;
+    if(typeof PbxObject.objects === 'object') {
+        result = PbxObject.objects;
+    } else {
+        result = json_rpc('getObjects', '\"kind\":\"all\"');
+        sortByKey(result, 'name');
+        PbxObject.objects = result;
+    }
+    // var result = json_rpc('getObjects', '\"kind\":\"all\"');
     for(var i=0; i<result.length; i++){
         var kind = result[i].kind;
         if(kind == 'equipment' || kind == 'cli' || kind == 'timer' || kind == 'users') {
@@ -2740,7 +3096,7 @@ function set_trunk(){
     if(name)
         jprms = '"name":"'+name+'",';
     else{
-        alert('Object name must be filled');
+        alert(PbxObject.frases.MISSEDNAMEFIELD);
         return false;
     }
     
