@@ -1,0 +1,215 @@
+<div class="modal fade" id="el-extension" tabindex="-1" role="dialog" aria-labelledby="Extension settings" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="el-extension-num">{{frases.NUMBER}} {{data.number}}</h4>
+            </div>
+            <ul id="ext-tabs" class="nav nav-tabs nav-justified custom-nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#ext-general" role="tab" data-toggle="tab">{{frases.SETTINGS.SETTINGS}}</a></li>
+                <li role="presentation"><a href="#ext-forwarding" role="tab" data-toggle="tab">{{frases.FORWARDING.FORWARDING}}</a></li>
+                <li role="presentation"><a href="#ext-features" role="tab" data-toggle="tab">{{frases.FUNCTIONS.FUNCTIONS}}</a></li>
+            </ul>
+            <div class="modal-body">
+                <div class="tab-content clearfix">
+                    <form id="ext-general" class="form-horizontal tab-pane active" role="tabpanel">
+                        <div class="form-group">
+                            <label for="extlogin" class="col-sm-4 control-label">{{frases.LOGIN}}</label>
+                            <div class="col-sm-8">
+                                <p class="form-control-static" id="extlogin">{{data.login}}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="extgroup" class="col-sm-4 control-label">{{frases.GROUP}}</label>
+                            <div class="col-sm-4">
+                                <select id="extgroup" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <label class="col-sm-4 control-label" for="extpassword">{{frases.PASSWORD}}</label>
+                            <div class="col-sm-8">
+                                <input type="password" class="form-control" id="extpassword" placeholder="{{frases.PASSWORD}}">
+                                <a href="#" class="password-reveal"><i class="fa fa-eye form-control-feedback"></i></a>
+                            </div>
+                        </div>
+                        <!-- <div class="form-group">
+                            <label for="extpassword" class="col-sm-4 control-label">{{PASSWORD}}</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="extpassword" placeholder="{{PASSWORD}}">
+                            </div>
+                        </div> -->
+                        <div class="form-group">
+                            <label for="extname" class="col-sm-4 control-label">{{frases.NAME}}</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="extname" placeholder="{{frases.NAME}}" value="{{data.name}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="extdisplay" class="col-sm-4 control-label">{{frases.DISPLAY}}</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="extdisplay" placeholder="{{frases.DISPLAY}}" value="{{data.display}}">
+                            </div>
+                        </div>
+                        <div class="form-group" id="el-followme">
+                            <label for="followme" class="col-sm-4 control-label">{{frases.REGISTRATION}}</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="followme" placeholder="{{frases.REGISTRATION}}" value="{{data.followme}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="extpin" class="col-sm-4 control-label">{{frases.PIN}}</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="extpin" placeholder="{{frases.PIN}}" value="{{data.pin}}">
+                            </div>
+                        </div>
+                    </form>
+                    <form id="ext-forwarding" class="form-horizontal tab-pane" role="tabpanel">
+                        <div id="forwarding">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                  <input type="checkbox" id="ext-fwdall" {{#data.features.fwdall}} checked {{/data.features.fwdall}}>
+                                                  {{frases.FORWARDING.UNCONDITIONAL}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="ext-fwdallnumber" value="{{data.features.fwdallnumber}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                  <input type="checkbox" id="ext-fwdnreg" {{#data.features.fwdnreg}} checked {{/data.features.fwdnreg}}> {{frases.FORWARDING.UNREGISTERED}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="ext-fwdnregnumber" value="{{data.features.fwdnregnumber}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                  <input type="checkbox" id="ext-fwdbusy" {{#data.features.fwdbusy}} checked {{/data.features.fwdbusy}}> {{frases.FORWARDING.BUSY}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="ext-fwdbusynumber" value="{{data.features.fwdbusynumber}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                  <input type="checkbox" id="ext-fwdnans" {{#data.features.fwdnans}} checked {{/data.features.fwdnans}}> {{frases.FORWARDING.NOANSWER}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" id="ext-fwdnansnumber" value="{{data.features.fwdnansnumber}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ext-fwdtimeout" class="col-sm-4">{{frases.FORWARDING.NOANSWERTOUT}}</label> 
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" id="ext-fwdtimeout" value="{{data.features.fwdtimeout}}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <form id="ext-features" class="form-horizontal tab-pane" role="tabpanel">
+                        <!-- <div class="col-xs-12"> -->
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-callwaiting" {{#data.features.callwaiting}} checked {{/data.features.callwaiting}}> {{frases.FUNCTIONS.CALLWAITING}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-dnd" {{#data.features.dnd}} checked {{/data.features.dnd}}> {{frases.FUNCTIONS.DND}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-clir" {{#data.features.clir}} checked {{/data.features.clir}}> {{frases.FUNCTIONS.CLIR}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-voicemail" {{#data.features.voicemail}} checked {{/data.features.voicemail}}> {{frases.FUNCTIONS.VOICEMAIL}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-monitordeny" {{#data.features.monitordeny}} checked {{/data.features.monitordeny}}> {{frases.FUNCTIONS.MONITORDENY}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-busyoverdeny" {{#data.features.busyoverdeny}} checked {{/data.features.busyoverdeny}}> {{frases.FUNCTIONS.BUSYOVERDENY}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-pickupdeny" {{#data.features.pickupdeny}} checked {{/data.features.pickupdeny}}> {{frases.FUNCTIONS.PICKUPDENY}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="ext-plock" {{#data.features.lock}} checked {{/data.features.lock}}> {{frases.FUNCTIONS.LOCK}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <!-- </div> -->
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="el-set-extension" class="btn btn-primary">{{frases.SAVE}}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{frases.CANCEL}}</button>
+            </div>
+        </div>
+    </div>
+</div>
