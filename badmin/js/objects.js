@@ -3,6 +3,207 @@ window.onerror = function(msg, url, linenumber) {
      console.error('Error message: '+msg+'\nURL: '+url+'\nLine number: '+linenumber);
  };
 
+
+/*
+*
+* Statistics UI
+*
+*/
+
+function load_statistics(){
+    new Statistics();
+}
+
+function Statistics(){
+
+    var picker,
+        trtable = document.getElementById('trunks-statistics-table'),
+        exttable = document.getElementById('ext-statistics-table'),
+        extStatBtn = document.getElementById('ext-stats-btn'),
+        btnGroup = document.getElementById('ext-stat-kind'),
+        cont = document.getElementById('dcontainer'),
+        inc = [].slice.call(cont.querySelectorAll('.data-model')),
+        extStatKind = 'inbound',
+        oid = PbxObject.oid,
+        start, end, params,
+        renewStat = true,
+        self = this;
+
+    this._init = function(){
+        picker = new Picker('statistics-date-picker', {submitFunction: self.getStatisticsData, buttonSize: 'md'});
+        start = new Date(picker.date.start).getTime();
+        end = new Date(picker.date.end).getTime();
+        params = '\"begin\":'+start+', \"end\":'+end;
+            
+        json_rpc_async('getCallStatistics', params, self._setStatistics);
+
+        extStatBtn.onclick = function(){
+            if(extStatBtn.getAttribute('data-state') !== 'shown'){
+                extStatBtn.setAttribute('data-state', 'shown');
+                self._getExtStatisticsData();
+            } else {
+                extStatBtn.setAttribute('data-state', 'hidden');
+            }
+        };
+        btnGroup.onclick = function(e){
+            var e = e || window.event;
+            var target = e.target;
+            if(target.nodeName === 'LABEL'){
+                extStatKind = target.children[0].getAttribute('data-kind');
+                renewStat = true;
+                self._getExtStatisticsData();
+            }
+        };
+
+        switch_presentation(oid);
+        set_page();
+    };
+
+    this.getStatisticsData = function(){
+        start = new Date(picker.date.start).getTime();
+        end = new Date(picker.date.end).getTime();
+        params = '\"begin\":'+start+', \"end\":'+end;
+
+        json_rpc_async('getCallStatistics', params, self._setStatistics);
+
+        renewStat = true;
+        if(extStatBtn.getAttribute('data-state') == 'shown')
+            self._getExtStatisticsData();
+        
+    };
+
+    this._getExtStatisticsData = function(){
+        if(!renewStat) return;
+        renewStat = false;
+
+        start = new Date(picker.date.start).getTime();
+        end = new Date(picker.date.end).getTime();
+        params = '\"begin\":'+start+', \"end\":'+end+', \"kind\":"'+extStatKind+'"';
+        console.log(params);
+        json_rpc_async('getCallStatisticsExt', params, self._setExtStatistics);
+    };
+
+    this._setStatistics = function(data) {
+        var attr, value, chartData,
+            newdata = data;
+
+        newdata.inbounds.duration = formatTimeString(newdata.inbounds.duration, 'hh:mm:ss');
+        newdata.outbounds.duration = formatTimeString(newdata.outbounds.duration, 'hh:mm:ss');
+        newdata.internals.duration = formatTimeString(newdata.internals.duration, 'hh:mm:ss');
+        if(newdata.outbounds.cost) newdata.outbounds.cost = newdata.outbounds.cost.toFixed(2);
+
+        inc.forEach(function(item){
+            attr = item.getAttribute('data-model');
+            if(attr == 'inbounds.lost'){
+                if(newdata.inbounds.lost === 0) item.classList.remove('negtv-col');
+                else item.classList.add('negtv-col');
+            }
+            var value = attr.split('.').reduce(objFromString, newdata);
+            item.textContent = value;
+        });
+
+        // chartData = [{
+        //     color: "#337ab7",
+        //     label: PbxObject.frases.TOTALCALLS,
+        //     data: [[4, data.inbounds.total]],
+        //     bars: {
+        //         show: true,
+        //         align: "center",
+        //         fill: true,
+        //         barWidth: 2,
+        //         lineWidth: 1,
+        //         fillColor: "#337ab7"
+        //         // order: 1
+        //     }
+        // }, {
+        //     color: "#d9534f",
+        //     label: PbxObject.frases.LOSTCALLS,
+        //     data: [[6, data.inbounds.lost]],
+        //     bars: {
+        //         show: true,
+        //         align: "center",
+        //         fill: true,
+        //         barWidth: 2,
+        //         lineWidth: 1,
+        //         fillColor: "#d9534f"
+        //         // order: 2
+        //     }
+        // }];
+        // $.plot($("#incalls-chart"), chartData, {
+        //     grid: {
+        //         borderWidth: 1
+        //     },
+        //     xaxis: {
+        //         show: false,
+        //         min: 0,
+        //         max: 10
+        //     }
+        // });
+        console.log(newdata.trunks);
+        self._build_trunks_statistics(newdata.trunks);
+        show_content();
+    };
+
+    this._setExtStatistics = function(data) {
+        clearColumns(exttable);
+        for(var i=0; i<data.length; i++){
+            self._buildExtStatColumn(data[i]);
+        }
+        // build_ext_statistics(data);
+    };
+
+    this._build_trunks_statistics = function(data){
+        var table = trtable.querySelector('tbody');
+        clearTable(table);
+        for (var i = 0; i < data.length; i++) {
+            row = table.insertRow(i);
+            
+            cell = row.insertCell(0);
+            cell.textContent = data[i].trunk !== undefined ? data[i].trunk : '';
+
+            cell = row.insertCell(1);
+            cell.textContent = data[i].in !== undefined ? data[i].in : '';
+
+            cell = row.insertCell(2);
+            cell.textContent = data[i].insec !== undefined ? formatTimeString(data[i].insec, 'hh:mm:ss') : '';
+
+            cell = row.insertCell(3);
+            cell.textContent = data[i].out !== undefined ? data[i].out : '';
+
+            cell = row.insertCell(4);
+            cell.textContent = data[i].outsec !== undefined ? formatTimeString(data[i].outsec, 'hh:mm:ss') : '';
+
+            cell = row.insertCell(5);
+            cell.textContent = data[i].cost !== undefined ? data[i].cost.toFixed(2) : '';
+        }
+    };
+
+    this._buildExtStatColumn = function(data){
+        // var table = document.getElementById('ext-statistics-table'),
+        var thead = exttable.querySelector('thead'),
+            tbody = exttable.querySelector('tbody'),
+            newTH, newCell, param;
+
+        for (var h=0; h<thead.rows.length; h++) {
+            newTH = document.createElement('th');
+            thead.rows[h].appendChild(newTH);
+            newTH.innerHTML = data.ext;
+        }
+        for (var i=0; i<tbody.rows.length; i++) {
+            newCell = tbody.rows[i].insertCell(-1);
+            switch(i){
+                case 0: param='total';break;
+                case 1: param='connected';break;
+                case 2: param='duration';break;
+                case 3: param='cost';break;
+            }
+            newCell.innerHTML = data[param] !== undefined ? (param === 'duration' ? formatTimeString(data[param], 'hh:mm:ss') : data[param]) : '';
+        }
+    };
+
+    this._init();
+}
+
 /*
 *
 * Dashboard UI
@@ -18,12 +219,24 @@ function CallsBoard(){
         ttrunks = document.getElementById('calls-trunks').querySelector('tbody'),
         tcalls = document.getElementById('calls-table').querySelector('tbody'),
         lrow = ttrunks.rows.length,
-        row, cell, a;
-
+        self = this,
+        row, cell, a, picker;
 
     this.init = function(){
+        var start, end;
+
+        picker = new Picker('calls-date-picker', {submitFunction: self.getStatistics, interval: true, buttonSize: 'md'});
+        start = new Date(picker.date.start).getTime();
+        end = new Date(picker.date.end).getTime();
+        interval = picker.interval;
+        params = '\"begin\":'+start+', \"end\":'+end+', \"interval\":'+interval;
+
+        json_rpc_async('getCallStatisticsGraph', params, function(result){
+            self.createGraph(result);
+        });
         this.update = setInterval(this.checkStates.bind(this), 1000);
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
+
     };
 
     this.checkStates = function(){
@@ -35,30 +248,40 @@ function CallsBoard(){
         // console.log('update');
     };
 
+    this.getStatistics = function(){
+        var start = new Date(picker.date.start).getTime(),
+            end = new Date(picker.date.end).getTime(),
+            interval = picker.interval;
+        params = '\"begin\":'+start+', \"end\":'+end+', \"interval\":'+interval;
+        json_rpc_async('getCallStatisticsGraph', params, function(result){
+            self.createGraph(result);
+        });
+    };
+
     this.setCurrentState = function(result){
 
-        if(loaded == false){
+        if(loaded === false){
             loaded = true;
             show_content();
         }
 
-        var trunks = result.trunks;
+        var i, trunks = result.trunks;
 
-        for (var i = 0; i < inc.length; i++) {
-            if(inc[i].textContent != result.in) inc[i].textContent = result.in; 
-        };
-        for (var i = 0; i < out.length; i++) {
+        for (i = 0; i < inc.length; i++) {
+            if(inc[i].textContent != result.in) inc[i].textContent = result.in;
+        }
+        for (i = 0; i < out.length; i++) {
             if(out[i].textContent != result.out) out[i].textContent = result.out;
-        };
-        for (var i = 0; i < conn.length; i++) {
+        }
+        for (i = 0; i < conn.length; i++) {
             if(conn[i].textContent != result.conn) conn[i].textContent = result.conn;
-        };
-        for (var i = 0; i < load.length; i++) {
+        }
+        for (i = 0; i < load.length; i++) {
             // load[i].textContent = Math.round(result.load) + '%';
             load[i].textContent = parseFloat(result.load).toFixed(1) + '%';
-        };
+        }
 
-        for (var i = 0; i < trunks.length; i++) {
+        for (i = 0; i < trunks.length; i++) {
             
             var className = trunks[i].enabled ? 'success' : 'danger';
             if(ttrunks.rows[i]){
@@ -92,7 +315,7 @@ function CallsBoard(){
                 cell.textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
             }
 
-        };
+        }
         
     };
 
@@ -123,7 +346,7 @@ function CallsBoard(){
                 cell.textContent = result[i].time;
             }
 
-        };
+        }
 
     };
 
@@ -144,7 +367,102 @@ function CallsBoard(){
         clearInterval(this.update);
         removeEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
-    }
+    };
+
+    this.createGraph = function(data){
+        var insData = [], outsData = [], intsData = [], time, item, chartData, chartOpts;
+        var timeFormat = (function(intr){
+            if(isSmallScreen()){
+                return '';
+            } else {
+                return (intr == 'hour' ? "%H:%M" : (intr == 'day') ? "%d/%m" : "%d/%m");
+            }
+        })(picker.intervalString);
+        for(var i=0, length = data.length; i<length; i++){
+            item = data[i];
+            time = item.t;
+            insData.push([time, item.i]);
+            outsData.push([time, item.o]);
+            intsData.push([time, item.l]);
+        }
+        chartData = [{
+            label: PbxObject.frases.SETTINGS.INCALLS,
+            data: insData
+        }, {
+            label: PbxObject.frases.SETTINGS.INTCALLS,
+            data: intsData
+        }, {
+            label: PbxObject.frases.SETTINGS.OUTCALLS,
+            data: outsData
+        }];
+        chartOpts = {
+            series: {
+                bars: {
+                    show: true,
+                    barWidth: picker.interval/4,
+                    lineWidth: 0,
+                    order: 1,
+                    fillColor: {
+                        colors: [{
+                            opacity: 1
+                        }, {
+                            opacity: 0.7
+                        }]
+                    }
+                }
+            },
+            xaxis: {
+                // min: new Date(picker.date.start).getTime(),
+                // max: new Date(picker.date.end).getTime(),
+                mode: "time",
+                timeformat: timeFormat,
+                timezone: 'browser',
+                tickSize: [1, picker.intervalString],
+                // monthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                tickLength: 0, // hide gridlines
+                // axisLabel: "hours",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: "Verdana, Arial, Helvetica, Tahoma, sans-serif",
+                axisLabelPadding: 15
+            },
+            yaxes: {
+                position: 0,
+                tickFormatter: function (val) {
+                    return val.toFixed();
+                },
+                min: 0,
+                axisLabel: PbxObject.frases.KINDS.calls,
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: "Verdana, Arial, Helvetica, Tahoma, sans-serif",
+                axisLabelPadding: 5
+            },
+            grid: {
+                hoverable: true,
+                borderWidth: 1
+            },
+            legend: {
+                labelBoxBorderColor: "none",
+                noColumns: 3,
+                position: "ne",
+                margin: [0, 10],
+                container: $('#calls-graph-labels')
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: '%s: %y.0',
+                yDateFormat: timeFormat
+            },
+            colors: ["#4572A7", "#BADABA", "#AA4643"]
+        };
+        $.plot($("#calls-graph"), chartData, chartOpts);
+        console.log(chartData);
+
+        addEvent(window, 'resize', function(){
+            $.plot($("#calls-graph"), chartData, chartOpts);
+        });
+    };
 
     this.init();
 
@@ -154,293 +472,287 @@ function load_calls(){
     PbxObject.CallsBoard = new CallsBoard();
 }
 
-/* 
- * Record Viewer object constructor.
- * Record Viewer allow to get calls data from CDR. 
- */
+function Picker(pickrElement, defaults){
 
- function RecViewer(elements, picker){
+    var pickr = document.getElementById(pickrElement),
+        frases = PbxObject.frases,
+        rangeEl,
+        button,
+        fields,
+        options,
+        customRange = false,
+        self = this;
 
-    var picker = picker || 'dtPicker',
-        seldays = document.getElementById('dtday'),
-        selmonths = document.getElementById('dtmonth'),
-        selyears = document.getElementById('dtyear'),
-        selhours = document.getElementById('dthour'),
-        selminutes = document.getElementById('dtmin'),
-        number = document.getElementById('searchnum'),
-        trunk = document.getElementById('searchtrunk'),
-        rows = document.getElementById('searchrows'),
-        elorder = document.querySelectorAll('.init-order'),
-        elmode = document.querySelectorAll('.init-mode'),
-        table = document.getElementById('records-table').querySelector('tbody');
+    this.defaults = {
+        defaultOption: 'today',
+        interval: false,
+        actionButton: true,
+        buttonSize: 'sm',
+        buttonColor: 'default'
+    };
+    this.defaults = extend( {}, this.defaults );
+    extend( this.defaults, defaults );
 
-    this.currentPicker = null;
-    this.pickers = {};
     this.date = {};
-    this.records = {};
-    this.maxpagins = 5;
+    this.interval = this.defaults.interval ? 3600*1000 : null;
+    this.intervalString = 'hour';
+    this.fields = {};
 
-    this._init = function(){
-
-        var btn = document.getElementById('getcalls-btn'),
-            setbtn = document.getElementById('set-picker');
-
-        for (var i = 0; i < elements.length; i++) {
-            addEvent(elements[i], 'click', this._showPicker.bind(this));
-            if(elements[i].getAttribute('data-pickr') == 'from'){
-                this.pickers.from = elements[i];
+    function extend( a, b ) {
+        for( var key in b ) {
+            if( b.hasOwnProperty( key ) ) {
+                a[key] = b[key];
             }
-            else if(elements[i].getAttribute('data-pickr') == 'to'){
-                this.pickers.to = elements[i];
-            }
-        };
-
-        addEvent(setbtn, 'click', this._setPicker.bind(this));
-        addEvent(btn, 'click', this._getRecords.bind(this));
-
-        this._fillFields();
-        // this.date.from = this._currentDate(null, null, null, '00', '00');
-        // this.date.to = this._currentDate(null, null, null, '23', '59');
-        this.date.from = this._currentDate({hours:'00', minutes:'00'});
-        this.date.to = this._currentDate({hours:'23', minutes:'59'});
-        this._setResultDate();
-
-    };
-
-    this._setResultDate = function(){
-
-        this.pickers.from.value = this._getStringDate(this.date.from);
-        this.pickers.to.value = this._getStringDate(this.date.to);
-
-        show_content();
-
-    };
-
-    this._currentDate = function(udate){
-
-        var date = new Date();
-
-        return {
-
-            day: (function(){
-                day = date.getDate();
-                if(day < 10) day = '0' + day;
-                return udate.day || day;
-            })(),
-            month: (function(){
-                month = date.getMonth() + 1;
-                if(month < 10) month = '0' + month;
-                return udate.month || month;
-            })(),
-            year: (function(){
-                return udate.year || date.getFullYear();
-            })(),
-            hours: (function(){
-                hours = date.getHours();
-                if(hours < 10) hours = '0' + hours;
-                return udate.hours || hours;
-            })(),
-            minutes: (function(){
-                minutes = date.getMinutes();
-                if(minutes < 10) minutes = '0' + minutes;
-                return udate.minutes || minutes;
-            })()
         }
-
-    };
-
-    this._fillFields = function(){
-
-        var option = null,
-            cyear = new Date().getFullYear();
-
-        for(var i=1; i<32; i++){
-            if(i<10) 
-                this._addOption(seldays, '0' + i);
-            else
-                this._addOption(seldays, i);
-        }
-        for(var i=1; i<13; i++){
-            if(i<10) 
-                this._addOption(selmonths, '0' + i);
-            else
-                this._addOption(selmonths, i);
-        }
-        for(var i=2000; i<cyear+1; i++){
-            if(i<10) 
-                this._addOption(selyears, '0' + i);
-            else
-                this._addOption(selyears, i);
-        }
-    };
-
-    this._showPicker = function(e){
-
-        this.currentPicker = e.target;
-        kind = e.target.getAttribute('data-pickr');
-
-        seldays.value = this.date[kind].day;
-        selmonths.value = this.date[kind].month;
-        selyears.value = this.date[kind].year;
-        selhours.value = this.date[kind].hours;
-        selminutes.value = this.date[kind].minutes;
-
-        $('#'+picker).modal({
-            backdrop: false
-        });
-    };
-
-    this._setPicker = function(){
-
-        var now, 
-            newDate,
-            kind = this.currentPicker.getAttribute('data-pickr'),
-            hours = selhours.value || '00',
-            minutes = selminutes.value || '00',
-            date = {
-                day: seldays.options[seldays.selectedIndex].value,
-                month: selmonths.options[selmonths.selectedIndex].value,
-                year: selyears.options[selyears.selectedIndex].value,
-                hours: hours,
-                minutes: minutes
-                // hours: selhours.options[selhours.selectedIndex].value,
-                // minutes: selminutes.options[selminutes.selectedIndex].value
-            };
-        // console.log(date);
-        if(!date.day || !date.month || !date.year) return;
-
-        now = Date.now();
-        newDate = new Date(date.year, date.month - 1, date.day, date.hours, date.minutes);
-        newDate = newDate.getTime();
-
-        // if(newDate > now){
-        //     alert(PbxObject.frases.PICKERROR1);
-        //     return;
-        // }
-
-        this.date[kind] = date;
-        this.pickers[kind].value = this._getStringDate(date);
-
-        $('#'+picker).modal('hide');
-
-    };
-
-    this._getStringDate = function(date){
-
-        var str = '';
-
-        str += date.day + '/'; 
-        str += date.month + '/';
-        str += date.year;
-        str += ' ';
-        str += date.hours + ':';
-        str += date.minutes;
-
-        return str;
-
-    };
-
-    this._addOption = function(el, val){
-        option = document.createElement('option');
-        option.value = val;
-        option.textContent = val;
-        el.appendChild(option);
-    };
-
-    this._getRecords = function(e){
-
-        show_loading_panel(e.target);
-        
-        var from = this.date.from,
-            to = this.date.to,
-            dbegin = new Date(from.year, from.month - 1, from.day, from.hours, from.minutes),
-            dend = new Date(to.year, to.month - 1, to.day, to.hours, to.minutes),
-            order, mode;
-
-        for(var i=0; i<elorder.length; i++){
-            if(elorder[i].checked)
-                order = elorder[i].value;
-        }
-        for(var i=0; i<elmode.length; i++){
-            if(elmode[i].checked)
-                mode = elmode[i].value;
-        }
-        
-        dbegin = dbegin.getTime();
-        dend = dend.getTime();
-
-        if(dbegin > dend){
-            alert(PbxObject.frases.PICKERROR2);
-            return;
-        }
-
-        var params = '';
-        params += '"begin": ' + dbegin;
-        params += ', "end": ' + dend;
-        if(number.value)
-            params += ', "number": "' + number.value + '"';
-        if(trunk.value)
-            params += ', "trunk": "' + trunk.value + '"';
-        // if(rows.value)
-        //     params += ', "limit": ' + parseInt(rows.value);
-        if(mode)
-            params += ', "mode": ' + mode;
-        if(order)
-            params += ', "order": ' + order;
-
-        // params = JSON.stringify(params);
-        // console.log(params);
-
-        json_rpc_async('getCalls', params, this._showRecords.bind(this));
-
-    };
-
-    this._showRecords = function(result){
-        // console.log(result);
-        show_content();
-        if(!rows.value && result.length > 20) rows.value = 20; //if result is bigger than 20 records then "max rows" is set to 20
-        var rlength = rows.value ? parseInt(rows.value) : result.length, //the amount of rows on page is set based of the "max rows" parameter or is equal result.length
-            pagnum = result.length > rlength ? Math.ceil(result.length / rlength) : 1; //if the number rows is less "than max rows" then the number of pages is equal 1
-
-        this.rowsOnPage = rlength;
-        this.records = result;
-        this.pagins = pagnum;
-
-        this._clearTable(table);
-        this._destroyPagination();
-
-        // if(pagnum > 1){ //if the number of pages is more than 1, then create Pagination
-            pagnum = pagnum > this.maxpagins ? this.maxpagins : pagnum;
-            this._createPagination(1, pagnum);
-        // }
-
-        var key, cost = 0;
-        for (var i = 0; i < result.length; i++) {
-            for(key in result[i]){
-                if(key == 'ch'){
-                    cost += parseFloat(result[i][key]);
-                }
-            }
-        };
-        cost = cost.toFixed(2);
-
-        $('#sample-data').show();
-        $('#sample-length').text(result.length);
-        $('#sample-cost').text(cost);
-
-        this._selectPage(1);
-
+        return a;
     }
 
-    this._createPagination = function(startNum, endNumber){
+    this._pickerHandler = function(e){
+        var target = e.target,
+            range, interval;
+        if(target.nodeName === 'LABEL'){
+            range = target.children[0].getAttribute('data-range');
+            if(range){
+                self._setCurrentRange(range);
+                if(range === 'custom') {
+                    customRange = true; //if custom range option is selected
+                    rangeEl.classList.remove('hidden');
+                } else {
+                    customRange = false;
+                    rangeEl.classList.add('hidden');
+                }
+            } else{
+                interval = target.children[0].getAttribute('data-interval');
+                if(interval){
+                    if(interval === 'hour') this.interval = 60*60*1000;
+                    else if(interval === 'day') this.interval = 24*60*60*1000;
+                    else if(interval === 'month') this.interval = 12*24*60*60*1000;
+                    this.intervalString = interval;
+                }
+            }
+        } else if(target.nodeName === 'BUTTON'){
+            if(target.name === "submitButton"){
+                if(customRange) self._rangeToString(); //if custom range option is selected
+                if(self.defaults.submitFunction) self.defaults.submitFunction();
+            } else if(target.name === "selectButton"){
+                if(customRange) self._rangeToString();
+            }
+            pickr.classList.toggle('open');
+        }
+    };
+    
+    this._init = function(){
+        var type, field,
+        template = this.template();
+        pickr.innerHTML = template;
 
+        dropdown = pickr.querySelector('.dropdown-menu');
+        options = [].slice.call(pickr.querySelectorAll('input[name="options"]'));
+        fields = [].slice.call(pickr.querySelectorAll('.date-field'));
+        button = pickr.querySelector('.dropdown-button');
+        btnText = button.querySelector('.btn-text');
+        rangeEl = pickr.querySelector('.custom-range');
+
+        fields.forEach(function(item){
+            type = item.name;
+            field = item.getAttribute('data-field');
+            self.fields[type] = self.fields[type] || {};
+            self.fields[type][field] = item;
+        });
+
+        button.onclick = function(){
+            pickr.classList.toggle('open');
+        };
+        dropdown.onclick = function(e){
+            self._pickerHandler(e);
+        };
+
+        this._setCurrentRange(this.defaults.defaultOption);
+    };
+
+    this._setCurrentRange = function(option){
+        if(option === 'today'){
+            this.date.start = this.formatDate(new Date());
+            this.date.end = new Date().getTime() + 24*60*60*1000;
+            this.date.end = this.formatDate(new Date(this.date.end));
+        } else if(option === 'yesterday'){
+            this.date.end = this.today();
+            this.date.start = new Date().getTime() - 24*60*60*1000;
+            this.date.start = this.formatDate(new Date(this.date.start));
+        } else if(option === 'week'){
+            this.date.end = new Date().getTime() + 24*60*60*1000;
+            this.date.start = this.date.end - 7*24*60*60*1000;
+            this.date.end = this.formatDate(new Date(this.date.end));
+            this.date.start = this.formatDate(new Date(this.date.start));
+        } else if(option === 'month'){
+            var curr_date = new Date();
+            var first_day = new Date(curr_date.getFullYear(), curr_date.getMonth()-1, 1);
+            var last_day = new Date(curr_date.getFullYear(), curr_date.getMonth(), 0);
+            var month_start_date = this.formatDate(first_day);
+            var month_end_date = this.formatDate(last_day);
+            
+            this.date.start = month_start_date;
+            this.date.end = month_end_date;
+        } else if(option === 'custom'){
+            this._setCustomRange();
+        }
+        this._setButtonText();
+    };
+
+    this._rangeToString = function(){
+        var startFields = this.fields.start;
+        var endFields = this.fields.end;
+        var start = new Date(startFields.year.value, startFields.month.value-1, startFields.day.value);
+        var end = new Date(endFields.year.value, endFields.month.value-1, endFields.day.value);
+
+        start = this.formatDate(start);
+        end = this.formatDate(end);
+        this.date.start = start;
+        this.date.end = end;
+
+        this._setButtonText();
+    };
+
+    this.formatDate = function(date){
+        var m = ("0"+ (date.getMonth()+1)).slice(-2); // in javascript month start from 0.
+        var d = ("0"+ date.getDate()).slice(-2); // add leading zero 
+        var y = date.getFullYear();
+        return  m +'/'+d+'/'+y;
+    };
+
+    this._setCustomRange = function(date){
+        var start = new Date(this.date.start);
+        var end = new Date(this.date.end);
+        var startFields = this.fields.start;
+        var endFields = this.fields.end;
+
+        startFields.day.value = start.getDate();
+        startFields.month.value = start.getMonth()+1;
+        startFields.year.value = start.getFullYear();
+
+        endFields.day.value = end.getDate();
+        endFields.month.value = end.getMonth()+1;
+        endFields.year.value = end.getFullYear();
+    };
+
+    this._setButtonText = function(){
+        btnText.innerHTML = this.date.start + '-' + this.date.end;
+    };
+
+    this._closeDropdowns = function(){
+        pickr.classList.toggle('open');
+        removeEvent(document, 'click', this._closeDropdowns);
+    };
+
+    this.today = function(){
+        var today = new Date();
+        return this.formatDate(today);
+    };
+
+    this.template = function(){
+        return (
+        '<button type="button" class="btn btn-'+this.defaults.buttonColor+' btn-'+this.defaults.buttonSize+' btn-block dropdown-button" aria-expanded="true">'+
+            '<span class="btn-text" style="margin-right:5px"></span>'+
+            '<span class="caret"></span>'+
+        '</button>'+
+        '<div class="dropdown-menu">'+
+            '<div class="col-xs-12 btn-group btn-group-vertical" data-toggle="buttons">'+
+                '<label class="btn btn-default active">'+
+                    '<input type="radio" name="options" data-range="today"autocomplete="on" checked>'+frases.DATE_PICKER.TODAY+''+
+                '</label>'+
+                '<label class="btn btn-default">'+
+                    '<input type="radio" name="options" data-range="yesterday" autocomplete="off" checked>'+frases.DATE_PICKER.YESTERDAY+''+
+                '</label>'+
+                '<label class="btn btn-default">'+
+                    '<input type="radio" name="options" data-range="week" autocomplete="off">'+frases.DATE_PICKER.LAST_7_DAYS+''+
+                '</label>'+
+                '<label class="btn btn-default">'+
+                    '<input type="radio" name="options" data-range="month" autocomplete="off">'+frases.DATE_PICKER.LAST_MONTH+''+
+                '</label>'+
+                '<label class="btn btn-default">'+
+                    '<input type="radio" name="options" data-range="custom" autocomplete="off">'+frases.DATE_PICKER.CUSTOM_RANGE+''+
+                '</label>'+
+            '</div>'+
+            '<div class="col-xs-12 custom-range hidden">'+
+                '<br>'+
+                '<div class="form-group">'+
+                    '<div class="col-xs-4">'+
+                        '<input type="number" min="1" max="31" name="start" class="form-control date-field" data-field="day"></input>'+
+                    '</div>'+
+                    '<div class="col-xs-4">'+
+                        '<input type="number" min="1" max="12" name="start" class="form-control date-field" data-field="month"></input>'+
+                    '</div>'+
+                    '<div class="col-xs-4">'+
+                        '<input type="number" min="2000" name="start" class="form-control date-field" data-field="year"></input>'+
+                    '</div>'+
+                '</div>'+
+                '<br><br>'+
+                '<div class="form-group">'+
+                    '<div class="col-xs-4">'+
+                        '<input type="number" min="1" max="31" name="end" class="form-control date-field" data-field="day"></input>'+
+                    '</div>'+
+                    '<div class="col-xs-4">'+
+                        '<input type="number" min="1" max="12" name="end" class="form-control date-field" data-field="month"></input>'+
+                    '</div>'+
+                    '<div class="col-xs-4">'+
+                        '<input type="number" min="2000" name="end" class="form-control date-field" data-field="year"></input>'+
+                    '</div>'+
+                '</div>'+
+            '</div>'+
+            (this.defaults.interval ? '<div class="col-xs-12 custom-interval">'+
+                '<hr>'+
+                    '<p>'+frases.DATE_PICKER.INTERVAL+'</p>'+
+                '<div class="btn-group btn-group-justified" data-toggle="buttons">'+
+                    '<label class="btn btn-default active">'+
+                        '<input type="radio" name="options" data-interval="hour" autocomplete="off" checked>'+frases.HOUR+
+                    '</label>'+
+                    '<label class="btn btn-default">'+
+                        '<input type="radio" name="options" data-interval="day" autocomplete="off">'+frases.DAY+
+                    '</label>'+
+                    '<label class="btn btn-default">'+
+                        '<input type="radio" name="options" data-interval="month" autocomplete="off">'+frases.MONTH+
+                    '</label>'+
+                '</div>'+
+            '</div>' : '')+
+            '<div class="col-xs-12">'+
+            '<hr>'+
+            (this.defaults.actionButton ?
+                '<button type="button" name="submitButton" class="btn btn-primary btn-md btn-block">'+frases.SEARCH+'</button>' :
+                '<button type="button" name="selectButton" class="btn btn-primary btn-md btn-block">'+frases.SELECT+'</button>')+
+            '</div>'+
+        '</div>'
+        );
+    };
+
+    this._init();
+
+ }
+
+function Pagination(options){
+
+    // this.records = {};
+    // this.pagins = null;
+
+    this.options = options;
+
+    // pagnum = pagnum > this.maxpagins ? this.maxpagins : pagnum;
+
+
+    this.createPagination = function(start, end){
+
+        if(this.pagin) {
+            clearTable(this.options.table);
+            // this._destroyPagination();
+        }
         this.currentRange = []; //the currentRange array is needed to trach the current range of pages in pagination element
-        if(endNumber <= 1) return; //if the number of pages is more than 1, then create Pagination            
+        if(this.options.pagnum <= 1) return; //if the number of pages is more than 1, then create Pagination            
 
-        var ul, li, a, 
-            container = document.querySelector('.pagination-container'),
-            pagin = document.createElement('ul'),
-            info = document.createElement('p');
+        var ul, li, a;
+        var start = start || this.options.page;
+        var end = end || (this.options.pagnum > this.options.maxpagins ? this.options.maxpagins : this.options.pagnum);
+        var container = document.querySelector('.pagination-container');
+        var pagin = document.createElement('ul');
+        var info = document.createElement('p');
 
         pagin.className = 'pagination custom-pagination';
         li = document.createElement('li');
@@ -449,13 +761,15 @@ function load_calls(){
         li = document.createElement('li');
         li.innerHTML = '<a href="#" class="prev">-</a>';
         pagin.appendChild(li);
-        for (var i = startNum; i <= endNumber; i++) {
+        for (var i = start; i <= end; i++) {
+
             li = document.createElement('li');
             li.innerHTML = '<a href="#" data-page="'+i+'">'+i+'</a>';
             pagin.appendChild(li);
 
-            if(i==number) this.lastPage = li;
+            if(i==end) this.lastPage = li;
             this.currentRange.push(i);
+
         }
         li = document.createElement('li');
         li.innerHTML = '<a href="#" class="next">+</a>';
@@ -473,7 +787,8 @@ function load_calls(){
         container.appendChild(info);
 
         pagin.onclick = this._getSelectedPage.bind(this);
-    }
+        // this.selectPage(this.options.page);
+    };
 
     this._getSelectedPage = function(e){
         e.preventDefault();
@@ -486,34 +801,35 @@ function load_calls(){
                 page = this.currentPage-1;
             } else if(target.className == 'first') {
                 page = 1;
-                if(this.pagins >= this.maxpagins) {
-                    this._destroyPagination();
-                    this._createPagination(1, this.maxpagins);
+                if(this.options.pagnum >= this.options.maxpagins) {
+                    // this._destroyPagination();
+                    this.createPagination(1, this.options.maxpagins);
                 }
             } else if(target.className == 'last') {
-                page = this.pagins;
-                if(this.pagins >= this.maxpagins) {
-                    this._destroyPagination();
-                    this._createPagination(this.pagins-this.maxpagins+1, this.pagins);
+                page = this.options.pagnum;
+                if(page >= this.options.maxpagins) {
+                    // console.log(page-this.options.maxpagins+1, page);
+                    // this._destroyPagination();
+                    this.createPagination(page-this.options.maxpagins+1, page);
                 }
             }
         }
-        if(page > this.pagins || page < 1) return;
-        this._selectPage(page);
-    }
+        if(page > this.options.pagnum || page < 1) return;
+        this.selectPage(page);
+    };
 
-    this._selectPage = function(page){
+    this.selectPage = function(page){
         var page = parseInt(page);
-        var ind = parseInt(page) * parseInt(this.rowsOnPage) - parseInt(this.rowsOnPage); //starting row, based on the page number
-        var len = page * parseInt(rows.value); //index of the last row on the page, based on the page number
-        len = len < this.records.length ? len : this.records.length; //if index of the last row is more than total length of result, then index is equal to result.length
+        var ind = parseInt(page) * parseInt(this.options.rows) - parseInt(this.options.rows); //starting row, based on the page number
+        var len = page * parseInt(this.options.rows); //index of the last row on the page, based on the page number
+        len = len < this.options.records.length ? len : this.options.records.length; //if index of the last row is more than total length of result, then index is equal to result.length
 
         this.currentPage = page;
-        this._clearTable(table);
+        clearTable(this.options.table);
 
         for (var i = ind; i < len; i++) {
-            build_records_row(this.records[i], table);
-        };
+            build_records_row(this.options.records[i], this.options.table);
+        }
 
         if(this.currentRange.length) { //if number of pages is greater than 1
             if(this.currentRange.indexOf(page) == this.currentRange.length-1 || this.currentRange.indexOf(page) == this.currentRange.length-2) {
@@ -527,16 +843,16 @@ function load_calls(){
         }
 
         if(this.paginInfo) 
-            this.paginInfo.innerHTML = PbxObject.frases.FROM.toLowerCase() + ' ' + 
-                                    ind + ' ' + 
-                                    PbxObject.frases.TO.toLowerCase() + ' ' + 
-                                    len + ' ' + 
+            this.paginInfo.innerHTML = PbxObject.frases.FROM.toLowerCase() + ' ' +
+                                    ind + ' ' +
+                                    PbxObject.frases.TO.toLowerCase() + ' ' +
+                                    len + ' ' +
                                     PbxObject.frases.RECORDS.REC.toLowerCase();
-    }
+    };
 
     this._appendPage = function(){
         var nextpage = this.currentRange[this.currentRange.length-1]+1;
-        if(nextpage > this.pagins) return;
+        if(nextpage > this.options.pagnum) return;
         var lastPageElement = this.pagin.querySelector('a[data-page="'+this.currentRange[this.currentRange.length-1]+'"]').parentNode;
         var firstPageElement = this.pagin.querySelector('a[data-page="'+this.currentRange[0]+'"]').parentNode;
         var li = document.createElement('li');
@@ -546,7 +862,7 @@ function load_calls(){
 
         this.currentRange.push(nextpage);
         this.currentRange.shift();
-    }
+    };
 
     this._prependPage = function() {
         var prevpage = this.currentRange[0]-1;
@@ -560,54 +876,35 @@ function load_calls(){
 
         this.currentRange.unshift(prevpage);
         this.currentRange.pop();
-    }
-
-    this._clearTable = function(table){
-        while (table.hasChildNodes()) {
-            table.removeChild(table.firstChild);
-        }
-    }
+    };
 
     this._destroyPagination = function(){
         while (this.pagin && this.pagin.hasChildNodes()) {
             this.pagin.removeChild(this.pagin.firstChild);
         }
-    }
+    };
 
     this._isPagin = function(element){
         return element.getAttribute('data-page');
-    }
-
-    // this._paginRecords = function(e){
-
-    //     e.preventDefault();
-
-    //     var targ = e.target;
-    //     var page = targ.getAttribute('data-page');
-    //     if(!page) return;
-    //     var pagin = document.querySelector('.pagination');
-    //     var ind = parseInt(page) * parseInt(rows.value) - parseInt(rows.value);
-    //     var len = page * parseInt(rows.value);
-
-    //     len = len < this.records.length ? len : this.records.length;
-
-    //     while (table.hasChildNodes()) {
-    //         table.removeChild(table.firstChild);
-    //     }
-    //     for (var i = ind; i < len; i++) {
-    //         build_records_row(this.records[i], table);
-    //     };
-
-    // }
-
-    this._init();
-
- }
+    };
+}
 
 function load_records(){
+    //     start = new Date(picker.date.start).getTime(),
+    //     end = new Date(picker.date.end).getTime(),
+    //     interval = picker.interval,
+    //     params = '\"begin\":'+start+', \"end\":'+end;
 
-    var pickers = document.querySelectorAll('.dt-pickr');
-    PbxObject.RecViewer = new RecViewer(pickers);
+    // json_rpc_async('getCallStatisticsGraph', params, function(result){
+    //     self.createGraph(result);
+    // });
+
+    PbxObject.Pagination = new Pagination();
+    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecords, actionButton: false, buttonSize: 'md'}),
+
+    $('#getcalls-btn').click(function(e){
+        getRecords(e);
+    });
     $('#sample-data').hide();
     $('#search-calls .panel-body').slideToggle();
     $('#extendedsearch').click(function(e){
@@ -624,6 +921,7 @@ function load_records(){
 
         $el.slideToggle();
     });
+    show_content();
 
 }
 
@@ -661,11 +959,7 @@ function build_records_row(data, table){
     if(data['tb']) cell.textContent = data['tb'];
 
     cell = row.insertCell(6);
-    h = Math.floor(time / 3600);
-    time = time - h * 3600;
-    m = Math.floor(time / 60);
-    s = time - m * 60;
-    cell.textContent = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    cell.textContent = formatTimeString(time, 'hh:mm:ss');
 
     cell = row.insertCell(7);
     cell.textContent = getFriendlyCodeName(data['cs']);
@@ -675,6 +969,21 @@ function build_records_row(data, table){
 
     cell = row.insertCell(9);
     cell.textContent = parseFloat(data['ch']).toFixed(2);
+
+    cell = row.insertCell(10);
+    if(data['fi']){
+        var a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('data-src', data['fi']);
+        a.innerHTML = '<i class="fa fa-play fa-fw"></i>';
+        a.onclick = function(e){
+            playRecord(e);
+        };
+        cell.appendChild(a);
+    }
+    cell = row.insertCell(11);
+    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'"><i class="fa fa-fw fa-download"></i></a>' : '';
+    // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 }
 
 function getFriendlyCodeName(code){
@@ -715,6 +1024,245 @@ function getFriendlyCodeName(code){
 
 }
 
+function getRecords(e){
+
+    show_loading_panel(e.target);
+    
+    // var from = PbxObject.Picker.date.from,
+    //     to = PbxObject.Picker.date.to,
+    //     dbegin = new Date(from.year, from.month - 1, from.day, from.hours, from.minutes),
+    //     dend = new Date(to.year, to.month - 1, to.day, to.hours, to.minutes),
+    // var date = PbxObject.Picker.getDate(),
+    var elorder = document.querySelectorAll('.init-order'),
+        elmode = document.querySelectorAll('.init-mode'),
+        number = document.getElementById('searchnum'),
+        trunk = document.getElementById('searchtrunk'),
+        order, mode, i;
+
+    for(i=0; i<elorder.length; i++){
+        if(elorder[i].checked)
+            order = elorder[i].value;
+    }
+    for(i=0; i<elmode.length; i++){
+        if(elmode[i].checked)
+            mode = elmode[i].value;
+    }
+    
+    // if(date.begin > date.end){
+    //     alert(PbxObject.frases.PICKERROR2);
+    //     return;
+    // }
+    var params = '';
+    params += '"begin": ' + new Date(PbxObject.recPicker.date.start).getTime();
+    params += ', "end": ' + new Date(PbxObject.recPicker.date.end).getTime();
+    if(number.value)
+        params += ', "number": "' + number.value + '"';
+    if(trunk.value)
+        params += ', "trunk": "' + trunk.value + '"';
+    // if(rows.value)
+    //     params += ', "limit": ' + parseInt(rows.value);
+    if(mode)
+        params += ', "mode": ' + mode;
+    if(order)
+        params += ', "order": ' + order;
+
+    // params = JSON.stringify(params);
+    // console.log(params);
+
+    json_rpc_async('getCalls', params, showRecords);
+
+}
+
+function showRecords(result){
+    console.log(result);
+    show_content();
+
+    var table = document.getElementById('records-table').querySelector('tbody');
+    var rows = document.getElementById('searchrows');
+    if(!rows.value && result.length > 20) rows.value = 20; //if result is bigger than 20 records then "max rows" is set to 20
+    var rlength = rows.value ? parseInt(rows.value) : result.length, //the amount of rows on page is set based of the "max rows" parameter or is equal result.length
+        pagnum = result.length > rlength ? Math.ceil(result.length / rlength) : 1; //if the number rows is less "than max rows" then the number of pages is equal 1
+
+    // pagnum = pagnum > this.maxpagins ? this.maxpagins : pagnum;
+
+    // this.rowsOnPage = rlength;
+    // this.records = result;
+
+    var key, cost = 0;
+    for (var i = 0; i < result.length; i++) {
+        for(key in result[i]){
+            if(key == 'ch'){
+                cost += parseFloat(result[i][key]);
+            }
+        }
+    }
+    cost = cost.toFixed(2);
+
+    $('#sample-data').show();
+    $('#sample-length').text(result.length);
+    $('#sample-cost').text(cost);
+
+    PbxObject.Pagination.options = {
+        table: table,
+        page: 1,
+        maxpagins: 5,
+        rows: rlength,
+        records: result,
+        pagnum: pagnum,
+        buildTableFunction: build_records_row
+    };
+    PbxObject.Pagination.createPagination();
+    PbxObject.Pagination.selectPage(1);
+}
+
+function playRecord(e){
+    if(!e) e = window.event;
+    e.preventDefault();
+    var player,
+        targ = e.currentTarget,
+        src = targ.getAttribute('data-src');
+
+    PbxObject.Player = PbxObject.Player || new Player();
+    player = PbxObject.Player;
+    if(player.lastEl !== null && player.lastEl != targ){
+        player.lastEl.innerHTML = '<i class="fa fa-fw fa-play"></i>';
+    }
+    player.lastEl = targ;
+    player.audioURL = window.location.protocol+'//'+window.location.host+'/records/'+src;
+    player.playAudio();
+}
+
+function Player(){
+    var player,
+        seek,
+        time,
+        play,
+        dur,
+        link,
+        oAudio,
+        shown = false,
+        currentFile = "",
+    //display and update progress bar
+
+    init = function(){
+        console.log('init');
+        var temp = template();
+        player = document.createElement('div');
+        player.id = 'rec-player';
+        player.className = 'pl-cont';
+        player.innerHTML = temp;
+        document.querySelector('body').appendChild(player);
+
+        seek = document.getElementById('pl-seek');
+        time = document.getElementById('pl-time');
+        play = document.getElementById('pl-play');
+        dur = document.getElementById('pl-duration');
+        link = document.getElementById('pl-download');
+        oAudio = document.getElementById('audio-rec');
+
+        initEvents();
+    },
+    //added events
+    initEvents = function(){
+        addEvent(player, 'click', function(e){
+            clickHandler(e);
+        });
+        //set up event to toggle play button to pause when playing
+        addEvent(oAudio, "playing", function() {
+            play.innerHTML = '<i class="fa fa-fw fa-pause"></i>';
+            global.lastEl.innerHTML = '<i class="fa fa-fw fa-pause"></i>';
+        }, true);
+
+        addEvent(oAudio, 'loadedmetadata', function() {
+            dur.textContent = formatTimeString(parseInt(oAudio.duration), 'hh:mm:ss');
+        });
+
+        // //set up event to toggle play button to play when paused
+        addEvent(oAudio, "pause", function() {
+            play.innerHTML = '<i class="fa fa-fw fa-play"></i>';
+            global.lastEl.innerHTML = '<i class="fa fa-fw fa-play"></i>';
+        }, true);
+        //set up event to update the progress bar
+        addEvent(oAudio, "timeupdate", progressBar, true);
+        //set up mouse click to control position of audio
+        addEvent(seek, "click", function(e) {
+            if (!e) e = window.event;
+            oAudio.currentTime = (oAudio.duration * ((e.offsetX || e.layerX) / seek.clientWidth)).toFixed(2);
+            console.log('currentTime: '+oAudio.currentTime);
+        }, true);
+    },
+
+    progressBar = function() {
+        var percent = Math.floor((100 / oAudio.duration) * oAudio.currentTime);
+        time.textContent = formatTimeString(parseInt(oAudio.currentTime), 'hh:mm:ss');
+        seek.value = percent;
+    },
+
+    clickHandler = function(e){
+        if(!e) e = window.event;
+        var targ = e.target;
+        if(targ.nodeName == 'I') targ = targ.parentNode;
+        console.log(targ);
+        if(targ.id == 'pl-play') global.playAudio();
+        if(targ.id == 'pl-stop') global.stopAudio();
+        if(targ.id == 'pl-close') close();
+    },
+
+    show = function(){
+        player.classList.add('shown');
+        shown = true;
+    },
+
+    close = function(){
+        player.classList.remove('shown');
+        shown = false;
+    },
+
+    template = function(){
+        return (
+            '<audio id="audio-rec" type="audio/x-wav; codecs=\'1\'"></audio>'+
+            '<div class="pl-controls">'+
+                '<a href="#" class="pl-control bg-success pull-left" id="pl-download"><i class="fa fa-download"></i></a>'+
+                '<button class="pl-control bg-primary pull-left" id="pl-play"><i class="fa fa-fw fa-play"></i></button>'+
+                '<div class="pl-time"><span id="pl-time"></span>/<span id="pl-duration"></span></div>'+
+                '<progress id="pl-seek" max="100" value="0" class-"pl-seek-bar"></progress>'+
+                '<button class="pl-control bg-danger pull-right" id="pl-close"><i class="fa fa-fw fa-close"></i></button>'+
+                '<button class="pl-control bg-primary pull-right" id="pl-stop"><i class="fa fa-fw fa-stop"></i></button>'+
+            '</div>'
+        );
+    },
+
+    global = {
+        audioURL: '',
+        audio: oAudio,
+        lastEl: null,
+        playAudio: function() {
+            if(shown === false)
+                show();
+            //Skip loading if current file hasn't changed.
+            if (this.audioURL !== currentFile) {
+                oAudio.src = this.audioURL;
+                link.href = this.audioURL;
+                currentFile = this.audioURL;
+            }
+
+            //Tests the paused attribute and set state. 
+            if (oAudio.paused) {
+                oAudio.play();
+            } else {
+                oAudio.pause();
+            }
+        },
+        stopAudio: function() {
+            oAudio.pause();
+            oAudio.currentTime = 0;
+        }
+    };
+
+    init();
+    return global;
+}
+
 /* 
  * Setting ui for PBX group
  */
@@ -744,7 +1292,7 @@ function load_bgroup(result){
         if(result.name) {
             addEvent(enabled, 'change', function(){
                 console.log(result.oid+' '+this.checked);
-                json_rpc_async('setObjectState', '\"oid\":\"'+result.oid+'\", \"enabled\":'+this.checked+'', null); 
+                json_rpc_async('setObjectState', '\"oid\":\"'+result.oid+'\", \"enabled\":'+this.checked+'', null);
             });
         }
     }
@@ -910,11 +1458,11 @@ function load_bgroup(result){
                 if(video) {
                     if(result.options.videomode !== "OFF")
                         video.checked = true;
-                    else 
+                    else
                         video.checked = false;
                 }
 
-                if(initmode) initmode.value = result.options.initmode;                        
+                if(initmode) initmode.value = result.options.initmode;
 
                 changeGroupType(type);
             } else if(kind == 'selector') {
@@ -931,9 +1479,9 @@ function load_bgroup(result){
 
                 users.forEach(function(item){
                     if(owner && item == owner) {
-                        elowner.innerHTML += '<option value="'+item+'" selected>'+item+'</option>';    
+                        elowner.innerHTML += '<option value="'+item+'" selected>'+item+'</option>';
                     } else {
-                        elowner.innerHTML += '<option value="'+item+'">'+item+'</option>';    
+                        elowner.innerHTML += '<option value="'+item+'">'+item+'</option>';
                     }
                     
                 });
@@ -1002,7 +1550,7 @@ function load_bgroup(result){
 
     }
 
-    show_content(); 
+    show_content();
     set_page();
 }
 
@@ -1239,6 +1787,7 @@ function set_bgroup(param, callback){
         jprms += '"initmode":'+initmode+',';
     }
     jprms += '}';
+    console.log(jprms);
     json_rpc_async('setObject', jprms, function(){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
@@ -1250,16 +1799,17 @@ function addMembersRow(data){
     var row, cell, a;
     row = document.createElement('tr');
     row.id = data.oid;
-    if(data.oid) row.setAttribute('data-ext', data.number);
     cell = row.insertCell(0);
-    // if(item.oid) {
-    //     a = document.createElement('a');
-    //     a.href = '#';
-    //     addEvent(a, 'click', get_extension);
-    //     cell.appendChild(a);
-    // } else {
-    cell.textContent = data.number;
-    // }
+    if(data.oid) {
+        row.setAttribute('data-ext', data.number);
+        a = document.createElement('a');
+        a.textContent = data.number;
+        a.href = '#';
+        addEvent(a, 'click', get_extension);
+        cell.appendChild(a);
+    } else {
+        cell.textContent = data.number;
+    }
 
     cell = row.insertCell(1);
     cell.textContent = data.name || "";
@@ -1273,7 +1823,7 @@ function addMembersRow(data){
     cell = row.insertCell(4);
     button = document.createElement('button');
     button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-trash"></i>';
+    button.innerHTML = '<i class="fa fa-trash"></i>';
     addEvent(button, 'click', delete_extension);
     cell.appendChild(button);
 
@@ -1721,7 +2271,7 @@ function add_cli_row(object){
     inp.href = '#';
     // cell.setAttribute('type', 'checkbox');
     inp.className = 'remove-clr';
-    inp.innerHTML = '<i class="glyphicon glyphicon-remove"></i>';
+    inp.innerHTML = '<i class="fa fa-close"></i>';
     addEvent(inp, 'click', remove_row);
     div.appendChild(inp);
     cell.appendChild(div);
@@ -1808,7 +2358,7 @@ function createExtRow(data){
         if(data.kind == 'user' || data.kind == 'phone') {
             button = document.createElement('button');
             button.className = 'btn btn-primary btn-sm';
-            button.innerHTML = '<i class="glyphicon glyphicon-edit"></i>';
+            button.innerHTML = '<i class="fa fa-edit"></i>';
             addEvent(button, 'click', editExtension);
             cell.appendChild(button);
         }    
@@ -1817,7 +2367,7 @@ function createExtRow(data){
     if(data.oid) {
         button = document.createElement('button');
         button.className = 'btn btn-danger btn-sm';
-        button.innerHTML = '<i class="glyphicon glyphicon-trash"></i>';
+        button.innerHTML = '<i class="fa fa-trash"></i>';
         addEvent(button, 'click', delete_extension);
         cell.appendChild(button);
     }
@@ -1930,8 +2480,15 @@ function get_extension(e){
         e.preventDefault();
 
     var oid = getClosest(e.target, 'tr').id;
-    
+
     if(oid){
+        if(!PbxObject.templates.extension){
+            $.get('/badmin/views/extension.html', function(template){
+                PbxObject.templates = PbxObject.templates || {};
+                PbxObject.templates.extension = template;
+            });
+        }
+
         show_loading_panel();
         json_rpc_async('getObject', '\"oid\":\"'+oid+'\"', load_extension);
     }
@@ -1990,7 +2547,7 @@ function editExtension(e){
     cell = tr.insertCell(6);
     button = document.createElement('button');
     button.className = 'btn btn-default btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-chevron-left"></i>';
+    button.innerHTML = '<i class="fa fa-chevron-left"></i>';
     addEvent(button, 'click', function(){
         row.style.display = 'table-row';
         table.removeChild(tr);
@@ -2000,7 +2557,7 @@ function editExtension(e){
     cell = tr.insertCell(7);
     button = document.createElement('button');
     button.className = 'btn btn-success btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-ok"></i>';
+    button.innerHTML = '<i class="fa fa-check"></i>';
     addEvent(button, 'click', set_extension_update);
     cell.appendChild(button);
 
@@ -2034,132 +2591,71 @@ function set_extension_update(e){
 }
 
 function load_extension(result){
-    console.log(result);
 
     var d = document,
-        groupid = result.groupid,
-        kind = result.kind == 'user' ? 'users':'unit',
-        tabs = document.getElementById('ext-tabs');
+    groupid = result.groupid,
+    kind = result.kind == 'user' ? 'users':'unit';
+    data = {
+        data: result,
+        frases: PbxObject.frases
+    };
+    console.log(data);
 
-    // PbxObject.kind = kind;
     PbxObject.oid = result.oid;
     
+    var rendered = Mustache.render(PbxObject.templates.extension, data);
+    var cont = document.createElement('div');
+    cont.id = 'ext-cont';
+    document.getElementById('dcontainer').appendChild(cont);
+    $("#ext-cont").html(rendered);
     
-    document.getElementById('el-extension-num').innerHTML = 'Extension '+result.number;
-    
+    var tabs = document.getElementById('ext-tabs');
     if(groupid){
-        // select.disabled = false;
         fill_group_choice(kind, groupid);
     }
-    // else {
-    //     select.disabled = true;
-    // }
-    if(kind == 'users'){
-        d.getElementById('followme').disabled = false;
-        d.getElementById('followme').value = result.followme;
-        // d.getElementById('extpassword').type = 'password';
+
+    if(kind !== 'users'){
+        d.getElementById('el-followme').classList.add('hidden');
     }
-    else{
-        d.getElementById('followme').disabled = true;
-        d.getElementById('followme').value = '';
-        // d.getElementById('extpassword').type = 'text';
-    }
-    d.getElementById('extname').value = result.name;
-    d.getElementById('extpin').value = result.pin;
-    d.getElementById('extlogin').innerHTML = result.login;
+    
     d.getElementById('extpassword').value = result.password;
-    d.getElementById('extdisplay').value = result.display;
-    // if(result.features){
-        if(result.features.fwdall != undefined){
-            tabs.querySelector('li a[href="#ext-forwarding"]').parentNode.className = '';
-            d.getElementById('fwdall').checked = result.features.fwdall;
-            d.getElementById('fwdallnumber').value = result.features.fwdallnumber;
-            d.getElementById('fwdnreg').checked = result.features.fwdnreg;
-            d.getElementById('fwdnregnumber').value = result.features.fwdnregnumber;
-            d.getElementById('fwdbusy').checked = result.features.fwdbusy;
-            d.getElementById('fwdbusynumber').value = result.features.fwdbusynumber;
-            d.getElementById('fwdnans').checked = result.features.fwdnans;
-            d.getElementById('fwdnansnumber').value = result.features.fwdnansnumber;
-            d.getElementById('fwdtimeout').value = result.features.fwdtimeout;
-        }
-        else{
+    
+    if(result.features){
+        if(result.features.fwdall == undefined){
             tabs.querySelector('li a[href="#ext-forwarding"]').parentNode.className = 'hidden';
         }
-        
-        if(result.features.dnd != undefined){
-            d.getElementById('dnd').checked = result.features.dnd;
+        if(result.features.dnd == undefined){
+            d.getElementById('ext-dnd').setAttribute('disabled','');
         }
-        else{
-            d.getElementById('dnd').setAttribute('disabled','');
-            d.getElementById('dnd').checked = false;
+        if(result.features.clir == undefined){
+            d.getElementById('ext-clir').setAttribute('disabled','');
         }
-        if(result.features.clir != undefined){
-            d.getElementById('clir').checked = result.features.clir; 
+        if(result.features.callwaiting == undefined){
+            d.getElementById('ext-callwaiting').setAttribute('disabled','');
         }
-        else{
-            d.getElementById('clir').setAttribute('disabled','');
-            d.getElementById('clir').checked = false; 
+        if(result.features.pickupdeny == undefined){
+            d.getElementById('ext-pickupdeny').setAttribute('disabled','');
         }
-        if(result.features.callwaiting != undefined){
-            d.getElementById('callwaiting').checked = result.features.callwaiting;
+        if(result.features.monitordeny == undefined){
+            d.getElementById('ext-monitordeny').setAttribute('disabled','');
         }
-        else{
-            d.getElementById('callwaiting').setAttribute('disabled','');
-            d.getElementById('callwaiting').checked = false;
+        if(result.features.busyoverdeny == undefined){
+            d.getElementById('ext-busyoverdeny').setAttribute('disabled','');
         }
-        if(result.features.pickupdeny != undefined){
-            d.getElementById('pickupdeny').checked = result.features.pickupdeny;
+        if(result.features.voicemail == undefined){
+            d.getElementById('ext-voicemail').setAttribute('disabled','');
         }
-        else{
-            d.getElementById('pickupdeny').setAttribute('disabled','');
-            d.getElementById('pickupdeny').checked = false;
+        if(result.features.lock == undefined){
+            d.getElementById('ext-plock').setAttribute('disabled','');
         }
-        if(result.features.monitordeny != undefined){
-            d.getElementById('monitordeny').checked = result.features.monitordeny;
-        }
-        else{
-            d.getElementById('monitordeny').setAttribute('disabled','');
-            d.getElementById('monitordeny').checked = false;
-        }
-        if(result.features.busyoverdeny != undefined){
-            d.getElementById('busyoverdeny').checked = result.features.busyoverdeny;
-        }
-        else{
-            d.getElementById('busyoverdeny').setAttribute('disabled','');
-            d.getElementById('busyoverdeny').checked = false;
-        }
-        if(result.features.voicemail != undefined){
-            d.getElementById('voicemail').checked = result.features.voicemail;
-        }
-        else{
-            d.getElementById('voicemail').setAttribute('disabled','');
-            d.getElementById('voicemail').checked = false;
-        }
-        // if(result.features.recording != undefined){
-        //     d.getElementById('recording').checked = result.features.recording;
-        // }
-        // else{
-        //     d.getElementById('recording').setAttribute('disabled','');
-        //     d.getElementById('recording').checked = false;
-        // }
-        if(result.features.lock != undefined){
-            d.getElementById('plock').checked = result.features.lock;
-        }
-        else{
-            d.getElementById('plock').setAttribute('disabled','');
-            d.getElementById('plock').checked = false;
-        }
-    // }
+    }
     
     $('#el-extension').modal();
     show_content();
     
-    d.getElementById('el-set-object').onclick = function(){
+    d.getElementById('el-set-extension').onclick = function(){
         set_extension(kind);
     };
-//    addEvent(so, 'click', function(oid){
-//        return function(event){set_extension(event, oid)};
-//    }(result.oid));
 }
 
 function set_extension(kind){
@@ -2180,46 +2676,46 @@ function set_extension(kind){
     }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
-    jprms += '\"login\":\"'+d.getElementById("extlogin").value+'\",';
+    if(d.getElementById("extlogin").value) jprms += '\"login\":\"'+d.getElementById("extlogin").value+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
-    jprms += '\"pin\":\"'+d.getElementById("extpin").value+'\",';
+    if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     jprms += '\"features\":{';
-    if(d.getElementById("fwdall") != null){
-        jprms += '\"fwdall\":'+d.getElementById("fwdall").checked+',';
-        jprms += '\"fwdallnumber\":\"'+d.getElementById("fwdallnumber").value+'\",';
+    if(d.getElementById("ext-fwdall") != null){
+        jprms += '\"fwdall\":'+d.getElementById("ext-fwdall").checked+',';
+        jprms += '\"fwdallnumber\":\"'+d.getElementById("ext-fwdallnumber").value+'\",';
     }
-    if(d.getElementById("fwdnregnumber") != null){   
-        jprms += '\"fwdnreg\":'+d.getElementById("fwdnreg").checked+',';
-        jprms += '\"fwdnregnumber\":\"'+d.getElementById("fwdnregnumber").value+'\",';
+    if(d.getElementById("ext-fwdnregnumber") != null){   
+        jprms += '\"fwdnreg\":'+d.getElementById("ext-fwdnreg").checked+',';
+        jprms += '\"fwdnregnumber\":\"'+d.getElementById("ext-fwdnregnumber").value+'\",';
     }
-    if(d.getElementById("fwdbusynumber") != null){
-        jprms += '\"fwdbusy\":'+d.getElementById("fwdbusy").checked+',';
-        jprms += '\"fwdbusynumber\":\"'+d.getElementById("fwdbusynumber").value+'\",';
+    if(d.getElementById("ext-fwdbusynumber") != null){
+        jprms += '\"fwdbusy\":'+d.getElementById("ext-fwdbusy").checked+',';
+        jprms += '\"fwdbusynumber\":\"'+d.getElementById("ext-fwdbusynumber").value+'\",';
     }
-    if(d.getElementById("fwdnansnumber") != null){
-        jprms += '\"fwdnans\":'+d.getElementById("fwdnans").checked+',';
-        jprms += '\"fwdnansnumber\":\"'+d.getElementById("fwdnansnumber").value+'\",';
+    if(d.getElementById("ext-fwdnansnumber") != null){
+        jprms += '\"fwdnans\":'+d.getElementById("ext-fwdnans").checked+',';
+        jprms += '\"fwdnansnumber\":\"'+d.getElementById("ext-fwdnansnumber").value+'\",';
     }  
-    if(d.getElementById("fwdtimeout") != null)    
-        jprms += '\"fwdtimeout\":'+d.getElementById("fwdtimeout").value+',';
-    if(d.getElementById("plock").disabled == false)    
-        jprms += '\"lock\":'+d.getElementById("plock").checked+',';
-    if(d.getElementById("dnd").disabled == false)    
-        jprms += '\"dnd\":'+d.getElementById("dnd").checked+',';
-    if(d.getElementById("clir").disabled == false)    
-        jprms += '\"clir\":'+d.getElementById("clir").checked+',';
-    if(d.getElementById("callwaiting").disabled == false)
-        jprms += '\"callwaiting\":'+d.getElementById("callwaiting").checked+',';
-    if(d.getElementById("pickupdeny").disabled == false)    
-        jprms += '\"pickupdeny\":'+d.getElementById("pickupdeny").checked+',';
-    if(d.getElementById("monitordeny").disabled == false)    
-        jprms += '\"monitordeny\":'+d.getElementById("monitordeny").checked+',';
-    if(d.getElementById("busyoverdeny").disabled == false)    
-        jprms += '\"busyoverdeny\":'+d.getElementById("busyoverdeny").checked+',';
+    if((d.getElementById("ext-fwdtimeout") != null) && d.getElementById("ext-fwdtimeout").value)
+        jprms += '\"fwdtimeout\":'+d.getElementById("ext-fwdtimeout").value+',';
+    if(d.getElementById("ext-plock").disabled == false)    
+        jprms += '\"lock\":'+d.getElementById("ext-plock").checked+',';
+    if(d.getElementById("ext-dnd").disabled == false)    
+        jprms += '\"dnd\":'+d.getElementById("ext-dnd").checked+',';
+    if(d.getElementById("ext-clir").disabled == false)    
+        jprms += '\"clir\":'+d.getElementById("ext-clir").checked+',';
+    if(d.getElementById("ext-callwaiting").disabled == false)
+        jprms += '\"callwaiting\":'+d.getElementById("ext-callwaiting").checked+',';
+    if(d.getElementById("ext-pickupdeny").disabled == false)    
+        jprms += '\"pickupdeny\":'+d.getElementById("ext-pickupdeny").checked+',';
+    if(d.getElementById("ext-monitordeny").disabled == false)    
+        jprms += '\"monitordeny\":'+d.getElementById("ext-monitordeny").checked+',';
+    if(d.getElementById("ext-busyoverdeny").disabled == false)    
+        jprms += '\"busyoverdeny\":'+d.getElementById("ext-busyoverdeny").checked+',';
     // if(d.getElementById("recording").disabled == false)    
     //     jprms += '\"recording\":'+d.getElementById("recording").checked+',';
-    if(d.getElementById("voicemail").disabled == false)    
-        jprms += '\"voicemail\":'+d.getElementById("voicemail").checked+',';
+    if(d.getElementById("ext-voicemail").disabled == false)    
+        jprms += '\"voicemail\":'+d.getElementById("ext-voicemail").checked+',';
     jprms += '}';  
     console.log(jprms);
     json_rpc('setObject', jprms);
@@ -2517,7 +3013,7 @@ function add_route_row(route, objects){
     cell = row.insertCell(5);
     button = document.createElement('button');
     button.className = 'btn btn-primary btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-edit"></i>';
+    button.innerHTML = '<i class="fa fa-edit"></i>';
     addEvent(button, 'click', function(){
         var newroute = build_route_row(route, objects);
         row.parentNode.insertBefore(newroute, row);
@@ -2528,15 +3024,15 @@ function add_route_row(route, objects){
     cell = row.insertCell(6);
     button = document.createElement('button');
     button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-trash"></i>';
+    button.innerHTML = '<i class="fa fa-trash"></i>';
     addEvent(button, 'click', function(e){
-        // var c = confirm(PbxObject.frases.DELETE+' '+PbxObject.frases.ROUTE.toLowerCase()+'?');
-        // if(c) {
+        var c = confirm(PbxObject.frases.DELETE+' '+PbxObject.frases.ROUTE.toLowerCase()+'?');
+        if(c) {
             remove_row(e);
-            // set_routes();
-        // } else {
-        //     return false;
-        // }
+            set_routes();
+        } else {
+            return false;
+        }
     });
     cell.appendChild(button);
 
@@ -2675,7 +3171,7 @@ function build_route_row(route, objects){
     td = document.createElement('td');
     button = document.createElement('button');
     button.className = 'btn btn-default btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-chevron-left"></i>';
+    button.innerHTML = '<i class="fa fa-chevron-left"></i>';
     addEvent(button, 'click', function(){
         var row = tr.nextSibling;
         if(row && row.nodeName == 'TR' && row.style.display == 'none') {
@@ -2689,13 +3185,13 @@ function build_route_row(route, objects){
     td = document.createElement('td');
     button = document.createElement('button');
     button.className = 'btn btn-success btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-ok"></i>';
+    button.innerHTML = '<i class="fa fa-check"></i>';
     addEvent(button, 'click', function(){
-        // var name = document.getElementById('objname').value;
-        // if(!name) {
-        //     alert(PbxObject.frases.MISSEDNAMEFIELD);
-        //     return;
-        // }
+        var name = document.getElementById('objname').value;
+        if(!name) {
+            alert(PbxObject.frases.MISSEDNAMEFIELD);
+            return;
+        }
         var row = tr.nextSibling;
         var newrow = add_route_row(rowData, objects);
         tr.parentNode.insertBefore(newrow, tr);
@@ -2703,7 +3199,7 @@ function build_route_row(route, objects){
             row.parentNode.removeChild(row);
         }
         tr.parentNode.removeChild(tr);
-        // set_routes();
+        set_routes();
     });
     td.appendChild(button);
     tr.appendChild(td);
@@ -2860,7 +3356,7 @@ function timer_target_row(oid, name, action){
     td = document.createElement('td');
     var button = document.createElement('button');
     button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = '<i class="glyphicon glyphicon-minus"></i>';
+    button.innerHTML = '<i class="fa fa-chevron-minus"></i>';
     button.onclick = function(){
         remove_listener(oid);
     };

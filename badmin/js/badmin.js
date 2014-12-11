@@ -129,7 +129,7 @@ function json_rpc_async(method, params, handler, id){
         xhr.abort();
         notify_about('info' , PbxObject.frases.TIMEOUT);
         show_content();
-    }, 30000);
+    }, 60*1000);
     xhr.onreadystatechange = function() {
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
@@ -258,6 +258,8 @@ function callbackOnId(id, result){
         PbxObject.CallsBoard.setCurrentCalls(result);
     } else if(id == 6){
         PbxObject.CallsBoard.setCurrentState(result);
+    } else if(id == 7){
+        setCallStatistics(result);
     }
 
 }
@@ -273,12 +275,9 @@ function init_page(){
     // } else {
     //     json_rpc_async('getPbxOptions', null, load_pbx_options);
     // }
-    var menutemp = $('#menu-template').html();
-    var opttemp = $('#options-template').html();
-    var menrend = Mustache.render(menutemp, PbxObject.frases);
-    var optrend = Mustache.render(opttemp, PbxObject.frases);
-    $('#pbxmenu').html(menrend);
-    $('#pbxoptions').html(optrend);
+    var maintemp = $('#main-template').html();
+    var mainrend = Mustache.render(maintemp, PbxObject.frases);
+    $('#pagecontainer').html(mainrend);
 
     switchMode(PbxObject.options.config);
     document.getElementsByTagName('title')[0].innerHTML = 'SmileSoft - ' + PbxObject.frases.PBXADMIN;
@@ -286,6 +285,7 @@ function init_page(){
     setPageHeight();
 
     PbxObject.groups = {};
+    PbxObject.templates = {};
     // PbxObject.language = window.localStorage.getItem('pbxLanguage');
     PbxObject.language = PbxObject.options.lang;
     PbxObject.smallScreen = isSmallScreen();
@@ -322,80 +322,6 @@ function set_listeners(){
     
     var attachFastClick = Origami.fastclick;
     attachFastClick(document.body);
-    // $('#pbxmenu li a').click(function() {
-    //     var parent = $(this).parent();
-    //     var kind = $(this).attr('data-kind');
-    //     if(kind && !parent.hasClass('active')){
-    //         var ul = document.createElement('ul');
-    //         ul.id = 'ul-'+kind;
-
-    //         if(kind != 'equipment' && kind != 'unit' && kind != 'users' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
-    //             likind = document.createElement('li');
-    //             likind.className = 'menu-name';
-    //             likind.innerHTML = PbxObject.frases.KINDS[kind];
-    //             ul.appendChild(likind);
-    //         }
-
-    //         var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
-    //         var li = document.createElement('li');
-    //         li.className = 'add-group-object';
-    //         var a = document.createElement('a');
-    //         if(kind == 'application') {
-    //             var inp = document.createElement('input');
-    //             inp.type = "file";
-    //             inp.id = "uploadapp";
-    //             inp.className = "upload-custom";
-    //             inp.accept = ".application";
-    //             addEvent(inp, 'change', function(){
-    //                 upload('uploadapp');
-    //             });
-    //             li.appendChild(inp);
-    //             a.href = '#';
-    //             addEvent(a, 'click', function(e){
-    //                 document.getElementById('uploadapp').click();
-    //                 if(e) e.preventDefault;
-    //             });
-    //         }
-    //         else{
-    //             a.href = '#'+kind;
-    //         }
-    //         a.innerHTML ='<i class="glyphicon glyphicon-plus"></i><span>Add</span>';
-    //         li.appendChild(a);
-    //         ul.appendChild(li);
-    //         var i, gid, name, li, a, rem;
-    //         for(i=0; i<result.length; i++){
-    //             gid = result[i].oid;
-    //             name = result[i].name;
-    //             li = document.createElement('li');
-    //             a = document.createElement('a');
-    //             a.href = '#'+kind+'?'+gid;
-    //             a.innerHTML = name;
-    //             li.appendChild(a);
-    //             ul.appendChild(li);
-    //         }
-    //         $(this).siblings().remove('ul');
-    //         parent.append(ul);
-    //     }
-
-    //     parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
-    //     parent.addClass('active'); 
-
-    //     var checkElement = $(this).next();
-    //     if((checkElement.is('ul')) && (checkElement.is(':visible'))) {
-    //         parent.removeClass('active');
-    //         checkElement.slideUp('normal');
-
-    //     }
-    //     if((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
-    //         checkElement.slideDown('normal');
-    //     }
-
-    //     if(parent.find('ul').children().length == 0) {
-    //         return true;
-    //     } else {
-    //         return false; 
-    //     }
-    // }); 
 }
 
 function showGroups(e){
@@ -440,7 +366,7 @@ function showGroups(e){
                 else{
                     a.href = '#'+kind;
                 }
-                a.innerHTML ='<i class="glyphicon glyphicon-plus"></i><span>'+PbxObject.frases.ADD+'</span>';
+                a.innerHTML ='<i class="fa fa-plus"></i><span>'+PbxObject.frases.ADD+'</span>';
                 li.appendChild(a);
                 ul.appendChild(li);
                 var i, gid, name, li, a, rem;
@@ -508,34 +434,40 @@ function get_object(result){
             kind = 'bgroup';
         }
 
-        callback = 'load_' + kind;
-        fn = window[callback];
-//        var url = '/badmin/js/'+query+'.js';
-//        $.getScript(url, function(){
+        // callback = 'load_' + kind;
+        // fn = window[callback];
 
-            // $("#dcontainer").load('/badmin/'+lang+'/'+kind+'.html', function(){
-            $("#dcontainer").load('/badmin/views/'+kind+'.html', function(){
-                var template = document.getElementById('el-loaded-content').innerHTML;
-                var output = Mustache.render(template, PbxObject.frases);
-                $("#dcontainer").html(output);
-
-                if(kind == 'extensions'){
-                    // if(PbxObject.extensions)
-                    //     load_extensions(PbxObject.extensions);
-                    // else
-                        json_rpc_async('getExtensions', null, fn);
-                }
-                else if(kind == 'calls' || kind == 'records'){
-                    fn();
-                }
-                else {
-                    json_rpc_async('getObject', '\"oid\":\"'+oid+'\"', fn);
-                }
-                $('#dcontainer').scrollTop(0);
-                // $('.squeezed-menu > ul').children('li.active').removeClass('active').children('ul:visible').slideUp('normal');
+        if(PbxObject.templates[kind]){
+            load_template(PbxObject.templates[kind], kind);
+        } else {
+            // $("#dcontainer").load('/badmin/views/'+kind+'.html', function(template){
+            $.get('/badmin/views/'+kind+'.html', function(template){
+                PbxObject.templates[kind] = template;
+                load_template(template, kind);
             });
-//        });
+        }
     }
+}
+
+function load_template(template, kind){
+    // var template = document.getElementById('el-loaded-content').innerHTML;
+    var callback = 'load_' + kind;
+    var fn = window[callback];
+    var rendered = Mustache.render(template, PbxObject.frases);
+    $("#dcontainer").html(rendered);
+
+    if(kind == 'extensions'){
+        // if(PbxObject.extensions)
+        //     load_extensions(PbxObject.extensions);
+        // else
+        json_rpc_async('getExtensions', null, fn);
+    } else if(kind == 'calls' || kind == 'records' || kind == 'statistics'){
+        fn();
+    } else {
+        json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+    }
+    $('#dcontainer').scrollTop(0);
+    // $('.squeezed-menu > ul').children('li.active').removeClass('active').children('ul:visible').slideUp('normal');
 }
 
 function set_page(){
@@ -572,7 +504,7 @@ function set_page(){
 
     if(so){
         var text = PbxObject.name ? PbxObject.frases.SAVE : PbxObject.frases.CREATE;
-        so.innerHTML = '<i class="glyphicon glyphicon-ok"></i> '+text;
+        so.innerHTML = '<i class="fa fa-check"></i> '+text;
         so.onclick = function(){
             fn();
         };
@@ -692,7 +624,7 @@ function show_loading_panel(container){
     back.appendChild(load);
 
     var cont = container || document.getElementById('pagecontainer');
-    cont.appendChild(back);    
+    cont.appendChild(back);
 }
 
 function show_content(togglecont){
@@ -700,7 +632,7 @@ function show_content(togglecont){
     var loading = document.getElementById('el-loading');
     if(loading) loading.parentNode.removeChild(loading);
 
-    if($('#dcontainer').hasClass('faded')) 
+    if($('#dcontainer').hasClass('faded'))
         $('#dcontainer').removeClass('faded');
 
     if(togglecont === false) return;
@@ -756,8 +688,8 @@ function switch_presentation(kind){
         if(item.classList.contains('pl-'+kind) || item.classList.contains('pl-all')) {
             if(!(item.classList.contains('pl-no-'+kind)))
                 action = 'add';
-            else 
-                action = 'remove';    
+            else
+                action = 'remove';
         } else {
             action = 'remove';
         }
@@ -848,15 +780,15 @@ function notify_about(status, message){
         body = document.getElementsByTagName('body')[0];
     switch(status){
         case 'success':
-            ico = '<span class="glyphicon glyphicon-ok"></span>';
+            ico = '<span class="fa fa-check"></span>';
             cls = 'el-notifier-ok';
             break;
         case 'error':
-            ico = '<span class="glyphicon glyphicon-remove"></span>';
+            ico = '<span class="fa fa-close"></span>';
             cls = 'el-notifier-error';
             break;
         default:
-            ico = '<span class="glyphicon glyphicon-exclamation-sign"></span>';
+            ico = '<span class="fa fa-warning"></span>';
             cls = 'el-notifier-info';
     }
 
@@ -937,7 +869,7 @@ function append_transform(e, tableid, transform){
     inp = document.createElement('a');
     inp.href = '#';
     inp.className = 'remove-clr';
-    inp.innerHTML = '<i class="glyphicon glyphicon-minus"></i>';
+    inp.innerHTML = '<i class="fa fa-minus"></i>';
     // cell = document.createElement('input');
     // cell.setAttribute('type', 'checkbox');
     // cell.className = 'delall';
@@ -1226,12 +1158,12 @@ function revealPassword(e) {
         ico = this.firstChild;
     if(input.type == 'password') {
         input.type = 'text';
-        ico.classList.remove('glyphicon-eye-open');
-        ico.classList.add('glyphicon-eye-close');
+        ico.classList.remove('fa-eye');
+        ico.classList.add('fa-eye-slash');
     } else {
         input.type = 'password';
-        ico.classList.remove('glyphicon-eye-close');
-        ico.classList.add('glyphicon-eye-open');
+        ico.classList.remove('fa-eye');
+        ico.classList.add('fa-eye-slash');
 
     }
 }
@@ -1285,6 +1217,41 @@ function sortByKey(object, key){
             return 1;
         return 0;
     });
+}
+
+function objFromString(obj, i){
+    return obj[i];
+}
+
+function formatTimeString(time, format){
+    var h, m, s, newtime;
+    h = Math.floor(time / 3600);
+    time = time - h * 3600;
+    m = Math.floor(time / 60);
+    newtime = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+    if(format == 'hh:mm:ss'){
+        s = time - m * 60;
+        newtime += ':' + (s < 10 ? '0'+s : s);
+    }
+    return newtime;
+}
+
+function clearTable(table){
+    while (table.hasChildNodes()) {
+        table.removeChild(table.firstChild);
+    }
+}
+
+function clearColumns(table){
+    var thead = table.querySelector('thead');
+    var allRows = table.rows;
+    while(thead.rows[0].cells.length > 1){
+        for (var i=0; i<allRows.length; i++) {
+            if (allRows[i].cells.length > 1) {
+                allRows[i].deleteCell(-1);
+            }
+        }
+    }
 }
 
 // function sortSelect(selectElement) {

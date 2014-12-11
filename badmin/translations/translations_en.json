@@ -73,6 +73,7 @@
 		"ENDTOUT" : "End timeout",
 		"OUTCALLS" : "Outgoing calls",
 		"INCALLS" : "Incoming calls",
+		"INTCALLS" : "Internal calls",
 		"CALLINGTRANSF" : "Calling number transforms",
 		"CALLEDTRANSF" : "Called number transforms",
 		"OUTBARGING" : "Deny calls to outer numbers",
@@ -111,6 +112,7 @@
 	"CANCEL" : "Cancel",
 	"CLEAR" : "Clear",
 	"DELETE" : "Delete",
+	"SELECT" : "Select",
 	"FROM" : "From",
 	"TO" : "To",
 	"LOCAL" : "Local",
@@ -150,7 +152,7 @@
 	"EXTALLOCATION" : "Allocation of extension numbers",
 	"DEVTYPE" : "Device type",
 	"USEASTERISK" : "Use * as \"Flash\" button",
-	"LINESNUM" : "Amount of lines on phone",
+	"LINESNUM" : "Lines per phone",
 	"GROUPNUM" : "Group number",
 	"CALLTOUT" : "Call timeout",
 	"HUNTINGTYPE" : {
@@ -225,6 +227,7 @@
 	"TIMERSNAME": "Timer name",
 	"PICKADATE": "Select date and time",
     "TIME": "Time",
+    "HOUR" : "Hour",
     "DAY" : "Day",
     "MONTH" : "Month",
     "YEAR" : "Year",
@@ -269,6 +272,7 @@
         "channel": "Channel",
         "calls": "Calls",
         "records": "Call Records",
+        "statistics": "Statistics",
         "extensions": "Extensions"
     },
     "CODES": {
@@ -293,5 +297,26 @@
     "JDBCNAME" : "JDBC driver name",
     "JDBCURL" : "JDBC driver URL",
     "DBOWNER" : "Database owner",
-    "OWNER" : "Owner"
+    "OWNER" : "Owner",
+    "STATISTICS" : {
+    	"TYPES" : {
+    		"PERIOD" : "Period",
+    		"INTERVAL" : "Interval"
+    	},
+    	"TOTALCOST" : "Total cost",
+	    "TOTALCALLS" : "Total calls",
+	    "LOSTCALLS" : "Lost calls",
+	    "TOTALDURATION" : "Total duration",
+	    "CONNECTEDCALLS" : "Connected calls",
+	    "NUMBER_OF_CALLS" : "The number of calls",
+	    "EXT_STATS" : "Extensions Statistics"
+    },
+    "DATE_PICKER" : {
+    	"TODAY" : "Today",
+    	"YESTERDAY" : "Yesterday",
+    	"LAST_7_DAYS" : "Last 7 Days",
+    	"LAST_MONTH" : "Last Month",
+    	"CUSTOM_RANGE" : "Custom Range",
+    	"INTERVAL" : "Interval"
+    }
 }

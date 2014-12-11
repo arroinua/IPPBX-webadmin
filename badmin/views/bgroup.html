@@ -16,12 +16,12 @@
         <div class="col-sm-12 col-custom">
             <div class="panel">
                 <div class="panel-header"> {{KINDS.users}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <div class="panel minimized">
                         <div class="panel-header custom-header-2">
-                            <i class="glyphicon glyphicon-plus"></i> {{ADDUSER}}
+                            <i class="fa fa-plus"></i> {{ADDUSER}}
                         </div>
                         <div class="panel-body">
                             <!-- <div class="row"> -->
@@ -114,7 +114,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-all pl-no-users">
             <div class="panel">
                 <div class="panel-header">{{EXTALLOCATION}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <div class="selectable-cont">
@@ -142,7 +142,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-equipment">
             <div class="panel">
                 <div class="panel-header">{{GROUPSETTS}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -216,7 +216,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-unit">
             <div class="panel">
                 <div class="panel-header">{{GROUPSETTS}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -258,7 +258,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-hunting">
             <div class="panel">
                 <div class="panel-header">{{GROUPSETTS}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -293,7 +293,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-pickup">
             <div class="panel">
                 <div class="panel-header">{{GROUPSETTS}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -310,7 +310,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-icd">
             <div class="panel">
                 <div class="panel-header">{{GROUPSETTS}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -357,7 +357,7 @@
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-conference pl-selector pl-channel">
             <div class="panel">
                 <div class="panel-header">{{INITCONN}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -488,7 +488,7 @@
             <div class="col-md-6 col-xs-12 col-custom">
                 <div class="panel">
                     <div class="panel-header">{{CALLROUTING}}
-                        <i class="glyphicon glyphicon-chevron-down"></i>
+                        <i class="fa fa-chevron-down"></i>
                     </div>
                     <div class="panel-body">
                         <form class="form-horizontal">
@@ -521,7 +521,7 @@
             <div class="col-md-6 col-xs-12 col-custom">
                 <div class="panel">
                     <div class="panel-header">{{QUEUESETTS}}
-                        <i class="glyphicon glyphicon-chevron-down"></i>
+                        <i class="fa fa-chevron-down"></i>
                     </div>
                     <div class="panel-body">
                         <form class="form-horizontal">
@@ -572,67 +572,12 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="pl-kind pl-selector">
-            <div class="col-md-6 col-xs-12 col-custom">
-                <div class="panel" id="conf-init-mode">
-                    <div class="panel-header">{{CONFINIT.CONFINIT}}
-                        <i class="glyphicon glyphicon-chevron-down"></i>
-                    </div>
-                    <div class="panel-body">
-                        <form>
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                  <div class="radio">
-                                    <label>
-                                        <input type="radio" name="mode" class='init-mode' value="0"> {{CONFINIT.LISTENONLY}}
-                                    </label>
-                                  </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                  <div class="radio">
-                                    <label>
-                                        <input type="radio" name="mode" class='init-mode' value="1"> {{CONFINIT.TALKANDLISTEN}}
-                                    </label>
-                                  </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                  <div class="radio">
-                                    <label>
-                                        <input type="radio" name="mode" class='init-mode' value="3"> {{CONFINIT.MULTINODE}}
-                                    </label>
-                                  </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                  <div class="radio">
-                                    <label>
-                                        <input type="radio" name="mode" class='init-mode' value="2"> {{CONFINIT.PLAYGREET}}
-                                    </label>
-                                  </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="onhold2" class="col-sm-4 control-label">{{CONFINIT.GREETFILE}}:</label>
-                                <div class="col-sm-12">
-                                    <input type="file" id="onhold2" class="upload-custom">
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div> -->
     </div>
     <div class="row pl-kind pl-users pl-equipment pl-unit" id="profile">
         <div class="col-md-6 col-xs-12 col-custom">
             <div class="panel minimized">
                 <div class="panel-header">{{EXTFUNCTIONS}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -733,7 +678,7 @@
         <div class="col-md-6 col-xs-12 col-custom">
             <div class="panel minimized">
                 <div class="panel-header"> {{SETTINGS.NUMTRANSFORM}}
-                    <i class="glyphicon glyphicon-chevron-down"></i>
+                    <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
@@ -764,7 +709,7 @@
                                     <th>{{PREFIX}}</th>
                                     <th>
                                         <a href="#" class="add-clr transrow">
-                                            <i class="glyphicon glyphicon-plus"></i>
+                                            <i class="fa fa-plus"></i>
                                         </a>
                                     </th>
                                 </tr>
@@ -782,8 +727,8 @@
         <div class="col-xs-12 col-custom">
             <div class="panel">
                 <div class="panel-body">
-                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="glyphicon glyphicon-ok"></i> {{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="glyphicon glyphicon-trash"></i> {{DELETE}}</button>
+                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="fa fa-check fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>
