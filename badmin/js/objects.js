@@ -220,7 +220,7 @@ function CallsBoard(){
         tcalls = document.getElementById('calls-table').querySelector('tbody'),
         lrow = ttrunks.rows.length,
         self = this,
-        row, cell, a, picker;
+        row, cell, a, picker, chartData, chartOpts;
 
     this.init = function(){
         var start, end;
@@ -370,7 +370,8 @@ function CallsBoard(){
     };
 
     this.createGraph = function(data){
-        var insData = [], outsData = [], intsData = [], time, item, chartData, chartOpts;
+        console.log(data);
+        var insData = [], outsData = [], intsData = [], time, item;
         var timeFormat = (function(intr){
             if(isSmallScreen()){
                 return '';
@@ -457,10 +458,14 @@ function CallsBoard(){
             colors: ["#4572A7", "#BADABA", "#AA4643"]
         };
         $.plot($("#calls-graph"), chartData, chartOpts);
-        console.log(chartData);
 
-        addEvent(window, 'resize', function(){
-            $.plot($("#calls-graph"), chartData, chartOpts);
+        addEvent(window, 'resize', self.resizeChart);
+    };
+
+    this.resizeChart = function(){
+        $.plot($("#calls-graph"), chartData, chartOpts);
+        addEvent(window, 'hashchange', function(){
+            removeEvent(window, 'resize', self.resizeChart);
         });
     };
 
@@ -3356,7 +3361,7 @@ function timer_target_row(oid, name, action){
     td = document.createElement('td');
     var button = document.createElement('button');
     button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = '<i class="fa fa-chevron-minus"></i>';
+    button.innerHTML = '<i class="fa fa-minus"></i>';
     button.onclick = function(){
         remove_listener(oid);
     };
