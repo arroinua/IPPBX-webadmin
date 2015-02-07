@@ -1,14 +1,22 @@
 <div id="el-loaded-content">
     <div class="row">
-        <div class="col-xs-12">
-            <div class="input-group object-name">
-                <input type=text id="objname" class="form-control" placeholder="{{TRUNKSNAME}}" autofocus>
-                <span class="input-group-addon">
-                    <div class="switch switch-lg">
-                        <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                        <label for="enabled"></label>
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="input-group object-name">
+                        <input type="text" id="objname" class="form-control" placeholder="{{TRUNKSNAME}}" autofocus>
+                        <span class="input-group-addon">
+                            <div class="switch switch-lg">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
+                            </div>
+                        </span>
                     </div>
-                </span>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -21,13 +29,18 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="protocols" class="col-md-5 control-label">{{PROTOCOL}}</label>
-                            <div class="col-md-2">
-                                <select id="protocols" class="form-control"></select>
+                            <label for="protocols" class="col-md-5 control-label" data-toggle="tooltip" title="{{GRP__PROTOCOL}}">{{PROTOCOL}}</label>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <select id="protocols" class="form-control"></select>
+                                    <span class="input-group-btn">
+                                        <button type="button" id="get-proto-opts" class="btn btn-default btn-md">{{OPTIONS}}</button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">    
-                            <label for="domain" class="col-md-5 control-label">{{DOMAIN}}</label>
+                            <label for="domain" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__DOMAIN}}">{{DOMAIN}}</label>
                             <div class="col-md-4">
                                 <input type="text" class="form-control" id="domain" placeholder="{{DOMAIN}}">
                             </div>
@@ -41,28 +54,38 @@
                               </div>
                             </div>
                         </div>
-                        <div class="form-group">    
-                            <label for="user" class="col-md-5 control-label">{{NAME}}</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="user" placeholder="{{NAME}}">
+                        <div id="reg-setts">
+                            <div class="form-group">    
+                                <label for="user" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__USERNAME}}">{{NAME}}</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="user" placeholder="{{NAME}}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="auth" class="col-md-5 control-label">{{AUTHNAME}}</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}">
+                            <div class="form-group">    
+                                <label for="auth" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__AUTHNAME}}">{{AUTHNAME}}</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="pass" class="col-md-5 control-label">{{PASSWORD}}</label>
-                            <div class="col-md-4">
-                                <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}">
+                            <div class="form-group">    
+                                <label for="pass" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <!-- <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}"> -->
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="regexpires" class="col-md-5 control-label">{{REGEXPIRES}}</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" id="regexpires" placeholder="{REGEXPIRES}">
+                            <div class="form-group">    
+                                <label for="regexpires" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__AUTH_PERIOD}}">{{REGEXPIRES}}</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" id="regexpires" placeholder="{REGEXPIRES}">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -74,22 +97,31 @@
                               </div>
                             </div>
                         </div>
-                        <div class="form-group">    
-                            <label for="paddr" class="col-md-5 control-label">{{PROXYADDRESS}}</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="proxy" id="paddr" placeholder="{{PROXYADDRESS}}" disabled="disabled">
+                        <div id="proxy-setts">
+                            <div class="form-group">    
+                                <label for="paddr" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__DOMAIN}}">{{PROXYADDRESS}}</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="proxy" id="paddr" placeholder="{{PROXYADDRESS}}" disabled="disabled">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="pauth" class="col-md-5 control-label">{{AUTHNAME}}</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="proxy" id="pauth" placeholder="{{AUTHNAME}}" disabled="disabled">
+                            <div class="form-group">    
+                                <label for="pauth" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__AUTHNAME}}">{{AUTHNAME}}</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="proxy" id="pauth" placeholder="{{AUTHNAME}}" disabled="disabled">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="ppass" class="col-md-5 control-label">{{PASSWORD}}</label>
-                            <div class="col-md-4">
-                                <input type="password" class="form-control" name="proxy" id="ppass" placeholder="{{PASSWORD}}" disabled="disabled">
+                            <div class="form-group">    
+                                <label for="ppass" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" disabled>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -109,15 +141,15 @@
                             <div class="col-md-offset-4 col-md-8">
                               <div class="checkbox">
                                 <label>
-                                  <input type="checkbox" id="inmode"> {{ALLOWINCCALLS}}
+                                  <input type="checkbox" id="inmode" checked> {{ALLOWINCCALLS}}
                                 </label>
                               </div>
                             </div>
                         </div>
                         <div class="form-group">    
-                            <label for="maxinbounds" class="col-md-4">{{SETTINGS.MAXCONN}}</label>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" id="maxinbounds" placeholder="{{SETTINGS.MAXCONN}}">
+                            <label for="maxinbounds" class="col-md-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="maxinbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
                             </div>
                         </div>
                     </form>
@@ -128,7 +160,7 @@
                                 <tr><th colspan="5">{{SETTINGS.CALLINGTRANSF}}</th></tr>
                                 <tr>
                                     <th>{{NUMBER}}</th>
-                                    <th>{{STRIP}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
                                     <th>{{PREFIX}}</th>
                                     <th>
                                         <a href="#" class="add-clr transrow">
@@ -147,7 +179,7 @@
                                 <tr><th colspan="5">{{SETTINGS.CALLEDTRANSF}}</th></tr>
                                 <tr>
                                     <th>{{NUMBER}}</th>
-                                    <th>{{STRIP}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
                                     <th>{{PREFIX}}</th>
                                     <th>
                                         <a href="#" class="add-clr transrow">
@@ -173,15 +205,15 @@
                             <div class="col-md-offset-4 col-md-8">
                               <div class="checkbox">
                                 <label>
-                                  <input type="checkbox" id="outmode"> {{ALLOWOUTCALLS}}
+                                  <input type="checkbox" id="outmode" checked> {{ALLOWOUTCALLS}}
                                 </label>
                               </div>
                             </div>
                         </div>
                         <div class="form-group">    
-                            <label for="maxoutbounds" class="col-md-4">{{SETTINGS.MAXCONN}}</label>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" id="maxoutbounds" placeholder="{{SETTINGS.MAXCONN}}">
+                            <label for="maxoutbounds" class="col-md-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="maxoutbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
                             </div>
                         </div>
                     </form>
@@ -192,7 +224,7 @@
                                 <tr><th colspan="5">{{SETTINGS.CALLINGTRANSF}}</th></tr>
                                 <tr>
                                     <th>{{NUMBER}}</th>
-                                    <th>{{STRIP}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
                                     <th>{{PREFIX}}</th>
                                     <th>
                                         <a href="#" class="add-clr transrow">
@@ -213,7 +245,7 @@
                                 <tr><th colspan="5">{{SETTINGS.CALLEDTRANSF}}</th></tr>
                                 <tr>
                                     <th>{{NUMBER}}</th>
-                                    <th>{{STRIP}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
                                     <th>{{PREFIX}}</th>
                                     <th>
                                         <a href="#" class="add-clr transrow">
@@ -225,267 +257,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized" id="sip">
-                <div class="panel-header"> {{SIPSETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="huntmode1" class="col-sm-4">DTMF {{MODE}}</label>
-                            <div class="col-md-4">
-                                <select id="dtmfsip" class="form-control">
-                                    <option value="sip info">sip info</option>
-                                    <option value="rfc2833">rfc2833</option>
-                                    <option value="inband">inband</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized" id="h323">
-                <div class="panel-header"> {{H323SETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="huntmode1" class="col-md-4">DTMF {{MODE}}</label>
-                            <div class="col-md-4">
-                                <select id="dtmfh323" class="form-control">
-                                    <option value="h245alpha">h245alpha</option>
-                                    <option value="h245signal">h245signal</option>
-                                    <option value="rfc2833">rfc2833</option>
-                                    <option value="inband">inband</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-offset-4 col-md-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="faststart"> Fast Start
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-offset-4 col-md-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="h245tunneling"> H.245 Tunneling
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-offset-4 col-md-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="playringback"> Play Ringback on Alerting
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized">
-                <div class="panel-header"> {{MEDIASETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-inline">
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div class="col-sm-6">
-                                        <label class="col-xs-9">T.38 Fax</label>
-                                        <div class="col-sm-3 pull-right">
-                                            <div class="switch">
-                                                <input id="t38fax" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="t38fax"></label>
-                                            </div>
-                                        </div>
-
-                                      <!-- <div class="checkbox">
-                                        <label>
-                                          <input type="checkbox" id="t38fax"> T.38 Fax
-                                        </label>
-                                      </div> -->
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label class="col-xs-9">Video</label>
-                                        <div class="col-sm-3 pull-right">
-                                            <div class="switch">
-                                                <input id="video" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="video"></label>
-                                            </div>
-                                        </div>
-                                      <!-- <div class="checkbox">
-                                        <label>
-                                          <input type="checkbox" id="video"> Video
-                                        </label>
-                                      </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <div class="col-sm-6">
-                                        <label class="col-xs-9">Early Media Connection</label>
-                                        <div class="col-sm-3 pull-right">
-                                            <div class="switch">
-                                                <input id="earlymedia" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="earlymedia"></label>
-                                            </div>
-                                        </div>
-                                      <!-- <div class="checkbox">
-                                        <label>
-                                          <input type="checkbox" id="earlymedia"> Early Media Connection
-                                        </label>
-                                      </div> -->
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label class="col-xs-9">DTMF Relay</label>
-                                        <div class="col-sm-3 pull-right">
-                                            <div class="switch">
-                                                <input id="dtmfrelay" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                                <label for="dtmfrelay"></label>
-                                            </div>
-                                        </div>
-                                      <!-- <div class="checkbox">
-                                        <label>
-                                          <input type="checkbox" id="dtmfrelay"> DTMF Relay
-                                        </label>
-                                      </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table" id="codecs">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>{{AUDIOCODECS}}</th>
-                                    <th>{{FRAMES}}(ms)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <select id="c0" class="form-control">
-                                            <option value="0">------</option>
-                                            <option value="G.711 Alaw">G.711 Alaw</option>
-                                            <option value="G.711 Ulaw">G.711 Ulaw</option>
-                                            <option value="G.729">G.729</option>
-                                            <option value="G.723">G.723</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input type="text" id="f0" class="form-control">
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>
-                                        <select id="c1" class="form-control">
-                                            <option value="0">------</option>
-                                            <option value="G.711 Alaw">G.711 Alaw</option>
-                                            <option value="G.711 Ulaw">G.711 Ulaw</option>
-                                            <option value="G.729">G.729</option>
-                                            <option value="G.723">G.723</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input type="text" id="f1" class="form-control">
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>
-                                        <select id="c2" class="form-control">
-                                            <option value="0">------</option>
-                                            <option value="G.711 Alaw">G.711 Alaw</option>
-                                            <option value="G.711 Ulaw">G.711 Ulaw</option>
-                                            <option value="G.729">G.729</option>
-                                            <option value="G.723">G.723</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input type="text" id="f2" class="form-control">
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>
-                                        <select id="c3" class="form-control">
-                                            <option value="0">------</option>
-                                            <option value="G.711 Alaw">G.711 Alaw</option>
-                                            <option value="G.711 Ulaw">G.711 Ulaw</option>
-                                            <option value="G.729">G.729</option>
-                                            <option value="G.723">G.723</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="form-group">
-                                            <input type="text" id="f3" class="form-control">
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <hr>
-                    <h5>{{TIMEOUTS}}:</h5>
-                    <hr>
-                    <div class="form-group">
-                        <div class="col-xs-12">
-                            <label for="t1" class="col-xs-1 control-label">T1</label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" id="t1">
-                            </div>
-                            <label for="t2" class="col-xs-1 control-label">T2</label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" id="t2">
-                            </div>
-                            <label for="t3" class="col-xs-1 control-label">T3</label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" id="t3">
-                            </div>
-                        </div>
-                            
-                    </div>
-                </div>
-            </div>
-        </div>
-    <div class="row">
-        <div class="col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-body">
-                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="fa fa-check"></i> {{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="fa fa-trash"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>

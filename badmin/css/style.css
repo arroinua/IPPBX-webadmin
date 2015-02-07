@@ -1,5 +1,13 @@
 html,body{
     overflow-x: hidden;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
+
+input.form-control,
+select.form-control{
+    border-radius: 2px;
+    box-shadow: none;
+    border: 1px solid #ebebeb;
 }
 
 .page-content.pushed-left{
@@ -94,7 +102,8 @@ html,body{
     display: inline-block;
     top: 0;
     height: 100%;
-    background-color: #333;
+    /*background-color: #333;*/
+    background-color: #37474F;
     overflow-y: auto;
     -moz-transition: all 300ms ease-in-out;
     -o-transition: all 300ms ease-in-out;
@@ -118,17 +127,23 @@ html,body{
 }
 .pbx-menu ul ul {
   display: none;
-  background-color: #222
+  /*background-color: #222;*/
+  background-color: #263238;
 }
 .pbx-menu li{
     position: relative;
     display: block;
     line-height: 20px;
     width: 100%;
-    border-bottom: 1px solid #444;
+    /*border-bottom: 1px solid #444;*/
+    border-bottom: 1px solid #455A64;
+}
+.pbx-menu ul ul li{
+    border-bottom: 1px solid #37474F;
 }
 .pbx-menu li:hover{
-    background-color: #222;
+    /*background-color: #222;*/
+    background-color: #263238;
 }
 .pbx-menu li a:hover{
     color: #fff;
@@ -157,8 +172,14 @@ html,body{
     margin-right: 5px;
     font-size: 1.2em;
     font-weight: normal;
-    color: #fff;
+    /*color: #fff;*/
     vertical-align: middle;
+}
+.pbx-menu li a i{
+    color: #fff;
+}
+.panel-header i{
+    color: #555;   
 }
 .pbx-menu li a i:last-child,
 .page-sidebar .tab-toggles li a i:last-child,
@@ -188,18 +209,17 @@ html,body{
 
 .pbx-menu li.active {
   border-bottom: none;
-  background-color: #222
+  /*background-color: #222*/
+  background-color: #263238;
 }
-/*.pbx-menu li.active > ul {
-    display: block;
-}*/
+
 .pbx-menu li.active > a {
   color: #fff;
 }
 
-.pbx-menu li.active > a span {
+/*.pbx-menu li.active > a span {
   background: #222;
-}
+}*/
 .pbx-menu li.menu-name{
     display: none;
     padding: 10px 20px;
@@ -249,7 +269,8 @@ html,body{
 }
 .pbx-menu.squeezed-menu ul ul {
     width: 250px;
-    background-color: rgba(34,34,34,0.9);
+    background-color: rgba(38,50,56,0.9);
+    /*background-color: rgba(34,34,34,0.9);*/
 }
 /*Sqeezed Page Sidebar Styles End*/
 
@@ -257,7 +278,7 @@ html,body{
 .page-content{
     position: relative;
     margin-left: 60px;
-    background-color: #eee;
+    background-color: #ECEFF1;
     overflow: hidden;
     -moz-transition: all 300ms ease-in-out;
     -o-transition: all 300ms ease-in-out;
@@ -316,16 +337,23 @@ html,body{
     -webkit-transition: all 300ms ease-in-out;
     transition: all 300ms ease-in-out;
 }
-
-.object-name {
-    margin-bottom: 15px;
+.data-container .panel-body{
+    overflow: visible;
 }
+/*.object-name {
+    margin-bottom: 15px;
+}*/
 .object-name input{
     font-size: 2.5em;
     border: none;
     border-radius: 0;
+    box-shadow: none;
     outline: none;
     height: auto;
+}
+.object-name input:focus{
+    outline: 0;
+    border: none;
 }
 .object-name input[readonly="readonly"]{
     background-color: #fff;
@@ -346,10 +374,14 @@ html,body{
 }
 .panel-header{
     margin: 0;
-    padding: 10px 15px;
-    background-color: #555;
-    border-bottom: 1px solid #ccc;
-    color: #fff;
+    padding: 15px;
+    /*background-color: #555;*/
+    /*background-color: #455A64;*/
+    /*font-size: 1.2em;*/
+    text-transform: uppercase;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    color: #555;
     cursor: pointer;
 }
 .panel-body{
@@ -384,14 +416,6 @@ html,body{
     width: 100%;
     max-width: 400px;
 }
-/*.selectable-cont div p{
-    position: relative;
-    margin: 0;
-    padding: 5px 0;
-    top: 0;
-    color: #fff;
-    background-color: #333;
-}*/
 .selectable-cont div ul{
     position: relative;
     width: 100%;
@@ -409,7 +433,7 @@ html,body{
 }
 
 .selectable-cont div ul li:hover{
-    background-color: #333;
+    background-color: #37474F;
     color: #fff;
 }
 
@@ -419,18 +443,10 @@ html,body{
 .selectable-cont .glyphicon{
     font-size: 2em;
 }
-/*.transrow {
-    color: #428bca;
-    cursor: pointer;
-}*/
 
 .delete-obj{
     float: right;
 }
-
-/*.addrow{
-    color: #428bca;
-}*/
 
 .y-resizable{
     resize: vertical;
@@ -460,7 +476,9 @@ html,body{
 }
 
 .pbx-options .options-nav{
-    background-color: #333;
+    margin-bottom: 20px;
+    background-color: #37474F;
+    /*background-color: #333;*/
     /*border-bottom: 1px solid #eee;*/
 }
 .options-nav .nav-bar-nav a{
@@ -488,12 +506,14 @@ html,body{
 }
 
 .pbx-options .panel-body{
-    background-color: #333;
+    /*background-color: #333;*/
+    background-color: #37474F;
 }
 .pbx-options .panel-header{
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
 }
+
 ul.tab-toggles{
     position: relative;
     list-style: none;
@@ -527,7 +547,6 @@ ul.tab-toggles li a{
 }
 .pl-img i{
     padding: 15px;
-    /*border: 1px solid #ccc;*/
     border-radius: 50%;
     background-color: rgb(250,250,250);
 }
@@ -535,7 +554,8 @@ ul.tab-toggles li a{
     margin-bottom: 20px;
     text-align: center;
     border-top: 1px solid #ccc; 
-    background-color: #333;
+    /*background-color: #333;*/
+    background-color: #37474F;
 }
 .pl-txt h5{
     color: #fff;
@@ -572,23 +592,11 @@ ul.tab-toggles li a{
     -o-animation: spinner 1s infinite linear;
 }
     
-    /*@keyframes sprites {
-        100% { transform: rotate(360deg); }
-    }
-    @-webkit-keyframes sprites {
-        100% { -webkit-transform: rotate(360deg); }
-    }
-    @-moz-keyframes sprites {
-        100% { -moz-transform: rotate(360deg); }
-    }*/
-
 .el-notifier{
     position: fixed;
     z-index: 1100;
     top: 0;
     width: 400px;
-    /*min-width: 200px;
-    max-width: 400px;*/
     left: 50%;
     margin-left: -200px; 
     background: #333;
@@ -638,11 +646,11 @@ ul.tab-toggles li a{
     }
 
 .connected{
-    animation: connected 2s infinite linear;
+    background-color: rgb(154,196,154);
+    /*animation: connected 2s infinite linear;
     -webkit-animation: connected 2s infinite linear;
     -moz-animation: connected 2s infinite linear;
-    -o-animation: connected 2s infinite linear;
-    /*background-color: rgb(154,196,154);*/
+    -o-animation: connected 2s infinite linear;*/
 }
 
     @keyframes connected {
@@ -664,6 +672,14 @@ ul.tab-toggles li a{
 /*Spinner Animation End*/
 
 /*Notifications Styles*/
+.el-close-notify{
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 7px;
+    color: #fff;
+    cursor: pointer;
+}
 
 .el-notifier-ok span,
 .postv-col{
@@ -677,7 +693,7 @@ ul.tab-toggles li a{
 a.remove-clr:hover{
     color: #d43f3a;
 }
-.el-notifier-error info,
+.el-notifier-info,
 .add-clr,
 .neutral-col{
     color: #428bca;
@@ -894,6 +910,44 @@ progress[value]::-webkit-progress-value{
     100% { background-position: -100px 0px; }
 }
 
+/*
+Helpers
+*/
+.back-msg{
+    position: relative;
+    margin-top: 20px;
+    text-align: center;
+    color: #ccc;
+}
+.acc-header{
+    padding: 20px 0 10px;
+    color: #eee;
+    border-bottom: 1px solid #455A64;
+    cursor: pointer;
+}
+.acc-header .caret{
+    -ms-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    -moz-transition: -moz-transform 0.3s;
+    -o-transition: -o-transform 0.3s;
+    -webkit-transition: -webkit-transform 0.3s;
+    transition: transform 0.3s;
+}
+.acc-header.current .caret{
+    -ms-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+.nowrap{
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.draggable{
+    cursor: move;
+}
 /*Custom Styles*/
 input.upload-custom{
     position: absolute;
@@ -947,6 +1001,13 @@ input[readonly].readonly-custom{
     font-style: italic;
     font-size: 1em;
 }
+.panel.custom-panel-transparent{
+    background-color: transparent;
+    box-shadow: none;
+}
+.panel.custom-panel-transparent button{
+    margin-right: 10px;
+}
 .panel-header.custom-header-1{
     background-color: #fff;
     cursor: auto;
@@ -976,6 +1037,18 @@ input[readonly].readonly-custom{
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
 }
+.modal-custom .modal-content{
+    border-radius: 0;
+}
+.modal-custom .modal-footer{
+    background-color: #eee;
+}
+.object-name .input-group-addon{
+    border-radius: 0;
+    border: none;
+    background-color: #fff;
+}
+
 /*Custom Styles End*/
 
 @media only screen and (max-width: 767px) {

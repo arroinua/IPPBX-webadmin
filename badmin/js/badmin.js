@@ -1,4 +1,3 @@
-
 window.onerror = function(msg, url, linenumber) {
      console.error('Error message: '+msg+'\nURL: '+url+'\nLine number: '+linenumber);
  };
@@ -49,7 +48,7 @@ function init(){
 
 function createWebsocket(){
 
-    var protocol = (location.protocol === 'http:') ? 'ws:' : 'wss:';
+    var protocol = (location.protocol === 'https:') ? 'wss:' : 'ws:';
     PbxObject.websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
     PbxObject.websocket.onopen = function(e){
         console.log('WebSocket opened');
@@ -143,6 +142,7 @@ function json_rpc_async(method, params, handler, id){
                     var parsedJSON = JSON.parse(xhr.responseText);
                     if(parsedJSON.error != undefined){
                         notify_about('error' , parsedJSON.error.message);
+                        handler(parsedJSON.message);
                         show_content();
                     } else if(parsedJSON.result){
                         if(handler != null) {
@@ -266,15 +266,6 @@ function callbackOnId(id, result){
 
 function init_page(){
 
-    // if(window.localStorage.getItem('pbxOptions')) {
-    //     var data = window.localStorage.getItem('pbxOptions');
-    //     data = JSON.parse(data);
-
-    //     load_pbx_options(data);
-    //     window.localStorage.removeItem('pbxOptions');
-    // } else {
-    //     json_rpc_async('getPbxOptions', null, load_pbx_options);
-    // }
     var maintemp = $('#main-template').html();
     var mainrend = Mustache.render(maintemp, PbxObject.frases);
     $('#pagecontainer').html(mainrend);
@@ -310,6 +301,7 @@ function init_page(){
     load_pbx_options(PbxObject.options);
     get_object();
     set_listeners();
+    $('[data-toggle="tooltip"]').tooltip();
 }
 
 function set_listeners(){
@@ -327,7 +319,8 @@ function set_listeners(){
 function showGroups(e){
     var self = this;
     var href = this.href;
-    if(href && href.substring(href.length-1) === "#") e.preventDefault();    
+    var checkElement;
+    if(href && href.substring(href.length-1) === "#") e.preventDefault();
     var parent = $(self).parent();
     var kind = $(self).attr('data-kind');
     if(!parent.hasClass('active')){
@@ -369,10 +362,12 @@ function showGroups(e){
                 a.innerHTML ='<i class="fa fa-plus"></i><span>'+PbxObject.frases.ADD+'</span>';
                 li.appendChild(a);
                 ul.appendChild(li);
-                var i, gid, name, li, a, rem;
-                for(i=0; i<result.length; i++){
-                    gid = result[i].oid;
-                    name = result[i].name;
+                var i, gid, name, li, a, rem,
+                    objects = result;
+                sortByKey(objects, 'name');
+                for(i=0; i<objects.length; i++){
+                    gid = objects[i].oid;
+                    name = objects[i].name;
                     li = document.createElement('li');
                     a = document.createElement('a');
                     a.href = '#'+kind+'?'+gid;
@@ -385,20 +380,20 @@ function showGroups(e){
 
                 show_content(false);
 
-                var checkElement = $(self).next('ul');
+                checkElement = $(self).next('ul');
                 if(checkElement) checkElement.slideDown('normal');
                 parent.addClass('active');
             });
             show_loading_panel(parent[0]);
         } else {
-            var checkElement = $(self).next('ul');
+            checkElement = $(self).next('ul');
             if(checkElement) {
-                parent.addClass('active');
                 checkElement.slideDown('normal');
             }
+            parent.addClass('active');
         }
     } else {
-        var checkElement = $(self).next('ul');
+        checkElement = $(self).next('ul');
         if(checkElement) {
             parent.removeClass('active');
             checkElement.slideUp('normal');
@@ -447,6 +442,11 @@ function get_object(result){
             });
         }
     }
+
+    if(isSmallScreen() && $('#pagecontent').hasClass('squeezed-right')) {
+        $('#pagecontent').toggleClass('squeezed-right');
+        $('#pbxmenu').toggleClass('squeezed-right');
+    }
 }
 
 function load_template(template, kind){
@@ -461,7 +461,7 @@ function load_template(template, kind){
         //     load_extensions(PbxObject.extensions);
         // else
         json_rpc_async('getExtensions', null, fn);
-    } else if(kind == 'calls' || kind == 'records' || kind == 'statistics'){
+    } else if(kind == 'calls' || kind == 'records' || kind == 'statistics' || kind == 'reports'){
         fn();
     } else {
         json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
@@ -518,15 +518,15 @@ function set_page(){
         else delobj.setAttribute('disabled', 'disabled');
     }
 
-    if(kind == 'hunting' || kind == 'icd' || kind == 'unit' || kind == 'routes'){
+    // if(kind == 'hunting' || kind == 'icd' || kind == 'unit' || kind == 'routes'){
         var sortable = document.getElementsByClassName('el-sortable');
         for(var i=0;i<sortable.length;i++){
             new Sortable(sortable[i]);
         }
-    }
+    // }
 
     $('div.panel-header').click(toggle_panel);
-
+    $('#dcontainer [data-toggle="tooltip"]').tooltip();
 }
 
 function setBreadcrumbs(){
@@ -636,27 +636,20 @@ function show_content(togglecont){
         $('#dcontainer').removeClass('faded');
 
     if(togglecont === false) return;
-
-    if(isSmallScreen() && $('#pagecontent').hasClass('squeezed-right')) {
-        $('#pagecontent').toggleClass('squeezed-right');
-        $('#pbxmenu').toggleClass('squeezed-right');
-    }
-
-    // if(isSmallScreen() && $('#pagecontent').hasClass('squeezed-right')) {
-    //     $('#pagecontent').toggleClass('squeezed-right');
-    //     $('#pbxmenu').toggleClass('squeezed-right');
-    // }
-    // if($('#dcontainer').hasClass('faded')) 
-    //     $('#dcontainer').removeClass('faded');
-
 }
 
+//TODO stick to DRY principles
 function switchMode(config){
     var menu = document.getElementById('pbxmenu');
     var lists = [].slice.call(menu.querySelectorAll('ul li'));
     if(config.indexOf('channels') == -1) {
         lists.forEach(function(item){
             if(item.className === 'mode-channels')
+                item.parentNode.removeChild(item);
+        });
+    } else {
+        lists.forEach(function(item){
+            if(item.className === 'mode-equipment')
                 item.parentNode.removeChild(item);
         });
     }
@@ -680,8 +673,8 @@ function switchMode(config){
     }
 }
 
-function switch_presentation(kind){
-    var container = document.getElementById('dcontainer');
+function switch_presentation(kind, cont){
+    var container = cont || document.getElementById('dcontainer');
     var panels = [].slice.call(container.querySelectorAll('.pl-kind'));
     var action;
     panels.forEach(function(item){
@@ -716,8 +709,8 @@ function switch_options_tab(tabid){
         childs = parent.children;
     for(var i=1;i<childs.length;i++){
         if(childs[i].id != tabid) 
-            childs[i].style.display = 'none';   
-        else 
+            childs[i].style.display = 'none';
+        else
             childs[i].style.display = '';
     }
 }
@@ -734,7 +727,6 @@ function add_search_handler(){
         });
     }
 }
-    
 
 // function filter_table(e){
 //     var e = e || window.event;
@@ -774,9 +766,11 @@ function filter_element(e){
 }
 
 function notify_about(status, message){
-    var notifyUp, 
-        ico, 
-        cls, 
+    var notifyUp,
+        ico,
+        cls,
+        div = document.createElement('div'),
+        close = document.createElement('i'),
         body = document.getElementsByTagName('body')[0];
     switch(status){
         case 'success':
@@ -791,21 +785,27 @@ function notify_about(status, message){
             ico = '<span class="fa fa-warning"></span>';
             cls = 'el-notifier-info';
     }
-
-    var div = document.createElement('div');
+    close.className = 'fa fa-close el-close-notify';
     div.className = 'el-notifier '+cls;
-    div.innerHTML = message+' '+ico;
+    div.innerHTML += ico+' '+message;
+    div.appendChild(close);
     body.appendChild(div);
-    notifyUp = setTimeout(function(){
+    if(status !== 'error'){
+        notifyUp = setTimeout(function(){
+            body.removeChild(div);
+        }, 7000);
+    }
+    addEvent(close, 'click', function(){
         body.removeChild(div);
-    }, 5000);
+        clearTimeout(notifyUp);
+    });
 }
 
 function append_transform(e, tableid, transform){
     var table, tbody, cell, lrow, div, inp;
 
     if(tableid){
-        table = document.getElementById(tableid);        
+        table = document.getElementById(tableid);
     } else if(e && e.type == 'click') {
         var e = e || window.event,
             targ = e.target || e.srcElement;
@@ -929,7 +929,6 @@ function remove_row(e){
         el = el.parentNode;
     }
     el.removeChild(row);
-
 }
 
 function newObjectAdded(data){
@@ -939,7 +938,6 @@ function newObjectAdded(data){
         name = data.name,
         enabled = data.enabled,
         load = document.getElementById('el-loading'),
-        adduser = document.getElementById('add-user'),
         setobj = document.getElementById('el-set-object'),
         delobj = document.getElementById('el-delete-object'),
         ul = document.getElementById('ul-'+data.kind);
@@ -961,34 +959,19 @@ function newObjectAdded(data){
             delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
         };
     }
-    if(kind === 'users') {
-        removePreventInteraction();
-        if(adduser && adduser.hasAttribute('disabled')) {
-            adduser.removeAttribute('disabled');
-            // addEvent(adduser, 'click', function(){
-            //     addUser(kind);
-            //     cleanForm(form);
-            // });
-        }
-    }
 
-    setobj.innerHTML = PbxObject.frases.SAVE;
+    if(setobj) setobj.innerHTML = PbxObject.frases.SAVE;
     
-    update = {
-        enabled: enabled,
-        name: name,
-        oid: oid
-    };
-
-    PbxObject.query = kind+'?'+oid;
     if(typeof PbxObject.objects === 'object') {
         PbxObject.objects.push(data);
         sortByKey(PbxObject.objects, 'name');
     }
 
+    if(kind !== 'application'){
+        PbxObject.query = kind+'?'+oid;
+        window.location.href = '#'+PbxObject.query;
+    }
     notify_about('success', name+' '+PbxObject.frases.CREATED);
-    window.location.href = '#'+PbxObject.query;
-
 }
 
 function objectDeleted(data){
@@ -1055,7 +1038,7 @@ function delete_extension(e){
         ext = row.getAttribute('data-ext'),
         anchor = row.querySelector('a'),
         group = PbxObject.kind === 'extensions' ? row.cells[2].textContent : PbxObject.name,
-        msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM + ' ' + (group ? group : "") + '?',
+        msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
         c = confirm(msg);
 
     if (c){
@@ -1090,12 +1073,34 @@ function delete_extension_row(params){
     }
 }
 
+function getFileName(ArrayOrString){
+    if(ArrayOrString !== null) {
+        var name = '';
+        if(Array.isArray(ArrayOrString)){
+            ArrayOrString.forEach(function(file, index, array){
+                name += ' '+file;
+                if(index !== array.length-1) name += ',';
+            });
+        } else {
+            name = ' '+ArrayOrString;
+        }
+        return name;
+    }
+    return '';
+}
+
 function customize_upload(id, resultFilename){
     var upl = document.getElementById(id),
         uplparent = upl.parentNode,
         uplbtn = document.createElement('button'),
         uplname = document.createElement('span');
-    if(resultFilename !== null) uplname.innerHTML = ' '+resultFilename;
+        
+    uplparent.className += ' nowrap';
+
+    var filename = getFileName(resultFilename);
+    uplname.innerHTML = filename;
+    uplname.title = filename;
+
     uplbtn.type = 'button';
     uplbtn.className = 'btn btn-default btn-sm needsclick';
     uplbtn.innerHTML = 'Upload';
@@ -1105,14 +1110,19 @@ function customize_upload(id, resultFilename){
     uplparent.insertBefore(uplbtn, upl);
     uplparent.insertBefore(uplname, upl);
     upl.onchange = function(){
-        if(this.files.length)
-            uplname.innerHTML = ' '+this.files[0].name;
-        else
+        if(this.files.length){
+            filename = getFileName(this.files[0].name);
+            uplname.innerHTML = filename;
+            uplname.title = filename;
+        } else{
             uplname.innerHTML = ' ';
+            uplname.title = '';
+        }
     };
 }
 
 function upload(inputid){
+    console.log(inputid);
     var upload = document.getElementById(inputid);
     var filelist = upload.files;
     if(filelist.length == 0){
@@ -1131,7 +1141,7 @@ function upload(inputid){
                 notify_about('error', PbxObject.frases.ERROR);
             }
             else{
-                if(upload == 'uploadapp') {
+                if(inputid == 'uploadapp') {
                     notify_about('success' , file.name+' '+PbxObject.frases.UPLOADED);
                 }
             }
@@ -1144,7 +1154,7 @@ function upload(inputid){
 }
 
 function get_object_link(oid){
-    var result = json_rpc('getObject', '\"oid\":\"'+oid+'\"');   
+    var result = json_rpc('getObject', '\"oid\":\"'+oid+'\"');
     location.hash = result.kind+'?'+oid;
 }
 
@@ -1152,20 +1162,36 @@ function isSmallScreen(){
     return $(window).width() < 768;
 }
 
-function revealPassword(e) {
-    if(e) e.preventDefault();
-    var input = this.parentNode.querySelector('input'),
-        ico = this.firstChild;
+function revealPassword(targ) {
+    // var e = e || window.event;
+    // var button = e.currentTarget;
+    var elgroup = getClosest(targ, '.input-group');
+    var input = elgroup.querySelector('input');
     if(input.type == 'password') {
         input.type = 'text';
-        ico.classList.remove('fa-eye');
-        ico.classList.add('fa-eye-slash');
+        targ.innerHTML = '<i class="fa fa-eye-slash" data-toggle="tooltip" title="'+PbxObject.frases.HIDE_PWD+'"></i>';
     } else {
         input.type = 'password';
-        ico.classList.remove('fa-eye');
-        ico.classList.add('fa-eye-slash');
-
+        targ.innerHTML = '<i class="fa fa-eye" data-toggle="tooltip" title="'+PbxObject.frases.REVEAL_PWD+'"></i>';
     }
+}
+
+function generatePassword(targ){
+    // var e = e || window.event;
+    // var button = e.currentTarget;
+    // console.log(e, button);
+
+    var elgroup = getClosest(targ, '.input-group'),
+    input = elgroup.querySelector('input'),
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+    pass = "",
+    length = 8,
+    i;
+    for(var x=0; x<length; x++){
+        i = Math.floor(Math.random() * 62);
+        pass += chars.charAt(i);
+    }
+    input.value = pass;
 }
 
 function getClosest(elem, selector) {
@@ -1195,6 +1221,13 @@ function getClosest(elem, selector) {
 
     return false;
 
+}
+
+function isElement(o){
+  return (
+        typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+        o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+    );
 }
 
 function sortSelectOptions(selectElement) {
@@ -1236,6 +1269,19 @@ function formatTimeString(time, format){
     return newtime;
 }
 
+function formatDateString(date){
+    var p = (parseInt(date)) !== 'NaN' ? parseInt(date) : date;
+    // if(p === 'NaN') p = date;
+    var strDate = new Date(p);
+    console.log(p, strDate);
+    var day = strDate.getDate() < 10 ? '0' + strDate.getDate() : strDate.getDate(),
+        month = (strDate.getMonth()+1) < 10 ? '0' + (strDate.getMonth()+1) : strDate.getMonth()+1,
+        hours = strDate.getHours() < 10 ? '0' + strDate.getHours() : strDate.getHours(),
+        minutes = strDate.getMinutes() < 10 ? '0' + strDate.getMinutes() : strDate.getMinutes();
+
+    return (day + '/' + month + '/' + strDate.getFullYear() + ' ' + hours + ':' + minutes);
+}
+
 function clearTable(table){
     while (table.hasChildNodes()) {
         table.removeChild(table.firstChild);
@@ -1266,13 +1312,142 @@ function clearColumns(table){
 //     $(selectElement).empty().append( options );
 // }
 
+function extend( a, b ) {
+    for( var key in b ) {
+        if( b.hasOwnProperty( key ) ) {
+            a[key] = b[key];
+        }
+    }
+    return a;
+}
+
 function addEvent(obj, evType, fn) {
-  if (obj.addEventListener) obj.addEventListener(evType, fn, false); 
-  else if (obj.attachEvent) obj.attachEvent("on"+evType, fn); 
+  if (obj.addEventListener) obj.addEventListener(evType, fn, false);
+  else if (obj.attachEvent) obj.attachEvent("on"+evType, fn);
 }
 function removeEvent(obj, evType, fn) {
-  if (obj.removeEventListener) obj.removeEventListener(evType, fn, false); 
-  else if (obj.detachEvent) obj.detachEvent("on"+evType, fn); 
+  if (obj.removeEventListener) obj.removeEventListener(evType, fn, false);
+  else if (obj.detachEvent) obj.detachEvent("on"+evType, fn);
+}
+
+function setAccordion(container){
+    var cont = container ? container : '';
+    $(cont+' .acc-cont > .acc-pane').slideToggle();
+    $(cont+" .acc-cont > .acc-header").click(function () {
+        // $(this).next(".acc-pane").slideToggle().siblings(".acc-pane:visible").slideUp();
+        $(this).next(".acc-pane").slideToggle();
+        $(this).toggleClass("current");
+        $(this).siblings(".acc-header").removeClass("current");
+    });
+}
+
+function createCodecRow(data){
+    var row, cell;
+    row = document.createElement('tr');
+    cell = row.insertCell(0);
+    cell.className = 'draggable';
+    cell.innerHTML = '<i class="fa fa-ellipsis-v"></i>';
+    cell = row.insertCell(1);
+    cell.className = 'codec-name';
+    cell.innerHTML = data.codec;
+    cell = row.insertCell(2);
+    cell.innerHTML = '<input type="text" class="form-control codec-frames" value="'+(data.frame ? data.frame : 0)+'">';
+    cell = row.insertCell(3);
+    cell.innerHTML = '<input type="checkbox" '+(data.frame ? 'checked' : '')+' class="codec-enabled">';
+
+    return row;
+}
+
+function buildCodecsTable(elementOrId, data, available){
+    var unavailable = [],
+        fragment = document.createDocumentFragment(),
+        el = isElement(elementOrId) ? elementOrId : document.getElementById(elementOrId);
+    
+    unavailable = unavailable.concat(available);
+
+    data.forEach(function(item){
+        fragment.appendChild(createCodecRow(item));
+        if(unavailable.indexOf(item.codec) != -1)
+            unavailable.splice(unavailable.indexOf(item.codec), 1);
+    });
+
+    unavailable.forEach(function(codec){
+        fragment.appendChild(createCodecRow({codec: codec}));
+    });
+    el.appendChild(fragment);
+}
+
+function getCodecsString(elementOrId){
+    var codec,
+        codecs = [],
+        el = isElement(elementOrId) ? elementOrId : document.getElementById(elementOrId);
+
+    for(var i=0, row; row = el.rows[i]; i++){
+        if(row.getElementsByClassName('codec-enabled')[0].checked){
+            codec = {
+                codec: row.getElementsByClassName('codec-name')[0].textContent,
+                frame: parseInt(row.getElementsByClassName('codec-frames')[0].value)
+            };
+            codecs.push(codec);
+        }
+    }
+
+    return codecs;
+}
+
+function getDeviceSettings(event){
+    var e = event || window.event;
+    if(e) e.preventDefault();
+    if(PbxObject.deviceSettings) {
+        switch_options_tab('deviceopt-tab');
+    } else {
+        json_rpc_async('getDeviceSettings', null, loadDeviceSettings);
+        // if(e) show_loading_panel(e.target);
+    }
+}
+function loadDeviceSettings(result){
+    console.log(result);
+    PbxObject.deviceSettings = result;
+    var data = {
+        data: result,
+        lang: PbxObject.frases
+    };
+    var template = document.getElementById('device-options');
+    var rendered = Mustache.render(template.innerHTML, data);
+    document.getElementById('deviceopt-tab').insertAdjacentHTML('beforeend', rendered);
+    template.parentNode.removeChild(template);
+
+    var codecsTables = [], codecsTable;
+    if(result.sip){
+        document.getElementById('sip-log').value = result.sip.log || 0;
+        codecsTable = document.getElementById('sip-codecs').querySelector('tbody');
+        buildCodecsTable(codecsTable, result.sip.codecs, result.avcodecs);
+        codecsTables.push(codecsTable);
+    }
+    if(result.sips){
+        document.getElementById('sips-log').value = result.sips.log || 0;
+        codecsTable = document.getElementById('sips-codecs').querySelector('tbody');
+        buildCodecsTable(codecsTable, result.sips.codecs, result.avcodecs);
+        codecsTables.push(codecsTable);
+    }
+    if(result.wss){
+        document.getElementById('wss-log').value = result.wss.log || 0;
+        codecsTable = document.getElementById('wss-codecs').querySelector('tbody');
+        buildCodecsTable(codecsTable, result.wss.codecs, result.avcodecs);
+        codecsTables.push(codecsTable);
+    }
+    if(result.http)
+        document.getElementById('http-log').value = result.http.log || 0;
+    if(result.system)
+        document.getElementById('rec-format').value = result.system.recformat || 'PCM 8 Khz 16 bit';
+
+    setAccordion();
+
+    codecsTables.forEach(function(table){
+        new Sortable(table);
+    });
+    // show_content();
+    // switch_options_tab('deviceopt-tab');
 }
 
 function load_pbx_options(result) {
@@ -1317,6 +1492,16 @@ function load_pbx_options(result) {
     so.onclick = set_pbx_options;
 
     // toggle_presentation();
+    if(result.branchid){
+        var deviceTab = document.getElementById('deviceopt-tab');
+        var deviceBtn = document.getElementById('deviceopt-btn');
+        
+        if(deviceTab) deviceTab.parentNode.removeChild(deviceTab);
+        if(deviceBtn) deviceBtn.parentNode.removeChild(deviceBtn);
+        setAccordion();
+    } else {
+        getDeviceSettings();
+    }
 }
 
 function set_pbx_options(e) {
@@ -1324,7 +1509,10 @@ function set_pbx_options(e) {
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    var jprms, 
+    if(!PbxObject.options.branchid)
+        setDeviceSettings();
+
+    var jprms,
         handler,
         pass = document.getElementById('adminpass').value,
         confpass = document.getElementById('confirmpass').value,
@@ -1340,7 +1528,6 @@ function set_pbx_options(e) {
     }
 
     jprms = '"lang":"' + lang + '", ';
-    // jprms += '"oid":"' + PbxObject.oidOptions + '",';
     if (pass) jprms += '"adminpass":"' + pass + '", ';
 
     jprms += '\"options\":{';
@@ -1349,21 +1536,14 @@ function set_pbx_options(e) {
         jprms += '"holdmusicfile":"' + file.files[0].name + '", ';
         upload('musonhold');
     }
-    if (document.getElementById('holdreminterv').value)
-        jprms += '"holdremindtime":' + document.getElementById('holdreminterv').value + ', ';
-    if (document.getElementById('holdrectime').value)
-        jprms += '"holdrecalltime":' + document.getElementById('holdrectime').value + ', ';
-    if (document.getElementById('transrectime').value)
-        jprms += '"transferrecalltime":' + document.getElementById('transrectime').value + ', ';
-    if (document.getElementById('transrecdest').value)
-        jprms += '"transferrecallnumber":"' + document.getElementById('transrecdest').value + '", ';
+    if (document.getElementById('holdreminterv').value) jprms += '"holdremindtime":' + document.getElementById('holdreminterv').value + ', ';
+    if (document.getElementById('holdrectime').value) jprms += '"holdrecalltime":' + document.getElementById('holdrectime').value + ', ';
+    if (document.getElementById('transrectime').value) jprms += '"transferrecalltime":' + document.getElementById('transrectime').value + ', ';
+    if (document.getElementById('transrecdest').value) jprms += '"transferrecallnumber":"' + document.getElementById('transrecdest').value + '", ';
     jprms += '"autoretrive":' + document.getElementById('autoretrieve').checked + ', ';
-    if (document.getElementById('parkrectime').value)
-        jprms += '"parkrecalltime":' + document.getElementById('parkrectime').value + ', ';
-    if (document.getElementById('parkrecdest').value)
-        jprms += '"parkrecallnumber":"' + document.getElementById('parkrecdest').value + '", ';
-    if (document.getElementById('discontime').value)
-        jprms += '"parkdroptimeout":' + document.getElementById('discontime').value;
+    if (document.getElementById('parkrectime').value) jprms += '"parkrecalltime":' + document.getElementById('parkrectime').value + ', ';
+    if (document.getElementById('parkrecdest').value) jprms += '"parkrecallnumber":"' + document.getElementById('parkrecdest').value + '", ';
+    if (document.getElementById('discontime').value) jprms += '"parkdroptimeout":' + document.getElementById('discontime').value;
     jprms += '}';
 
     if (lang !== PbxObject.language) {
@@ -1376,8 +1556,63 @@ function set_pbx_options(e) {
     }
 
     console.log(jprms);
-    // window.localStorage.setItem('pbxOptions', '{'+jprms+'}');
     json_rpc_async('setPbxOptions', jprms, handler);
+}
+
+function setDeviceSettings(){
+    var jprms = '';
+    var codecsTable;
+    
+    jprms += '\"sip\":{';
+    if(document.getElementById('sip-port').value) jprms += '"port":' + document.getElementById('sip-port').value + ', ';
+    if(document.getElementById('sip-log').value) jprms += '"log":' + document.getElementById('sip-log').value + ', ';
+    if(document.getElementById('sip-enabled').value) jprms += '"enabled":' + document.getElementById('sip-enabled').checked + ', ';
+    codecsTable = document.getElementById('sip-codecs').querySelector('tbody');
+    jprms += '\"codecs\":'+ JSON.stringify(getCodecsString(codecsTable));
+    jprms += '},';
+    jprms += '\"sips\":{';
+    if(document.getElementById('sips-port').value) jprms += '"port":' + document.getElementById('sips-port').value + ', ';
+    if(document.getElementById('sips-log').value) jprms += '"log":' + document.getElementById('sips-log').value + ', ';
+    if(document.getElementById('sips-enabled').value) jprms += '"enabled":' + document.getElementById('sips-enabled').checked + ', ';
+    codecsTable = document.getElementById('sips-codecs').querySelector('tbody');
+    jprms += '\"codecs\":'+ JSON.stringify(getCodecsString(codecsTable));
+    jprms += '},';
+    jprms += '\"wss\":{';
+    if(document.getElementById('wss-port').value) jprms += '"port":' + document.getElementById('wss-port').value + ', ';
+    if(document.getElementById('wss-log').value) jprms += '"log":' + document.getElementById('wss-log').value + ', ';
+    if(document.getElementById('wss-enabled').value) jprms += '"enabled":' + document.getElementById('wss-enabled').checked + ', ';
+    codecsTable = document.getElementById('wss-codecs').querySelector('tbody');
+    jprms += '\"codecs\":'+ JSON.stringify(getCodecsString(codecsTable));
+    jprms += '},';
+    jprms += '\"http\":{';
+    if(document.getElementById('http-port').value) jprms += '"port":' + document.getElementById('http-port').value + ', ';
+    if(document.getElementById('http-log').value) jprms += '"log":' + document.getElementById('http-log').value + ', ';
+    if(document.getElementById('http-ssl').value) jprms += '"ssl":' + document.getElementById('http-ssl').checked + ', ';
+    jprms += '},';
+    jprms += '\"nat\":{';
+    if(document.getElementById('stun').value) jprms += '"stun":"' + document.getElementById('stun').value + '", ';
+    if(document.getElementById('router').value) jprms += '"router":"' + document.getElementById('router').value + '", ';
+    if(document.getElementById('rtpfirst').value) jprms += '"rtpfirst":' + document.getElementById('rtpfirst').value + ', ';
+    if(document.getElementById('rtplast').value) jprms += '"rtplast":' + document.getElementById('rtplast').value + ', ';
+    jprms += '},';
+    jprms += '\"registrar\":{';
+    if(document.getElementById('minexpires').value) jprms += '"minexpires":' + document.getElementById('minexpires').value + ', ';
+    if(document.getElementById('maxexpires').value) jprms += '"maxexpires":' + document.getElementById('maxexpires').value + ', ';
+    jprms += '},';
+    jprms += '\"net\":{';
+    if(document.getElementById('tcptimeout').value) jprms += '"tcptimeout":' + document.getElementById('tcptimeout').value + ', ';
+    if(document.getElementById('rtptimeout').value) jprms += '"rtptimeout":' + document.getElementById('rtptimeout').value + ', ';
+    if(document.getElementById('iptos').value) jprms += '"iptos":' + document.getElementById('iptos').value + ', ';
+    jprms += '},';
+    jprms += '\"system\":{';
+    if(document.getElementById('config-name').value) jprms += '"config":"' + document.getElementById('config-name').value + '", ';
+    if(document.getElementById('backup-path').value) jprms += '"backup":"' + document.getElementById('backup-path').value + '", ';
+    if(document.getElementById('rec-path').value) jprms += '"store":"' + document.getElementById('rec-path').value + '", ';
+    if(document.getElementById('rec-format').value) jprms += '"recformat":"' + document.getElementById('rec-format').value + '", ';
+    jprms += '},';
+
+    // console.log(jprms);
+    json_rpc_async('setDeviceSettings', jprms, null);
 }
 
 (function(){

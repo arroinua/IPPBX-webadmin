@@ -1,14 +1,22 @@
 <div id="el-loaded-content">
     <div class="row">
-        <div class="col-xs-12">
-            <div class="input-group object-name">
-                <input type="text" id="objname" class="form-control" placeholder="{{TIMERSNAME}}" autofocus>
-                <span class="input-group-addon">
-                    <div class="switch switch-lg">
-                        <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                        <label for="enabled"></label>
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="input-group object-name">
+                        <input type="text" id="objname" class="form-control" placeholder="{{TIMERSNAME}}" autofocus>
+                        <span class="input-group-addon">
+                            <div class="switch switch-lg">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
+                            </div>
+                        </span>
                     </div>
-                </span>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -19,79 +27,54 @@
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <div class="col-xs-12">
-                        <label for="hh" class="col-xs-2">{{TIME}}</label>
-                        <div class="col-md-3 col-xs-4">
-                            <select id="hh" class="form-control"></select>
+                    <div class="from-inline">
+                        <div class="form-group">
+                            <label for="hh" class="col-xs-2">{{TIME}}</label>
+                            <div class="col-xs-4">
+                                <select id="hh" class="form-control"></select>
+                            </div>
+                            <span class="col-xs-1">:</span>
+                            <div class="col-xs-4">
+                                <select id="mm" class="form-control"></select>
+                            </div>
                         </div>
-                        <div class="col-xs-1">:</div>
-                        <div class="col-md-3 col-xs-4">
-                            <select id="mm" class="form-control"></select>
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <hr>
-                        <div class="col-xs-3">
-                            <button type="button" id="timer-everyday" class="btn btn-primary btn-sm">{{EVERYDAY}}</button>
-                        </div>
-                        <div class="col-xs-3">
-                            <button type="button" id="timer-workdays" class="btn btn-primary btn-sm">{{WEEKDAYS}}</button>
-                        </div>
-                        <div class="col-xs-3">
-                            <button type="button" id="timer-holidays" class="btn btn-primary btn-sm">{{WEEKEND}}</button>
-                        </div>
-                        <div class="col-xs-3">
-                            <button type="button" id="timer-calendar" class="btn btn-primary btn-sm" disabled="disabled">{{CALENDAR}}</button>
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <hr>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d0"> {{MON}}
+                        <div class="col-xs-12">
+                            <hr>
+                            <div id="timer-range" class="btn-group btn-group-justified" data-toggle="buttons">
+                                <label class="btn btn-default">
+                                    <input type="radio" autocomplete="off" value="timer-everyday"> {{EVERYDAY}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" autocomplete="off" value="timer-workdays"> {{WEEKDAYS}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" autocomplete="off" value="timer-holidays"> {{WEEKEND}}
                                 </label>
                             </div>
                         </div>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d1"> {{TUE}}
+                        <div class="col-xs-12">
+                            <hr>
+                            <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d0"> {{MON}}
                                 </label>
-                            </div>
-                        </div>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d2"> {{WED}}
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d1"> {{TUE}}
                                 </label>
-                            </div>
-                        </div>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d3"> {{THU}}
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d2"> {{WED}}
                                 </label>
-                            </div>
-                        </div>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d4"> {{FRI}}
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d3"> {{THU}}
                                 </label>
-                            </div>
-                        </div>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d5"> {{SAT}}
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d4"> {{FRI}}
                                 </label>
-                            </div>
-                        </div>
-                        <div class="col-xs-3">
-                            <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="d6"> {{SUN}}
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d5"> {{SAT}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d6"> {{SUN}}
                                 </label>
                             </div>
                         </div>
@@ -123,16 +106,6 @@
 
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-body">
-                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="fa fa-check"></i> {{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="fa fa-trash"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>

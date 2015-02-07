@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- <title>Smile-soft - {{PBXADMIN}}</title> -->
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
@@ -21,19 +20,13 @@
                         <a href="#" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
                     </div>
                     <ul>
-                        <!--// <li>
-                        //     <a href="#calls" title="{{KINDS.calls}}">
-                        //     <i class="fa fa-dashboard fa-fw"></i>
-                        //         <span>{{KINDS.calls}}</span>
-                        //     </a>
-                        // </li>-->
                         <li>
                             <a href="#extensions" title="{{KINDS.extensions}}">
                                 <i class="fa fa-list fa-fw"></i>
                                 <span>{{KINDS.extensions}}</span>
                             </a>
                         </li>
-                        <li>
+                        <li class="mode-equipment">
                             <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
                                 <i class="fa fa-fax fa-fw"></i>
                                 <span>{{KINDS.equipment}}</span>
@@ -73,6 +66,12 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a href="#" data-kind="conference" title="{{KINDS.conference}}">
+                                        <span>{{KINDS.conference}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="#" data-kind="pickup" title="{{KINDS.pickup}}">
                                         <span>{{KINDS.pickup}}</span>
                                         <i class="fa fa-chevron-right fa-fw"></i>
@@ -97,13 +96,6 @@
                             <a href="#" data-kind="channel" title="{{KINDS.channel}}">
                                 <i class="fa fa-rss fa-fw"></i>
                                 <span>{{KINDS.channel}}</span>
-                                <i class="fa fa-chevron-right fa-fw"></i>
-                            </a>
-                        </li>
-                        <li class="mode-groups">
-                            <a href="#" data-kind="conference" title="{{KINDS.conference}}">
-                                <i class="fa fa-comments fa-fw"></i>
-                                <span>{{KINDS.conference}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
@@ -135,12 +127,6 @@
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <!--// <li>
-                        //     <a href="#records" title="{{KINDS.records}}">
-                        //         <i class="fa fa-history fa-fw"></i>
-                        //         <span>{{KINDS.records}}</span>
-                        //     </a>
-                        // </li>-->
                     </ul>
                 </div>
                 <div id="pagecontent" class="page-content">
@@ -165,8 +151,14 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
                                         <li role="presentation">
-                                            <a href="#statistics" role="menuitem" tabindex="-1">
+                                            <a href="#reports" role="menuitem" tabindex="-1">
                                                 <i class="fa fa-bar-chart fa-fw"></i>
+                                                {{KINDS.reports}}
+                                            </a>
+                                        </li>
+                                        <li role="presentation">
+                                            <a href="#statistics" role="menuitem" tabindex="-1">
+                                                <i class="fa fa-table fa-fw"></i>
                                                 {{KINDS.statistics}}
                                             </a>
                                         </li>
@@ -214,7 +206,7 @@
                     <div id="mainopt-tab" class="tab-pane active" role="tabpanel">
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <label for="interfacelang" class="col-md-4 control-label">{{LANGUAGE}}</label>
+                                <label for="interfacelang" class="col-md-4 control-label" data-toggle="tooltip" title="{{OPTS__LANGUAGE}}">{{LANGUAGE}}</label>
                                 <div class="col-md-8">
                                     <select id="interfacelang" class="form-control">
                                         <option value="en">English</option>
@@ -224,19 +216,19 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="adminname" class="col-sm-12">{{LOGIN}}</label>
+                                <label for="adminname" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LOGIN}}">{{LOGIN}}</label>
                                 <div class="col-sm-12">
                                     <input type="text" class="form-control" id="adminname" readonly>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="adminpass" class="col-sm-12">{{PASSWORD}}</label>
+                                <label for="adminpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__PWD}}">{{PASSWORD}}</label>
                                 <div class="col-sm-12">
                                     <input type="password" class="form-control" id="adminpass">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="confirmpass" class="col-sm-12">{{CONFIRM}} {{PASSWORD}}</label>
+                                <label for="confirmpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__CONFIRM_PWD}}">{{CONFIRM}} {{PASSWORD}}</label>
                                 <div class="col-sm-12">
                                     <input type="password" class="form-control" id="confirmpass">
                                 </div>
@@ -252,6 +244,15 @@
                                     </li>
                                 </ul>
                             </div>
+                            <div id="deviceopt-btn" class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" onclick="getDeviceSettings(event)">{{SETTINGS.BRANCH_SETTS}}
+                                            <i class="fa fa-chevron-right fa-fw"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div id="featureopt-tab" class="tab-pane">
@@ -261,88 +262,329 @@
                                     <li>
                                         <a href="#" class="tab-switcher" data-tab="mainopt-tab">
                                             <i class="fa fa-chevron-left fa-fw"></i>
-                                            {{SETTINGS.SETTINGS}}
+                                            {{SETTINGS.GENERAL_SETTS}}
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
-                        <form class="form-horizontal">
-                            <h4>{{FUNCTIONS.CALLHOLD}}</h4>
-                            <div class="form-group">
-                                <label for="musonhold" class="col-sm-12">{{MUSICONHOLD}}:</label>
-                                <div class="col-sm-12">
-                                    <input type="file" id="musonhold" class="upload-custom">
+                        <form class="form-horizontal acc-cont">
+                            <h5 class="text-mute acc-header">{{FUNCTIONS.CALLHOLD}}<span class="caret pull-right"></span></h5>
+                            <div class="acc-pane">
+                                <div class="form-group">
+                                    <label for="musonhold" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__WAV_ONHOLD}}">{{MUSICONHOLD}}:</label>
+                                    <div class="col-sm-12">
+                                        <input type="file" id="musonhold" class="upload-custom">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="holdreminterv" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__HOLD_REMIND_INT}}">{{SETTINGS.REMINTERVAL}}</label>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <input type="text" class="form-control" id="holdreminterv">
+                                    </div>
+                                    <span class="col-sm-8 col-xs-6">{{SECONDS}}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="holdrectime" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__HOLD_RECALL_INT}}">{{SETTINGS.RETINTERVAL}}</label>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <input type="text" class="form-control" id="holdrectime">
+                                    </div>
+                                    <span class="col-sm-8 col-xs-6">{{SECONDS}}</span>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="holdreminterv" class="col-sm-12">{{SETTINGS.REMINTERVAL}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="holdreminterv">
+                            <h5 class="text-mute acc-header">{{FUNCTIONS.CALLTRANSFER}}<span class="caret pull-right"></span></h5>
+                            <div class="acc-pane">
+                                <div class="form-group">
+                                    <label for="transrectime" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__TRANSF_WAIT_INT}}">{{SETTINGS.WAITINTERVAL}}</label>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <input type="text" class="form-control" id="transrectime">
+                                    </div>
+                                    <span class="col-sm-8 col-xs-6">{{SECONDS}}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="transrecdest" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__TRANSF_RECALL_NUM}}">{{SETTINGS.RETNUMBER}}</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" id="transrecdest">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                      <div class="checkbox">
+                                        <label data-toggle="tooltip" title="{{OPTS__AUTO_RETRIEVE}}">
+                                          <input type="checkbox" id="autoretrieve"> {{SETTINGS.AUTORETURN}}
+                                        </label>
+                                      </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="holdrectime" class="col-sm-12">{{SETTINGS.RETINTERVAL}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="holdrectime">
+                            <h5 class="text-mute acc-header">{{FUNCTIONS.CALLPARK}}<span class="caret pull-right"></span></h5>
+                            <div class="acc-pane">
+                                <div class="form-group">
+                                    <label for="parkrectime" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__PARK_RECALL_INT}}">{{SETTINGS.RETINTERVAL}}</label>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <input type="text" class="form-control" id="parkrectime">
+                                    </div>
+                                    <span class="col-sm-8 col-xs-6">{{SECONDS}}</span>
                                 </div>
-                            </div>
-                            <h4>{{FUNCTIONS.CALLTRANSFER}}</h4>
-                            <div class="form-group">
-                                <label for="transrectime" class="col-sm-12">{{SETTINGS.WAITINTERVAL}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="transrectime">
+                                <div class="form-group">
+                                    <label for="parkrecdest" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__PARK_RECALL_NUM}}">{{SETTINGS.RETNUMBER}}</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" id="parkrecdest">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="transrecdest" class="col-sm-12">{{SETTINGS.RETNUMBER}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="transrecdest">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                  <div class="checkbox">
-                                    <label>
-                                      <input type="checkbox" id="autoretrieve"> {{SETTINGS.AUTORETURN}}
-                                    </label>
-                                  </div>
-                                </div>
-                            </div>
-                            <h4>{{FUNCTIONS.CALLPARK}}</h4>
-                            <div class="form-group">
-                                <label for="parkrectime" class="col-sm-12">{{SETTINGS.RETINTERVAL}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="parkrectime">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="parkrecdest" class="col-sm-12">{{SETTINGS.RETNUMBER}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="parkrecdest">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="discontime" class="col-sm-12">{{SETTINGS.ENDTOUT}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="discontime">
+                                <div class="form-group">
+                                    <label for="discontime" class="col-sm-12 col-xs-12" data-toggle="tooltip" title="{{OPTS__PARK_DISC_TOUT}}">{{SETTINGS.ENDTOUT}}</label>
+                                    <div class="col-sm-4 col-xs-6">
+                                        <input type="text" class="form-control" id="discontime">
+                                    </div>
+                                    <span class="col-sm-8 col-xs-6">{{SECONDS}}</span>
                                 </div>
                             </div>
                         </form>
                     </div>
+                    <div id="deviceopt-tab" class="tab-pane">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="mainopt-tab">
+                                            <i class="fa fa-chevron-left fa-fw"></i>
+                                            {{SETTINGS.GENERAL_SETTS}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </script>
         </div>
+        <script type="text/html" id="device-options">
+            <form class="acc-cont">
+                <h5 class="text-mute acc-header">SIP<span class="caret pull-right"></span></h5>
+                <div class="form-group acc-pane">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="sip-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> Enabled
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-xs-8">
+                            <label for="sip-port">Port</label>
+                            <input type="text" id="sip-port" class="form-control" value="{{data.sip.port}}" data-model="sip.port">
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="sip-log">Log level</label>
+                            <select id="sip-log" class="form-control" data-model="sip.log">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12">
+                            <hr>
+                            <table class="table" id="sip-codecs">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>{{lang.AUDIOCODECS}}</th>
+                                        <th>{{lang.FRAMES}}(ms)</th>
+                                        <th><i class="fa fa-check"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">SIPS <span class="caret pull-right"></span></h5>
+                <div class="form-group acc-pane">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="sips-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> Enabled
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-xs-8">
+                            <label for="sips-port">Port</label>
+                            <input type="text" id="sips-port" class="form-control" value="{{data.sips.port}}">
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="sips-log">Log level</label>
+                            <select id="sips-log" class="form-control">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12">
+                            <hr>
+                            <table class="table" id="sips-codecs">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>{{lang.AUDIOCODECS}}</th>
+                                        <th>{{lang.FRAMES}}(ms)</th>
+                                        <th><i class="fa fa-check"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">WSS <span class="caret pull-right"></span></h5>
+                <div class="form-group acc-pane">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="wss-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> Enabled
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-xs-8">
+                            <label for="wss-port">Port</label>
+                            <input type="text" id="wss-port" class="form-control" value="{{data.wss.port}}">
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="wss-log">Log level</label>
+                            <select id="wss-log" class="form-control">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12">
+                            <hr>
+                            <table class="table" id="wss-codecs">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>{{lang.AUDIOCODECS}}</th>
+                                        <th>{{lang.FRAMES}}(ms)</th>
+                                        <th><i class="fa fa-check"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">HTTP <span class="caret pull-right"></span></h5>
+                <div class="form-group acc-pane">
+                    <div class="row">
+                        <div class="col-xs-8">
+                            <label for="http-port">Port</label>
+                            <input type="text" id="http-port" class="form-control" value="{{data.http.port}}">
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="http-log">Log level</label>
+                            <select id="http-log" class="form-control">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="http-ssl" {{#data.http.ssl}}checked{{/data.http.ssl}}> SSL
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">NAT <span class="caret pull-right"></span></h5>
+                <div class="acc-pane">
+                    <div class="form-group">
+                        <label for="stun">STUN Server</label>
+                        <input type="text" id="stun" class="form-control" value="{{data.nat.stun}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="router">Router</label>
+                        <input type="text" id="router" class="form-control" value="{{data.nat.router}}">
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label for="rtpfirst" class="col-xs-12">RTP Range</label>
+                            <div class="col-xs-5">
+                                <input type="text" id="rtpfirst" class="form-control" value="{{data.nat.rtpfirst}}">
+                            </div>
+                            <div class="col-xs-2"> - </div>
+                            <div class="col-xs-5">
+                                <input type="text" id="rtplast" class="form-control" value="{{data.nat.rtplast}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">Registrar <span class="caret pull-right"></span></h5>
+                <div class="form-group acc-pane">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label for="minexpires">Min. expires(s)</label>
+                            <input type="text" id="minexpires" class="form-control" value="{{data.registrar.minexpires}}">
+                        </div>
+                        <div class="col-xs-6">
+                            <label for="maxexpires">Max. expires(s)</label>
+                            <input type="text" id="maxexpires" class="form-control" value="{{data.registrar.maxexpires}}">
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">NET <span class="caret pull-right"></span></h5>
+                <div class="form-group acc-pane">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label for="tcptimeout">TCP Timeout</label>
+                            <input type="text" id="tcptimeout" class="form-control" value="{{data.net.tcptimeout}}">
+                        </div>
+                        <div class="col-xs-6">
+                            <label for="rtptimeout">RTP Timeout</label>
+                            <input type="text" id="rtptimeout" class="form-control" value="{{data.net.rtptimeout}}">
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="iptos">IP TOS</label>
+                            <input type="text" id="iptos" class="form-control" value="{{data.net.iptos}}">
+                        </div>
+                    </div>
+                </div>
+                <h5 class="text-mute acc-header">System <span class="caret pull-right"></span></h5>
+                <div class="acc-pane">
+                    <div class="form-group">
+                        <label for="config-name">Config file name</label>
+                        <input type="text" id="config-name" class="form-control" value="{{data.system.config}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="backup-path">Backup path</label>
+                        <input type="text" id="backup-path" class="form-control" value="{{data.system.backup}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="rec-path">Call records path</label>
+                        <input type="text" id="rec-path" class="form-control" value="{{data.system.store}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="rec-format">Call records format</label>
+                        <select id="rec-format" class="form-control">
+                            <option value="PCM 8 Khz 16 bit">PCM 8 Khz 16 bit</option>
+                            <option value="CCITT U-law">CCITT U-law</option>
+                            <option value="CCITT A-law">CCITT A-law</option>
+                            <option value="GSM 6.10">GSM 6.10</option>
+                            <option value="Microsoft GSM">Microsoft GSM</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </script>
         <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/bootstrap.min.js"></script>
         <script type="text/javascript" src="/badmin/js/badmin.js"></script>
         <script type="text/javascript" src="/badmin/js/objects.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.time.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.tooltip.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.orderBars.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.stack.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.all.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/fastclick.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
     </body>

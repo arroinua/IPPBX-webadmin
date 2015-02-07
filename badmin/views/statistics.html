@@ -1,10 +1,10 @@
 <div id="el-loaded-content">
     <div class="row">
         <div class="col-xs-12 col-custom pl-kind pl-all">
-            <div id="statistics-date-picker" class="col-sm-4 col-xs-12 dropdown custom-dropdown pull-right"></div>
+            <div id="statistics-date-picker" class="col-sm-4 col-xs-12 dropdown custom-dropdown pull-right" style="margin-bottom:20px"></div>
         </div>
     </div>
-    <div class="row pl-kind pl-all" style="margin-top:20px">
+    <div id="statistics-cont" class="row pl-kind pl-all">
         <div class="col-xs-12 col-custom">
             <div class="panel">
                 <div class="panel-body">
@@ -31,6 +31,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-body">
+                    <!-- <hr> -->
                     <div class="row">
                         <div class="col-xs-12">
                             <h3 style="padding-left:30px;">{{SETTINGS.INCALLS}}</h3>
@@ -50,6 +55,41 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="panel minimized">
+                    <div id="lost-stats-btn" class="panel-header custom-header-2">
+                        <i class="fa fa-plus"></i> {{STATISTICS.LOSTCALLS}}
+                    </div>
+                    <div id="lostCalls-cont" class="panel-body">
+                        <!-- <div class="btn-group" data-toggle="buttons" id="ext-stat-kind">
+                            <label class="btn btn-default active">
+                                <input type="radio" name="options" data-kind="inbound" autocomplete="off" checked> {{SETTINGS.INCALLS}}
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="options" data-kind="outbound" autocomplete="off"> {{SETTINGS.OUTCALLS}}
+                            </label>
+                        </div>
+                        <hr> -->
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="lost-calls-table">
+                                <thead>
+                                    <tr>
+                                        <th>{{TIME}}</th>
+                                        <th>{{CALLING}}</th>
+                                        <th>{{CALLED}}</th>
+                                        <th>{{RECORDS.OUTNUM}}</th>
+                                        <th>{{RECORDS.END}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-body">
+                    <!-- <hr> -->
                     <div class="row">
                         <div class="col-xs-12">
                             <h3 style="padding-left:30px;">{{SETTINGS.INTCALLS}}</h3>
@@ -66,44 +106,42 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                    <div class="panel minimized">
-                        <div id="ext-stats-btn" class="panel-header custom-header-2">
-                            <i class="fa fa-plus"></i> {{STATISTICS.EXT_STATS}}
+                <div class="panel minimized">
+                    <div id="ext-stats-btn" class="panel-header custom-header-2">
+                        <i class="fa fa-plus"></i> {{STATISTICS.EXT_STATS}}
+                    </div>
+                    <div id="extStat-cont" class="panel-body">
+                        <div class="btn-group" data-toggle="buttons" id="ext-stat-kind">
+                            <label class="btn btn-default active">
+                                <input type="radio" name="options" data-kind="inbound" autocomplete="off" checked> {{SETTINGS.INCALLS}}
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="options" data-kind="outbound" autocomplete="off"> {{SETTINGS.OUTCALLS}}
+                            </label>
                         </div>
-                        <div class="panel-body">
-                            <div class="btn-group" data-toggle="buttons" id="ext-stat-kind">
-                                <label class="btn btn-default active">
-                                    <input type="radio" name="options" data-kind="inbound" autocomplete="off" checked> {{SETTINGS.INCALLS}}
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" name="options" data-kind="outbound" autocomplete="off"> {{SETTINGS.OUTCALLS}}
-                                </label>
-                            </div>
-                            <hr>
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="ext-statistics-table">
-                                    <thead>
-                                        <tr>
-                                            <th>{{NUMBER}}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{STATISTICS.TOTALCALLS}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>{{STATISTICS.CONNECTEDCALLS}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>{{STATISTICS.TOTALDURATION}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>{{STATISTICS.TOTALCOST}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="ext-statistics-table">
+                                <thead>
+                                    <tr>
+                                        <th>{{NUMBER}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{STATISTICS.TOTALCALLS}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{STATISTICS.CONNECTEDCALLS}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{STATISTICS.TOTALDURATION}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{STATISTICS.TOTALCOST}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

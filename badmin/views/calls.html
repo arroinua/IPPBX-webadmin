@@ -1,19 +1,41 @@
 <div id="el-loaded-content">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-6 col-xs-12">
             <div class="panel">
-                <div class="panel-header custom-header-1">
-                    <div class="row">
-                        <div class="col-sm-6 col-xs-12">
-                            <h5>{{STATISTICS.NUMBER_OF_CALLS}}</h5>
-                        </div>
-                        <div id="calls-date-picker" class="col-sm-4 col-xs-12 dropdown custom-dropdown pull-right"></div>
-                    </div>
-                </div>
                 <div class="panel-body">
                     <div class="col-xs-12">
-                        <p id="calls-graph-labels"></p>
-                        <div id="calls-graph" style="position: relative; width: 100%; height: 200px;"></div>
+                        <h5>{{STATISTICS.LINES_PAYLOAD}}</h5>
+                        <div id="linesLoad-graph" style="position: relative; width: 100%; height: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="col-xs-12">
+                        <h5>{{STATISTICS.LOST_AND_SERVED}}</h5>
+                        <div id="inAndLost-graph" style="position: relative; width: 100%; height: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="col-xs-12">
+                        <h5>{{SETTINGS.OUTCALLS}}</h5>
+                        <div id="outCalls-graph" style="position: relative; width: 100%; height: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="col-xs-12">
+                        <h5>{{SETTINGS.INTCALLS}}</h5>
+                        <div id="intCalls-graph" style="position: relative; width: 100%; height: 100px;"></div>
                     </div>
                 </div>
             </div>

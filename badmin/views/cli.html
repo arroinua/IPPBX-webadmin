@@ -1,14 +1,22 @@
 <div id="el-loaded-content">
     <div class="row">
-        <div class="col-xs-12">
-            <div class="input-group object-name">
-                <input type=text id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
-                <span class="input-group-addon">
-                    <div class="switch switch-lg">
-                        <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                        <label for="enabled"></label>
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="input-group object-name">
+                        <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
+                        <span class="input-group-addon">
+                            <div class="switch switch-lg">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
+                            </div>
+                        </span>
                     </div>
-                </span>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -49,7 +57,7 @@
                             <thead>
                                 <tr>
                                     <th>{{NUMBER}}</th>
-                                    <th>{{STRIP}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
                                     <th>{{PREFIX}}</th>
                                     <th>
                                         <a href="#" class="add-clr transrow">
@@ -61,16 +69,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-body">
-                    <button type="button" id="el-set-object" class="btn btn-success btn-lg"><i class="fa fa-check"></i> {{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-lg delete-obj"><i class="fa fa-trash"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>
