@@ -188,7 +188,6 @@ function changeOnResize(isSmall){
 function handleMessage(data){
     var data = JSON.parse(data),
         method = data.method;
-    console.log(data);
     if(data.method){ //if the message content has no "id" parameter, i.e. sent from the server without request
         var params = data.params;
         if(method == 'stateChanged'){
