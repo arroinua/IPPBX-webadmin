@@ -78,10 +78,14 @@ select.form-control{
     margin: auto;
     overflow: hidden;
     background-color: #fff;
+    border-right: 1px solid #eee;
 }
 .nav-logo a{
-    float: left;
-    margin: 5px 20px;
+    position: absolute;
+    width: 100%;
+    /*float: left;*/
+    padding: 3px 0;
+    text-align: center;
     opacity: 1;
     -moz-transition: all 300ms ease-in-out;
     -o-transition: all 300ms ease-in-out;
@@ -89,26 +93,33 @@ select.form-control{
     transition: all 300ms ease-in-out;
 }
 .nav-logo a.small-logo{
-    margin-left: -50px;
+    opacity: 0;
+    -ms-transform:translateX(-100%);
+    -webkit-transform:translateX(-100%);
+    transform:translateX(-100%);
 }
 .nav-logo img{
     position: relative;
-    height: 45px;
+    height: 44px;
     margin: 0;
 }
 
 .page-sidebar{
-    position: absolute;
+    position: fixed;
     display: inline-block;
     top: 0;
     height: 100%;
     /*background-color: #333;*/
     background-color: #37474F;
-    overflow-y: auto;
     -moz-transition: all 300ms ease-in-out;
     -o-transition: all 300ms ease-in-out;
     -webkit-transition: all 300ms ease-in-out;
     transition: all 300ms ease-in-out;
+
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    z-index: 100;
 }
 .page-sidebar.pbx-menu{
     width: 250px;
@@ -156,6 +167,13 @@ select.form-control{
     text-decoration: none;
     color: #ccc;
 }
+
+/*.pbx-menu li a[href*="?"]{
+    text-decoration: underline;
+}
+.pbx-menu li a[href*="?"]:active{
+    color: #fff;
+}*/
 
 .pbx-menu ul li a {
     padding: 15px 15px;
@@ -249,11 +267,16 @@ select.form-control{
     transition: all 300ms ease-in-out;
 }
 .pbx-menu.squeezed-menu .small-logo{
-    transform:translateX(60px);
-    -ms-transform:translateX(60px);
-    -webkit-transform:translateX(60px);
+    opacity: 1;
+    /*margin: 0;*/
+    -ms-transform:translateX(0);
+    -webkit-transform:translateX(0);
+    transform:translateX(0);
 }
 .pbx-menu.squeezed-menu .big-logo{
+    -ms-transform:translateX(100%);
+    -webkit-transform:translateX(100%);
+    transform:translateX(100%);
     opacity: 0;
 }
 .pbx-menu.squeezed-menu > ul > li > a > span, 
@@ -278,13 +301,17 @@ select.form-control{
 .page-content{
     position: relative;
     margin-left: 60px;
+    padding-bottom: 40px;
     background-color: #ECEFF1;
-    overflow: hidden;
+    /*overflow: hidden;*/
     -moz-transition: all 300ms ease-in-out;
     -o-transition: all 300ms ease-in-out;
     -webkit-transition: all 300ms ease-in-out;
     transition: all 300ms ease-in-out;
     z-index: 200;
+
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 }
 .nav-bar{
     position: relative;
@@ -301,10 +328,50 @@ select.form-control{
     border: none;
 }
 
+.page-footer{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-left: 20px;
+    /*height: 40px;*/
+    color: #aaa;
+    background-color: #fff;
+    font-size: 12px;
+    font-weight: 100;
+    -moz-box-shadow:    0 -1px 0 0 #ccc;
+    -webkit-box-shadow: 0 -1px 0 0 #ccc;
+    box-shadow:         0 -1px 0 0 #ccc;
+}
+
+.page-footer span{
+    line-height: 40px;
+}
+
+.totop-btn{
+    cursor: pointer;
+    padding: 10px 15px;
+    border-left: 1px solid #aaa;
+}
+
 .nav-bar a{
     font-size: 1.5em;
     color: #333;
 }
+.nav-bar a i{
+    -moz-transition: all 500ms ease-in-out;
+    -o-transition: all 500ms ease-in-out;
+    -webkit-transition: all 500ms ease-in-out;
+    transition: all 500ms ease-in-out;
+}
+.nav-bar .flipped i{
+    -moz-transform: rotateY( -180deg );
+    -o-transform: rotateY( -180deg );
+    -ms-transform: rotateY( -180deg );
+    -webkit-transform: rotateY( -180deg );
+    transform: rotateY( -180deg );
+}
+
 .nav-bar-nav > a:hover{
     background-color: transparent;
 }
@@ -316,8 +383,11 @@ select.form-control{
     float: left;
     margin: 0;
 }
-.nav-bar-nav li{
+.nav-bar-nav > li{
     float: left;
+}
+.nav-bar-nav > li > a{
+    padding: 10px 12px;
 }
 .slide-menu{
     -moz-transition: all 300ms ease-in-out;
@@ -948,6 +1018,10 @@ Helpers
 .draggable{
     cursor: move;
 }
+.ghosted{
+    opacity: 0;
+    height: 1px;
+}
 /*Custom Styles*/
 input.upload-custom{
     position: absolute;
@@ -1047,6 +1121,17 @@ input[readonly].readonly-custom{
     border-radius: 0;
     border: none;
     background-color: #fff;
+}
+
+.rd-container{
+    color: #333;
+    z-index: 200;
+}
+.rd-day-body{
+    padding: 5px;
+}
+.rd-day-selected{
+    background-color: #37474F;
 }
 
 /*Custom Styles End*/

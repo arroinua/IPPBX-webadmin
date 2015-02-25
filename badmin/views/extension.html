@@ -51,7 +51,14 @@
                         <div class="form-group">
                             <label for="extdisplay" class="col-sm-4 control-label" data-toggle="tooltip" title="{{frases.EXT_SETTS__DISPLAY_NAME}}">{{frases.DISPLAY}}</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" id="extdisplay" placeholder="{{frases.DISPLAY}}" value="{{data.display}}">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="extdisplay" placeholder="{{frases.DISPLAY}}">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" onclick="copyFromField(this, 'extname')">
+                                            <i class="fa fa-exchange" data-toggle="tooltip" title="{{frases.COPY}}"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -129,7 +136,7 @@
                         <!-- <div class="col-xs-12"> -->
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-12 pl-kind pl-unit">
                                         <div class="checkbox">
                                             <label>
                                                 <input type="checkbox" id="ext-callwaiting" {{#data.features.callwaiting}} checked {{/data.features.callwaiting}}> {{frases.FUNCTIONS.CALLWAITING}}
@@ -143,13 +150,13 @@
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12">
+                                    <!-- <div class="col-sm-12">
                                         <div class="checkbox">
                                             <label>
                                                 <input type="checkbox" id="ext-clir" {{#data.features.clir}} checked {{/data.features.clir}}> {{frases.FUNCTIONS.CLIR}}
                                             </label>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="col-sm-12">
                                         <div class="checkbox">
                                             <label>
@@ -180,7 +187,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-12 pl-kind pl-unit">
                                         <div class="checkbox">
                                             <label>
                                                 <input type="checkbox" id="ext-plock" {{#data.features.lock}} checked {{/data.features.lock}}> {{frases.FUNCTIONS.LOCK}}

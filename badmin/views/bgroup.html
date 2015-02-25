@@ -27,7 +27,7 @@
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal pl-kind pl-equipment">
+                    <form class="form-horizontal">
                         <div class="col-sm-6">
                             <div class="form-group">
                                 <label for="group-protocol" class="col-lg-4 control-label" data-toggle="tooltip" title="{{GRP__PROTOCOL}}">{{PROTOCOL}}</label>
@@ -126,6 +126,157 @@
             </div>
         </div>
     </div>
+    <div class="row pl-kind pl-users pl-equipment pl-unit" id="profile">
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel minimized">
+                <div class="panel-header">{{EXTFUNCTIONS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-12 pl-kind pl-equipment pl-unit">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="callwaiting"> {{FUNCTIONS.CALLWAITING}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="hold"> {{FUNCTIONS.CALLHOLD}}
+                                        </label>
+                                    </div>
+                                </div> -->
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="forwarding"> {{FORWARDING.FORWARDING}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="callpickup"> {{FUNCTIONS.PICKUP}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="monitor"> {{FUNCTIONS.CALLMONITOR}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dnd"> {{FUNCTIONS.DND}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <!-- <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="clir"> {{FUNCTIONS.CLIR}}
+                                        </label>
+                                    </div>
+                                </div> -->
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="busyover"> {{FUNCTIONS.BUSYOVER}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="pickupdeny"> {{FUNCTIONS.PICKUPDENY}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="busyoverdeny"> {{FUNCTIONS.BUSYOVERDENY}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="monitordeny"> {{FUNCTIONS.MONITORDENY}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel minimized">
+                <div class="panel-header"> {{SETTINGS.OUTCALLS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-lg-6">
+                                <div class="checkbox">
+                                    <label data-toggle="tooltip" title="{{GRP_OUTBARGING}}">
+                                        <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkbox">
+                                    <label data-toggle="tooltip" title="{{GRP_COSTBARGING}}">
+                                        <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-responsive" id="transforms">
+                            <thead>
+                                <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
+                                <tr>
+                                    <th>{{NUMBER}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                    <th>{{PREFIX}}</th>
+                                    <th>
+                                        <a href="#" class="add-clr transrow">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row pl-kind pl-users pl-equipment">
         <div class="col-sm-12 col-custom">
             <div class="panel">
@@ -180,7 +331,14 @@
                                         <div class="form-group">
                                             <label for="user-dname" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__DISPLAY_NAME}}">{{DISPLAY}}</label>
                                             <div class="col-lg-8">
-                                                <input type="text" class="form-control" id="user-alias" placeholder="{{DISPLAY}}">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="user-alias" placeholder="{{DISPLAY}}">
+                                                    <span class="input-group-btn">
+                                                        <button type="button" class="btn btn-default" onclick="copyFromField(this, 'user-name')">
+                                                            <i class="fa fa-exchange" data-toggle="tooltip" title="{{COPY}}"></i>
+                                                        </button>
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -206,14 +364,16 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-condensed table-hover" id="group-extensions">
+                        <table class="table table-condensed table-hover sortable" id="group-extensions">
                             <thead>
                                 <tr>
                                     <th>{{NUMBER}}</th>
                                     <th>{{NAME}}</th>
                                     <th>{{DISPLAY}}</th>
                                     <th class="pl-kind pl-users">{{TELEPHONE}}</th>
-                                    <th style="width:5px"></th>
+                                    <th class="pl-kind pl-equipment">{{REGISTRATION}}</th>
+                                    <th>{{STATE}}</th>
+                                    <th style="width:5px" class="unsortable"></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -639,156 +799,6 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row pl-kind pl-users pl-equipment pl-unit" id="profile">
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized">
-                <div class="panel-header">{{EXTFUNCTIONS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="row">
-                            <div class="col-sm-6 col-xs-12">
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="callwaiting"> {{FUNCTIONS.CALLWAITING}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="hold"> {{FUNCTIONS.CALLHOLD}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="forwarding"> {{FORWARDING.FORWARDING}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="callpickup"> {{FUNCTIONS.PICKUP}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="monitor"> {{FUNCTIONS.CALLMONITOR}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="dnd"> {{FUNCTIONS.DND}}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-xs-12">
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="clir"> {{FUNCTIONS.CLIR}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="busyover"> {{FUNCTIONS.BUSYOVER}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="pickupdeny"> {{FUNCTIONS.PICKUPDENY}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="busyoverdeny"> {{FUNCTIONS.BUSYOVERDENY}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="monitordeny"> {{FUNCTIONS.MONITORDENY}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized">
-                <div class="panel-header"> {{SETTINGS.NUMTRANSFORM}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table table-responsive" id="transforms">
-                            <thead>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
-                                    <th>{{PREFIX}}</th>
-                                    <th>
-                                        <a href="#" class="add-clr transrow">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>

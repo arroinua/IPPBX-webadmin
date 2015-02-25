@@ -94,7 +94,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="table-responsive">
-                        <table class="table table-condensed table-hover" id="rtable">
+                        <table class="table table-condensed table-hover sortable" id="rtable">
                             <thead>
                                 <tr>
                                     <th>{{NUMBER}}</th>
@@ -102,17 +102,12 @@
                                     <th>{{OBJECT}}</th>
                                     <th>{{PRIORITY}}</th>
                                     <th>{{COST}}</th>
-                                    <th style="width:5px"></th>
-                                    <th style="width:5px">
+                                    <th style="width:5px" class="unsortable"></th>
+                                    <th style="width:5px" class="unsortable">
                                         <button type="button" id="add-route" class="btn btn-primary btn-sm">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </th>
-                                    <!-- <th>
-                                        <a href="#" class="add-clr routerow">
-                                            <i class="glyphicon glyphicon-plus"></i>
-                                        </a>
-                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody>

@@ -16,6 +16,10 @@
                         <h5 id="sample-data" class="col-xs-12" style="text-align:center">
                             <span id="sample-length"></span><span> {{RECORDS.RECS}}</span>
                             <span > | {{RECORDS.TOTALCOST}} </span><span id="sample-cost"></span>
+                            <br>
+                            <span>{{EXPORT}}:</span>
+                            <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.xls" onclick="return ExcellentExport.excel(this, 'records-table', 'report');">.xls</a>
+                            <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.csv" onclick="return ExcellentExport.csv(this, 'records-table');">.csv</a>
                         </h5>
                     </div>
                 </div>
@@ -138,7 +142,7 @@
             <div class="panel">
                 <div class="panel-body">
                     <div class="table-responsive">
-                        <table class="table table-condensed table-hover" id="records-table">
+                        <table class="table table-condensed table-hover sortable" id="records-table">
                             <thead>
                                 <tr>
                                     <th>{{DATE}}</th>
@@ -151,8 +155,8 @@
                                     <th>{{RECORDS.END}}</th>
                                     <th>{{RECORDS.RATE}}</th>
                                     <th>{{COST}}</th>
-                                    <th><i class="fa fa-microphone fa-fw"></i></th>
-                                    <th><i class="fa fa-download fa-fw"></i></th>
+                                    <th class="unsortable"><i class="fa fa-microphone fa-fw "></i></th>
+                                    <th class="unsortable"><i class="fa fa-download fa-fw"></i></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -168,14 +172,4 @@
             </div>
         </div>
     </div>
-    <!-- <div id="rec-player" class="pl-cont">
-        <audio id="audio-rec" type="audio/wav; codecs='1'"></audio>
-        <div class="pl-controls">
-            <button class="pl-control bg-primary pull-left" id="pl-play"><i class="fa fa-fw fa-play"></i></button>
-            <div class="pl-time"><span id="pl-time"></span>/<span id="pl-duration"></span></div>
-            <progress id='pl-seek' max='100' value='0' class-"pl-seek-bar"></progress>
-            <a href="#" class="pl-control bg-success pull-right" id="pl-download"><i class="fa fa-download"></i></a>
-            <button class="pl-control bg-primary pull-right" id="pl-stop"><i class="fa fa-fw fa-stop"></i></button>
-        </div>
-    </div> -->
 </div>

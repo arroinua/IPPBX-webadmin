@@ -20,6 +20,138 @@
             </div>
         </div>
     </div>
+    <div class="row" id="prefixes">
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel minimized">
+                <div class="panel-header">{{SETTINGS.INCALLS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-lg-offset-4 col-lg-8">
+                              <div class="checkbox">
+                                <label>
+                                  <input type="checkbox" id="inmode" checked> {{ALLOWINCCALLS}}
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">    
+                            <label for="maxinbounds" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" id="maxinbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table" id="transforms1">
+                            <thead>
+                                <tr><th colspan="4">{{SETTINGS.CALLINGTRANSF}}</th></tr>
+                                <tr>
+                                    <th>{{NUMBER}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                    <th>{{PREFIX}}</th>
+                                    <th>
+                                        <a href="#" class="add-clr transrow">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table" id="transforms2">
+                            <thead>
+                                <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
+                                <tr>
+                                    <th>{{NUMBER}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                    <th>{{PREFIX}}</th>
+                                    <th>
+                                        <a href="#" class="add-clr transrow">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel minimized">
+                <div class="panel-header">{{SETTINGS.OUTCALLS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-lg-offset-4 col-lg-8">
+                              <div class="checkbox">
+                                <label>
+                                  <input type="checkbox" id="outmode" checked> {{ALLOWOUTCALLS}}
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">    
+                            <label for="maxoutbounds" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" id="maxoutbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table" id="transforms3">
+                            <thead>
+                                <tr><th colspan="4">{{SETTINGS.CALLINGTRANSF}}</th></tr>
+                                <tr>
+                                    <th>{{NUMBER}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                    <th>{{PREFIX}}</th>
+                                    <th>
+                                        <a href="#" class="add-clr transrow">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table" id="transforms4">
+                            <thead>
+                                <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
+                                <tr>
+                                    <th>{{NUMBER}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                    <th>{{PREFIX}}</th>
+                                    <th>
+                                        <a href="#" class="add-clr transrow">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row" id="connection">
         <div class="col-xs-12 col-custom">
             <div class="panel">
@@ -125,138 +257,6 @@
                             </div>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row" id="prefixes">
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-header">{{SETTINGS.INCALLS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-md-offset-4 col-md-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="inmode" checked> {{ALLOWINCCALLS}}
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="maxinbounds" class="col-md-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="maxinbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
-                            </div>
-                        </div>
-                    </form>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table" id="transforms1">
-                            <thead>
-                                <tr><th colspan="5">{{SETTINGS.CALLINGTRANSF}}</th></tr>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
-                                    <th>{{PREFIX}}</th>
-                                    <th>
-                                        <a href="#" class="add-clr transrow">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table" id="transforms2">
-                            <thead>
-                                <tr><th colspan="5">{{SETTINGS.CALLEDTRANSF}}</th></tr>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
-                                    <th>{{PREFIX}}</th>
-                                    <th>
-                                        <a href="#" class="add-clr transrow">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-header">{{SETTINGS.OUTCALLS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-md-offset-4 col-md-8">
-                              <div class="checkbox">
-                                <label>
-                                  <input type="checkbox" id="outmode" checked> {{ALLOWOUTCALLS}}
-                                </label>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="form-group">    
-                            <label for="maxoutbounds" class="col-md-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="maxoutbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
-                            </div>
-                        </div>
-                    </form>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table" id="transforms3">
-                            <thead>
-                                <tr><th colspan="5">{{SETTINGS.CALLINGTRANSF}}</th></tr>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
-                                    <th>{{PREFIX}}</th>
-                                    <th>
-                                        <a href="#" class="add-clr transrow">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
-                    </div>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table" id="transforms4">
-                            <thead>
-                                <tr><th colspan="5">{{SETTINGS.CALLEDTRANSF}}</th></tr>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
-                                    <th>{{PREFIX}}</th>
-                                    <th>
-                                        <a href="#" class="add-clr transrow">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>

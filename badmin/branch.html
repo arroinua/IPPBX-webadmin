@@ -9,6 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link href="/badmin/fonts/css/font-awesome.min.css" rel="stylesheet">
         <link href="/badmin/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/badmin/css/rome.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/style.css" type="text/css" />
     </head>
     <body>
@@ -16,31 +17,25 @@
             <script type="text/html" id="main-template">
                 <div id="pbxmenu" class="page-sidebar pbx-menu">
                     <div class="nav-logo">
-                        <a href="#" class="small-logo"><img src="/badmin/images/small-logo.png" alt="logo"></a>
-                        <a href="#" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
+                        <a href="#calls" class="small-logo"><img src="/badmin/images/small-logo.png" alt="logo"></a>
+                        <a href="#calls" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
                     </div>
                     <ul>
-                        <li>
-                            <a href="#extensions" title="{{KINDS.extensions}}">
-                                <i class="fa fa-list fa-fw"></i>
-                                <span>{{KINDS.extensions}}</span>
-                            </a>
-                        </li>
-                        <li class="mode-equipment">
+                        <li class="branch-mode mode-equipment">
                             <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
                                 <i class="fa fa-fax fa-fw"></i>
                                 <span>{{KINDS.equipment}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="mode-users">
+                        <li class="branch-mode mode-users">
                             <a href="#" data-kind="users" title="{{KINDS.users}}">
                                 <i class="fa fa-user fa-fw"></i>
                                 <span>{{KINDS.users}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="mode-groups">
+                        <li class="branch-mode mode-groups">
                             <a href="#" title="{{GROUPS.GROUPS}}">
                                 <i class="fa fa-group fa-fw"></i>
                                 <span>{{GROUPS.GROUPS}}</span>
@@ -92,28 +87,28 @@
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="mode-channels">
+                        <li class="branch-mode mode-channels">
                             <a href="#" data-kind="channel" title="{{KINDS.channel}}">
                                 <i class="fa fa-rss fa-fw"></i>
                                 <span>{{KINDS.channel}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="mode-selector">
+                        <li class="branch-mode mode-selector">
                             <a href="#" data-kind="selector" title="{{KINDS.selector}}">
                                 <i class="fa fa-line-chart fa-fw"></i>
                                 <span>{{KINDS.selector}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li>
+                        <li class="branch-mode mode-equipment">
                             <a href="#" data-kind="application" title="{{KINDS.application}}">
                                 <i class="fa fa-puzzle-piece fa-fw"></i>
                                 <span>{{KINDS.application}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li>
+                        <li class="branch-mode mode-equipment">
                             <a href="#" data-kind="timer" title="{{KINDS.timer}}">
                                 <i class="fa fa-calendar fa-fw"></i>
                                 <span>{{KINDS.timer}}</span>
@@ -133,8 +128,8 @@
                     <nav class="navbar nav-bar">
                         <ul class="nav nav-bar-nav">
                             <li>
-                                <a href="#" class="sidebar-toggle">
-                                    <i class="fa fa-navicon fa-fw"></i>
+                                <a href="#" id="sidebar-toggle" class="sidebar-toggle">
+                                    <i class="fa fa-angle-left fa-fw"></i>
                                 </a>
                             </li>
                             <li>
@@ -142,29 +137,39 @@
                                     <i class="fa fa-home fa-fw"></i>
                                 </a>
                             </li>
+                            <li>
+                                <a href="#extensions" title="{{KINDS.extensions}}">
+                                    <i class="fa fa-list fa-fw"></i>
+                                </a>
+                            </li>
+                            <li class="branch-mode mode-channels">
+                                <a href="#channels" title="{{KINDS.channel}}">
+                                    <i class="fa fa-rss fa-fw"></i>
+                                </a>
+                            </li>
                         </ul>
                         <ul id="el-slidemenu" class="nav nav-bar-nav pull-right slide-menu">
                             <li>
                                 <div class="dropdown custom-dropdown">
                                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                                        <i class="fa fa-th-large fa-fw"></i>
+                                        <i class="fa fa-history fa-fw"></i>
                                     </a>
-                                    <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
-                                        <li role="presentation">
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdown">
+                                        <li>
                                             <a href="#reports" role="menuitem" tabindex="-1">
                                                 <i class="fa fa-bar-chart fa-fw"></i>
                                                 {{KINDS.reports}}
                                             </a>
                                         </li>
-                                        <li role="presentation">
+                                        <li>
                                             <a href="#statistics" role="menuitem" tabindex="-1">
                                                 <i class="fa fa-table fa-fw"></i>
                                                 {{KINDS.statistics}}
                                             </a>
                                         </li>
-                                        <li role="presentation">
+                                        <li>
                                             <a href="#records" role="menuitem" tabindex="-1">
-                                                <i class="fa fa-history fa-fw"></i>
+                                                <i class="fa fa-microphone fa-fw"></i>
                                                 {{KINDS.records}}
                                             </a>
                                         </li>
@@ -184,7 +189,16 @@
                         </ul>
                     </nav>
                     <ol class="custom breadcrumb"></ol>
-                    <div id="dcontainer" class="container-fluid data-container">
+                    <div id="dcontainer" class="container-fluid data-container"></div>
+                    <div class="page-footer">
+                        <div class="pull-left">
+                            <span>@2015 <b style="text-transform:uppercase">SMILESOFT</b> All rights reserved</span>
+                        </div>
+                        <div class="pull-right">
+                            <span class="totop-btn" onclick="toTheTop();">
+                                <i class="fa fa-chevron-up"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div id="pbxoptions" class="page-sidebar pbx-options" tabindex="-1">
@@ -582,10 +596,13 @@
         <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.all.min.js"></script>
+        <!--<script type="text/javascript" src="/badmin/js/vendors/fastclick.min.js"></script>-->
+        <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/excellentexport.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/sortable.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/rome-moment.min.js"></script>
         <script type="text/javascript" src="/badmin/js/badmin.js"></script>
         <script type="text/javascript" src="/badmin/js/objects.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.all.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/fastclick.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
     </body>
 </html>

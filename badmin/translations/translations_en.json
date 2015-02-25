@@ -48,16 +48,18 @@
 		"CALLTRANSFER" : "Call transfer",
 		"CALLPARK" : "Call park"
 	},
-	"STATES" : [
-		"Log on", 
-		" Call ",
-		" Calling ", 
-		"Connected", 
-		"Do not disturb", 
-		"Assigned", 
-		"Forwarding", 
-		"Unassigned"
-	],
+	"STATES" : {
+		"0":"Unregistered",
+		"1":"Idle",
+		"2":"Forwarding", 
+		"3":"DND", 
+		"4":"Invisible",
+		"5":"Disabled", 
+		"6":"Outgoing", 
+		"7":"Incoming", 
+		"8":"Connected", 
+		"-1":"Deleted"
+	},
 	"SETTINGS" : {
 		"SETTINGS" : "Settings",
 		"UNLIMITEDCONN" : "Unlimited connections",
@@ -100,6 +102,7 @@
 	"REVEAL_PWD" : "Reveal password",
 	"HIDE_PWD" : "Hide password",
 	"GENERATE_PWD" : "Generate password",
+	"COPY" : "Copy",
 	"NUMBER" : "Number",
 	"NUMBERS" : "Numbers",
 	"PIN" : "Pin",
@@ -112,6 +115,7 @@
 	"ADDUSER" : "Add user",
 	"USERTYPE" : "User type",
 	"ADD": "Add",
+	"ADD_GROUP": "Add group",
     "CREATE": "Create",
     "SAVE" : "Save",
     "SAVED": "Changes saved",
@@ -140,6 +144,7 @@
 	"DISABLE" : "Disable",
 	"ON" : "On",
 	"OFF" : "Off",
+	"PARTIES" : "Parties",
 	"AVAILABLE" : "Available",
 	"SELECTED" : "Selected",
 	"PRIORITY" : "Priority",
@@ -208,6 +213,7 @@
 		"GREETFILE" : "Audio file"
 	},
 	"CHANNEL_TYPE" : "Channel type",
+	"SHOW_PARTIES" : "Show parties",
 	"PLAY_BACK_MUSIC" : "Play audio on background",
 	"VIDEO" : "Video",
 	"VIDEOSETTS" : "Video settings",
@@ -238,6 +244,8 @@
 		"END" : "End",
 		"RATE" : "Rate"
 	},
+	"EXPORT": "Export",
+	"REPORT": "Report",
 	"TIMERSNAME": "Timer name",
 	"PICKADATE": "Select date and time",
     "TIME": "Time",
@@ -277,7 +285,9 @@
     "KINDS": {
         "trunk": "Trunks",
         "users": "Users",
+        "user": "User",
         "equipment": "Equipment",
+        "phone": "Equipment",
         "unit": "Organization Units",
         "pickup": "Call Pickup",
         "cli": "CLI Group",
@@ -289,6 +299,7 @@
         "selector": "Selector",
         "hunting": "Call Hunting",
         "channel": "Channel",
+        "channels": "Channel",
         "calls": "Calls",
         "records": "Call Records",
         "statistics": "Statistics",
