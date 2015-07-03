@@ -1,0 +1,67 @@
+.el-notifier{
+    position: fixed;
+    z-index: 1100;
+    top: 0;
+    width: 400px;
+    left: 50%;
+    margin-left: -200px; 
+    background: #333;
+    text-align: center;
+    line-height: 2.5;
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+    color: #fff;
+    animation: slideDown 7s;
+    -webkit-animation: slideDown 7s;
+
+    @media only screen and (max-width: $handheld) {
+        min-height: 50px;
+        width: 100%;
+        left: 0;
+        margin: 0;
+    }
+}
+
+.el-close-notify{
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 7px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.el-notifier-ok span,
+.postv-col{
+    color: rgb(0,250,0);
+}
+.el-notifier-error span,
+.remove-clr,
+.negtv-col{
+    color: #d9534f;
+}
+a.remove-clr:hover{
+    color: #d43f3a;
+}
+.el-notifier-info,
+.add-clr,
+.neutral-col{
+    color: #428bca;
+}
+.pale-col{
+    color: #999;
+}
+
+@keyframes slideDown {
+    0%, 100% { transform: translateY(-50px); }
+    5%, 95% { transform: translateY(0px); }
+}
+@-webkit-keyframes slideDown {
+    0%, 100% { -webkit-transform: translateY(-50px); }
+    5%, 95% { -webkit-transform: translateY(0px); }
+}
+@-moz-keyframes slideDown {
+    0%, 100% { -moz-transform: translateY(-50px); }
+    5%, 95% { -moz-transform: translateY(0px); }
+}   

@@ -1,0 +1,14 @@
+.pagination-container{
+    position: relative;
+    width: 100%;
+    margin: auto;
+    text-align: center;
+
+    ul, p{
+        margin: 0;
+    }
+	p{
+	    color: #999;
+	    font-style: italic;
+	}
+}

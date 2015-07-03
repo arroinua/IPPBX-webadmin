@@ -1,0 +1,39 @@
+.page-sidebar{
+    position: fixed;
+    display: inline-block;
+    top: 0;
+    height: 100%;
+    background-color: $primary-color;
+    
+    @include transition-all(300ms);
+
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    z-index: 100;
+
+    &.pbx-menu{
+        width: 250px;
+        left: 0;
+        z-index: 50;
+
+        @media only screen and (max-width: $handheld) {
+            -ms-transform:translateX(-100%);
+            -webkit-transform:translateX(-100%);
+            transform:translateX(-100%);
+        }
+    }
+    &.pbx-options{
+        width: 320px;
+        right: 0;
+    }
+    .tab-toggles li a i:last-child{
+        @extend .last-icon;
+    }
+
+    li a {
+        @media only screen and (max-width: $handheld) {
+            padding: 11.5px 25px;
+        }
+    }
+}

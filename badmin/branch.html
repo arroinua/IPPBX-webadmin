@@ -7,10 +7,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link href="/badmin/fonts/css/font-awesome.min.css" rel="stylesheet">
-        <link href="/badmin/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="/badmin/css/rome.min.css" type="text/css" />
-        <link rel="stylesheet" href="/badmin/css/style.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/rome.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/select2.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" />
     </head>
     <body>
         <div id="pagecontainer" class="page-container">
@@ -20,7 +21,24 @@
                         <a href="#calls" class="small-logo"><img src="/badmin/images/small-logo.png" alt="logo"></a>
                         <a href="#calls" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
                     </div>
-                    <ul>
+                    <!--<ul class="nav nav-justified">
+                        <li>
+                            <a href="#extensions" title="{{KINDS.extensions}}">
+                                <i class="fa fa-list fa-fw"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#calls" title="{{KINDS.calls}}">
+                                <i class="fa fa-phone fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-channels">
+                            <a href="#channels" title="{{KINDS.channel}}">
+                                <i class="fa fa-rss fa-fw"></i>
+                            </a>
+                        </li>
+                    </ul>-->
+                    <ul class="nav-list">
                         <li class="branch-mode mode-equipment">
                             <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
                                 <i class="fa fa-fax fa-fw"></i>
@@ -101,7 +119,7 @@
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode mode-equipment">
+                        <li class="branch-mode mode-groups">
                             <a href="#" data-kind="application" title="{{KINDS.application}}">
                                 <i class="fa fa-puzzle-piece fa-fw"></i>
                                 <span>{{KINDS.application}}</span>
@@ -119,6 +137,13 @@
                             <a href="#" data-kind="routes" title="{{KINDS.routes}}">
                                 <i class="fa fa-arrows fa-fw"></i>
                                 <span>{{KINDS.routes}}</span>
+                                <i class="fa fa-chevron-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-users">
+                            <a href="#" data-kind="attendant" title="{{KINDS.attendant}}">
+                                <i class="fa fa-cubes fa-fw"></i>
+                                <span>{{KINDS.attendant}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
@@ -147,6 +172,11 @@
                                     <i class="fa fa-rss fa-fw"></i>
                                 </a>
                             </li>
+                            <!--<li>
+                                <a href="#" title="{{ADDUSER}}" onclick="initNewUsersWizzard()">
+                                    <i class="fa fa-user-plus fa-fw"></i>
+                                </a>
+                            </li>-->
                         </ul>
                         <ul id="el-slidemenu" class="nav nav-bar-nav pull-right slide-menu">
                             <li>
@@ -176,11 +206,6 @@
                                     </ul>
                                 </div>
                             </li>
-                            <!--<li>
-                                <a href="#records">
-                                    <i class="fa fa-history fa-fw"></i>
-                                </a>
-                            </li>-->
                             <li>
                                 <a href="#" class="options-open">
                                     <i class="fa fa-cog fa-fw"></i>
@@ -188,7 +213,7 @@
                             </li>
                         </ul>
                     </nav>
-                    <ol class="custom breadcrumb"></ol>
+                    <ol class="custom breadcrumb" id="main-breadcrumb"></ol>
                     <div id="dcontainer" class="container-fluid data-container"></div>
                     <div class="page-footer">
                         <div class="pull-left">
@@ -247,6 +272,16 @@
                                     <input type="password" class="form-control" id="confirmpass">
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="firstnumber" class="col-xs-12" data-toggle="tooltip" title="{{OPTS__POOL_TOOLTIP}}">{{NUMBERING_POOL}}</label>
+                                <div class="col-xs-5">
+                                    <input type="text" class="form-control" onkeydown='validateInput(event)' id="firstnumber">
+                                </div>
+                                <span class="col-xs-1">-</span>
+                                <div class="col-xs-5">
+                                    <input type="text" class="form-control" onkeydown='validateInput(event)' id="lastnumber">
+                                </div>
+                            </div>
                         </form>
                         <div class="row">
                             <div class="col-xs-12">
@@ -264,6 +299,18 @@
                                         <a href="#" onclick="getDeviceSettings(event)">{{SETTINGS.BRANCH_SETTS}}
                                             <i class="fa fa-chevron-right fa-fw"></i>
                                         </a>
+                                    </li>
+                                </ul>
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#certificates">{{CERTIFICATES.CERTIFICATES_SETTS}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#rec_settings">{{SETTINGS.REC_SETTINGS}}</a>
                                     </li>
                                 </ul>
                             </div>
@@ -591,18 +638,42 @@
                         </select>
                     </div>
                 </div>
+                <h5 class="text-mute acc-header">SMDR <span class="caret pull-right"></span></h5>
+                <div class="acc-pane">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="smdr-enabled" {{#data.system.smdr.state}}checked{{/data.system.smdr.state}}> Enabled
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-8">
+                            <label for="smdr-host">Host</label>
+                            <select id="smdr-host" class="form-control">
+                                {{#data.system.interfaces}}
+                                <option value="{{.}}">{{.}}</option>
+                                {{/data.system.interfaces}}
+                            </select>
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="smdr-port">Port</label>
+                            <input type="text" id="smdr-port" class="form-control" value="{{data.system.smdr.port}}">
+                        </div>
+                    </div>
+                </div>
             </form>
         </script>
         <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/jquery.flot.all.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/flot.all.min.js"></script>
         <!--<script type="text/javascript" src="/badmin/js/vendors/fastclick.min.js"></script>-->
         <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/excellentexport.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/sortable.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/rome-moment.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/badmin.js"></script>
-        <script type="text/javascript" src="/badmin/js/objects.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/sorttable.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/rome-moment.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/select2.full.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/main.js"></script>
     </body>
 </html>

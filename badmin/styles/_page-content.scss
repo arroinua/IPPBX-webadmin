@@ -1,0 +1,31 @@
+.page-content{
+    position: relative;
+    margin-left: 60px;
+    padding-bottom: 40px;
+    background-color: #ECEFF1;
+    overflow: auto;
+    z-index: 200;
+    // overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    @include transition-all(300ms);
+
+    &.pushed-left{
+	    -ms-transform:translateX(-320px);
+	    -webkit-transform:translateX(-320px);
+	    transform:translateX(-320px);
+	}
+	&.squeezed-right{
+	    margin-left: 250px;
+		@media only screen and (max-width: $handheld) {
+			margin-left: 0;
+			-ms-transform:translateX(250px);
+			-webkit-transform:translateX(250px);
+			transform:translateX(250px);	
+		}	    
+	}
+
+	@media only screen and (max-width: $handheld) {
+    	margin-left: 0;
+	}
+}

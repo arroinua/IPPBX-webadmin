@@ -1,0 +1,47 @@
+.selectable-cont{
+    position: relative;
+    text-align: center;
+
+    div{
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+
+        &.selectable-box{
+            border: 1px solid #eee;
+            background-color: rgb(250,250,250);
+        }
+        &.selectable-ext{
+            position: relative;
+            width: 40%;
+            max-width: 160px;
+        }
+        &.selectable-routes{
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+        ul{
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow-y: auto;
+        }
+        ul li{
+            position: relative;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        ul li:hover{
+            background-color: $primary-color;
+            color: #fff;
+        }
+    }
+    .glyphicon{
+        font-size: 2em;
+    }
+}

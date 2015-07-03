@@ -1,0 +1,47 @@
+.pbx-options{
+    color: #ccc;
+    overflow-x: hidden;
+    transform:translateX(100%);
+    -ms-transform:translateX(100%);
+    -webkit-transform:translateX(100%);
+
+    &.pushed-left{
+        -ms-transform:translateX(0px);
+        -webkit-transform:translateX(0px);
+        transform:translateX(0px);
+    }
+    .options-nav{
+        margin-bottom: 20px;
+        background-color: $primary-color;
+    }
+    .nav-bar-nav a{
+        color: #eee;
+    }
+    .panel-body{
+        background-color: $primary-color;
+    }
+    .panel-header{
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+    }
+    a.el-save-options{
+        font-size: 1.2em;
+        line-height: 1.8em;
+        color: #fff;
+        background-color: #4cae4c;
+    }
+    a.el-save-options:hover{
+        background-color: #449d44;
+    }
+    .tab-pane{
+        form, h4{
+            padding: 20px;
+        }
+        h4{
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            margin: 20px 0;
+        }
+    }
+    
+}

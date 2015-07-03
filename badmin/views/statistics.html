@@ -74,6 +74,9 @@
                             </label>
                         </div>
                         <hr> -->
+                        <span>{{EXPORT}}:</span>
+                        <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.xls" onclick="return ExcellentExport.excel(this, 'lost-calls-table', 'report');">.xls</a>
+                        <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.csv" onclick="return ExcellentExport.csv(this, 'lost-calls-table');">.csv</a>
                         <div class="table-responsive">
                             <table class="table table-hover" id="lost-calls-table">
                                 <thead>
@@ -124,6 +127,11 @@
                             </label>
                         </div>
                         <hr>
+                        <div>
+                            <span>{{EXPORT}}:</span>
+                            <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.xls" onclick="return ExcellentExport.excel(this, 'ext-statistics-table', 'report');">.xls</a>
+                            <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.csv" onclick="return ExcellentExport.csv(this, 'ext-statistics-table');">.csv</a>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover" id="ext-statistics-table">
                                 <thead>
@@ -154,6 +162,9 @@
         <div class="col-xs-12 col-custom">
             <div class="panel">
                 <div class="panel-body">
+                    <span>{{EXPORT}}:</span>
+                    <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.xls" onclick="return ExcellentExport.excel(this, 'trunks-statistics-table', 'report');">.xls</a>
+                    <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.csv" onclick="return ExcellentExport.csv(this, 'trunks-statistics-table');">.csv</a>
                     <div class="table-responsive">
                         <table class="table table-hover" id="trunks-statistics-table">
                             <thead>
