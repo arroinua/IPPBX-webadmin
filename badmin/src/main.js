@@ -334,14 +334,18 @@ function showGroups(e){
                 var i, gid, name, li, a, rem, objects = result;
                 sortByKey(objects, 'name');
                 for(i=0; i<objects.length; i++){
-                    gid = objects[i].oid;
-                    name = objects[i].name;
-                    li = document.createElement('li');
-                    a = document.createElement('a');
-                    a.href = '#'+kind+'?'+gid;
-                    a.innerHTML = name;
-                    li.appendChild(a);
-                    ul.appendChild(li);
+                    if(kind === 'trunk' && objects[i].type === 'system') {
+                        continue;
+                    } else {
+                        gid = objects[i].oid;
+                        name = objects[i].name;
+                        li = document.createElement('li');
+                        a = document.createElement('a');
+                        a.href = '#'+kind+'?'+gid;
+                        a.innerHTML = name;
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    }
                 }
                 $(self).siblings().remove('ul');
                 parent.append(ul);
@@ -370,7 +374,7 @@ function showGroups(e){
     parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
 }
 
-function get_object(result){
+function get_object(e){
 
     var query = location.hash.substring(1),
         kind = query.indexOf('?') != -1 ? query.substring(0, query.indexOf('?')) : query.substring(0),
@@ -693,9 +697,10 @@ function switchMode(config){
     }
 }
 
-function switch_presentation(kind, cont){
+function switch_presentation(kind, cont, selector){
     var container = cont || document.getElementById('dcontainer');
-    var panels = [].slice.call(container.querySelectorAll('.pl-kind'));
+    var selector = selector ? '.'+selector : '.pl-kind';
+    var panels = [].slice.call(container.querySelectorAll(selector));
     var action;
     panels.forEach(function(item){
         if(item.classList.contains('pl-'+kind) || item.classList.contains('pl-all')) {
@@ -949,6 +954,13 @@ function newObjectAdded(data){
         ul = document.getElementById('ul-'+data.kind);
 
     remove_loading_panel();
+    notify_about('success', name+' '+PbxObject.frases.CREATED);
+
+    if(kind === 'phone' || kind === 'user') return;
+    if(kind !== 'application'){
+        PbxObject.query = kind+'?'+oid;
+        window.location.href = '#'+PbxObject.query;
+    }
     
     if(ul){
         var li = document.createElement('li'),
@@ -972,12 +984,6 @@ function newObjectAdded(data){
         PbxObject.objects.push(data);
         sortByKey(PbxObject.objects, 'name');
     }
-
-    if(kind !== 'application'){
-        PbxObject.query = kind+'?'+oid;
-        window.location.href = '#'+PbxObject.query;
-    }
-    notify_about('success', name+' '+PbxObject.frases.CREATED);
 }
 
 function objectDeleted(data){
@@ -1085,7 +1091,10 @@ function validateInput(e){
          // Allow: Ctrl+A
         (e.keyCode == 65 && e.ctrlKey === true) || 
          // Allow: home, end, left, right, down, up
-        (e.keyCode >= 35 && e.keyCode <= 40)) {
+        (e.keyCode >= 35 && e.keyCode <= 40) || 
+         // Allow: comma and dash 
+        (e.keyCode == 188 && e.shiftKey === false) || 
+        (e.keyCode == 189 && e.shiftKey === false)) {
              // let it happen, don't do anything
              return;
     }

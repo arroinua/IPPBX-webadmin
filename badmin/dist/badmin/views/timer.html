@@ -1,0 +1,114 @@
+<div id="el-loaded-content">
+    <div class="row">
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="input-group object-name">
+                        <input type="text" id="objname" class="form-control" placeholder="{{TIMERSNAME}}" autofocus>
+                        <span class="input-group-addon">
+                            <div class="switch switch-lg">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">{{PICKADATE}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <div class="from-inline">
+                        <div class="form-group">
+                            <label for="hh" class="col-xs-2">{{TIME}}</label>
+                            <div class="col-xs-4">
+                                <select id="hh" class="form-control"></select>
+                            </div>
+                            <span class="col-xs-1">:</span>
+                            <div class="col-xs-4">
+                                <select id="mm" class="form-control"></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <hr>
+                            <div id="timer-range" class="btn-group btn-group-justified" data-toggle="buttons">
+                                <label class="btn btn-default">
+                                    <input type="radio" autocomplete="off" value="timer-everyday"> {{EVERYDAY}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" autocomplete="off" value="timer-workdays"> {{WEEKDAYS}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="radio" autocomplete="off" value="timer-holidays"> {{WEEKEND}}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <hr>
+                            <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d0"> {{MON}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d1"> {{TUE}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d2"> {{WED}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d3"> {{THU}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d4"> {{FRI}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d5"> {{SAT}}
+                                </label>
+                                <label class="btn btn-default">
+                                    <input type="checkbox" autocomplete="off" id="t-d6"> {{SUN}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header"> {{OBJPICK}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <table class="table" id="targets">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <select id="objects" class="form-control"></select>
+                                </th>
+                                <th>
+                                    <select id="actions" class="form-control">
+                                        <option value="Enable">{{ENABLE}}</option>
+                                        <option value="Disable">{{DISABLE}}</option>
+                                    </select>
+                                </th>
+                                <th><button type="button" id="add-timer-target" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

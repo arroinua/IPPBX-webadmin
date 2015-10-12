@@ -1,0 +1,1106 @@
+/* 
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+{
+  
+/*
+ * Method: "getExtensions"
+ * 
+ * Example:
+ * -> {"method":"getExtensions"}
+ * <- {"result":{ ["ext":"101", "oid":"234254761347", "name":"John Smith", "kind":"user", "groupid":"2364574722245", "state":1 ],[ ... ], ... } }
+ * 
+ * Parameters:
+ *  none
+ *          
+ *  result: список номеров
+ *          "ext":      номер
+ *          "name":     имя объекта
+ *          "kind":     тип объекта:
+ *                      "user" - пользователь
+ *                      "phone" - телефонный аппарат
+ *                      "unit"  - группа телефонов
+ *                      "hunting" - группа поиска
+ *                      "icd" - группа обслуживания входящего вызова
+ *                      "application" - приложение
+ *                      "conference" -  конференц-группа
+ *                      
+ *          "groupid":  идентификатор группы (для объектов типа "user" или "phone")
+ *          
+ *          "state":    состояние (для объектов типа "user" или "phone")
+ *                      0 - свободен
+ *                      1 - исходящий вызов
+ *                      2 - входящий вызов
+ *                      3 - соединен
+ *                      4 - включена функция "не беспокоить"
+ *                      5 - не зарегистрирован
+ *                      6 - установлена переадресация на внешний номер
+ */
+ "getExtensions": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result": [
+        {
+            "ext":          "string",
+            "name":         "string",
+            "kind":         "string",
+            "groupid":      "string",
+            "state":        "number",
+        }
+    ]
+},
+
+
+/*
+ * Method: "getGroups"
+ * 
+ * Example:
+ * 
+ * -> { "method": "getGroups" }
+ * <- { "result": { [ "oid": "2364574722245", "kind": "unit", "name": "Marketing Department" ], [ "oid": "1462547254547", "kind": "users", "name": "IT Department" ] } }
+ * 
+ * 
+ *  params: none
+ *          
+ *  result: список групп
+ *          "oid":      идентификатор группы
+ *          "name"      имя группы
+ *          "kind"      тип группы
+ *                      "unit": группа телефонов
+ *                      "users":группа пользователей
+ *          "parentid": идентификатор вышестоящей группы (если есть)
+ *          
+ */
+"getGroups": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result": [
+        {
+        "oid":              "string",
+        "name":             "string",
+        "kind":             "string", // [  "users", "unit" ]
+        "parentid":         "string",
+        }
+    ]
+},
+
+/*
+ *  Method "getProfile"
+ *  Получить параметры своего профиля
+ *
+ *  params: none
+ *          
+ *  result: таблица параметров
+ *          "name":     имя
+ *          "number":   номер
+ *          "display":  имя, отображаемое на дисплее телефона
+ *          "enabled":  состояние (false - выключен администратором)
+ *          "groupid":  идентификатор группы
+ *          "followme": номер телефона, на который адресуются звонки
+ *          "features": настройки функций
+ *                      "lock":     запрет/разрешение изменения настроек с телефонного аппарата
+ *                      "clir":     запрет/разрешение отображения своего номера при звонке
+ *                      "dnd":      функция "не беспокоить"
+ *                      "fwdall":   включение/выключение безусловной переадресации
+ *                      "fwdbusy":  включение/выключение переадресации по "занято"
+ *                      "fwdnans":  включение/выключение переадресации по неответу
+ *                      "fwdnreg":  включение/выключение переадресации при отсутствии регистрации
+ *                      "pickupdeny":   запрет/разрешение перехвата вызова
+ *                      "busyoverdeny": запрет/разрешение вторжения в разговор
+ *                      "monitordeny":  запрет/разрешение прослушивания разговора
+ *                      "callwaiting":  включение/выключение функции "Ожидающий вызов"
+ *                      "huntbusy":     включение/выключение функции поиска, если номер занят
+ *                      "huntnans":     включение/выключение функции поиска при неответе
+ *                      "huntnreg":     включение/выключение функции поиска при отсутствии регистрации
+ *                      "voicemail":    включение/выключение функции голосовой почты
+ *                      "fwdallnumber": номер для безусловной переадресации
+ *                      "fwdbusynumber":номер для переадресации по "занято"
+ *                      "fwdnansnumber":номер для переадресации по неответу
+ *                      "fwdnregnumber":номер для переадресации при отсутствии регистрации
+ *                      "fwdtimeout":   таймаут для переадресации по неответу (в секундах)
+ *                      "huntingnumbers": список номеров для поиска
+ */
+ "getProfile": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result": {
+        "name":             "string",
+        "number":           "string",
+        "display":          "string",
+        "enabled":          "boolean",
+        "groupid":          "string",
+        "followme":         "string",
+        "features": {
+            "lock":         "boolean",
+            "clir":         "boolean",
+            "dnd":          "boolean",
+            "fwdall":       "boolean",
+            "fwdbusy":      "boolean",
+            "fwdnans":      "boolean",
+            "fwdnreg":      "boolean",
+            "pickupdeny":   "boolean",
+            "busyoverdeny": "boolean" ,
+            "monitordeny":  "boolean",
+            "callwaiting":  "boolean",
+            "huntbusy":     "boolean",
+            "huntnans":     "boolean",
+            "huntnreg":     "boolean",
+            "voicemail":    "boolean",
+            "fwdallnumber":     "string",
+            "fwdbusynumber":    "string",
+            "fwdnansnumber":    "string",
+            "fwdnregnumber":    "string",
+            "fwdtimeout":       "number",
+            "huntingnumbers":   ["string"]
+        },
+    }
+ },
+        
+
+/*
+ *  Method "setProfile"
+ *  Установить параметры своего профиля
+ *          
+ *  params: таблица параметров
+ *          "pin":      pin код для доступа к функциям с телефонного аппарата
+ *          "display":  имя, отображаемое на дисплее телефона
+ *          "followme": номер телефона, на который адресуются звонки
+ *          "features": настройки функций
+ *                      "lock":     запрет/разрешение изменения настроек с телефонного аппарата
+ *                      "clir":     запрет/разрешение отображения своего номера при звонке
+ *                      "dnd":      функция "не беспокоить"
+ *                      "fwdall":   включение/выключение безусловной переадресации
+ *                      "fwdbusy":  включение/выключение переадресации по "занято"
+ *                      "fwdnans":  включение/выключение переадресации по неответу
+ *                      "fwdnreg":  включение/выключение переадресации при отсутствии регистрации
+ *                      "pickupdeny":   запрет/разрешение перехвата вызова
+ *                      "busyoverdeny": запрет/разрешение вторжения в разговор
+ *                      "monitordeny":  запрет/разрешение прослушивания разговора
+ *                      "callwaiting":  включение/выключение функции "Ожидающий вызов"
+ *                      "huntbusy":     включение/выключение функции поиска, если номер занят
+ *                      "huntnans":     включение/выключение функции поиска при неответе
+ *                      "huntnreg":     включение/выключение функции поиска при отсутствии регистрации
+ *                      "voicemail":    включение/выключение функции голосовой почты
+ *                      "fwdallnumber": номер для безусловной переадресации
+ *                      "fwdbusynumber":номер для переадресации по "занято"
+ *                      "fwdnansnumber":номер для переадресации по неответу
+ *                      "fwdnregnumber":номер для переадресации при отсутствии регистрации
+ *                      "fwdtimeout":   таймаут для переадресации по неответу (в секундах)
+ *                      "huntingnumbers": список номеров для поиска
+ *                      
+ *  result: none
+ */
+ "setProfile": {
+    "type":                 "method",
+    
+    "params": {
+        "pin":              "number",
+        "display":          "string",
+        "followme":         "string",
+        "features": {
+            "lock":         "boolean",
+            "clir":         "boolean",
+            "dnd":          "boolean",
+            "fwdall":       "boolean",
+            "fwdbusy":      "boolean",
+            "fwdnans":      "boolean",
+            "fwdnreg":      "boolean",
+            "pickupdeny":   "boolean",
+            "busyoverdeny": "boolean" ,
+            "monitordeny":  "boolean",
+            "callwaiting":  "boolean",
+            "huntbusy":     "boolean",
+            "huntnans":     "boolean",
+            "huntnreg":     "boolean",
+            "voicemail":    "boolean",
+            "fwdallnumber":     "string",
+            "fwdbusynumber":    "string",
+            "fwdnansnumber":    "string",
+            "fwdnregnumber":    "string",
+            "fwdtimeout":       "number",
+            "huntingnumbers":   ["string"]
+        },
+    }
+},
+
+/*************************************************************************************************************
+ *  Нотификация от сервера клиенту
+ *************************************************************************************************************/
+
+/* 
+ * Изменение состояния объекта 
+ * 
+ * method:  "stateChanged"
+ * 
+ * params:  
+ *          "oid":      идентификатор объекта
+ *          "ext":      внутренний номер телефона
+ *          "state":    состояние
+ *                      0 - свободен
+ *                      1 - исходящий вызов
+ *                      2 - входящий вызов
+ *                      3 - соединен
+ *                      4 - включена функция "не беспокоить"
+ *                      5 - не зарегистрирован или отключен
+ *                      6 - установлена переадресация на внешний номер
+ *                     -1 - удален
+ *          
+ *          "name":     имя
+ *          "group":    имя группы
+ *          "reg":      ip адрес или номер переадресации
+ * 
+ */
+
+"stateChanged": {
+    "type":             "indication",
+    
+    "params": {
+        "oid":          "string",
+        "ext":          "string",
+        "state":        "number",
+        "name":         "string",
+        "group":        "string",
+        "reg":          "string"
+    }
+},
+
+
+/*************************************************************************************************************
+ *  Методы админа бранча
+ *************************************************************************************************************/
+
+/* 
+ * Получить список текущих соединений.
+ * 
+ * method:  "getCurrentCalls"
+ * 
+ * params:  Нет
+ * 
+ * result:  список текущих соединений
+ *          "caller":   вызывающий номер
+ *          "called":   вызываемый номер
+ *          "time":     длительность соединения (только для соединенных звонков
+ * 
+ */
+
+"getCurrentCalls": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result": [
+        {
+            "caller":       "string",
+            "called":       "string",
+            "time":         "number",
+        }
+    ]
+},
+
+/* 
+ * Получить список соединений и загрузку по транкам.
+ * 
+ * method:  "getCurrentState"
+ * 
+ * params:  Нет
+ * 
+ * result:  таблица параметров:
+ * 
+ *          "in":       количество входящих соединений
+ *          "out":      количество исходящих соединений
+ *          "conn":     количество соединенных вызовов
+ *          "load":     загрузка портов (в процентах)
+ *          "trunks":   список транков
+ *                      "id":   идентификатор транка
+ *                      "name": имя транка
+ *                      "in":   количество входящих соединений
+ *                      "out":  количество исходящих соединений
+ *                      "load": загрузка транка (в процентах)
+ * 
+ */
+
+"getCurrentState": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result": {
+        "in":               "number",
+        "out":              "number",
+        "conn":             "number",
+        "load":             "number",       
+        "trunks": [
+            {
+                "id":       "string",
+                "name":     "string",
+                "in":       "number",
+                "out":      "number",
+                "load":     "number",
+            }
+        ]
+    }
+},
+
+
+/* 
+ * Получить историю звонков.
+ * 
+ * method:  "getCalls"
+ * 
+ * params:  таблица параметров:
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          "number":   номер абонента. Если параметр отсутствует, выбираются все звонки
+ *          "trunk":    имя транка
+ *          "mode":     вид выборки:
+ *                      0 - все звонки
+ *                      1 - только соединенные звонки
+ *                      2 - только внешние звонки
+ *                      3 - только внешние соединенные звонки
+ *          "order":    порядок выборки:
+ *                      0 - по возрастанию даты
+ *                      1 - по убыванию даты
+ *          "limit":    максимальное число записей в выборке
+ * 
+ * result:  список текущих соединений
+ *          "ts":       штамп времени звонка (в миллисекундах от 1.01.1970)
+ *          "na":       вызывающий номер
+ *          "nb":       вызываемый номер
+ *          "ta":       транк входящего соединения
+ *          "tb":       транк исходящего соединения
+ *          "nc":       исходящий номер
+ *          "cs":       код завершения (стандартный код ISDN)
+ *          "td":       длительность соединения
+ *          "tr":       тариф
+ *          "ch":       стоимость звонка
+ * 
+ */
+
+"getCalls": {
+    "type":                 "method",
+    
+    "params": {
+        "begin":            "number",
+        "end":              "number",
+        "number":           "string",
+        "trunk":            "string",
+        "mode":             "number",
+        "order":            "number",
+        "limit":            "number",
+    },
+    
+    "result": [
+        {
+            "ts":           "number",
+            "na":           "string",
+            "nb":           "string",
+            "ta":           "string",
+            "tb":           "string",
+            "nc":           "string",
+            "cs":           "number",
+            "td":           "number",
+            "tr":           "number",
+            "ch":           "number",
+        }
+    ]
+},
+
+
+/* 
+ * Получить статистику звонков.
+ * 
+ * method:  "getCallStatistics"
+ * 
+ * params:  таблица параметров:
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ * 
+ * result:  таблица
+ *          "inbounds"  статистика по входящим вызовам
+ *                      "total":    общее количество вызовов
+ *                      "lost":     количество потерянных вызовов
+ *                      "duration": общее количество секунд
+ *                      
+ *          "outbounds":статистика по исходящим вызовам
+ *                      "total":    общее количество вызовов
+ *                      "connected":количество соединенных вызовов
+ *                      "duration": общее количество секунд
+ *                      "cost":     общая стоимость звонков
+ *                      
+ *          "internals" статистика по внутренним вызовам
+ *                      "total":    общее количество вызовов
+ *                      "duration": общее количество секунд
+ *                      
+ *          "trunks":   статистика по транкам
+ *                      "trunk":    имя транка
+ *                      "in":       количество входящих звонков
+ *                      "insec":    количество минут входящих звонков
+ *                      "out":      количество исходящих звонков
+ *                      "outsec":   количество минут исходящих звонков
+ *                      "cost":     стоимость исходящих звонков
+ * 
+ */
+
+"getCallStatistics": {
+    "type":                 "method",
+    
+    "params": {
+        "begin":            "number",
+        "end":              "number",
+    },
+    
+    "result": {
+        "inbounds": {
+            "total":        "number",
+            "lost":         "number",
+            "duration":     "number",            
+        },
+        "outbounds": {
+            "total":        "number",
+            "connected":    "number",
+            "duration":     "number",            
+            "cost":         "number",            
+        },
+        "internals": {
+            "total":        "number",
+            "duration":     "number",            
+        },
+        "trunks": [
+            {
+                "trunk":    "string",
+                "in":       "number",
+                "insec":    "number",
+                "out":      "number",
+                "outsec":   "number",
+                "cost":     "number",
+            }
+        ]
+    }
+},
+
+
+/* 
+ * Получить статистику звонков по номерам.
+ * 
+ * method:  "getCallStatisticsExt"
+ * 
+ * params:  таблица параметров:
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          "kind":     тип вызова
+ *                      "inbound"   входящий
+ *                      "outbound"  исходящий
+ * 
+ * result:  список таблиц данных:
+ *          "ext":      номер телефона
+ *          "total":    общее количество вызовов
+ *          "connected":количество соединенных вызовов
+ *          "duration": общее количество секунд
+ *          "cost":     общая стоимость звонков
+ * 
+ */
+
+"getCallStatisticsExt": {
+    "type":                 "method",
+    
+    "params": {
+        "begin":            "number",
+        "end":              "number",
+        "kind":             "string",
+    },
+    
+    "result": [
+        {
+            "ext":          "number",
+            "total":        "number",
+            "connected":    "number",
+            "duration":     "number",            
+            "cost":         "number",            
+        }
+    ]
+},
+
+
+/* 
+ * Получить данные для временной диаграммы количества звонков.
+ * 
+ * method:  "getCallStatisticsGraph"
+ * 
+ * params:  таблица параметров:
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          "interval": интервал выборки в миллисекундах
+ *          "number":   номер телефона
+ *          "trunk":    имя транка
+ * 
+ * result:  список:
+ *          "t":        штамп времени начала интервала (в миллисекундах от 1.01.1970)
+ *          "i":        количество входящих звонков в указанный интервал
+ *          "o":        количество исходящих звонков в указанный интервал
+ *          "l":        количество внутренних звонков в указанный интервал
+ * 
+ */
+
+"getCallStatisticsGraph": {
+    "type":                 "method",
+    
+    "params": {
+        "begin":            "number",
+        "end":              "number",
+        "interval":         "number",
+        "number":           "string",
+        "trunk":            "string",
+    },
+    
+    "result": [
+        {
+            "t":            "number",
+            "i":            "number",
+            "o":            "number",
+            "l":            "number",
+        }
+    ]
+},
+
+
+/* 
+ * Включить/выключить объект
+ * 
+ * method:  "setObjectState"
+ * 
+ * params:  таблица параметров:
+ *          "oid":      идентификатор объекта
+ *          "enabled":  true / false
+ * 
+ * result:  нет
+ * 
+ */
+
+"setObjectState": {
+    "type":                 "method",
+    
+    "params": {
+        "oid":              "string",
+        "enabled":          "boolean",
+    },
+    
+},
+
+
+/*************************************************************************************************************
+ *  Нотификация от сервера клиенту
+ *************************************************************************************************************/
+
+/*
+ *  Method "objectCreated"
+ *  Нотификация о создании объекта
+ *
+ *  params: объект ["PbxExtension", "PbxGroup", "PbxApplication", "PbxConference", "RoutingTable", "Trunk"]
+ */
+
+"objectCreated": {
+    "type":         "indication",
+    "params": {
+        "enum":     ["PbxExtension", "PbxGroup", "PbxApplication", "PbxConference", "RoutingTable", "Trunk"]
+    },
+},
+
+/*
+ *  Method "objectDeleted"
+ *  
+ *  Нотификация об удалении объекта
+ *
+ *  params: "oid" - идентификатор объекта
+ */
+
+"objectDeleted": {
+    "type":         "indication",
+    "params": {
+        "oid":      "string"
+    }
+},
+
+
+/*
+ *  Object "PbxExtension"
+ *  
+ *  params: параметры профиля внутреннего номера, которые могут быть получены методом getObject или установлены методом setObject
+ *  
+ *          "oid":          идентификатор объекта
+ *          "kind":         тип объекта:
+ *                          "phone" - терминал
+ *                          "user"  - пользователь
+ *                          
+ *          "name":         имя
+ *          "number":       внутренний номер телефона
+ *          "display":      имя, предназначенное для отоборажения на дисплее телефона
+ *          "enabled":      состояние включен/выключен (значения yes или no)
+ *          "groupid":      идентификатор группы
+ *          "followme":     реальный номер телефона
+ *          "login":        логин пользователя
+ *          "password":     пароль пользователя
+ *          "pin":          пин код для управления своим профилем с телефонного аппарата (с помощью ДТМФ)
+ *          "lock":         блокировка изменений профиля с телефонного аппарата
+ *          "clir":         запрет отображения обратного номера
+ *          "dnd":          функция "не беспокоить"
+ *          "fwdall":       функция безусловной переадресации
+ *          "fwdbusy":      функция переадресации по занято
+ *          "fwdnans":      функция переадресации по неответу
+ *          "fwdnreg":      функция переадресации при отсутствии регистрации в системе
+ *          "pickupdeny":   запрет перехвата звонка с другого телефона
+ *          "busyoverdeny": запрет вторжения в разговор
+ *          "monitordeny":  запрет подключения к разговору в режиме прослушивания
+ *          "callwaiting":  функция "ожидающий вызов"
+ *          "huntbusy":     функция хантинга при занятости номера
+ *          "huntnans":     функция хантинга при неответе
+ *          "huntnreg":     функция хантинга при отсутствии регистраци
+ *          "recording":    запись разговоров
+ *          "voicemail":    функция "голосовая почта"
+ *          "fwdallnumber": номер телефона для безусловной переадресации
+ *          "fwdbusynumber": номер телефона для переадресации по занято
+ *          "fwdnansnumber": номер телефона для переадресации по неответу
+ *          "fwdnregnumber": номер телефона для переадресации при отсутствии регистрации
+ *          "fwdtimeout":   время в секундах, по истечении которого выполняется переадресация по неответу
+ *          "huntingnumbers": список номеров поиска (при включенном хантинге)
+ *          
+ */
+"PbxExtension": {
+    "type": "object",
+    "params": {
+        "oid":      "string",
+        "kind":     "string",
+        "name":     "string",
+        "number":   "string",
+        "display":  "string",
+        "enabled":  "boolean",
+        "groupid":  "string",
+        "followme": "string",
+        "login":    "string",
+        "password": "string",
+        "pin":      "integer",
+        "features": {
+            "lock":         "boolean",
+            "clir":         "boolean",
+            "dnd":          "boolean",
+            "fwdall":       "boolean",
+            "fwdbusy":      "boolean",
+            "fwdnans":      "boolean",
+            "fwdnreg":      "boolean",
+            "pickupdeny":   "boolean",
+            "busyoverdeny": "boolean",
+            "monitordeny":  "boolean",
+            "callwaiting":  "boolean",
+            "huntbusy":     "boolean",
+            "huntnans":     "boolean",
+            "huntnreg":     "boolean",
+            "recording":    "boolean",
+            "voicemail":    "boolean",
+            "fwdallnumber": "string",
+            "fwdbusynumber":"string",
+            "fwdnansnumber":"string",
+            "fwdnregnumber":"string",
+            "fwdtimeout":   "integer",
+            "huntingnumbers":["string"]
+        },
+    }
+},
+
+
+/*
+ *  Object "PbxGroup"
+ *
+ *  params: параметры объекта, которые могут быть получены методом getObject или установлены методом setObject
+ *  
+ *          "oid":          идентификатор объекта
+ *          "kind":         тип объекта:
+ *                          "equipment" - группа терминалов
+ *                          "unit"  - группа номеров
+ *                          "users" - группа пользователей
+ *                          "hunting"  - группа поиска
+ *                          "pickup"  - группа перехвата
+ *                          "icd"  - группа обслуживания входящих вызовов
+ *                          "conference"  - группа конференц-вызова
+ *                          
+ *          "name":         имя объекта
+ *          "enabled":      состояние включен/выключен (значения yes или no)
+ *          "members":      список внутренних номеров, которые входят в данную группу
+ *          "available":    список внутренних номеров, которые могут быть добавлены в данную группу
+ *          
+ *          "options":      настройки группы (список в зависимости от типа группы).
+ *          
+ *                          тип объекта "equipment":
+ *                          "equipment":    тип оборудования:
+ *                                          "ipphones" - IP телефоны
+ *                                          "gateway"  - VoIP шлюз с регистрацией на сервере
+ *                                          "trunk"    - VoIP транк
+ *                          "protocol":     протокол подключения. Возможные значения:
+ *                                          "sip", "sips"
+ *                          "address":      IP адрес или доменное имя (только для транка)
+ *                          "regname":      логин (только для шлюза с регистрацией на сервере)
+ *                          "regpass":      пароль (только для шлюза с регистрацией на сервере)
+ *                          "phonelines":   количество линий на телефоне
+ *                          "starflash":    разрешение использовать кнопку телефона [*] в качестве кнопки постановки на холд
+ *                                          
+ *                          тип объекта "unit":
+ *                          "huntmode": режим поиска:
+ *                                      0 - выключен
+ *                                      1 - циклический по списку номеров
+ *                                      2 - завершается на последнем номере списка
+ *                          "timeout":  таймаут набора номера
+ *                          "huntfwd":  разрешение переадресации при хантинге
+ *                          "groupno":  номер группы для функции перехвата звонка
+ *                          
+ *                          тип объекта "hunting":
+ *                          "huntmode": режим поиска:
+ *                                      0 - выключен
+ *                                      1 - циклический по списку номеров
+ *                                      2 - завершается на последнем номере списка
+ *                          "timeout":  таймаут набора номера
+ *                          "huntfwd":  разрешение переадресации при хантинге
+ *                          
+ *                          тип объекта "pickup":
+ *                          "groupno":  номер группы для функции перехвата звонка
+ *                          
+ *                          тип объекта "icd":
+ *                          "groupno":      номер группы для функции регистрации в группе
+ *                          "autologin":    автоматическая регистрация в группе при регистрации в системе
+ *                          "priority":     приоритет группы
+ *                          "maxlines":     максимальное количество одновременных входящих соединений
+ *                          "canpickup":    разрешение перехвата вызовов в группе
+ *                          "method":       метод распределения вызовов
+ *                          "natimeout":    таймаут неответа на вызов
+ *                          "resumetime":   время восстановления готовности номера принять вызов (после завершения предыдущего вызова)
+ *                          "greeting":     файл приветствия, проигрываемый при приеме входящего вызова
+ *                          "queuelen":     длина очереди
+ *                          "maxqwait":     максимальное время ожидания в очереди
+ *                          "indicationmode": режим рассылки звуковой индикации о наличии вызовов в очереди
+ *                          "indicationtime": период рассылки звуковой индикации о наличии вызовов в очереди
+ *                          "overflowredirect": переадресация при переполнении очереди
+ *                          "overtimeredirect": переадресация при превышении времени ожидания в очереди
+ *                          
+ *                          тип объекта "conference":
+ *                          "initmode":     режим первоначального подключения абонентов
+ *                          "dialtimeout":  таймаут набора номера
+ *                          "autoredial":   повторный автодозвон
+ *                          "greeting":     проигрывать приветствие при подключении абонента
+ *                          "videomode":    режим видеоконференции. Возможные значения:
+ *                                          "OFF", "320x240", "352x288", "640x360", "640x480", "704x576", "1024x768", "1280x720", "1920x1080"
+ *                          "maxvideomode": максимальный разрешенный режим видеоконференции
+ *                          
+ *          "profile":      разрешения использования функций для профилей внутренних номеров, входящих в данную группу.
+ *                          (Только для групп типа "equipment", "unit" или "users").
+ *                          "hold":         функция "удержание вызова"
+ *                          "forwarding":   функция "переадресация вызова"
+ *                          "callpickup":   функция "перехват вызова"
+ *                          "dndover":      преодоление режима "не беспокоить"
+ *                          "busyover":     функция "вторжение в разговор"
+ *                          "clir":         функция "запрет передачи номера абонента"
+ *                          "dnd":          функция "не беспокоить"
+ *                          "pickupdeny":   функция "запрет перехвата вызова"
+ *                          "busyoverdeny": функция "запрет вторжения в разговор"
+ *                          "monitordeny":  функция "запрет подключения в разговору в режиме прослушивания"
+ *                          "callwaiting":  функция "ожидающий вызов"
+ *                          "outcallbarring":   запрет выполнения вызовов на внешние номера
+ *                          "costroutebarring": запрет выполнения вызовов на внешние номера, если установлен тариф
+ *                          "recording":    функция "запись разговоров"
+ *                          "voicemail":    функция "голосовая почта"
+ *                          "bnumbertransforms":таблица преобразования номеров для исходящих звонков:
+ *                                              "number":   вызываемый номер или префикс вызываемого номера
+ *                                              "strip":    признак отрезания префикса
+ *                                              "prefix":   добавляемый префикс
+ *                          
+ */
+"PbxGroup":{
+    "type": "object",
+    "params": {
+        "oid":          "string",
+        "kind":         "string",
+        "name":         "string",
+        "enabled":      "boolean",
+        //"status":     "string",
+        "members":      ["string"],
+        "available":    ["string"],
+        
+        "options": {
+            /* "kind": "equipment" */
+            "equipment":        "string",
+            "protocol":         "string",
+            "gateway": [
+                {
+                    "regname":      "string",
+                    "regpass":      "string",
+                }
+            ],
+            "trunk": [
+                {
+                    "address":      "string",
+                    "register":     "boolean",
+                    "regname":      "string",
+                    "regpass":      "string",
+                    "regexpires":   "integer",
+                    "proxy":        "boolean",
+                    "proxyname":    "string",
+                    "proxypass":    "string",
+                    "passanumber":  "boolean",             
+                }
+            ],
+            "codecs": [
+                {
+                "codec":    "string",
+                "frame":    "integer",
+                }
+            ],
+            "buffering":    "boolean",
+            "earlymedia":   "boolean",
+            "t38fax":       "boolean",
+            "video":        "boolean",
+            "dtmfrelay":    "boolean",
+            "dtmfmode":     "string",
+            "t1":           "integer",
+            "t2":           "integer",
+            "t3":           "integer",
+            "noprogress":   "boolean",
+            "nosymnat":     "boolean",
+            "noredirectinfo":   "boolean",
+            "h323": {
+                "faststart":    "boolean",
+                "h245tunneling":"boolean",
+                "playringback": "boolean",
+                "isdnatype":    "string",
+                "isdnaplan":    "string",
+                "isdnbtype":    "string",
+                "isdnbplan":    "string",
+                "presentation": "boolean",
+            },
+            "sip":{
+                "nowaitack":    "boolean",
+            },
+            "phonelines":       "integer",
+            "starflash":        "boolean",
+            
+            /* "kind": "unit"] */
+            "huntmode":         "integer",
+            "timeout":          "integer",
+            "huntfwd":          "boolean",
+            "groupno":          "string",
+
+            /* "kind": "hunting" */
+            "huntmode":         "integer",
+            "timeout":          "integer",
+            "huntfwd":          "boolean",
+
+            /* "kind": "pickup" */
+            "groupno":          "string",
+            
+            /* "kind": "icd" */
+            "groupno":          "string",
+            "autologin":        "boolean",
+            "priority":         "integer",
+            "maxlines":         "integer",
+            "canpickup":        "boolean",
+            "method":           "integer",
+            "natimeout":        "integer",
+            "resumetime":       "integer",
+            "greeting":         "string",
+            "queuelen":         "float",
+            "maxqwait":         "integer",
+            "indicationmode":   "integer",
+            "indicationtime":   "integer",
+            "overflowredirect": "string",
+            "overtimeredirect": "string",
+
+            /* "kind": "conference" */
+            "initmode":         "integer",
+            "dialtimeout":      "integer",
+            "autoredial":       "boolean",
+            "greeting":         "boolean",
+            "videomode":        "string",
+            "maxvideomode":     "string",
+        },
+
+        /* for "kind": "equipment", "unit" or "users" */
+        "profile": {
+            "hold":             "boolean",
+            "forwarding":       "boolean",
+            "callpickup":       "boolean",
+            "dndover":          "boolean",
+            "busyover":         "boolean",
+            "monitor":          "boolean",
+            "clir":             "boolean",
+            "dnd":              "boolean",
+            "pickupdeny":       "boolean",
+            "busyoverdeny":     "boolean",
+            "monitordeny":      "boolean",
+            "callwaiting":      "boolean",
+            "outcallbarring":   "boolean",
+            "costroutebarring": "boolean",
+            "recording":        "boolean",
+            "voicemail":        "boolean",
+            "bnumbertransforms": [
+                {
+                    "number":   "string",
+                    "strip":    "boolean",
+                    "prefix":   "string"
+                }
+            ]
+        },
+    }    
+},
+
+
+/*
+ *  Object "Trunk"
+ *
+ */
+"Trunk":{
+    "type": "object",
+    "params": {
+        "oid":              "string",
+        "name":             "string",
+        "enabled":          "boolean",
+        "status":           "string",
+        "deviceid":         "string",
+        "protocol":         "string",
+        "maxinbounds":      "integer",
+        "maxoutbounds":     "integer",
+        "register":         "boolean",
+        "domain":           "string",
+        "user":             "string",
+        "auth":             "string",
+        "pass":             "string",
+        "proxy":            "boolean",
+        "paddr":            "string",
+        "pauth":            "string",
+        "ppass":            "string",
+        "parameters": {
+            "codecs": [
+                {
+                "codec":    "string",
+                "frame":    "integer",
+                }
+            ],
+            //"directrtp":    "boolean",
+            "transcoding":  "boolean",
+            "buffering":    "boolean",
+            "earlymedia":   "boolean",
+            "t38fax":       "boolean",
+            "video":        "boolean",
+            "dtmfrelay":    "boolean",
+            "dtmfmode":     "string",
+            "t1":           "integer",
+            "t2":           "integer",
+            "t3":           "integer",
+            "regexpires":   "integer",
+            "noprogress":   "boolean",
+            "nosymnat":     "boolean",
+            "noredirectinfo":   "boolean",
+            "passanumber":  "boolean",
+            "h323": {
+                "faststart":    "boolean",
+                "h245tunneling":"boolean",
+                "playringback": "boolean",
+                "isdnatype":    "string",
+                "isdnaplan":    "string",
+                "isdnbtype":    "string",
+                "isdnbplan":    "string",
+                "presentation": "boolean",
+            },
+            "sip":{
+                "nowaitack":    "boolean",
+            }
+        },
+        "inboundanumbertransforms": [
+            {
+                "number":       "string",
+                "strip":        "boolean",
+                "prefix":       "string",
+            }
+        ],
+        "inboundbnumbertransforms": [
+            {
+                "number":       "string",
+                "strip":        "boolean",
+                "prefix":       "string",
+            }
+        ],
+        "outboundanumbertransforms": [
+            {
+                "number":       "string",
+                "strip":        "boolean",
+                "prefix":       "string",
+            }
+        ],
+        "outboundbnumbertransforms": [
+            {
+                "number":       "string",
+                "strip":        "boolean",
+                "prefix":       "string",
+            }
+        ],
+    }    
+},
+
+
+/* 
+ * Получить список протоколов и параметров
+ * 
+ * method:  "getDeviceSettings"
+ * 
+ * params:  нет
+ * 
+ * result:  список протоколов с параметрами:
+ * 
+ */
+
+"getDeviceSettings": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result": {
+        "protocols": [
+            {
+                "protocol":     "string",
+                "port":         "number",  
+                "log":          "number",
+            }
+        ],
+        "nat": {
+            "stun":             "string",
+            "router":           "string",
+            "rtpfirst":         "number",
+            "rtpLast":          "number",
+        },
+        "registrar": {
+            "minexpires":       "number",
+            "maxexpires":       "number",            
+        },
+        "recording": {
+            "store":            "string",
+            "format":           "number",            
+        },
+        "misc": {
+            "tcptimeout":       "number",
+            "rtptimeout":       "number",
+            "iptos":            "number",
+            "backup":           "string",
+        }
+    }
+},
+
+
+}

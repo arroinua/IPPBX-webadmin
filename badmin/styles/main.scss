@@ -165,10 +165,12 @@ legend{
     overflow: hidden;
 }
 
-.pl-kind{
+.pl-kind,
+.pl-trunk-kind{
     display: none;
 }
-.pl-kind.revealed{
+.pl-kind.revealed,
+.pl-trunk-kind.revealed{
     display: block;
 }
 

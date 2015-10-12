@@ -1,0 +1,190 @@
+<div id="el-loaded-content">
+    <div class="row">
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="input-group object-name">
+                        <input type="text" id="objname" class="form-control" placeholder="{{APPNAME}}" autofocus>
+                        <span class="input-group-addon">
+                            <div class="switch switch-lg">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">{{SCHEMA}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <ul id="att-schema" class="tree"></ul>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">{{APPSETTS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="attvariables">
+                        <div class="form-group">
+                            <label for="debug" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__DEBUG}}">{{DEBUG}}</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="debug">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="greetings" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__GREETINGS}}">{{GREETNAME}}</label>
+                            <div class="col-sm-8">
+                                <input type="file" accept=".wav" name="greetings" id="attGreetings" class="upload-custom">
+                            </div>
+                        </div>
+                        <div class="panel minimized no-shadow">
+                            <div class="panel-header custom-header-1">{{ATT__GEN_MENU_SETTINGS}}
+                                <i class="fa fa-chevron-down"></i>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="globalcounter" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__INPUT_TRIES}}">{{ATTENDANT.INPUT_TRIES}}</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" name="globalcounter" value="2" onkeydown='validateInput(event)'>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mesTimeout" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__MSG_TOUT}}">{{ATTENDANT.MSG_TOUT}}</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" name="mesTimeout" value="60" onkeydown='validateInput(event)'>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="moveBack" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__BACK_BTN}}">{{ATTENDANT.BACK_BTN}}</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control" name="moveBack" id="moveBack">
+                                        </select>
+                                        <!-- <input type="text" class="form-control" id="moveBack" name="moveBack" value="#" maxlength="1"> -->
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="moveMmenu" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__MAIN_MENU_BTN}}">{{ATTENDANT.MAIN_MENU_BTN}}</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control" name="moveMmenu" id="moveMmenu">
+                                        </select>
+                                        <!-- <input type="text" class="form-control" id="moveMmenu" name="moveMmenu" value="*" maxlength="1"> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel minimized no-shadow">
+                            <div class="panel-header custom-header-1">{{ATT__GEN_CONNECTOR_SETTINGS}}
+                                <i class="fa fa-chevron-down"></i>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="connectionFailed" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__CONN_FAILED_PROMPT}}">{{ATTENDANT.CONN_FAILED_PROMPT}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" accept=".wav" name="connectionFailed" id="connectionFailed" class="upload-custom">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="connectionTimeout" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__CONN_TOUT}}">{{ATTENDANT.CONN_TOUT}}</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" name="connectionTimeout" value="60" onkeydown='validateInput(event)'>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="defaultConnector" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__DEFAULT_CONNECTOR}}">{{ATTENDANT.DEFAULT_CONNECTOR}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="defaultConnector" value="" onkeydown='validateInput(event)' placeholder="{{ATT__DEFAULT_CONNECTOR_PH}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel minimized no-shadow">
+                            <div class="panel-header custom-header-1">{{ATT__GEN_EMAIL_SETTINGS}}
+                                <i class="fa fa-chevron-down"></i>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label for="leaveMessage" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__LEAVE_MSG_PROMPT}}">{{ATTENDANT.LEAVE_MSG_PROMPT}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" accept=".wav" name="leaveMessage" id="leaveMessage" class="upload-custom">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="emailFrom" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__EMAIL_FROM}}">{{ATTENDANT.EMAIL_FROM}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="emailFrom" placeholder="{{ATT__EMAIL_ADDRESS}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="SMTPServ" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__SMTP_SERVER}}">{{ATTENDANT.SMTP_SERVER}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="SMTPServ" placeholder="{{ATT__SMTP_SERVER_PH}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="SMTPlogin" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__SMTP_LOGIN}}">{{ATTENDANT.SMTP_LOGIN}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="SMTPlogin" placeholder="{{ATTENDANT.SMTP_LOGIN}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="SMTPpass" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__SMTP_PWD}}">{{ATTENDANT.SMTP_PWD}}</label>
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" name="SMTPpass" placeholder="{{ATTENDANT.SMTP_PWD}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">{{ATTENDANT.CONNECTORS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table" id="attconnectors">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="form-group">
+                                            <label for="connName">{{NAME}}</label>
+                                            <input name="connName" class="form-control" placeholder="{{ATT__CONNECTOR_NAME_PH}}" />
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="form-group">
+                                            <label for="connVal">{{VALUE}}</label>
+                                            <input name="connVal" class="form-control" placeholder="{{ATT__CONNECTOR_VALUE_PH}}" />
+                                        </div>
+                                    </th>
+                                    <th style="vertical-align: middle; padding-top: 15px;">
+                                        <button type="button" id="addConnector" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-12 col-custom">
+            <div id="att-container" class="att-container">
+                <a href="#" id="toPrevCanvas" class="invisible" onclick="toPrevCanvas(event)" style="line-height:3em;">&#8592; {{BACK}}</a>
+                <!-- <ol class="custom breadcrumb" id="att-breadcrumb"></ol> -->
+            </div>    
+        </div>
+    </div>
+</div>

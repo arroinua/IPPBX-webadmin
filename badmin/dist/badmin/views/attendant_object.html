@@ -1,0 +1,94 @@
+<div class="panel panel-default">
+    <div class="panel-header">
+        <h3 class="panel-title" name="name"> 
+            {{#typeEmail}}
+            <i class="fa fa-envelope"></i>
+            {{/typeEmail}}
+            {{#typeMenu}}
+            <i class="fa fa-music"></i>
+            {{/typeMenu}}
+            {{#typeCommutator}}
+            <i class="fa fa-phone"></i>
+            {{/typeCommutator}}
+            {{data.name}}
+        </h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            {{#typeEmail}}
+            <div class="form-group">
+                <label for="data" class="control-label col-xs-5">{{frases.ATTENDANT.EMAIL_TO}}</label>
+                <div class="col-xs-7">
+                    <p name="data" class="form-control-static nowrap">{{data.data}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="subject" class="control-label col-xs-5">{{frases.ATTENDANT.EMAIL_SUBJECT}}</label>
+                <div class="col-xs-7">
+                    <p name="subject" class="form-control-static nowrap">{{data.subject}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="body" class="control-label col-xs-5">{{frases.ATTENDANT.EMAIL_BODY}}</label>
+                <div class="col-xs-7">
+                    <p name="body" class="form-control-static nowrap">{{data.body}}</p>
+                </div>
+            </div>
+            {{/typeEmail}}
+            {{#typeMenu}}
+            <div class="form-group">
+                <div class="hidden"><input type="file"></div>
+                <label for="data" class="control-label col-xs-5">{{frases.ATTENDANT.AUDIO_FILE}}</label>
+                <div class="col-xs-7">
+                    <p name="data" class="form-control-static nowrap">{{data.data}}</p>
+                </div>
+            </div>
+            {{/typeMenu}}
+            {{#typeCommutator}}
+            <div class="form-group">
+                <label for="data" class="control-label col-xs-5">{{frases.NUMBER}}</label>
+                <div class="col-xs-7">
+                    <p name="data" class="form-control-static nowrap">{{data.connector}}</p>
+                </div>
+            </div>
+            {{/typeCommutator}}
+            {{#pid}}
+            <div class="form-group">
+                <label for="button" class="control-label col-xs-5">{{frases.ATTENDANT.BUTTON}}</label>
+                <div class="col-xs-7">
+                    <p name="button" class="form-control-static">{{data.button}}</p>
+                </div>
+            </div>
+            {{/pid}}
+            {{#allowMultipleDigits}}
+            <div class="form-group">
+                <div class="col-xs-12">
+                    <p name="digits" class="form-control-static">{{frases.ATTENDANT.ALLOW_MULT_DIGITS}}</p>
+                </div>
+            </div>
+            {{/allowMultipleDigits}}
+        </form>
+    </div>
+    <div class="panel-footer">
+        <div class="btn-group btn-group-justified" role="group" aria-label="objectbuttons">
+            <!-- <button type="button" class="btn btn-sm btn-primary" onclick="enterIvrMenu(event)"><i class="fa fa-sign-in"></i></button> -->
+            {{#typeMenu}}
+            <a role="button" href="#" id="enter-att-menu" class="btn" data-toggle="tooltip" title="{{frases.ATT__ENTER_MENU}}"><i class="fa fa-sign-in"></i></a>
+            {{/typeMenu}}
+            <!-- <button type="button" class="btn btn-sm btn-danger" onclick="removeIvrObject(event)"><i class="fa fa-times"></i></button> -->
+            <a role="button" href="#" id="edit-att-object" class="btn" data-toggle="tooltip" title="{{frases.ATT__EDIT_ELEMENT}}"><i class="fa fa-edit"></i></a>
+            {{^typeMenu}}
+            <a role="button" href="#" class="btn" id="remove-att-object" data-toggle="dropdown" aria-expanded="false" data-toggle="tooltip" title="{{frases.ATT__REMOVE_ELEMENT}}"><i class="fa fa-times"></i></a>
+            {{/typeMenu}}
+            {{#typeMenu}}
+            <div class="btn-group" role="group">
+                <a role="button" href="#" class="btn" data-toggle="dropdown" aria-expanded="false" data-toggle="tooltip" title="{{frases.ATT__REMOVE_ELEMENT}}"><i class="fa fa-times"></i></a>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                  <li><a href="#" id="remove-att-object">{{frases.ATTENDANT.REMOVE_ELEMENT}}</a></li>
+                  <li><a href="#" id="remove-att-tree">{{frases.ATTENDANT.REMOVE_ELEMENTS_TREE}}</a></li>
+                </ul>
+            </div>
+            {{/typeMenu}}
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 function load_trunk(result){
-    // console.log(result);
+    console.log(result);
+    var type = result.type, types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
     // PbxObject.kind = 'trunk';
@@ -16,7 +17,7 @@ function load_trunk(result){
                 json_rpc_async('setObjectState', '\"oid\":\"'+result.oid+'\", \"enabled\":'+this.checked+'', function(result){
                     // console.log(result);
                     if(result !== 'OK') enabled.checked = !(enabled.checked);
-                }); 
+                });
             });
         }
     }
@@ -27,7 +28,7 @@ function load_trunk(result){
     if(result.protocol) {
         // document.getElementById('protocol').value = result.protocol;
         var option,
-        kind = result.protocol == 'h323' ? 'h323' : 'sip', 
+        kind = result.protocol == 'h323' ? 'h323' : 'sip',
         protocols = document.getElementById('protocols'),
         protoOpts = document.getElementById('get-proto-opts');
 
@@ -45,7 +46,7 @@ function load_trunk(result){
                 protocols.appendChild(option);
             });
             addEvent(protocols, 'change', function(){
-                kind = this.value == 'h323' ? 'h323' : 'sip'
+                kind = this.value == 'h323' ? 'h323' : 'sip';
                 switch_presentation(kind);
             });
         }
@@ -61,15 +62,26 @@ function load_trunk(result){
         PbxObject.protocolOpts = {};
         switch_presentation(kind);
     }
+
+    types.forEach(function (item){
+        if(item.value === result.type) {
+            var label = item.parentNode;
+            item.checked;
+            $(label).button('toggle');
+        };
+    });
+
     if(result.domain)
         document.getElementById('domain').value = result.domain;
+
     document.getElementById('register').checked = result.register;
     if(result.user)
-        document.getElementById('user').value = result.user;
+        type === 'external' ? document.getElementById('user').value = result.user : document.getElementById('int-trunk-user').value = result.user;
+    if(result.pass)
+        type === 'external' ? document.getElementById('pass').value = result.pass : document.getElementById('int-trunk-pass').value = result.pass;
     if(result.auth)
         document.getElementById('auth').value = result.auth;
-    if(result.pass)
-        document.getElementById('pass').value = result.pass;
+    
     document.getElementById('regexpires').value = result.regexpires || 60;
     
     var radio = document.getElementById('proxy');
@@ -158,6 +170,7 @@ function load_trunk(result){
         append_transform(null, 'transforms4');
     }
 
+    switch_presentation((result.type ? result.type : 'external'), null, 'pl-trunk-kind');
     show_content();
     set_page();
     
@@ -167,7 +180,9 @@ function set_trunk(){
     var name = document.getElementById('objname').value,
         enabled = document.getElementById('enabled'),
         jprms,
-        handler;
+        handler,
+        types,
+        type;
 
     if(name)
         jprms = '"name":"'+name+'",';
@@ -187,6 +202,11 @@ function set_trunk(){
         // handler = set_new_object;
         handler = null;
     }
+
+    types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
+    types.forEach(function (item){
+        if(item.checked) type = item.value;
+    });
     
     jprms += '"kind":"trunk",';
     jprms += '"enabled":'+enabled.checked+',';
@@ -195,19 +215,25 @@ function set_trunk(){
     var register = document.getElementById('register').checked;
     var proxy = document.getElementById('proxy').checked;
     jprms += '"protocol":"'+protocol+'",';
-    jprms += '"domain":"'+document.getElementById('domain').value+'",';
-    jprms += '"register":'+register+',';
-    if(register){
-        jprms += '"user":"'+document.getElementById('user').value+'",';
-        jprms += '"auth":"'+document.getElementById('auth').value+'",';
-        jprms += '"pass":"'+document.getElementById('pass').value+'",';
-        jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
-    }
-    jprms += '"proxy":'+proxy+',';
-    if(proxy){
-        jprms += '"paddr":"'+document.getElementById('paddr').value+'",';
-        jprms += '"pauth":"'+document.getElementById('pauth').value+'",';
-        jprms += '"ppass":"'+document.getElementById('ppass').value+'",';
+    jprms += '"type":"'+type+'",';
+    if(type === 'external') {
+        jprms += '"domain":"'+document.getElementById('domain').value+'",';
+        jprms += '"register":'+register+',';
+        if(register){
+            jprms += '"user":"'+document.getElementById('user').value+'",';
+            jprms += '"auth":"'+document.getElementById('auth').value+'",';
+            jprms += '"pass":"'+document.getElementById('pass').value+'",';
+            jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
+        }
+        jprms += '"proxy":'+proxy+',';
+        if(proxy){
+            jprms += '"paddr":"'+document.getElementById('paddr').value+'",';
+            jprms += '"pauth":"'+document.getElementById('pauth').value+'",';
+            jprms += '"ppass":"'+document.getElementById('ppass').value+'",';
+        }
+    } else {
+        jprms += '"user":"'+document.getElementById('int-trunk-user').value+'",';
+        jprms += '"pass":"'+document.getElementById('int-trunk-pass').value+'",';
     }
 
     if(document.getElementById('inmode').checked)
@@ -238,7 +264,7 @@ function set_trunk(){
     jprms += encode_transforms('transforms4');
     jprms += ']';
 
-    // console.log(jprms);
+    console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result !== 'OK') 
             if(handler) handler();

@@ -1,0 +1,5 @@
+.*
+!.gitignore
+archives
+node_modules
+npm-debug.log

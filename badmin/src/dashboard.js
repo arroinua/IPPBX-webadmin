@@ -83,6 +83,8 @@ function CallsBoard(){
                 if(ttrunks.rows[i].cells[3].textContent != trunks[i].out)
                     ttrunks.rows[i].cells[3].textContent = trunks[i].out;
                 ttrunks.rows[i].cells[4].textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
+                if(ttrunks.rows[i].cells[5].textContent != trunks[i].address)
+                    ttrunks.rows[i].cells[5].textContent = trunks[i].address;
             } else{
                 row = ttrunks.insertRow(i);
                 
@@ -90,10 +92,15 @@ function CallsBoard(){
                 cell.className = className;
 
                 cell = row.insertCell(1);
-                a = document.createElement('a');
-                a.href = '#trunk?'+trunks[i].oid;
-                a.textContent = trunks[i].name;
-                cell.appendChild(a);
+
+                if(trunks[i].type === 'system') {
+                    cell.innerText = trunks[i].name;
+                } else {
+                    a = document.createElement('a');
+                    a.href = '#trunk?'+trunks[i].oid;
+                    a.textContent = trunks[i].name;
+                    cell.appendChild(a);
+                }
 
                 cell = row.insertCell(2);
                 cell.textContent = trunks[i].in;
@@ -103,6 +110,9 @@ function CallsBoard(){
 
                 cell = row.insertCell(4);
                 cell.textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
+
+                cell = row.insertCell(5);
+                cell.textContent = trunks[i].address;
             }
 
         }

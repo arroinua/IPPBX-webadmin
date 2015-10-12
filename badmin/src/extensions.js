@@ -407,7 +407,7 @@ function load_extension(result){
             d.getElementById('ext-plock').setAttribute('disabled','');
         }
     }
-    d.getElementById('extpassword').value = result.password;
+    d.getElementById('extpassword').value = result.password || '';
     d.getElementById('el-set-extension').onclick = function(){
         set_extension(kind);
     };
@@ -437,8 +437,11 @@ function set_extension(kind){
     var login = d.getElementById("extlogin").textContent;
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
-    if(groupv)
+    if(groupv){
         jprms += '\"groupid\":\"'+groupv+'\",';
+    } else {
+        jprms += '\"groupid\":\"'+PbxObject.oid+'\",';
+    }
     // if(kind == 'users'){
     //     jprms += '\"followme\":\"'+d.getElementById("followme").value+'\",';
     // }

@@ -7,8 +7,19 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat'),
     notify = require('gulp-notify'),
-    del = require('del');
+    del = require('del'),
+    zip = require('gulp-zip');
 
+var getDateString = function(){
+  
+  var date = new Date(),
+      day = date.getDate(),
+      month = date.getMonth()+1,
+      year = date.getFullYear();
+
+  return (day+'_'+month+'_'+year);
+
+}
 
 gulp.task('styles', function() {
   return sass('badmin/styles/main.scss', { style: 'expanded' })
@@ -40,6 +51,12 @@ gulp.task('scripts', function() {
     .pipe(uglify())
     .pipe(gulp.dest('badmin/dist/badmin/js'))
     .pipe(notify({ message: 'Scripts task complete' }));
+});
+
+gulp.task('zip', function() {
+  return gulp.src('badmin/dist/**')
+    .pipe(zip('webadmin_'+getDateString()+'.zip')).
+    pipe(gulp.dest('./archives'));
 });
 
 gulp.task('flot', function() {

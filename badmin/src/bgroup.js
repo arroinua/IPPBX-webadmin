@@ -34,7 +34,7 @@ function load_bgroup(result){
         var form = document.getElementById('new-user-form');
         var clear = document.getElementById('clear-input');
         var add = document.getElementById('add-user');
-        var utype = kind == 'users' ? 'user' : 'phone';
+        var utype = (kind === 'users') ? 'user' : 'phone';
         
         if(kind == 'equipment'){
             var prots = result.options.protocols || result.options.protocol;
@@ -143,7 +143,7 @@ function load_bgroup(result){
                 // document.getElementById('pauth').value = result.options.trunk.pauth || '';
                 // document.getElementById('ppass').value = result.options.trunk.ppass || '';
             }
-            d.getElementById('phonelines').value = result.options.phonelines || '1';
+            d.getElementById('phonelines').value = result.options.phonelines || '2';
             if(result.options.starflash != undefined){
                 d.getElementById('starflash').checked = result.options.starflash;
             }
@@ -705,7 +705,6 @@ function addUser(type){
         set_bgroup(type, addUser);
         return;
     }
-
     var ext = available.options[available.selectedIndex].value;
 
     var jprms = '"kind":"'+type+'",';
@@ -728,49 +727,51 @@ function addUser(type){
     //     data.followme = followme.value;
     // }
     // console.log(jprms);
-    var result = json_rpc('setObject', jprms);
-    if(result) {
-        data.oid = result;
-        var newrow = addMembersRow(data);
-        var rows = table.rows;
-        // if(!rows.length || ext > rows[rows.length-1].getAttribute('data-ext')) {
-        if(!rows.length) {
-            table.appendChild(newrow);
-        } else {
-            // for(var i=0, nextrow = 0; i<rows.length-1; i++){
-            //     if(rows[i].id > ext) {
-            //         nextrow = rows[i].id;
+    json_rpc_async('setObject', jprms, function(result){
 
-            //         // nextrow > rows[i].id ? nextrow : rows[i].id;
-            //     } 
-            // }
-            // console.log(nextrow);
-            // table.insertBefore(newrow, document.getElementById(nextrow));
-            table.insertBefore(newrow, table.firstChild);
-        }
-        // table.appendChild(newrow);
-        PbxObject.members.push(data);
-            
-        var select2Cont = document.getElementById('select2-available-users-container');
-        var options = [].slice.call(available.options);
-        for(var i=0; i<available.options.length; i++) {
-            if(available.options[i].value === ext) {
-                available.removeChild(available.options[i]);
-                if(select2Cont){
-                    if(available.options.length)
-                        select2Cont.textContent = available.options[0].value;
-                    else
-                        select2Cont.textContent = '';
+        if(result) {
+            data.oid = result;
+            var newrow = addMembersRow(data);
+            var rows = table.rows;
+            // if(!rows.length || ext > rows[rows.length-1].getAttribute('data-ext')) {
+            if(!rows.length) {
+                table.appendChild(newrow);
+            } else {
+                // for(var i=0, nextrow = 0; i<rows.length-1; i++){
+                //     if(rows[i].id > ext) {
+                //         nextrow = rows[i].id;
+
+                //         // nextrow > rows[i].id ? nextrow : rows[i].id;
+                //     } 
+                // }
+                // console.log(nextrow);
+                // table.insertBefore(newrow, document.getElementById(nextrow));
+                table.insertBefore(newrow, table.firstChild);
+            }
+            // table.appendChild(newrow);
+            PbxObject.members.push(data);
+                
+            var select2Cont = document.getElementById('select2-available-users-container');
+            var options = [].slice.call(available.options);
+            for(var i=0; i<available.options.length; i++) {
+                if(available.options[i].value === ext) {
+                    available.removeChild(available.options[i]);
+                    if(select2Cont){
+                        if(available.options.length)
+                            select2Cont.textContent = available.options[0].value;
+                        else
+                            select2Cont.textContent = '';
+                    }
                 }
             }
-        }
-        if(!available.options.length) {
-            var add = document.getElementById('add-user');
-            add.setAttribute('disabled', 'disabled');
-        }
+            if(!available.options.length) {
+                var add = document.getElementById('add-user');
+                add.setAttribute('disabled', 'disabled');
+            }
 
-        cleanForm('new-user-form');
-    }
+            cleanForm('new-user-form');
+        }
+    });
 }
 
 function cleanForm(formId){

@@ -1,3 +1,31 @@
+function poolArrayToString(array){
+    var str = '';
+    array.forEach(function(obj, indx, array){
+        if(indx > 0) str += ',';
+        str += obj.firstnumber;
+        if(obj.poolsize > 1) str += ('-' + (obj.firstnumber+obj.poolsize-1));
+    });
+    return str;
+}
+
+function poolStringToObject(string){
+
+    var extensions = [];
+
+    string
+    .split(',')
+    .map(function(str){
+        return str.split('-');
+    })
+    .forEach(function(array){
+        extensions.push({
+            firstnumber: parseInt(array[0]),
+            poolsize: parseInt(array[1] ? (array[1] - array[0]+1) : 1)
+        });
+    });
+    return extensions;
+}
+
 function getDeviceSettings(event){
     var e = event || window.event;
     if(e) e.preventDefault();
@@ -8,6 +36,7 @@ function getDeviceSettings(event){
         // if(e) show_loading_panel(e.target);
     }
 }
+
 function loadDeviceSettings(result){
     // console.log(result);
     PbxObject.deviceSettings = result;
@@ -81,13 +110,20 @@ function load_pbx_options(result) {
     customize_upload('musonhold', result.options.holdmusicfile);
 
     document.getElementById('adminname').value = result.adminname || '';
-    document.getElementById('firstnumber').value = result.firstnumber || '';
+    // document.getElementById('firstnumber').value = result.firstnumber || '';
 
-    if(result.firstnumber && result.firstnumber){
-        //counting last number in pbx numbering pool
-        var lastnumber = result.firstnumber+(result.poolsize-1);
-        document.getElementById('lastnumber').value = lastnumber;
+    var firstnumber = document.getElementById('firstnumber');
+    if(result.extensions){
+        firstnumber.value = poolArrayToString(result.extensions);
+    } else {
+        firstnumber.value = '';
     }
+
+    // if(result.firstnumber && result.firstnumber){
+    //     //counting last number in pbx numbering pool
+    //     var lastnumber = result.firstnumber+(result.poolsize-1);
+    //     document.getElementById('lastnumber').value = lastnumber;
+    // }
 
     if (result.options) {
         document.getElementById('holdreminterv').value = result.options.holdremindtime || '';
@@ -106,15 +142,15 @@ function load_pbx_options(result) {
     so.onclick = set_pbx_options;
 
     // toggle_presentation();
-    if(result.prefix){
+    if(result.mode === 1 || !result.prefix){
+        getDeviceSettings();
+    } else {
         var deviceTab = document.getElementById('deviceopt-tab');
         var deviceBtn = document.getElementById('deviceopt-btn');
         
         if(deviceTab) deviceTab.parentNode.removeChild(deviceTab);
         if(deviceBtn) deviceBtn.parentNode.removeChild(deviceBtn);
         setAccordion();
-    } else {
-        getDeviceSettings();
     }
 }
 
@@ -123,7 +159,7 @@ function set_pbx_options(e) {
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    if(!PbxObject.options.prefix)
+    if(PbxObject.options.mode === 1 || !PbxObject.options.prefix)
         setDeviceSettings();
 
     var jprms = '',
@@ -135,39 +171,47 @@ function set_pbx_options(e) {
         lastnumber = document.getElementById('lastnumber'),
         lang = select.options[select.selectedIndex].value;
 
-    if (firstnumber && firstnumber.value) {
-        var fvalue = firstnumber.value;
-        if(lastnumber){
-            var lvalue = lastnumber.value;
-            if(!lvalue){
-                alert(PbxObject.frases.OPTS__POOL_UNSPECIFIED);
-                return;
-            }
-            if(parseInt(lvalue) < parseInt(fvalue)){
-                lvalue = firstnumber.value;
-                fvalue = lastnumber.value;
+    // if (firstnumber && firstnumber.value) {
+    //     var fvalue = firstnumber.value;
+    //     if(lastnumber){
+    //         var lvalue = lastnumber.value;
+    //         if(!lvalue){
+    //             alert(PbxObject.frases.OPTS__POOL_UNSPECIFIED);
+    //             return;
+    //         }
+    //         if(parseInt(lvalue) < parseInt(fvalue)){
+    //             lvalue = firstnumber.value;
+    //             fvalue = lastnumber.value;
 
-            }
+    //         }
 
-            //calculation numbering pool size
-            var poolsize = lvalue - fvalue;
-            if(poolsize === 0){
-                alert(PbxObject.frases.OPTS__POOL_ZERO);
-                return;
-            } else {
-                poolsize += 1;
-            }
+    //         //calculation numbering pool size
+    //         var poolsize = lvalue - fvalue;
+    //         if(poolsize === 0){
+    //             alert(PbxObject.frases.OPTS__POOL_ZERO);
+    //             return;
+    //         } else {
+    //             poolsize += 1;
+    //         }
 
-            if(PbxObject.options.firstnumber !== parseInt(fvalue) || PbxObject.options.poolsize !== parseInt(poolsize)){
-                var conf = confirm(PbxObject.frases.OPTS__POOL_CHANGE);
-                if(conf == true){
-                    jprms += '"firstnumber":' + fvalue + ', ';
-                    jprms += '"poolsize":' + poolsize + ', ';
-                } else{
-                    return;
-                }
-            }
-        }
+    //         if(PbxObject.options.firstnumber !== parseInt(fvalue) || PbxObject.options.poolsize !== parseInt(poolsize)){
+    //             var conf = confirm(PbxObject.frases.OPTS__POOL_CHANGE);
+    //             if(conf == true){
+    //                 jprms += '"firstnumber":' + fvalue + ', ';
+    //                 jprms += '"poolsize":' + poolsize + ', ';
+    //             } else{
+    //                 return;
+    //             }
+    //         }
+    //     }
+    // }
+
+    if(firstnumber && firstnumber.value){
+        var extensions = poolStringToObject(firstnumber.value);
+        jprms += '"extensions":' + (JSON.stringify(extensions)) + ', ';
+    } else {
+        alert(PbxObject.frases.OPTS__POOL_UNSPECIFIED);
+        return;
     }
 
     if (pass && pass !== confpass) {
@@ -211,7 +255,6 @@ function set_pbx_options(e) {
         handler = set_object_success;
     }
 
-    // console.log(jprms);
     json_rpc_async('setPbxOptions', jprms, handler);
 }
 
@@ -246,29 +289,36 @@ function setDeviceSettings(){
     if(document.getElementById('http-ssl').value) jprms += '"ssl":' + document.getElementById('http-ssl').checked + ', ';
     jprms += '},';
     jprms += '\"nat\":{';
-    if(document.getElementById('stun').value) jprms += '"stun":"' + document.getElementById('stun').value + '", ';
-    if(document.getElementById('router').value) jprms += '"router":"' + document.getElementById('router').value + '", ';
-    if(document.getElementById('rtpfirst').value) jprms += '"rtpfirst":' + document.getElementById('rtpfirst').value + ', ';
-    if(document.getElementById('rtplast').value) jprms += '"rtplast":' + document.getElementById('rtplast').value + ', ';
+    if(document.getElementById('stun')) jprms += '"stun":"' + ( document.getElementById('stun').value || "" ) + '", ';
+    if(document.getElementById('router')) jprms += '"router":"' + ( document.getElementById('router').value || "" ) + '", ';
+    if(document.getElementById('rtpfirst') && document.getElementById('rtpfirst').value) jprms += '"rtpfirst":' + document.getElementById('rtpfirst').value + ', ';
+    if(document.getElementById('rtplast') && document.getElementById('rtplast').value) jprms += '"rtplast":' + document.getElementById('rtplast').value + ', ';
     jprms += '},';
     jprms += '\"registrar\":{';
-    if(document.getElementById('minexpires').value) jprms += '"minexpires":' + document.getElementById('minexpires').value + ', ';
-    if(document.getElementById('maxexpires').value) jprms += '"maxexpires":' + document.getElementById('maxexpires').value + ', ';
+    if(document.getElementById('minexpires') && document.getElementById('minexpires').value) jprms += '"minexpires":' + document.getElementById('minexpires').value + ', ';
+    if(document.getElementById('maxexpires') && document.getElementById('maxexpires').value) jprms += '"maxexpires":' + document.getElementById('maxexpires').value + ', ';
     jprms += '},';
     jprms += '\"net\":{';
-    if(document.getElementById('tcptimeout').value) jprms += '"tcptimeout":' + document.getElementById('tcptimeout').value + ', ';
-    if(document.getElementById('rtptimeout').value) jprms += '"rtptimeout":' + document.getElementById('rtptimeout').value + ', ';
-    if(document.getElementById('iptos').value) jprms += '"iptos":' + document.getElementById('iptos').value + ', ';
+    if(document.getElementById('tcptimeout') && document.getElementById('tcptimeout').value) jprms += '"tcptimeout":' + document.getElementById('tcptimeout').value + ', ';
+    if(document.getElementById('rtptimeout') && document.getElementById('rtptimeout').value) jprms += '"rtptimeout":' + document.getElementById('rtptimeout').value + ', ';
+    if(document.getElementById('iptos') && document.getElementById('iptos').value) jprms += '"iptos":' + document.getElementById('iptos').value + ', ';
     jprms += '},';
     jprms += '\"system\":{';
-    if(document.getElementById('config-name').value) jprms += '"config":"' + document.getElementById('config-name').value + '", ';
-    if(document.getElementById('backup-path').value) jprms += '"backup":"' + document.getElementById('backup-path').value + '", ';
-    if(document.getElementById('rec-path').value) jprms += '"store":"' + document.getElementById('rec-path').value + '", ';
-    if(document.getElementById('rec-format').value) jprms += '"recformat":"' + document.getElementById('rec-format').value + '", ';
+    if(document.getElementById('config-name')) jprms += '"config":"' + ( document.getElementById('config-name').value || "" ) + '", ';
+    if(document.getElementById('backup-path')) jprms += '"backup":"' + ( document.getElementById('backup-path').value || "" ) + '", ';
+    if(document.getElementById('rec-path')) jprms += '"store":"' + ( document.getElementById('rec-path').value || "" ) + '", ';
+    if(document.getElementById('rec-format')) jprms += '"recformat":"' + ( document.getElementById('rec-format').value || "" ) + '", ';
+    jprms += '\"smtp\":{';
+    if(document.getElementById('smtp-host')) jprms += '"host":"' + ( document.getElementById('smtp-host').value || "" ) + '", ';
+    if(document.getElementById('smtp-port')) jprms += '"port":"' + ( document.getElementById('smtp-port').value || "" ) + '", ';
+    if(document.getElementById('smtp-username')) jprms += '"username":"' + ( document.getElementById('smtp-username').value || "" ) + '", ';
+    if(document.getElementById('smtp-password')) jprms += '"password":"' + ( document.getElementById('smtp-password').value || "" ) + '", ';
+    if(document.getElementById('smtp-from')) jprms += '"from":"' + ( document.getElementById('smtp-from').value || "" ) + '", ';
+    jprms += '},';
     jprms += '\"smdr\":{';
-    if(document.getElementById('smdr-port').value) jprms += '"port":' + document.getElementById('smdr-port').value + ', ';
-    if(document.getElementById('smdr-host').value) jprms += '"host":"' + document.getElementById('smdr-host').value + '", ';
-    if(document.getElementById('smdr-enabled').value) jprms += '"state":' + document.getElementById('smdr-enabled').checked + ', ';
+    if(document.getElementById('smdr-port') && document.getElementById('smdr-port').value) jprms += '"port":' + document.getElementById('smdr-port').value + ', ';
+    if(document.getElementById('smdr-host') && document.getElementById('smdr-host').value) jprms += '"host":"' + document.getElementById('smdr-host').value + '", ';
+    if(document.getElementById('smdr-enabled') && document.getElementById('smdr-enabled').value) jprms += '"state":' + document.getElementById('smdr-enabled').checked + ', ';
     jprms += '},';
     jprms += '},';
 

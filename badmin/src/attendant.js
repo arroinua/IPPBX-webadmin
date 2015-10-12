@@ -368,7 +368,6 @@ function addAttObjects(objects, id){
 }
 
 function addAttObject(params, instance){
-    
     var obj = new AttObject(params),
         activeCanvas = document.querySelector('.att-canvas.active'),
         oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0),
@@ -614,7 +613,9 @@ function showAttObjectSetts(params, object){
 }
 
 function setAttObject(params, object){
+
     var attParams = collectAttParams(params);
+
     if(!checkParams(attParams)) return;
     if(object){
         addAttObject(attParams, object);
@@ -628,7 +629,8 @@ function collectAttParams(instParams){
     var cont = document.getElementById('att-setts-cont'),
         objType = instParams.type,
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
-        data = cont.querySelector(el+'[name="data"]').value,
+        // data = cont.querySelector(el+'[name="data"]').value,
+        data = '',
         params = {};
 
     if(!isMainEl()) params.button = cont.querySelector('select[name="button"]').value;
@@ -636,7 +638,7 @@ function collectAttParams(instParams){
     // params.name = cont.querySelector('input[name="name"]').value || generateAttObjName(objType, params.button);
     params.name = generateAttObjName(objType, params.button, (cont.querySelector('input[name="name"]').value || null));
     params.type = objType;
-    if(data) params.data = data;
+    // if(data) params.data = data;
 
     if(objType === PbxObject.attendant.types.menu){
         var fileEl = cont.querySelector('input[type="file"]'),
@@ -646,7 +648,8 @@ function collectAttParams(instParams){
             if(fileEl.files.length){
                 // params.file = fileEl.cloneNode(false); //clone element that holds audio file and pass it as a parameter
                 params.file = fileEl;
-                data = fileEl.files[0].name;
+                params.data = fileEl.files[0].name;
+                // data = fileEl.files[0].name;
             } else if(instParams.file){
                 params.file = instParams.file;
             }
@@ -654,10 +657,10 @@ function collectAttParams(instParams){
         // if(data){
         //     params.data = data;
         // }
-        if(!data && instParams.file){
+        if(!params.data && instParams.file){
             params.data = instParams.file.files[0].name;
             // params.data = instParams.file.value;
-        } 
+        }
         // else{
         //     var title = cont.querySelector('.upload-filename');
         //     if(title) params.data = title.textContent;
@@ -666,7 +669,8 @@ function collectAttParams(instParams){
         params.digits = digits.checked ? '14' : '1';
 
     } else{
-        connectorName = cont.querySelector(el+'[name="data"]').value,
+        params.data = cont.querySelector(el+'[name="data"]').value;
+        var connectorName = cont.querySelector(el+'[name="data"]').value;
         params.connector = connectorName;
         // params.data = getConnectorNumber(data);
     }
@@ -678,6 +682,7 @@ function collectAttParams(instParams){
         params.subject = subject.value;
         params.body = body.value;
     }
+
     return params;
 }
 
@@ -825,7 +830,6 @@ function addConnector(e) {
 function getConnectorNumber(connName){
     var val;
     PbxObject.attendant.connectors.forEach(function(conn){
-        console.log(conn, connName);
         if(conn.name === connName)
             val = conn.ext;
     });
