@@ -261,7 +261,7 @@ function init_page(){
     //set default loading page
     if(!location.hash.substring(1))
         location.hash = 'calls';
-    
+
     load_pbx_options(PbxObject.options);
     get_object();
     set_listeners();
@@ -325,7 +325,7 @@ function showGroups(e){
                     });
                 }
                 else{
-                    a.href = '#'+kind;
+                    a.href = '#'+kind+'?'+kind;
                 }
                 a.innerHTML ='<i class="fa fa-plus"></i><span>'+(isGroup(kind) ? PbxObject.frases.ADD_GROUP : PbxObject.frases.ADD)+'</span>';
                 li.appendChild(a);
@@ -378,7 +378,7 @@ function get_object(e){
 
     var query = location.hash.substring(1),
         kind = query.indexOf('?') != -1 ? query.substring(0, query.indexOf('?')) : query.substring(0),
-        oid = query.indexOf('?') != -1 ? query.substring(query.indexOf('?')+1) : kind, //if no oid in query then set kind as oid
+        oid = query.indexOf('?') != -1 ? query.substring(query.indexOf('?')+1) : '', //if no oid in query then set kind as oid
         lang = PbxObject.language,
         callback = null,
         fn = null;
@@ -424,22 +424,21 @@ function get_object(e){
 }
 
 function load_template(template, kind){
-    // var template = document.getElementById('el-loaded-content').innerHTML;
     var callback = 'load_' + kind;
     var fn = window[callback];
     var rendered = Mustache.render(template, PbxObject.frases);
     $("#dcontainer").html(rendered);
 
-    if(kind == 'extensions' || kind == 'channels'){
-        // if(PbxObject.extensions)
-        //     load_extensions(PbxObject.extensions);
-        // else
+    if(kind === 'extensions' || kind === 'channels') {
         json_rpc_async('getExtensions', null, fn);
-    } else if(kind == 'calls' || kind == 'records' || kind == 'rec_settings' || kind == 'certificates' || kind == 'statistics' || kind == 'reports'){
-        fn();
-    } else {
+    } else if(PbxObject.oid) {
         json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+    } else {
+        fn();
     }
+    // else if(kind == 'calls' || kind == 'records' || kind == 'rec_settings' || kind == 'certificates' || kind == 'statistics' || kind == 'reports'){
+    //     json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+    // }
     $('#dcontainer').scrollTop(0);
     // $('.squeezed-menu > ul').children('li.active').removeClass('active').children('ul:visible').slideUp('normal');
 }
@@ -459,9 +458,10 @@ function getPartial(partialName, cb){
 
 function set_page(){
     var kind = PbxObject.kind;
-    if(kind != 'attendant' && kind != 'extensions' && kind != 'trunk' && kind != 'application' && kind != 'cli' && kind != 'routes' && kind != 'timer'){
-            kind = 'bgroup';
-        }
+    var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+    if(groupKinds.indexOf(kind) != -1){
+        kind = 'bgroup';
+    }
     // var chk = document.getElementsByClassName('delall'),
     var container = document.getElementById('dcontainer'),
         trow = container.querySelectorAll('.transrow'),
@@ -1034,7 +1034,7 @@ function delete_object(name, kind, oid){
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
-            window.location.hash = kind;
+            window.location.hash = kind+'?'+kind;
         });
     } else{
         return false;
@@ -1251,14 +1251,21 @@ function setFormData(formEl, data){
 }
 
 function retrieveFormData(formEl){
-    var data = {}, field, name, value;
+    var data = {}, type, field, name, value;
     for (var i = 0; i < formEl.elements.length; i++) {
+
         field = formEl.elements[i];
+        type = field.getAttribute('data-type') || field.type;
+
         if (!field.hasAttribute("name")) { continue; };
+
         name = field.name;
-        if(field.type === 'checkbox'){
+
+        if(type === 'number') {
+            value = parseInt(field.value, 10);
+        } else if(type === 'checkbox'){
             value = field.checked;
-        } else if(field.type === 'file'){
+        } else if(type === 'file'){
             value = field.files.length ? field.files[0].name : null;
         } else {
             value = field.value;
@@ -1272,6 +1279,16 @@ function retrieveFormData(formEl){
 
 function isSmallScreen(){
     return $(window).width() < 768;
+}
+
+function convertBytes(value, fromUnits, toUnits){
+    var coefficients = {
+        'Byte': 1,
+        'KB': 1024,
+        'MB': 1048576,
+        'GB': 1073741824
+    }
+    return value * coefficients[fromUnits] / coefficients[toUnits];
 }
 
 function toTheTop(elementId){
@@ -1439,6 +1456,20 @@ function formatDateString(date){
         minutes = strDate.getMinutes() < 10 ? '0' + strDate.getMinutes() : strDate.getMinutes();
 
     return (day + '/' + month + '/' + strDate.getFullYear() + ' ' + hours + ':' + minutes);
+}
+
+function fillTable(table, dataArray, createRowFn, callback){
+    if(!table || !dataArray || !createRowFn) return;
+    
+    if(typeof dataArray === 'object') {
+        dataArray.forEach(function(item){
+            table.appendChild(createRowFn(item));
+        });
+    } else {
+        table.appendChild(createRowFn(dataArray));
+    }
+    
+    if(callback) callback();
 }
 
 function clearTable(table){

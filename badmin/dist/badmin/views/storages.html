@@ -1,0 +1,40 @@
+<div id="el-loaded-content">
+    <div class="row">
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-custom">
+                            <div class="pull-right">
+                                <button type="button" onclick="createStorage()" class="btn btn-primary btn-md"><i class="fa fa-plus fa-fw"></i> {{STORAGE.ADD_STORAGE}}</button>    
+                            </div>
+                        </div>
+                    </div>
+					<br>
+                    <div class="row">
+                        <div class="col-xs-12 col-custom">
+                            <div class="table-responsive">
+                                <table class="table table-condensed" id="storages">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:2px"></th>
+                                            <th>{{STATE}}</th>
+                                            <th>{{PATH}}</th>
+                                            <th>{{STORAGE.FREE_SPACE}} (GB)</th>
+                                            <th>{{STORAGE.USED_SPACE}} (GB)</th>
+                                            <th>{{STORAGE.TOTAL_SPACE}} (GB)</th>
+                                            <th>{{STORAGE.CREATED}}</th>
+                                            <th>{{STORAGE.UPDATED}}</th>
+                                            <th style="width:5px" class="unsortable"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody> 
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

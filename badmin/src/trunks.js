@@ -1,5 +1,5 @@
 function load_trunk(result){
-    console.log(result);
+    // console.log(result);
     var type = result.type, types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
@@ -264,7 +264,7 @@ function set_trunk(){
     jprms += encode_transforms('transforms4');
     jprms += ']';
 
-    console.log(jprms);
+    // console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result !== 'OK') 
             if(handler) handler();

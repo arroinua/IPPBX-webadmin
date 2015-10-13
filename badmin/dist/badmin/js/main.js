@@ -3518,7 +3518,7 @@ function init_page(){
     //set default loading page
     if(!location.hash.substring(1))
         location.hash = 'calls';
-    
+
     load_pbx_options(PbxObject.options);
     get_object();
     set_listeners();
@@ -3582,7 +3582,7 @@ function showGroups(e){
                     });
                 }
                 else{
-                    a.href = '#'+kind;
+                    a.href = '#'+kind+'?'+kind;
                 }
                 a.innerHTML ='<i class="fa fa-plus"></i><span>'+(isGroup(kind) ? PbxObject.frases.ADD_GROUP : PbxObject.frases.ADD)+'</span>';
                 li.appendChild(a);
@@ -3635,7 +3635,7 @@ function get_object(e){
 
     var query = location.hash.substring(1),
         kind = query.indexOf('?') != -1 ? query.substring(0, query.indexOf('?')) : query.substring(0),
-        oid = query.indexOf('?') != -1 ? query.substring(query.indexOf('?')+1) : kind, //if no oid in query then set kind as oid
+        oid = query.indexOf('?') != -1 ? query.substring(query.indexOf('?')+1) : '', //if no oid in query then set kind as oid
         lang = PbxObject.language,
         callback = null,
         fn = null;
@@ -3681,22 +3681,21 @@ function get_object(e){
 }
 
 function load_template(template, kind){
-    // var template = document.getElementById('el-loaded-content').innerHTML;
     var callback = 'load_' + kind;
     var fn = window[callback];
     var rendered = Mustache.render(template, PbxObject.frases);
     $("#dcontainer").html(rendered);
 
-    if(kind == 'extensions' || kind == 'channels'){
-        // if(PbxObject.extensions)
-        //     load_extensions(PbxObject.extensions);
-        // else
+    if(kind === 'extensions' || kind === 'channels') {
         json_rpc_async('getExtensions', null, fn);
-    } else if(kind == 'calls' || kind == 'records' || kind == 'rec_settings' || kind == 'certificates' || kind == 'statistics' || kind == 'reports'){
-        fn();
-    } else {
+    } else if(PbxObject.oid) {
         json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+    } else {
+        fn();
     }
+    // else if(kind == 'calls' || kind == 'records' || kind == 'rec_settings' || kind == 'certificates' || kind == 'statistics' || kind == 'reports'){
+    //     json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+    // }
     $('#dcontainer').scrollTop(0);
     // $('.squeezed-menu > ul').children('li.active').removeClass('active').children('ul:visible').slideUp('normal');
 }
@@ -3716,9 +3715,10 @@ function getPartial(partialName, cb){
 
 function set_page(){
     var kind = PbxObject.kind;
-    if(kind != 'attendant' && kind != 'extensions' && kind != 'trunk' && kind != 'application' && kind != 'cli' && kind != 'routes' && kind != 'timer'){
-            kind = 'bgroup';
-        }
+    var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+    if(groupKinds.indexOf(kind) != -1){
+        kind = 'bgroup';
+    }
     // var chk = document.getElementsByClassName('delall'),
     var container = document.getElementById('dcontainer'),
         trow = container.querySelectorAll('.transrow'),
@@ -4291,7 +4291,7 @@ function delete_object(name, kind, oid){
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
-            window.location.hash = kind;
+            window.location.hash = kind+'?'+kind;
         });
     } else{
         return false;
@@ -4508,14 +4508,21 @@ function setFormData(formEl, data){
 }
 
 function retrieveFormData(formEl){
-    var data = {}, field, name, value;
+    var data = {}, type, field, name, value;
     for (var i = 0; i < formEl.elements.length; i++) {
+
         field = formEl.elements[i];
+        type = field.getAttribute('data-type') || field.type;
+
         if (!field.hasAttribute("name")) { continue; };
+
         name = field.name;
-        if(field.type === 'checkbox'){
+
+        if(type === 'number') {
+            value = parseInt(field.value, 10);
+        } else if(type === 'checkbox'){
             value = field.checked;
-        } else if(field.type === 'file'){
+        } else if(type === 'file'){
             value = field.files.length ? field.files[0].name : null;
         } else {
             value = field.value;
@@ -4529,6 +4536,16 @@ function retrieveFormData(formEl){
 
 function isSmallScreen(){
     return $(window).width() < 768;
+}
+
+function convertBytes(value, fromUnits, toUnits){
+    var coefficients = {
+        'Byte': 1,
+        'KB': 1024,
+        'MB': 1048576,
+        'GB': 1073741824
+    }
+    return value * coefficients[fromUnits] / coefficients[toUnits];
 }
 
 function toTheTop(elementId){
@@ -4696,6 +4713,20 @@ function formatDateString(date){
         minutes = strDate.getMinutes() < 10 ? '0' + strDate.getMinutes() : strDate.getMinutes();
 
     return (day + '/' + month + '/' + strDate.getFullYear() + ' ' + hours + ':' + minutes);
+}
+
+function fillTable(table, dataArray, createRowFn, callback){
+    if(!table || !dataArray || !createRowFn) return;
+    
+    if(typeof dataArray === 'object') {
+        dataArray.forEach(function(item){
+            table.appendChild(createRowFn(item));
+        });
+    } else {
+        table.appendChild(createRowFn(dataArray));
+    }
+    
+    if(callback) callback();
 }
 
 function clearTable(table){
@@ -7143,6 +7174,136 @@ function Statistics(){
 
     this._init();
 }
+function load_storages(){
+	var table = document.querySelector('#storages tbody');
+	getStorages(function (result){
+		fillTable(table, result, createStorageRow, function (){
+			show_content();
+		});
+	});
+	close_options();
+    set_page();
+}
+
+function getStorages(callback){
+	json_rpc_async('getFileStore', null, function (result){
+		if(callback) callback(result);
+	});
+}
+
+function createStorageRow(params){
+	var row = document.createElement('tr'),
+		cell, a, button;
+
+	cell = row.insertCell(0);
+	cell.classList.add((params.state === 1 || params.state === 2) ? 'success' : 'danger');
+	
+	cell = row.insertCell(1);
+	cell.textContent = getFriendlyStorageState(params.state);
+
+	cell = row.insertCell(2);
+	cell.textContent = params.path;
+
+	cell = row.insertCell(3);
+	cell.textContent = convertBytes(params.freespace, 'Byte', 'GB').toFixed();
+
+	cell = row.insertCell(4);
+	cell.textContent = convertBytes(params.usedsize, 'Byte', 'GB').toFixed();
+
+	cell = row.insertCell(5);
+	cell.textContent = convertBytes(params.maxsize, 'Byte', 'GB').toFixed();
+
+	cell = row.insertCell(6);
+	if(params.created) cell.textContent = formatDateString(params.created);
+
+	cell = row.insertCell(7);
+	if(params.updated) cell.textContent = formatDateString(params.updated);
+	
+	cell = row.insertCell(8);
+    button = document.createElement('button');
+    button.className = 'btn btn-primary btn-sm';
+    button.innerHTML = '<i class="fa fa-edit"></i>';
+    addEvent(button, 'click', function(){
+        editStorage(params);
+    });
+    cell.appendChild(button);
+
+	row.setAttribute('data-id', params.id);
+
+	return row;
+}
+
+function createStorage(){
+	openModal({
+		tempName: 'storage_settings',
+		modalId: 'storageModal'
+	});
+}
+
+function saveStorage(){
+	var form = document.getElementById('storageForm');
+	var formData = retrieveFormData(form);
+
+	if(formData && Object.keys(formData).length !== 0){
+		if(formData.maxsize > 0) formData.maxsize = convertBytes(formData.maxsize, 'GB', 'Byte');
+		if(!formData.id) delete formData.id;
+
+	    json_rpc_async('setFileStore', formData, function(result){
+			if(result){
+				getStorages(function (result){
+					var table = document.querySelector('#storages tbody');
+					clearTable(table);
+					fillTable(table, result, createStorageRow);
+				});
+				$('#storageModal').modal('hide');
+			}
+		});
+	}
+}
+
+function editStorage(params){
+
+	openModal({
+		tempName: 'storage_settings',
+		modalId: 'storageModal',
+		data : params
+	}, function (){
+		if(params) {
+			var maxsize = document.querySelector('#storageForm input[name="maxsize"]'),
+				states = document.querySelector('#storageForm select[name="state"]'),
+				state = params.state.toString();
+
+			if(maxsize.value > 0) maxsize.value = convertBytes(maxsize.value, 'Byte', 'GB').toFixed();
+
+			[].slice.call(states.options).forEach(function (option, index){
+				if(option.value === state) {
+					states.selectedIndex = index;
+				}
+			});
+		}
+	});
+}
+
+function getFriendlyStorageState(state){
+	return PbxObject.frases.STORAGE.STATES[state];
+}
+
+function openModal(params, callback){
+	var data = {},
+		modal = document.getElementById(params.modalId);
+	getPartial(params.tempName, function(template){
+		data.frases = PbxObject.frases;
+		if(params.data) data.data = params.data;
+
+		var rendered = Mustache.render(template, data),
+			cont = document.querySelector('#el-loaded-content');
+
+		if(modal) modal.parentNode.removeChild(modal);
+		cont.insertAdjacentHTML('afterbegin', rendered);
+		$('#'+params.modalId).modal();
+		if(callback) callback();
+	});
+}
 function load_timer(result){
     // console.log(result);
     PbxObject.oid = result.oid;
@@ -7364,7 +7525,7 @@ function check_days(e){
     }
 }
 function load_trunk(result){
-    console.log(result);
+    // console.log(result);
     var type = result.type, types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
@@ -7629,7 +7790,7 @@ function set_trunk(){
     jprms += encode_transforms('transforms4');
     jprms += ']';
 
-    console.log(jprms);
+    // console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result !== 'OK') 
             if(handler) handler();

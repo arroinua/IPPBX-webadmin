@@ -73,6 +73,7 @@
 		"GENERAL_SETTS" : "General settings",
 		"FUNCSETTINGS" : "Features settings",
 		"REC_SETTINGS" : "Recording settings",
+		"STORAGE_SETTINGS" : "Storage settings",
 		"REC_MODE" : {
 			"REC_MODE" : "Recording mode",
 			"EXCEPTION_LIST" : "Exception list",
@@ -97,7 +98,8 @@
 	"OPTIONS" : "Options",
 	"GENERAL" : "General",
 	"TYPE" : "Type",
-	"STATE" : "Status",
+	"STATE" : "State",
+    "PATH" : "Path",
 	"TEL" : "Tel",
 	"TELEPHONE" : "Telephone",
 	"PHONE" : "Phone",
@@ -356,7 +358,8 @@
         "reports": "Reports",
         "extensions": "Extensions",
         "attendant": "Auto-attendant",
-        "certificates": "Certificates"
+        "certificates": "Certificates",
+        "storages": "Storages"
     },
     "CODES": {
     	"-1": "error",
@@ -479,6 +482,23 @@
     	"ALLOW_MULT_DIGITS" : "Allow multiple digits",
     	"REMOVE_ELEMENT" : "Remove element",
     	"REMOVE_ELEMENTS_TREE" : "Remove element's tree"
+    },
+    "STORAGE" : {
+    	"STORAGE_SETTINGS" : "Storage settings",
+    	"ADD_STORAGE" : "Add storage",
+    	"MAXSIZE" : "Storage size",
+    	"FREE_SPACE" : "Free",
+    	"USED_SPACE" : "Used",
+    	"TOTAL_SPACE" : "Total",
+    	"CREATED" : "Created",
+    	"UPDATED" : "Updated",
+    	"STATES" : {
+    		"0" : "Disabled",
+    		"1" : "Enabled",
+    		"2" : "Reserve",
+    		"3" : "Error",
+    		"4" : "Full"
+    	}
     },
     "PICKUP__NUMBER" : "Pickup Number",
     "OPTS__PWD_CONF_EMPTY" : "Please confirm your new password",
