@@ -324,6 +324,13 @@ function load_extension(result){
     var d = document,
     groupid = result.groupid,
     kind = result.kind == 'user' ? 'users':'unit';
+
+    if(kind === 'users') {
+        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
+        if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        if(result.storelimit) result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
+    }
+
     data = {
         data: result,
         frases: PbxObject.frases
@@ -352,6 +359,17 @@ function load_extension(result){
         this.src = 'images/avatar.png';
     }
     img.src = src;
+
+    var state = document.querySelector('#el-extension .user-state-ind');
+    state.classList.add(getInfoFromState(result.state).rclass);
+
+    if(kind !== 'users') {
+        var storageUsage = document.querySelector('#el-extension .user-storage-usage');
+        if(storageUsage) storageUsage.classList.add('hidden');
+
+        var storelimitCont = document.querySelector('#storelimit-cont');
+        if(storelimitCont) storelimitCont.classList.add('hidden');
+    }
 
     // getAvatar(result.userid, function(binary){
     //     var img = document.getElementById('user-avatar');
@@ -435,6 +453,7 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     var login = d.getElementById("extlogin").textContent;
+    var storelimit = d.getElementById('extstorelimit');
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
     if(groupv){
@@ -450,6 +469,10 @@ function set_extension(kind){
     if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
+    if(storelimit) {
+        storelimit = convertBytes(storelimit.value, 'GB', 'Byte').toFixed();
+        if(storelimit >= 0) jprms += '\"storelimit\":'+storelimit+',';
+    }
     jprms += '\"features\":{';
 
     if(d.getElementById("ext-fwdall") != null && kind !== 'users'){

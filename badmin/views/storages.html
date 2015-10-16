@@ -1,16 +1,11 @@
 <div id="el-loaded-content">
-    <div class="row">
+    <div class="row" id="storages-cont">
         <div class="col-xs-12 col-custom">
             <div class="panel">
+                <div class="panel-header">
+                    {{STORAGE.AVAILABLE_STORAGES}}
+                </div>
                 <div class="panel-body">
-                    <div class="row">
-                        <div class="col-xs-12 col-custom">
-                            <div class="pull-right">
-                                <button type="button" onclick="createStorage()" class="btn btn-primary btn-md"><i class="fa fa-plus fa-fw"></i> {{STORAGE.ADD_STORAGE}}</button>    
-                            </div>
-                        </div>
-                    </div>
-					<br>
                     <div class="row">
                         <div class="col-xs-12 col-custom">
                             <div class="table-responsive">
@@ -25,7 +20,74 @@
                                             <th>{{STORAGE.TOTAL_SPACE}} (GB)</th>
                                             <th>{{STORAGE.CREATED}}</th>
                                             <th>{{STORAGE.UPDATED}}</th>
-                                            <th style="width:5px" class="unsortable"></th>
+                                            <th class="unsortable">
+                                                <button type="button" onclick="createStorage()" class="btn btn-primary"><i class="fa fa-plus"></i></button>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody> 
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- <div class="col-xs-12"> -->
+            <div class="col-xs-6">
+                <div class="panel panel-mini">
+                    <div class="panel-body">
+                        <!-- <div class="col-xs-6">
+                            <h3 class="pl-img text-success"><i class="fa fa-arrow-down"></i></h3>
+                        </div> -->
+                        <!-- <div class="col-xs-6"> -->
+                            <!-- <div class="row"> -->
+                                <!-- <div class="col-xs-12"> -->
+                                    <h3 class="text-center"><span class="store-size">0.00</span> <span>GB</span></h3>
+                                <!-- </div> -->
+                            <!-- </div> -->
+                        <!-- </div> -->
+                    </div>
+                    <div class="col-xs-12 pl-txt">
+                        <h5>{{STORAGE.USED_SPACE}}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <div class="panel panel-mini">
+                    <div class="panel-body">
+                        <!-- <div class="col-xs-6">
+                            <h3 class="pl-img text-primary"><i class="fa fa-arrow-up"></i></h3>
+                        </div> -->
+                        <!-- <div class="col-xs-6"> -->
+                            <h3 class="text-center"><span class="store-limit">0.00</span> <span>GB</span></h3>
+                        <!-- </div> -->
+                    </div>
+                    <div class="col-xs-12 pl-txt">
+                        <h5>{{STORAGE.MAXSIZE}}</h5>
+                    </div>
+                </div>
+            </div>
+        <!-- </div> -->
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">
+                    {{STORAGE.STORAGE_ALLOCATION}}
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-custom">
+                            <div class="table-responsive">
+                                <table class="table table-condensed sortable" id="store-info">
+                                    <thead>
+                                        <tr>
+                                            <th>{{NUMBER}}</th>
+                                            <th>{{STORAGE.USED_SPACE}} (GB)</th>
+                                            <th style="width: 180px" class="unsortable">{{STORAGE.TOTAL_SPACE}} (GB)</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody> 

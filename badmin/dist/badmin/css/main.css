@@ -1153,7 +1153,6 @@ ul.tab-toggles li a {
 .pl-img {
   text-align: right;
   vertical-align: middle;
-  line-height: 2.5em;
   margin: 0;
 }
 
@@ -1187,6 +1186,14 @@ ul.tab-toggles li a {
 
 .avatar-cont img {
   max-width: 100%;
+}
+
+.user-state-ind {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 7px;
 }
 
 /*Loading Panel Styles*/

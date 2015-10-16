@@ -1262,7 +1262,7 @@ function retrieveFormData(formEl){
         name = field.name;
 
         if(type === 'number') {
-            value = parseInt(field.value, 10);
+            value = parseFloat(field.value);
         } else if(type === 'checkbox'){
             value = field.checked;
         } else if(type === 'file'){
@@ -1290,6 +1290,21 @@ function convertBytes(value, fromUnits, toUnits){
     }
     return value * coefficients[fromUnits] / coefficients[toUnits];
 }
+
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
 
 function toTheTop(elementId){
     var scrollTop = $(document).scrollTop();
@@ -1833,7 +1848,7 @@ function getInfoFromState(state, group){
         className = 'warning';
     } else if(state == 0 || (state == -1 && group)) {
         state = '';
-        className = '';
+        className = 'default';
     } else if(state == 3) {
         className = 'danger';
     } else if(state == 6 || state == 7) {
@@ -1845,7 +1860,7 @@ function getInfoFromState(state, group){
 
     return {
         rstatus: status,
-        rclass: className
+        rclass: 'bg-'+className
     }
 
 }

@@ -38,6 +38,8 @@ function load_bgroup(result){
         
         if(kind == 'equipment'){
             var prots = result.options.protocols || result.options.protocol;
+            var storelimitCont = document.getElementById('storelimit-cont');
+            if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
             if(typeof prots === 'object'){
                 prots.forEach(function(item){
                     protocol.innerHTML += '<option value="'+item+'">'+item+'</option>';
@@ -699,6 +701,7 @@ function addUser(type){
         // followme = document.getElementById('user-followme'),
         // login = document.getElementById('user-login'),
         pass = document.getElementById('user-pass');
+        storelimit = document.getElementById('storelimit');
 
     if(!exts.length) return;
     if(!PbxObject.name) {
@@ -713,6 +716,10 @@ function addUser(type){
     jprms += '"name":"'+name.value+'",';
     jprms += '"display":"'+alias.value+'",';
     jprms += '"password":"'+pass.value+'",';
+    if(storelimit) {
+        storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
+        if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
+    }
 
     var data = {
         kind: type,

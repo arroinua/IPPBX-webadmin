@@ -118,6 +118,7 @@
 	"BIRTHDAY" : "День народження",
 	"ABOUT" : "Додаткова інформація",
 	"USER_INFO" : "Інформація користувача",
+	"ADD_PHOTO" : "Додати фото",
 	"NAME" : "Ім'я",
 	"GROUP" : "Група",
 	"LOGIN" : "Логін",
@@ -485,6 +486,8 @@
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Налаштування сховища",
+    	"AVAILABLE_STORAGES" : "Доступні сховища",
+    	"STORAGE_ALLOCATION" : "Розподіл пам'яті",
     	"ADD_STORAGE" : "Додати сховище",
     	"MAXSIZE" : "Розмір сховища",
     	"FREE_SPACE" : "Доступно",

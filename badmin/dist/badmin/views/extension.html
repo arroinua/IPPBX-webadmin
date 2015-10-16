@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="el-extension-num">{{frases.EXTENSION}} {{data.number}}</h4>
+                <h4 class="modal-title" id="el-extension-num">{{frases.EXTENSION}} {{data.number}} <span class="user-state-ind"></span></h4>
             </div>
             <ul id="ext-tabs" class="nav nav-tabs nav-justified custom-nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#ext-general" role="tab" data-toggle="tab">{{frases.GENERAL}}</a></li>
@@ -19,9 +19,12 @@
                                     <div class="avatar-cont img-circle">
                                         <a href="#" onclick="loadAvatar()"><img src="images/avatar.svg" alt="avatar" class="img-responsive" id="user-avatar"></a>
                                     </div>
-                                    <!-- <br>
-                                    <a href="#" onclick="loadAvatar()">add photo</a> -->
+                                    <!-- <a href="#" onclick="loadAvatar()">{{frases.ADD_PHOTO}}</a> -->
                                     <input type="file" class="hidden" id="upload-avatar">
+                                    <div class="user-storage-usage text-muted">
+                                        <h5>{{frases.STORAGE.FREE_SPACE}}: {{data.storefree}}GB</h5>
+                                        <h5>{{frases.STORAGE.USED_SPACE}}: {{data.storesize}}GB</h5>
+                                    </div>
                                 </div>
                                 <div class="col-sm-8">
                                     <div class="form-group">
@@ -48,6 +51,13 @@
                                         <!-- <div class="col-sm-8"> -->
                                             <select id="extgroup" class="form-control"></select>
                                         <!-- </div> -->
+                                    </div>
+                                    <div class="form-group" id="storelimit-cont">
+                                        <label for="extstorelimit" data-toggle="tooltip" title="{{frases.STORAGE.MAXSIZE}}">{{frases.STORAGE.MAXSIZE}}</label>
+                                        <div class="input-group col-xs-6">
+                                            <input type="number" class="form-control" id="extstorelimit" min="0" step="0.10" value="{{data.storelimit}}">
+                                            <span class="input-group-addon">GB</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
