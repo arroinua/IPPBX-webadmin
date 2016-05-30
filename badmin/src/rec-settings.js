@@ -45,10 +45,11 @@ function getRecObjects(result){
 
 function fillSelects(obj){
 
-	// console.log(obj);
-
-	$('#trunks-rec-mode input[value="'+obj.result.trunksmode+'"]').parent().button('toggle');
-	$('#ext-rec-mode input[value="'+obj.result.extmode+'"]').parent().button('toggle');
+	// $('#trunks-rec-mode input[value="'+obj.result.trunksmode+'"]').prop('checked', true);
+	// $('#trunks-rec-mode input[value="'+obj.result.trunksmode+'"]').parent().button('toggle');
+	document.querySelector('#trunks-rec-mode input[value="'+obj.result.trunksmode+'"]').checked = true;
+	document.querySelector('#ext-rec-mode input[value="'+obj.result.extmode+'"]').checked = true;
+	// $('#ext-rec-mode input[value="'+obj.result.extmode+'"]').parent().button('toggle');
 
 	if(obj.result.trunks)
 		fill_list_items('rec-trunks', obj.result.trunks);
@@ -67,8 +68,10 @@ function fillSelects(obj){
 function setRecObjects(){
 	var jprms = '';
 
-	var trunksmode = document.querySelector('#trunks-rec-mode label.active input');
-	var extmode = document.querySelector('#ext-rec-mode label.active input');
+	// var trunksmode = document.querySelector('#trunks-rec-mode label.active input');
+	var trunksmode = document.querySelector('#trunks-rec-mode input:checked');
+	var extmode = document.querySelector('#ext-rec-mode input:checked');
+	// var extmode = document.querySelector('#ext-rec-mode label.active input');
 	var recTrunks = document.getElementById('rec-trunks');
 	var recExt = document.getElementById('rec-ext');
 

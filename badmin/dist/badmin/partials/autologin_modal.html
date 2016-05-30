@@ -1,0 +1,28 @@
+<div class="modal modal-custom fade" id="autologin_modal" role="dialog" aria-labelledby="Autologin options" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    {{frases.ICD.AUTOLOGIN_SETTINGS}}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" id="autologin-options">
+                    <div class="form-group">
+                        <label for="network" data-toggle="tooltip" title="{{ICD__NETWORK_TT}}">{{frases.NETWORK}}</label>
+                        <input type="text" class="form-control" name="network" value="{{network}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="netmask" data-toggle="tooltip" title="{{ICD__NETMASK_TT}}">{{frases.NETMASK}}</label>
+                        <input type="text" class="form-control" name="netmask" value="{{netmask}}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input type="button" data-type="submit" form="autologin-options" class="btn btn-primary" value="{{frases.SAVE}}">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{frases.CANCEL}}</button>
+            </div>
+        </div>
+    </div>
+</div>

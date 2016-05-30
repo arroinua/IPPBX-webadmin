@@ -6,8 +6,8 @@
                     <div class="input-group object-name">
                         <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
                         <span class="input-group-addon">
-                            <div class="switch switch-lg pl-kind pl-all pl-no-users pl-no-equipment">
-                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                            <div class="switch switch-lg pl-kind pl-all pl-no-users">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox" checked="checked">
                                 <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
                             </div>
                         </span>
@@ -56,7 +56,7 @@
                                     <div class="form-group">    
                                         <label for="regname" class="col-lg-4 control-label">{{LOGIN}}</label>
                                         <div class="col-lg-8">
-                                            <input type="text" class="form-control" name="gateway" id="regname" placeholder="{{LOGIN}}">
+                                            <input type="text" class="form-control" name="gateway" id="regname" placeholder="{{LOGIN}}" readonly>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -68,6 +68,9 @@
                                                     <button type="button" class="btn btn-default" onclick="revealPassword(this)">
                                                         <i class="fa fa-eye"></i>
                                                     </button>
+                                                    <button type="button" class="btn btn-default" onclick="generatePassword(this)">
+                                                        <i class="fa fa-refresh" data-toggle="tooltip" title="{{frases.GENERATE_PWD}}"></i>
+                                                    </button>
                                                 </span>
                                             </div>
                                         </div>
@@ -75,9 +78,89 @@
                                 </div>
                                 <div id="tab-trunk">
                                     <div class="form-group">
-                                        <label for="address" class="col-lg-4 control-label">{{DOMAIN}}</label>
+                                        <label for="tr-domain" class="col-lg-4 control-label">{{DOMAIN}}</label>
                                         <div class="col-lg-8">
-                                            <input type="text" class="form-control" id="address" placeholder="{{DOMAIN}}">
+                                            <input type="text" class="form-control" id="tr-domain" placeholder="{{DOMAIN}}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-xs-12">
+                                          <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="tr-register"> {{REGISTRATION}}
+                                            </label>
+                                          </div>
+                                        </div>
+                                    </div>
+                                    <div id="reg-setts" class="hidden">
+                                        <div class="form-group">    
+                                            <label for="tr-user" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__USERNAME}}">{{NAME}}</label>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="tr-user" placeholder="{{NAME}}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="tr-auth" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__AUTHNAME}}">{{AUTHNAME}}</label>
+                                            <div class="col-lg-8">
+                                                <input type="text" class="form-control" id="tr-auth" placeholder="{{AUTHNAME}}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">    
+                                            <label for="tr-pass" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                            <div class="col-lg-8">
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="tr-pass" placeholder="{{PASSWORD}}">
+                                                    <span class="input-group-btn">
+                                                        <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                            <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="tr-regexpires" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__AUTH_PERIOD}}">{{REGEXPIRES}}</label>
+                                            <div class="col-lg-8">
+                                                <input type="number" class="form-control" id="tr-regexpires" placeholder="{REGEXPIRES}" value='60'>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-xs-12">
+                                          <div class="checkbox">
+                                            <label>
+                                              <input type="checkbox" id="tr-proxy"> {{PROXY}}
+                                            </label>
+                                          </div>
+                                        </div>
+                                    </div>
+                                    <div id="proxy-setts" class="hidden">
+                                        <div id="proxy-setts">
+                                            <div class="form-group">    
+                                                <label for="tr-paddr" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__DOMAIN}}">{{PROXYADDRESS}}</label>
+                                                <div class="col-lg-8">
+                                                    <input type="text" class="form-control" name="tr-paddr" id="tr-paddr" placeholder="{{PROXYADDRESS}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">    
+                                                <label for="tr-pauth" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__AUTHNAME}}">{{AUTHNAME}}</label>
+                                                <div class="col-lg-8">
+                                                    <input type="text" class="form-control" name="tr-pauth" id="tr-pauth" placeholder="{{AUTHNAME}}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">    
+                                                <label for="tr-ppass" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                                <div class="col-lg-8">
+                                                    <div class="input-group">
+                                                        <input type="password" name="tr-ppass" class="form-control" id="tr-ppass" placeholder="{{PASSWORD}}">
+                                                        <span class="input-group-btn">
+                                                            <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                                <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -164,8 +247,22 @@
                                         </label>
                                     </div>
                                 </div>
+                                <div class="col-sm-12 pl-kind pl-users">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="voicemail"> {{FUNCTIONS.VOICEMAIL}}
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="col-sm-12">
                                     <div class="checkbox">
                                         <label>
@@ -187,24 +284,24 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 pl-kind pl-users">
+                                <!-- <div class="col-sm-12 pl-kind pl-users">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" id="hiderecind"> {{FUNCTIONS.HIDE_REC_IND}}
                                         </label>
                                     </div>
-                                </div>
-                                <div class="col-sm-12 pl-kind pl-users">
+                                </div> -->
+                                <div class="col-sm-12">
                                     <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="voicemail"> {{FUNCTIONS.VOICEMAIL}}
+                                        <label data-toggle="tooltip" title="{{GRP_OUTBARGING}}">
+                                            <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label data-toggle="tooltip" title="{{GRP_COSTBARGING}}">
+                                            <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
                                         </label>
                                     </div>
                                 </div>
@@ -220,7 +317,7 @@
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal">
+                    <!-- <form class="form-horizontal">
                         <div class="form-group">
                             <div class="col-lg-6">
                                 <div class="checkbox">
@@ -238,7 +335,7 @@
                             </div>
                         </div>
                     </form>
-                    <hr>
+                    <hr> -->
                     <div class="table-responsive">
                         <table class="table table-responsive" id="transforms">
                             <thead>
@@ -266,95 +363,118 @@
     <div class="row pl-kind pl-users pl-equipment">
         <div class="col-sm-12 col-custom">
             <div class="panel">
-                <div class="panel-header"> {{KINDS.users}}
+                <div class="panel-header"> 
+                    <span class="pl-kind pl-users">{{KINDS.users}}</span>
+                    <span class="pl-kind pl-equipment">{{EXTENSIONS}}</span>
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <div class="panel minimized">
-                        <div class="panel-header custom-header-2">
-                            <i class="fa fa-plus"></i> {{ADDUSER}}
+                    <div class="row">
+                        <div class="col-sm-8 col-xs-12" style="margin-bottom: 5px;">
+                            <button type="button" id="add-newuser-btn" class="btn btn-default padding-lg ellipsis" data-toggle="collapse" data-target="#new-user-form" aria-expanded="false" aria-controls="new-user-form">
+                                <i class="fa fa-user-plus"></i>
+                                <span class="pl-kind pl-users">{{CREATE_USER}}</span>
+                                <span class="pl-kind pl-equipment">{{CREATE_EXTENSION}}</span>
+                            </button>
+                            <button type="button" id="add-external-user" class="btn btn-default padding-lg ellipsis pl-kind pl-users" data-toggle="collapse" data-target="#services-cont" aria-expanded="false" aria-controls="services-cont">
+                               <i class="fa fa-sitemap"></i><span> {{ADD_USER}}</span>
+                            </button>
+                            
                         </div>
-                        <div class="panel-body">
-                            <form class="form-horizontal" id="new-user-form">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="available-users" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__EXTENSION}}">{{NUMBER}}</label>
-                                            <div class="col-lg-4">
-                                                <!-- <datalist id="user-ext">
-                                                    <select name="user-ext" id="available-users" class="form-control"></select>
-                                                </datalist>
-                                                <input id="selected-user" list="user-ext" class="form-control"> -->
-                                                <select id="available-users" class="form-control select2"></select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="user-pass" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__PASSWORD}}">{{PASSWORD}}</label>
-                                            <div class="col-lg-8">
-                                                <div class="input-group">
-                                                    <input type="password" name="trunk" class="form-control" id="user-pass" placeholder="{{PASSWORD}}">
-                                                    <span class="input-group-btn">
-                                                        <button type="button" class="btn btn-default" onclick="revealPassword(this)">
-                                                            <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-default" onclick="generatePassword(this)">
-                                                            <i class="fa fa-refresh" data-toggle="tooltip" title="{{GENERATE_PWD}}"></i>
-                                                        </button>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="user-name" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__NAME}}">{{NAME}}</label>
-                                            <div class="col-lg-8">
-                                                <input type="text" class="form-control" id="user-name" placeholder="{{NAME}}">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="user-dname" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__DISPLAY_NAME}}">{{DISPLAY}}</label>
-                                            <div class="col-lg-8">
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" id="user-alias" placeholder="{{DISPLAY}}">
-                                                    <span class="input-group-btn">
-                                                        <button type="button" class="btn btn-default" onclick="copyFromField(this, 'user-name')">
-                                                            <i class="fa fa-exchange" data-toggle="tooltip" title="{{COPY}}"></i>
-                                                        </button>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row" id="storelimit-cont">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="storelimit" class="col-lg-4 control-label" data-toggle="tooltip" title="{{STORAGE.MAXSIZE}}">{{STORAGE.MAXSIZE}}</label>
-                                            <div class="col-lg-8">
-                                                <div class="input-group">
-                                                    <input type="number" class="form-control" id="storelimit" min="0" step="0.10" value="0.10">
-                                                    <span class="input-group-addon">GB</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-offset-2 col-xs-12">
-                                        <button type="button" class="btn btn-success btn-md" id="add-user">{{ADD}}</button>
-                                        <button type="button" class="btn btn-default btn-md" id="clear-input" onclick="cleanForm('new-user-form')">{{CLEAR}}</button>
-                                    </div>
-                                </div>
-                            </form>
+                        <div class="col-sm-4 col-xs-12">
+                            <div class="form-group has-feedback">
+                                <input type="text" class="form-control el-search" data-element="group-extensions" placeholder="{{SEARCH}}">
+                                <i class="fa fa-search fa-fw form-control-feedback"></i>
+                            </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-xs-12 collapse pl-kind pl-users" id="services-cont">
+                            <button class="btn btn-primary padding-lg ellipsis" id="from-directory-btn">
+                                <i class="fa fa-sitemap"></i><span class="hidden-xs"> Active Directory</span>
+                            </button>
+                        </div>
+                        <form class="form-horizontal col-xs-12 collapse" id="new-user-form">
+                            <hr class="col-xs-12">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="available-users" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__EXTENSION}}">{{NUMBER}}</label>
+                                        <div class="col-lg-4">
+                                            <!-- <datalist id="user-ext">
+                                                <select name="user-ext" id="available-users" class="form-control"></select>
+                                            </datalist>
+                                            <input id="selected-user" list="user-ext" class="form-control"> -->
+                                            <select id="available-users" class="form-control select2"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="user-name" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__NAME}}">{{NAME}}</label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" id="user-name" placeholder="{{NAME}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="user-dname" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__DISPLAY_NAME}}">{{DISPLAY}}</label>
+                                        <div class="col-lg-8">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="user-alias" placeholder="{{DISPLAY}}">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-default" onclick="copyFromField(this, 'user-name')">
+                                                        <i class="fa fa-exchange" data-toggle="tooltip" title="{{COPY}}"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="user-pass" class="col-lg-4 control-label" data-toggle="tooltip" title="{{EXT_SETTS__PASSWORD}}">{{PASSWORD}}</label>
+                                        <div class="col-lg-8">
+                                            <div class="input-group">
+                                                <input type="password" name="trunk" class="form-control" id="user-pass" placeholder="{{PASSWORD}}">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                        <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-default" onclick="generatePassword(this)">
+                                                        <i class="fa fa-refresh" data-toggle="tooltip" title="{{GENERATE_PWD}}"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" id="storelimit-cont">
+                                    <div class="form-group">
+                                        <label for="storelimit" class="col-lg-4 control-label" data-toggle="tooltip" title="{{STORAGE.MAXSIZE}}">{{STORAGE.MAXSIZE}}</label>
+                                        <div class="col-lg-8">
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="storelimit" min="0" step="0.10" value="1">
+                                                <span class="input-group-addon">GB</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-offset-2 col-xs-12">
+                                    <button type="button" class="btn btn-success btn-md" id="add-user">{{ADD}}</button>
+                                    <button type="button" class="btn btn-default btn-md" id="clear-input" onclick="cleanForm('new-user-form')">{{CLEAR}}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <br>
                     <div class="table-responsive">
                         <table class="table table-condensed table-hover sortable" id="group-extensions">
                             <thead>
@@ -555,10 +675,17 @@
                         </div>
                         <div class="form-group">
                             <div class="col-lg-offset-4 col-lg-8">
-                                <div class="checkbox">
-                                    <label data-toggle="tooltip" title="{{ICD__AUTO_REG}}">
-                                        <input type="checkbox" id="autologin"> {{AUTOREG}}
-                                    </label>
+                                <div class="input-group">
+                                    <div class="checkbox">
+                                        <label data-toggle="tooltip" title="{{ICD__AUTO_REG}}">
+                                            <input type="checkbox" id="autologin"> {{AUTOREG}}
+                                        </label>
+                                    </div>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" id="open-autologin-options" style="display: none;">
+                                            <i class="fa fa-cog fa-fw"></i>
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -566,7 +693,7 @@
                             <div class="col-lg-offset-4 col-lg-8">
                                 <div class="checkbox">
                                     <label data-toggle="tooltip" title="{{ICD__ALLOW_PICKUP}}">
-                                        <input type="checkbox" id="canpickup"> {{ALLOWFUNK}} Pickup
+                                        <input type="checkbox" id="canpickup"> {{ALLOW_PICKUP}}
                                     </label>
                                 </div>
                             </div>
@@ -575,6 +702,12 @@
                             <label for="groupno" class="col-lg-4 control-label" data-toggle="tooltip" title="{{GRP__GRP_NUMBER}}">{{GROUPNUM}}</label>
                             <div class="col-lg-4">
                                 <input type="text" class="form-control" id="groupno">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="icd-app" class="col-lg-4 control-label" data-toggle="tooltip" title="{{ICD__APPLICATION}}">{{APPLICATION}}</label>
+                            <div class="col-lg-8">
+                                <input type="text" class="form-control" id="icd-app">
                             </div>
                         </div>
                     </form>
@@ -646,6 +779,15 @@
                                     <label>
                                         <input type="checkbox" id="confrecord"> {{FUNCTIONS.RECORDING}}
                                     </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group pl-kind pl-channel hidden" id="rectime-cont">
+                            <label for="rectime" class="col-lg-4 control-label" data-toggle="tooltip" title="{{CHANNELS__REC_TIME}}">{{REC_TIME}}</label>
+                            <div class="col-lg-4">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="rectime">
+                                    <span class="input-group-addon">{{MINUTES}}</span>
                                 </div>
                             </div>
                         </div>

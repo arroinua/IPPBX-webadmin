@@ -122,6 +122,7 @@ function updateExtension(data){
     var row = document.getElementById(data.oid);
     var state = data.state;
     var info = getInfoFromState(state, data.group);
+
     // var table = document.getElementById('extensions') || document.getElementById('group-extensions');
 
     // if(!row) return;
@@ -145,6 +146,11 @@ function updateExtension(data){
             if(data.name){
                 cell = row.querySelector('[data-cell="name"]');
                 if(cell) cell.innerHTML = data.name;
+                // cells[1].innerHTML = data.name;
+            }
+            if(data.display){
+                cell = row.querySelector('[data-cell="display"]');
+                if(cell) cell.innerHTML = data.display;
                 // cells[1].innerHTML = data.name;
             }
             if(data.hasOwnProperty('group')){
@@ -227,15 +233,12 @@ function editExtension(e){
     cell.innerHTML = '<input class="form-control extname" value="'+name+'">';
 
     cell = tr.insertCell(2);
-    if(kind == 'user' || kind == 'phone'){
-        var newkind = kind == 'user' ? 'users':'unit';
-        // div = document.createElement('div');
-        // div.className = 'form-group';
+    if(kind === 'user' || kind === 'phone'){
+        var newkind = kind === 'user' ? 'users':'unit';
         sel = document.createElement('select');
         sel.className = 'form-control extgroup';
-        fill_group_choice(newkind, group, sel);
-        // div.appendChild(sel);
         cell.appendChild(sel);
+        fill_group_choice(newkind, group, sel);
     } else {
         cell.textContent = group;
     }
@@ -250,7 +253,8 @@ function editExtension(e){
     }
 
     cell = tr.insertCell(4);
-    cell.textContent = kind;
+    // cell.textContent = kind;
+    cell.textContent = cells[4].textContent;
     cell = tr.insertCell(5);
     cell.textContent = status;
 
@@ -386,14 +390,14 @@ function load_extension(result){
 
     var fwdnreg = d.getElementById('ext-fwdnreg');
     var fwdnregnumber = d.getElementById('ext-fwdnregnumber');
-    if(kind === 'users'){
-        d.getElementById('fwdall-cont').classList.add('hidden');
-        fwdnreg.checked = result.features.fwdall;
-        fwdnregnumber.value = result.features.fwdallnumber;
-    } else {
+    // if(kind === 'users'){
+    //     // d.getElementById('fwdall-cont').classList.add('hidden');
+    //     fwdnreg.checked = result.features.fwdall;
+    //     fwdnregnumber.value = result.features.fwdallnumber;
+    // } else {
         fwdnreg.checked = result.features.fwdnreg;
         fwdnregnumber.value = result.features.fwdnregnumber;
-    }
+    // }
     
     var tabs = document.getElementById('ext-tabs');
     if(result.features){
@@ -475,15 +479,15 @@ function set_extension(kind){
     }
     jprms += '\"features\":{';
 
-    if(d.getElementById("ext-fwdall") != null && kind !== 'users'){
+    if(d.getElementById("ext-fwdall") != null){
         jprms += '\"fwdall\":'+d.getElementById("ext-fwdall").checked+',';
         jprms += '\"fwdallnumber\":\"'+d.getElementById("ext-fwdallnumber").value+'\",';
     }
     if(d.getElementById("ext-fwdnregnumber") != null){
-        var prop1 = kind === 'users' ? 'fwdall' : 'fwdnreg';
-        var prop2 = kind === 'users' ? 'fwdallnumber' : 'fwdnregnumber';
-        jprms += prop1+':'+d.getElementById("ext-fwdnreg").checked+',';
-        jprms += prop2+':\"'+d.getElementById("ext-fwdnregnumber").value+'\",';
+        // var prop1 = kind === 'users' ? 'fwdall' : 'fwdnreg';
+        // var prop2 = kind === 'users' ? 'fwdallnumber' : 'fwdnregnumber';
+        jprms += '\"fwdnreg\":'+d.getElementById("ext-fwdnreg").checked+',';
+        jprms += '\"fwdnregnumber\":\"'+d.getElementById("ext-fwdnregnumber").value+'\",';
         // jprms += '\"fwdnreg\":'+d.getElementById("ext-fwdnreg").checked+',';
         // jprms += '\"fwdnregnumber\":\"'+d.getElementById("ext-fwdnregnumber").value+'\",';
     }

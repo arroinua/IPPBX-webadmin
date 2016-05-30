@@ -169,7 +169,7 @@ function Picker(pickrElement, defaults){
 
     this.today = function(){
         var now = new Date();
-        var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).getTime();
+        var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).valueOf();
         return today;
     };
 

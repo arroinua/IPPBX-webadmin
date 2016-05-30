@@ -8,6 +8,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/badmin/fonts/css/icomoon.css" />
         <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/rome.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/select2.min.css" type="text/css" />
@@ -22,13 +23,6 @@
                         <a href="#calls" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
                     </div>
                     <ul class="nav-list">
-                        <li class="branch-mode mode-equipment">
-                            <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
-                                <i class="fa fa-fax fa-fw"></i>
-                                <span>{{KINDS.equipment}}</span>
-                                <i class="fa fa-chevron-right fa-fw"></i>
-                            </a>
-                        </li>
                         <li class="branch-mode mode-users">
                             <a href="#" data-kind="users" title="{{KINDS.users}}">
                                 <i class="fa fa-user fa-fw"></i>
@@ -36,62 +30,24 @@
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
+                        <li class="branch-mode mode-equipment">
+                            <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
+                                <i class="fa fa-fax fa-fw"></i>
+                                <span>{{KINDS.equipment}}</span>
+                                <i class="fa fa-chevron-right fa-fw"></i>
+                            </a>
+                        </li>
                         <li class="branch-mode mode-groups">
-                            <a href="#" title="{{GROUPS.GROUPS}}">
-                                <i class="fa fa-group fa-fw"></i>
-                                <span>{{GROUPS.GROUPS}}</span>
-                                <i class="fa fa-chevron-right fa-fw"></i>
-                            </a>
-                            <ul>
-                                <li>
-                                    <a href="#" data-kind="unit" title="{{KINDS.unit}}">
-                                        <span>{{KINDS.unit}}</span>
-                                        <i class="fa fa-chevron-right fa-fw"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" data-kind="icd" title="{{KINDS.icd}}">
-                                        <span>{{KINDS.icd}}</span>
-                                        <i class="fa fa-chevron-right fa-fw"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" data-kind="hunting" title="{{KINDS.hunting}}">
-                                        <span>{{KINDS.hunting}}</span>
-                                        <i class="fa fa-chevron-right fa-fw"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" data-kind="conference" title="{{KINDS.conference}}">
-                                        <span>{{KINDS.conference}}</span>
-                                        <i class="fa fa-chevron-right fa-fw"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" data-kind="pickup" title="{{KINDS.pickup}}">
-                                        <span>{{KINDS.pickup}}</span>
-                                        <i class="fa fa-chevron-right fa-fw"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" data-kind="cli" title="{{KINDS.cli}}">
-                                        <span>{{KINDS.cli}}</span>
-                                        <i class="fa fa-chevron-right fa-fw"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#" data-kind="trunk" title="{{KINDS.trunk}}">
-                                <i class="fa fa-cloud fa-fw"></i>
-                                <span>{{KINDS.trunk}}</span>
+                            <a href="#" data-kind="hunting" title="{{KINDS.hunting}}">
+                                <i class="icon-find_replace"></i>
+                                <span>{{KINDS.hunting}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode mode-channels">
-                            <a href="#" data-kind="channel" title="{{KINDS.channel}}">
-                                <i class="fa fa-rss fa-fw"></i>
-                                <span>{{KINDS.channel}}</span>
+                        <li class="branch-mode mode-groups">
+                            <a href="#" data-kind="icd" title="{{KINDS.icd}}">
+                                <i class="icon-headset_mic"></i>
+                                <span>{{KINDS.icd}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
@@ -102,17 +58,24 @@
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
+                        <li class="branch-mode mode-trunks">
+                            <a href="#" data-kind="trunk" title="{{KINDS.trunk}}">
+                                <i class="fa fa-cloud fa-fw"></i>
+                                <span>{{KINDS.trunk}}</span>
+                                <i class="fa fa-chevron-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-users">
+                            <a href="#" data-kind="attendant" title="{{KINDS.attendant}}">
+                                <i class="icon-room_service"></i>
+                                <span>{{KINDS.attendant}}</span>
+                                <i class="fa fa-chevron-right fa-fw"></i>
+                            </a>
+                        </li>
                         <li class="branch-mode mode-groups">
                             <a href="#" data-kind="application" title="{{KINDS.application}}">
                                 <i class="fa fa-puzzle-piece fa-fw"></i>
                                 <span>{{KINDS.application}}</span>
-                                <i class="fa fa-chevron-right fa-fw"></i>
-                            </a>
-                        </li>
-                        <li class="branch-mode mode-equipment">
-                            <a href="#" data-kind="timer" title="{{KINDS.timer}}">
-                                <i class="fa fa-calendar fa-fw"></i>
-                                <span>{{KINDS.timer}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
@@ -123,12 +86,62 @@
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode mode-users">
-                            <a href="#" data-kind="attendant" title="{{KINDS.attendant}}">
-                                <i class="fa fa-cubes fa-fw"></i>
-                                <span>{{KINDS.attendant}}</span>
+                        <li>
+                            <a href="#storages" title="{{SETTINGS.STORAGE_SETTINGS}}">
+                                <i class="fa fa-database fa-fw"></i>
+                                <span>{{SETTINGS.STORAGE_SETTINGS}}</span>
+                            </a>
+                        </li>
+                        <li class="nav-divider">
+                            <a href="#">
+                                <i class="fa fa-plus fa-fw"></i>
+                                <span>{{MORE}}</span>
                                 <i class="fa fa-chevron-right fa-fw"></i>
                             </a>
+                            <ul>
+                                <li class="branch-mode mode-channels">
+                                    <a href="#" data-kind="channel" title="{{KINDS.channel}}">
+                                        <i class="fa fa-rss fa-fw"></i>
+                                        <span>{{KINDS.channel}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="branch-mode mode-groups">
+                                    <a href="#" data-kind="conference" title="{{KINDS.conference}}">
+                                        <i class="icon-call_split"></i>
+                                        <span>{{KINDS.conference}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="branch-mode mode-groups">
+                                    <a href="#" data-kind="pickup" title="{{KINDS.pickup}}">
+                                        <i class="icon-phone_missed"></i>
+                                        <span>{{KINDS.pickup}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="branch-mode mode-groups">
+                                    <a href="#" data-kind="unit" title="{{KINDS.unit}}">
+                                        <i class="fa fa-building fa-fw"></i>
+                                        <span>{{KINDS.unit}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="branch-mode mode-groups">
+                                    <a href="#" data-kind="cli" title="{{KINDS.cli}}">
+                                        <i class="icon-fingerprint"></i>
+                                        <span>{{KINDS.cli}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li class="branch-mode mode-equipment">
+                                    <a href="#" data-kind="timer" title="{{KINDS.timer}}">
+                                        <i class="fa fa-calendar fa-fw"></i>
+                                        <span>{{KINDS.timer}}</span>
+                                        <i class="fa fa-chevron-right fa-fw"></i>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -182,7 +195,7 @@
                                         </li>
                                         <li>
                                             <a href="#records" role="menuitem" tabindex="-1">
-                                                <i class="fa fa-microphone fa-fw"></i>
+                                                <i class="fa fa-phone fa-fw"></i>
                                                 {{KINDS.records}}
                                             </a>
                                         </li>
@@ -228,8 +241,8 @@
                     <div id="mainopt-tab" class="tab-pane active" role="tabpanel">
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <label for="interfacelang" class="col-md-4 control-label" data-toggle="tooltip" title="{{OPTS__LANGUAGE}}">{{LANGUAGE}}</label>
-                                <div class="col-md-8">
+                                <label for="interfacelang" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LANGUAGE}}">{{LANGUAGE}}</label>
+                                <div class="col-sm-12">
                                     <select id="interfacelang" class="form-control">
                                         <option value="en">English</option>
                                         <option value="uk">Українська</option>
@@ -274,29 +287,19 @@
                                             <i class="fa fa-chevron-right fa-fw"></i>
                                         </a>
                                     </li>
-                                </ul>
-                            </div>
-                            <div id="deviceopt-btn" class="col-xs-12">
-                                <ul class="tab-toggles">
                                     <li>
-                                        <a href="#" onclick="getDeviceSettings(event)">{{SETTINGS.BRANCH_SETTS}}
+                                        <a href="#" class="tab-switcher" data-tab="deviceopt-tab">{{SETTINGS.BRANCH_SETTS}}
                                             <i class="fa fa-chevron-right fa-fw"></i>
                                         </a>
                                     </li>
-                                </ul>
-                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="services-tab">{{SETTINGS.BRANCH_SERVICES}}
+                                            <i class="fa fa-chevron-right fa-fw"></i>
+                                        </a>
+                                    </li>
                                     <li>
                                         <a href="#certificates">{{CERTIFICATES.CERTIFICATES_SETTS}}</a>
                                     </li>
-                                </ul>
-                                <ul class="tab-toggles">
-                                    <li>
-                                        <a href="#storages">{{SETTINGS.STORAGE_SETTINGS}}</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="col-xs-12">
-                                <ul class="tab-toggles">
                                     <li>
                                         <a href="#rec_settings">{{SETTINGS.REC_SETTINGS}}</a>
                                     </li>
@@ -391,7 +394,7 @@
                             </div>
                         </form>
                     </div>
-                    <div id="deviceopt-tab" class="tab-pane">
+                    <div id="deviceopt-tab">
                         <div class="row">
                             <div class="col-xs-12">
                                 <ul class="tab-toggles">
@@ -404,28 +407,44 @@
                                 </ul>
                             </div>
                         </div>
+                        <div id="device-options-cont" class="tab-pane"></div>
+                    </div>
+                    <div id="services-tab">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="mainopt-tab">
+                                            <i class="fa fa-chevron-left fa-fw"></i>
+                                            {{SETTINGS.GENERAL_SETTS}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="services-options-cont" class="tab-pane col-xs-12"></div>
                     </div>
                 </div>
             </script>
         </div>
         <script type="text/html" id="device-options">
             <form class="acc-cont">
-                <h5 class="text-mute acc-header">SIP<span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.SIP}}<span class="caret pull-right"></span></h5>
                 <div class="form-group acc-pane">
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="sip-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> Enabled
+                                    <input type="checkbox" id="sip-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> {{frases.ENABLE}}
                                 </label>
                             </div>
                         </div>
-                        <div class="col-xs-8">
-                            <label for="sip-port">Port</label>
+                        <div class="col-xs-6">
+                            <label for="sip-port">{{frases.PORT}}</label>
                             <input type="text" id="sip-port" class="form-control" value="{{data.sip.port}}" data-model="sip.port">
                         </div>
-                        <div class="col-xs-4">
-                            <label for="sip-log">Log level</label>
+                        <div class="col-xs-6">
+                            <label for="sip-log">{{frases.SETTINGS.LOG_LEVEL}}</label>
                             <select id="sip-log" class="form-control" data-model="sip.log">
                                 <option value="0">0</option>
                                 <option value="1">1</option>
@@ -438,8 +457,8 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th>{{lang.AUDIOCODECS}}</th>
-                                        <th>{{lang.FRAMES}}(ms)</th>
+                                        <th>{{frases.AUDIOCODECS}}</th>
+                                        <th>{{frases.FRAMES}}(ms)</th>
                                         <th><i class="fa fa-check"></i></th>
                                     </tr>
                                 </thead>
@@ -448,22 +467,22 @@
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">SIPS <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.SIPS}} <span class="caret pull-right"></span></h5>
                 <div class="form-group acc-pane">
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="sips-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> Enabled
+                                    <input type="checkbox" id="sips-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}}> {{frases.ENABLE}}
                                 </label>
                             </div>
                         </div>
-                        <div class="col-xs-8">
-                            <label for="sips-port">Port</label>
+                        <div class="col-xs-6">
+                            <label for="sips-port">{{frases.PORT}}</label>
                             <input type="text" id="sips-port" class="form-control" value="{{data.sips.port}}">
                         </div>
-                        <div class="col-xs-4">
-                            <label for="sips-log">Log level</label>
+                        <div class="col-xs-6">
+                            <label for="sips-log">{{frases.SETTINGS.LOG_LEVEL}}</label>
                             <select id="sips-log" class="form-control">
                                 <option value="0">0</option>
                                 <option value="1">1</option>
@@ -476,8 +495,8 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th>{{lang.AUDIOCODECS}}</th>
-                                        <th>{{lang.FRAMES}}(ms)</th>
+                                        <th>{{frases.AUDIOCODECS}}</th>
+                                        <th>{{frases.FRAMES}}(ms)</th>
                                         <th><i class="fa fa-check"></i></th>
                                     </tr>
                                 </thead>
@@ -486,22 +505,22 @@
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">WSS <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.WSS}} <span class="caret pull-right"></span></h5>
                 <div class="form-group acc-pane">
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" id="wss-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}} /> Enabled
+                                    <input type="checkbox" id="wss-enabled" {{#data.sip.enabled}}checked{{/data.sip.enabled}} /> {{frases.ENABLE}}
                                 </label>
                             </div>
                         </div>
-                        <div class="col-xs-8">
-                            <label for="wss-port">Port</label>
+                        <div class="col-xs-6">
+                            <label for="wss-port">{{frases.PORT}}</label>
                             <input type="text" id="wss-port" class="form-control" value="{{data.wss.port}}">
                         </div>
-                        <div class="col-xs-4">
-                            <label for="wss-log">Log level</label>
+                        <div class="col-xs-6">
+                            <label for="wss-log">{{frases.SETTINGS.LOG_LEVEL}}</label>
                             <select id="wss-log" class="form-control">
                                 <option value="0">0</option>
                                 <option value="1">1</option>
@@ -514,8 +533,8 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th>{{lang.AUDIOCODECS}}</th>
-                                        <th>{{lang.FRAMES}}(ms)</th>
+                                        <th>{{frases.AUDIOCODECS}}</th>
+                                        <th>{{frases.FRAMES}}(ms)</th>
                                         <th><i class="fa fa-check"></i></th>
                                     </tr>
                                 </thead>
@@ -524,15 +543,15 @@
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">HTTP <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.HTTP}} <span class="caret pull-right"></span></h5>
                 <div class="form-group acc-pane">
                     <div class="row">
-                        <div class="col-xs-8">
-                            <label for="http-port">Port</label>
+                        <div class="col-xs-6">
+                            <label for="http-port">{{frases.PORT}}</label>
                             <input type="text" id="http-port" class="form-control" value="{{data.http.port}}">
                         </div>
-                        <div class="col-xs-4">
-                            <label for="http-log">Log level</label>
+                        <div class="col-xs-6">
+                            <label for="http-log">{{frases.SETTINGS.LOG_LEVEL}}</label>
                             <select id="http-log" class="form-control">
                                 <option value="0">0</option>
                                 <option value="1">1</option>
@@ -548,19 +567,19 @@
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">NAT <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.NAT.NAT}} <span class="caret pull-right"></span></h5>
                 <div class="acc-pane">
                     <div class="form-group">
-                        <label for="stun">STUN Server</label>
+                        <label for="stun">{{frases.SETTINGS.NAT.STUN_SERVER}}</label>
                         <input type="text" id="stun" class="form-control" value="{{data.nat.stun}}">
                     </div>
                     <div class="form-group">
-                        <label for="router">Router</label>
+                        <label for="router">{{frases.SETTINGS.NAT.ROUTER}}</label>
                         <input type="text" id="router" class="form-control" value="{{data.nat.router}}">
                     </div>
                     <div class="form-group">
                         <div class="row">
-                            <label for="rtpfirst" class="col-xs-12">RTP Range</label>
+                            <label for="rtpfirst" class="col-xs-12">{{frases.SETTINGS.NAT.RTP_RANGE}}</label>
                             <div class="col-xs-5">
                                 <input type="text" id="rtpfirst" class="form-control" value="{{data.nat.rtpfirst}}">
                             </div>
@@ -571,52 +590,52 @@
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">Registrar <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.REGISTRAR.REGISTRAR}} <span class="caret pull-right"></span></h5>
                 <div class="form-group acc-pane">
                     <div class="row">
                         <div class="col-xs-6">
-                            <label for="minexpires">Min. expires(s)</label>
+                            <label for="minexpires">{{frases.SETTINGS.REGISTRAR.MIN_EXPIRES}}</label>
                             <input type="text" id="minexpires" class="form-control" value="{{data.registrar.minexpires}}">
                         </div>
                         <div class="col-xs-6">
-                            <label for="maxexpires">Max. expires(s)</label>
+                            <label for="maxexpires">{{frases.SETTINGS.REGISTRAR.MAX_EXPIRES}}</label>
                             <input type="text" id="maxexpires" class="form-control" value="{{data.registrar.maxexpires}}">
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">NET <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.NET.NET}}<span class="caret pull-right"></span></h5>
                 <div class="form-group acc-pane">
                     <div class="row">
                         <div class="col-xs-6">
-                            <label for="tcptimeout">TCP Timeout</label>
+                            <label for="tcptimeout">{{frases.SETTINGS.NET.TCP_TIMEOUT}}</label>
                             <input type="text" id="tcptimeout" class="form-control" value="{{data.net.tcptimeout}}">
                         </div>
                         <div class="col-xs-6">
-                            <label for="rtptimeout">RTP Timeout</label>
+                            <label for="rtptimeout">{{frases.SETTINGS.NET.RTP_TIMEOUT}}</label>
                             <input type="text" id="rtptimeout" class="form-control" value="{{data.net.rtptimeout}}">
                         </div>
                         <div class="col-xs-4">
-                            <label for="iptos">IP TOS</label>
+                            <label for="iptos">{{frases.SETTINGS.NET.IP_TOS}}</label>
                             <input type="text" id="iptos" class="form-control" value="{{data.net.iptos}}">
                         </div>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">System <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.SYSTEM.SYSTEM}} <span class="caret pull-right"></span></h5>
                 <div class="acc-pane">
                     <div class="form-group">
-                        <label for="config-name">Config file name</label>
+                        <label for="config-name">{{frases.SETTINGS.SYSTEM.CONFIG_FILE_NAME}}</label>
                         <input type="text" id="config-name" class="form-control" value="{{data.system.config}}">
                     </div>
                     <div class="form-group">
-                        <label for="backup-path">Backup path</label>
+                        <label for="backup-path">{{frases.SETTINGS.SYSTEM.BACKUP_FILE}}</label>
                         <input type="text" id="backup-path" class="form-control" value="{{data.system.backup}}">
                     </div>
                     <div class="form-group">
-                        <label for="rec-path">Call records path</label>
+                        <label for="rec-path">{{frases.SETTINGS.SYSTEM.CALL_RECORDS_PATH}}</label>
                         <input type="text" id="rec-path" class="form-control" value="{{data.system.store}}">
                     </div>
                     <div class="form-group">
-                        <label for="rec-format">Call records format</label>
+                        <label for="rec-format">{{frases.SETTINGS.SYSTEM.CALL_RECORDS_FORMAT}}</label>
                         <select id="rec-format" class="form-control">
                             <option value="PCM 8 Khz 16 bit">PCM 8 Khz 16 bit</option>
                             <option value="CCITT U-law">CCITT U-law</option>
@@ -626,54 +645,119 @@
                         </select>
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">SMTP <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.SMTP}} <span class="caret pull-right"></span></h5>
                 <div class="acc-pane">
                     <div class="form-group">
-                        <label for="smtp-host">Hostname</label>
-                        <input type="text" id="smtp-host" class="form-control" value="{{data.system.smtp.host}}">
+                        <label for="smtp-host">{{frases.HOSTNAME}}</label>
+                        <input type="text" id="smtp-host" class="form-control" value="{{data.smtp.host}}">
                     </div>
                     <div class="form-group">
-                        <label for="smtp-port">Port</label>
-                        <input type="text" id="smtp-port" class="form-control" value="{{data.system.smtp.port}}">
+                        <label for="smtp-port">{{frases.PORT}}</label>
+                        <input type="text" id="smtp-port" class="form-control" value="{{data.smtp.port}}">
                     </div>
                     <div class="form-group">
-                        <label for="smtp-username">Username</label>
-                        <input type="text" id="smtp-username" class="form-control" value="{{data.system.smtp.username}}">
+                        <label for="smtp-username">{{frases.USERNAME}}</label>
+                        <input type="text" id="smtp-username" class="form-control" value="{{data.smtp.username}}">
                     </div>
                     <div class="form-group">
-                        <label for="smtp-password">Password</label>
-                        <input type="password" id="smtp-password" class="form-control" value="{{data.system.smtp.password}}">
+                        <label for="smtp-password">{{frases.PASSWORD}}</label>
+                        <input type="password" id="smtp-password" class="form-control" value="{{data.smtp.password}}">
                     </div>
                     <div class="form-group">
-                        <label for="smtp-from">From</label>
-                        <input type="text" id="smtp-from" class="form-control" value="{{data.system.smtp.from}}">
+                        <label for="smtp-from">{{frases.FROM3}}</label>
+                        <input type="text" id="smtp-from" class="form-control" value="{{data.smtp.from}}">
                     </div>
                 </div>
-                <h5 class="text-mute acc-header">SMDR <span class="caret pull-right"></span></h5>
+                <h5 class="text-mute acc-header">{{frases.SETTINGS.SMDR}} <span class="caret pull-right"></span></h5>
                 <div class="acc-pane">
                     <div class="form-group">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id="smdr-enabled" {{#data.system.smdr.state}}checked{{/data.system.smdr.state}}> Enabled
+                                <input type="checkbox" id="smdr-enabled" {{#data.system.smdr.state}}checked{{/data.system.smdr.state}}> {{frases.ENABLE}}
                             </label>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-8">
-                            <label for="smdr-host">Host</label>
+                        <div class="col-xs-6">
+                            <label for="smdr-host">{{frases.HOSTNAME}}</label>
                             <select id="smdr-host" class="form-control">
                                 {{#data.system.interfaces}}
                                 <option value="{{.}}">{{.}}</option>
                                 {{/data.system.interfaces}}
                             </select>
                         </div>
-                        <div class="col-xs-4">
-                            <label for="smdr-port">Port</label>
+                        <div class="col-xs-6">
+                            <label for="smdr-port">{{frases.PORT}}</label>
                             <input type="text" id="smdr-port" class="form-control" value="{{data.system.smdr.port}}">
                         </div>
                     </div>
                 </div>
             </form>
+        </script>
+        <script type="text/html" id="ldap-settings">
+            <div class="acc-cont">
+                <h5 class="text-mute acc-header">Active Directory/LDAP <span class="caret pull-right"></span></h5>
+                <div class="acc-pane" id="ldap-tab">
+                    <form>
+                        <div class="form-group">
+                            <label for="directoryServer" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_SERVER}}">{{frases.LDAP.DIR_SERVER}}</label>
+                            <input type="text" class="form-control" id="directoryServer" name="directoryServer" value="{{data.ldap.directoryServer}}">
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label class="col-xs-12">
+                                    <input type="checkbox" id="directorySSL" name="directorySSL" {{#data.ldap.directorySSL}}checked{{/data.ldap.directorySSL}}> {{frases.LDAP.DIR_SSL}}
+                                </label>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div class="form-group">
+                            <label for="directoryAttributeUID" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_ATTR_UID}}">{{frases.LDAP.DIR_ATTR_UID}}</label>
+                            <select id="directoryAttributeUID" name="directoryAttributeUID" class="form-control">
+                                <option value="userPrincipalName">userPrincipalName</option>
+                                <option value="sAMAccountName">sAMAccountName</option>
+                                <option value="uid">uid</option>
+                                <option value="name">name</option>
+                                <option value="mail">mail</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="directoryAttributePhone" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_ATTR_PHONE}}">{{frases.LDAP.DIR_ATTR_PHONE}}</label>
+                            <select id="directoryAttributePhone" name="directoryAttributePhone" class="form-control">
+                                <option value="telephoneNumber">telephoneNumber</option>
+                                <option value="mobile">mobile</option>
+                                <option value="ipPhone">ipPhone</option>
+                                <option value="0">{{frases.OTHER}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="customDirectoryAttributePhone" value="{{data.ldap.directoryAttributePhone}}" style="display: none">
+                        </div>
+                        <div class="form-group">
+                            <label for="directoryAuth" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_AUTH}}">{{frases.LDAP.DIR_AUTH}}</label>
+                            <select id="directoryAuth" name="directoryAuth" class="form-control">
+                                <option value="simple">simple</option>
+                                <option value="DIGEST-MD5">DIGEST-MD5</option>
+                                <option value="GSSAPI">GSSAPI (Kerberos 5)</option>
+                            </select>
+                        </div>
+                        <div id="gssapi-settings">
+                            <div class="form-group">
+                                <label for="directoryKDC" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_KDC}}">{{frases.LDAP.GSSAPI.DIR_KDC}}</label>
+                                <input type="text" class="form-control" id="directoryKDC" name="directoryKDC" value="{{data.ldap.directoryKDC}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="directoryAdminServer" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_ADMIN_SERVER}}">{{frases.LDAP.GSSAPI.DIR_ADMIN_SERVER}}</label>
+                                <input type="text" class="form-control" id="directoryAdminServer" name="directoryAdminServer" value="{{data.ldap.directoryAdminServer}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="directoryDomains" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_DOMAINS}}">{{frases.LDAP.GSSAPI.DIR_DOMAINS}}</label>
+                            <input type="text" class="form-control" id="directoryDomains" name="directoryDomains" value="{{data.ldap.directoryDomains}}">
+                        </div>
+                    </form>
+                </div>
+            </div>
         </script>
         <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>

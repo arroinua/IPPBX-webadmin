@@ -3,17 +3,22 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label class="col-xs-12" for="position">{{frases.POSITION}}</label>
+                    <label class="col-xs-12" for="company">{{frases.COMPANY}}</label>
                     <div class="col-xs-12">
-                        <input type="text" class="form-control" name="position" placeholder="{{frases.POSITION}}" value="{{data.position}}">
+                        <input type="text" class="form-control" name="company" placeholder="{{frases.COMPANY}}" value="{{data.company}}">
                     </div>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label class="col-xs-12" for="location">{{frases.LOCATION}}</label>
+                    <label class="col-xs-12" for="position">{{frases.POSITION}}</label>
                     <div class="col-xs-12">
-                        <input type="text" class="form-control" name="location" placeholder="{{frases.LOCATION}}" value="{{data.location}}">
+                        {{#data.title}}
+                            <input type="text" class="form-control" name="title" placeholder="{{frases.POSITION}}" value="{{data.title}}">
+                        {{/data.title}}
+                        {{^data.title}}
+                            <input type="text" class="form-control" name="position" placeholder="{{frases.POSITION}}" value="{{data.position}}">
+                        {{/data.title}}
                     </div>
                 </div>
             </div>
@@ -51,9 +56,9 @@
             </div>
             <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-xs-12" for="about">{{frases.ABOUT}}</label>
+                    <label class="col-xs-12" for="description">{{frases.ABOUT}}</label>
                     <div class="col-xs-12">
-                        <textarea type="text" class="form-control" name="about" placeholder="{{frases.ABOUT}}">{{data.about}}</textarea>
+                        <textarea type="text" class="form-control" name="description" placeholder="{{frases.ABOUT}}">{{data.description}}</textarea>
                     </div>
                 </div>
             </div>

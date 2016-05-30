@@ -117,7 +117,27 @@ input[readonly].readonly-custom{
     height: 34px;
 }
 
+.bg-connected {
+    background-color: #ace496;
+}
+
 .select2-dropdown{
     border: 1px solid #ebebeb;
     border-radius: 2px;
+}
+
+.btn.noradius-padding-lg {
+    border-radius: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.btn.padding-lg {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

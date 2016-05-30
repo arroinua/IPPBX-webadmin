@@ -30,15 +30,17 @@
  *          "groupid":  идентификатор группы (для объектов типа "user" или "phone")
  *          
  *          "state":    состояние (для объектов типа "user" или "phone")
- *                      0 - свободен
- *                      1 - исходящий вызов
- *                      2 - входящий вызов
- *                      3 - соединен
- *                      4 - включена функция "не беспокоить"
- *                      5 - не зарегистрирован
- *                      6 - установлена переадресация на внешний номер
+ *                      0 - не зарегистрирован
+ *                      1 - свободен
+ *                      2 - установлена переадресация на внешний номер
+ *                      3 - не беспокоить
+ *                      4 - невидимый
+ *                      5 - выключен
+ *                      6 - исходящий вызов
+ *                      7 - входящий вызов
+ *                      8 - соединен
  */
- "getExtensions": {
+"getExtensions": {
     "type":                 "method",
     
     "params": {
@@ -247,13 +249,15 @@
  *          "oid":      идентификатор объекта
  *          "ext":      внутренний номер телефона
  *          "state":    состояние
- *                      0 - свободен
- *                      1 - исходящий вызов
- *                      2 - входящий вызов
- *                      3 - соединен
- *                      4 - включена функция "не беспокоить"
- *                      5 - не зарегистрирован или отключен
- *                      6 - установлена переадресация на внешний номер
+ *                      0 - не зарегистрирован
+ *                      1 - свободен
+ *                      2 - установлена переадресация на внешний номер
+ *                      3 - не беспокоить
+ *                      4 - невидимый
+ *                      5 - выключен
+ *                      6 - исходящий вызов
+ *                      7 - входящий вызов
+ *                      8 - соединен
  *                     -1 - удален
  *          
  *          "name":     имя
@@ -275,6 +279,32 @@
     }
 },
 
+/* 
+ * Изменение состояния конференции 
+ * 
+ * method:  "conferenceUpdate"
+ * 
+ * params:  
+ *          "oid":      идентификатор конференции
+ *          "number":   номер телефона участника
+ *          "state":    состояние
+ *                      0 - отключился
+ *                      1 - подключился
+ *          "name":     имя участника
+ * 
+ */
+
+"conferenceUpdate": {
+    "type":             "indication",
+    
+    "params": {
+        "oid":          "string",
+        "number":       "string",
+        "state":        "number",
+        "name":         "string",
+        "total":        "number",
+    }
+},
 
 /*************************************************************************************************************
  *  Методы админа бранча
@@ -387,7 +417,7 @@
  *          "td":       длительность соединения
  *          "tr":       тариф
  *          "ch":       стоимость звонка
- * 
+ *          "fi":       имя файла записи
  */
 
 "getCalls": {
@@ -415,6 +445,7 @@
             "td":           "number",
             "tr":           "number",
             "ch":           "number",
+            "fi":           "string",
         }
     ]
 },
@@ -690,6 +721,60 @@
 },
 
 
+/*
+ * Method: "getObject"
+ * 
+ * Example:
+ * -> { "method": "getObject", "params": { "oid": "234254761347" }, "id":1 }
+ * <- { "result": { "oid": "234254761347", name":"John Smith", "kind":"user", "number":"101", "enabled":true, "features":{...} }, "id":1 }
+ * 
+ * Parameters:
+ *  "oid"   - object identifier
+ *          
+ * Returns:
+ *  Properties of requested object. 
+ */
+
+"getObject": {
+    "type":                 "method",
+    
+    "params": {
+        "oid":              "string",
+    },
+    
+    "result": {
+        "enum": ["PbxExtension", "PbxGroup", "PbxApplication", "PbxConference", "RoutingTable", "Trunk"]
+    }
+},
+
+/*
+ * Method: "setObject"
+ * 
+ * Example:
+ * -> { "method": "setObject", "params":{"oid": "234254761347", name":"Ozzy", "features":{"fwdall":true, "fwdallnumber":"335452222"}}, "id":1 }
+ * <- { "result": "OK", "id":1 }
+ * 
+ * Parameters:
+ *  All or any of object's parameters.
+ *  Parameter "oid" must be present for update and must not be present for new created object
+ *          
+ * Returns:
+ *  "result": "OK" - success
+ *  or 
+ *  "error": "message"
+ */
+
+"setObject": {
+    "type":                 "method",
+    
+    "params": {
+        "enum": ["PbxExtension", "PbxGroup", "PbxApplication", "PbxConference", "RoutingTable", "Trunk"]
+    },
+  
+    "result":               "OK",
+},
+
+
 /*************************************************************************************************************
  *  Нотификация от сервера клиенту
  *************************************************************************************************************/
@@ -832,15 +917,31 @@
  *          "options":      настройки группы (список в зависимости от типа группы).
  *          
  *                          тип объекта "equipment":
+ *                          
  *                          "equipment":    тип оборудования:
  *                                          "ipphones" - IP телефоны
  *                                          "gateway"  - VoIP шлюз с регистрацией на сервере
  *                                          "trunk"    - VoIP транк
+ *                                          
  *                          "protocol":     протокол подключения. Возможные значения:
  *                                          "sip", "sips"
- *                          "address":      IP адрес или доменное имя (только для транка)
- *                          "regname":      логин (только для шлюза с регистрацией на сервере)
- *                          "regpass":      пароль (только для шлюза с регистрацией на сервере)
+ *                          
+ *                          "gateway":   
+ *                              "regname":  логин для регистрации на сервере
+ *                              "regpass":  пароль для регистрациеи на сервере
+ *                                       
+ *                          "trunk":
+ *                              "domain":  IP адрес или доменное имя
+ *                              "register": транк с регистрацией (yes/no)    
+ *                              "auth":  имя авторизации
+ *                              "user":  логин
+ *                              "pass":  пароль
+ *                              "regexpires": интервал подтверждения регистрации
+ *                              "proxy": регистрация на прокси сервере (yes/no)
+ *                              "paddr": адрес прокси сервера
+ *                              "pauth": логин для прокси сервера
+ *                              "ppass": пароль для прокси сервера
+ *                              
  *                          "phonelines":   количество линий на телефоне
  *                          "starflash":    разрешение использовать кнопку телефона [*] в качестве кнопки постановки на холд
  *                                          
@@ -855,9 +956,8 @@
  *                          
  *                          тип объекта "hunting":
  *                          "huntmode": режим поиска:
- *                                      0 - выключен
- *                                      1 - циклический по списку номеров
- *                                      2 - завершается на последнем номере списка
+ *                                      1 - последовательный
+ *                                      3 - параллельный
  *                          "timeout":  таймаут набора номера
  *                          "huntfwd":  разрешение переадресации при хантинге
  *                          
@@ -928,25 +1028,25 @@
             /* "kind": "equipment" */
             "equipment":        "string",
             "protocol":         "string",
-            "gateway": [
-                {
-                    "regname":      "string",
-                    "regpass":      "string",
-                }
-            ],
-            "trunk": [
-                {
-                    "address":      "string",
-                    "register":     "boolean",
-                    "regname":      "string",
-                    "regpass":      "string",
-                    "regexpires":   "integer",
-                    "proxy":        "boolean",
-                    "proxyname":    "string",
-                    "proxypass":    "string",
-                    "passanumber":  "boolean",             
-                }
-            ],
+            /* For "equipment":"gateway" */
+            "gateway": {
+                "regname":      "string",
+                "regpass":      "string",
+            },
+            /* For "equipment":"trunk" */
+            "trunk": {
+                "register":     "boolean",
+                "domain":       "string",
+                "user":         "string",
+                "auth":         "string",
+                "pass":         "string",
+                "proxy":        "boolean",
+                "paddr":        "string",
+                "pauth":        "string",
+                "ppass":        "string",
+                "regexpires":   "integer",
+            },
+            
             "codecs": [
                 {
                 "codec":    "string",
@@ -1054,6 +1154,53 @@
 /*
  *  Object "Trunk"
  *
+ *  params: параметры транка, которые могут быть получены методом getObject или установлены методом setObject
+ *  
+ *          "oid":          идентификатор транка
+ *          "name":         имя транка
+ *          "enabled":      состояние: 
+ *                          true - включен
+ *                          false - выключен
+ *          "status":       строка описания состояния
+ *          "deviceid":     идентификатор девайса (в setObject клиент должен присылать идентификатор, который получен от сервера в getObject)
+ *          "protocol":     протокол: sip / sips / wss / h323
+ *          
+ *          "type":         тип транка:
+ *                          "external" - внешний транк
+ *                          "internal" - внутренний транк (с регистрацией на сервере)
+ *                          
+ *          Параметры внешнего транка:
+ *          "domain":       IP адрес или доменное имя сервиса
+ *          "register":     true - сервис с регистрацией / false - сервис без регистрации
+ *          "user":         имя пользователя (номер телефона)
+ *          "auth":         имя пользователя (логин)
+ *          "pass":         пароль пользователя
+ *          "proxy":        true - с прокси / false - без прокси
+ *          "paddr":        IP адрес или доменное имя SIP прокси
+ *          "pauth":        имя пользователя для прокси
+ *          "ppass":        пароль пользователя для прокси
+ *          
+ *          Параметры внутреннего транка:
+ *          "user":         имя пользователя
+ *          "pass":         пароль пользователя
+ *          
+ *          
+ *          "parameters":   параметры (настройки) протокола
+ *                          
+ *                          "codecs":   таблица кодеков:
+ *                                      "codec":    имя кодека: "G.711 Alaw", "G.711 Ulaw", "G.729", "G.723", "Opus"
+ *                                      "frame":    длительность одного фрейма в миллисекундах
+ *                                      
+ *                          "transcoding":  разрешить/запретить транскодинг
+ *                          "buffering":    разрешить/запретить буферизацию
+ *                          
+ *                          "maxinbounds":  количество входящих линий
+ *                          "maxoutbounds": количество входящих линий
+ *                          
+ *                          "inboundanumbertransforms": таблица преобразования входящего обратного номера
+ *                          "inboundbnumbertransforms": таблица преобразования входящего прямого номера
+ *                          "outboundanumbertransforms": таблица преобразования исходящего обратного номера
+ *                          "outboundbnumbertransforms": таблица преобразования исходящего прямого номера
  */
 "Trunk":{
     "type": "object",
@@ -1064,10 +1211,9 @@
         "status":           "string",
         "deviceid":         "string",
         "protocol":         "string",
-        "maxinbounds":      "integer",
-        "maxoutbounds":     "integer",
-        "register":         "boolean",
+        "type":             "string",
         "domain":           "string",
+        "register":         "boolean",
         "user":             "string",
         "auth":             "string",
         "pass":             "string",
@@ -1112,6 +1258,8 @@
                 "nowaitack":    "boolean",
             }
         },
+        "maxinbounds":      "integer",
+        "maxoutbounds":     "integer",
         "inboundanumbertransforms": [
             {
                 "number":       "string",
@@ -1141,6 +1289,34 @@
             }
         ],
     }    
+},
+
+/*
+ *  Object "PbxApplication"
+ *
+ */
+"PbxApplication":{
+    "type": "object",
+    "params": {
+        "oid":          "string",
+        "name":         "string",
+        "enabled":      "boolean",
+        "status":       "string",
+        "parameters": [
+            {
+                "key":      "string",
+                "value":    "string",
+            }                
+        ],
+        "debug":        "boolean",
+        "dbconnection": {
+            "driver":   "string",
+            "url":      "string",
+            "schema":   "string",
+            "username": "string",
+            "password": "string",            
+        },
+    }
 },
 
 
@@ -1182,6 +1358,12 @@
             "log":          "number",
             "enabled":      "boolean",
         },
+        "codecs": [
+            {
+            "codec":    "string",
+            "frame":    "integer",
+            }
+        ],
         "http": {
             "port":         "number",  
             "ssl":          "boolean",  
@@ -1239,6 +1421,12 @@
             "port":         "number",  
             "log":          "number",
         },
+        "codecs": [
+            {
+            "codec":    "string",
+            "frame":    "integer",
+            }
+        ],
         "http": {
             "port":         "number",  
             "ssl":          "boolean",  
@@ -1268,4 +1456,1503 @@
     }
 },
 
+/* 
+ * Получить размеры хранилищ всех пользователей бранча
+ * 
+ * method:  "getStoreInfo"
+ * 
+ * params:  нет
+ * 
+ * result:  список с параметрами:
+ * 
+ *          "user":         идентификатор пользователя
+ *          "size":         размер занятого пространства в байтах
+ *          "limit":        размер выделенного пространства в байтах
+ * 
+ */
+
+"getStoreInfo": {
+    "type":                 "method",
+        
+    "params": {
+    },
+    
+    "result": [
+        {
+            "user":         "string",
+            "size":         "number",
+            "limit":        "number",
+        }
+    ]
+},
+
+/* 
+ * Получить параметры всех хранилищ
+ * 
+ * method:  "getFileStore"
+ * 
+ * params:  нет
+ * 
+ * result:  список хранилищ с параметрами:
+ * 
+ *          "id":           идентификатор хранилища
+ *          "path":         путь на директорий
+ *          "maxsize":      максимальный размер в байтах
+ *          "state":        статус хранилища:
+ *                          0 - отключено
+ *                          1 - рабочее
+ *                          2 - резерв
+ *                          3 - ошибка
+ *                          4 - заполнено
+ *          "created":      дата создания
+ *          "updated":      дата редактирования
+ *          "usedsize":     использованное место (в байтах)
+ *          "freespace":    свободное место на диске (в байтах)
+ *              
+ * 
+ */
+
+"getFileStore": {
+    "type":                 "method",
+        
+    "params": {
+    },
+    
+    "result": [
+        {
+            "id":           "string",
+            "path":         "string",
+            "maxsize":      "number",
+            "state":        "number",
+            "created":      "number",
+            "updated":      "number",
+            "usedsize":     "number",
+            "freespace":    "number",
+        }
+    ]
+},
+
+
+/* 
+ * Установить параметры хранилища
+ * 
+ * method:  "setFileStore"
+ * 
+ * params:  список с параметрами:
+ * 
+ *          "id":           идентификатор хранилища
+ *                          Если идентификатор отсутствует, создается новое хранилище
+ *          "path":         путь на директорий
+ *          "maxsize":      максимальный размер в байтах
+ *          "state":        статус хранилища:
+ *                          0 - отключено
+ *                          1 - рабочее
+ *                          2 - резерв
+ *                          
+ * result:  идентификатор хранилища
+ * 
+ */
+
+"setFileStore": {
+    "type":                 "method",
+        
+    "params": {
+        "id":               "string",
+        "path":             "string",
+        "maxsize":          "number",
+        "state":            "number",
+    },
+    
+    "result":               "string",
+},
+
+
+/* 
+ * Установить размер хранилища пользователя
+ * 
+ * method:  "setStoreLimit"
+ * 
+ * params:  список с параметрами:
+ * 
+ *          "oid":           идентификатор пользователя
+ *          "limit":        максимальный размер в байтах
+ *                          
+ * result:  установленный размер хранилища в байтах
+ *          Если запрашиваемый размер превышает остаток лимита бранча, значение будет равно этому остатку.
+ *          Если запрашиваемый размер меньше, чем объем уже исподьзуемый пользователем, значение равно этому объему.
+ * 
+ */
+
+"setStoreLimit": {
+    "type":                 "method",
+        
+    "params": {
+        "oid":              "string",
+        "limit":            "number",
+    },
+    
+    "result":               "number",
+},
+
+
+/* 
+ * Сгенерировать сертификат
+ * 
+ * method:  "createCertificate"
+ * 
+ * params:  список параметров:
+ * 
+ *          "CN":           host name (имя или IP адрес сервера)
+ *          "OU":           organization unit (отдел)
+ *          "O":            organization (организация)
+ *          "L":            city of location (город)
+ *          "ST":           region/state (регион)
+ *          "C":            country code (код страны)
+ *          "V":            period of validity (days)
+ * 
+ * 
+ * result:  сертификат в строковом формате (PEM Base64 tncoded)
+ * 
+ */
+
+"createCertificate": {
+    "type":                 "method",
+    
+    "params": {
+        "CN":               "string",
+        "OU":               "string",
+        "O":                "string",
+        "L":                "string",
+        "ST":               "string",
+        "C":                "string",
+        "V":                "number",
+    },
+    
+    "result":               "string",
+},
+
+
+/* 
+ * Установить сертификат
+ * 
+ * method:  "setCertificate"
+ * 
+ * params:  список параметров:
+ * 
+ *          "privatekey":  приватный ключ в строковом формате
+ *          "certificate": сертификат в строковом формате (PEM Base64 tncoded)
+ * 
+ */
+
+"setCertificate": {
+    "type":                 "method",
+    
+    "params": {
+        "privatekey":       "string",
+        "certificate":      "string",
+    },
+    
+},
+
+
+/* 
+ * Получить список сертификатов с сервера
+ * 
+ * method:  "getCertificates"
+ * 
+ * params:  нет
+ * 
+ * 
+ * "result": список имен сертификатов
+ * 
+ */
+
+"getCertificates": {
+    "type":                 "method",
+    
+    "params": {
+    },
+    
+    "result":              ["string"],
+},
+
+
+/* 
+ * Получить сертификат с сервера
+ * 
+ * method:  "getCertificate"
+ * 
+ * params:  список параметров:
+ * 
+ *          "alias":        имя сертификата
+ * 
+ * "result": список параметров:
+ * 
+ *          "certificate": сертификат в строковом формате (PEM Base64 tncoded)
+ */
+
+"getCertificate": {
+    "type":                 "method",
+    
+    "params": {
+        "alias":            "string",
+    },
+    
+    "result": {
+        "certificate":      "string",
+    },
+    
+},
+
+
+/* 
+ * Удалить сертификат
+ * 
+ * method:  "removeCertificate"
+ * 
+ * params:  список параметров:
+ * 
+ *          "alias":        имя сертификата
+ * 
+ */
+
+"removeCertificate": {
+    "type":                 "method",
+    
+    "params": {
+        "alias":            "string",
+    },
+    
+},
+
+
+/*
+ * Установить роут
+ * 
+ * method:  "setRoute"
+ * 
+ * params:  параметры:
+ *          "oid":          идентификатор роута
+ *          "groupid":      идентификатор таблицы
+ *          "number":       номер/префикс
+ *          "description":  описание
+ *          "target":       объект маршрута
+ *                          "oid":          идентификатор объекта
+ *                          "name":         имя объекта
+ *          "priority":     приоритет
+ *          "cost":         тариф (за минуту)
+ *          "huntstop":     флаг остановки поиска маршрута на данном роуте
+ * 
+ * result:  "oid":          идентификатор роута
+ */
+"setRoute": {
+    "type":                 "method",
+        
+    "params": {
+        "oid":              "string",
+        "groupid":          "string",
+        "number":           "string",
+        "description":      "string",
+        "target": {
+            "oid":          "string",
+            "name":         "string",            
+        },
+        "priority":         "number",
+        "cost":             "float",
+        "huntstop":         "boolean",
+    },
+    
+    "result": {
+        "oid":              "string",
+    }
+},
+
+/* 
+ * Получить историю конференций.
+ * 
+ * method:  "getConferenceCalls"
+ * 
+ * params:  таблица параметров:
+ *          "oid":      идентификатор конференции
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          "order":    порядок выборки:
+ *                      0 - по возрастанию даты
+ *                      1 - по убыванию даты
+ *          "limit":    максимальное число записей в выборке
+ * 
+ * result:  список текущих соединений
+ *          "ts":       штамп времени начала (в миллисекундах от 1.01.1970)
+ *          "na":       номер инициатора конференции
+ *          "nb":       входящий номер конференции
+ *          "nc":       обратный номер при автодозвоне
+ *          "nd":       исходящий номер для внешнего канала
+ *          "td":       длительность соединения
+ *          "fi":       имя файла записи
+ */
+
+"getConferenceCalls": {
+    "type":                 "method",
+    
+    "params": {
+        "oid":              "string",
+        "begin":            "number",
+        "end":              "number",
+        "order":            "number",
+        "limit":            "number",
+    },
+    
+    "result": [
+        {
+            "ts":           "number",
+            "na":           "string",
+            "nb":           "string",
+            "nc":           "string",
+            "nd":           "string",
+            "td":           "number",
+            "fi":           "string",
+        }
+    ]
+},
+
+
+/*
+ * Получить историю звонков
+ * 
+ * method:  "getCalls"
+ * 
+ * params:  таблица параметров:
+ * 
+ *          "contactid": идентификатор контакта. Если отсутствует, звонки выбираются по всем контактам
+ *          
+ *          "period":   период времени:
+ *                      0   за все время
+ *                      1   за последний год
+ *                      2   за последний месяц
+ *                      3   за последнюю неделю
+ *                      4   за последние сутки
+ *                      
+ *          "since":    время начала выборки (в миллисекундах от 01.01.1970)
+ *          "limit":    количество записей. Если параметр отсутствует или равен нулю, выборка производится
+ *                      по возрастанию начиная от времени "since" до самой новой записи. В ином случае, выборка
+ *                      производится по убыванию начиная  от времени "since" к более старым записям.
+ *          
+ * result:  список таблиц с параметрами:
+ *          
+ *          "number":   номер телефона.
+ *          
+ *          "status":   статус звонка:
+ *                      5   входящий
+ *                      6   исходящий
+ *                      12  пропущенный (новый)
+ *                      13  входящий без ответа
+ *                      14  исходящий без ответа
+ *          
+ *          "time":     время звонка (в миллисекундах от 01.01.1970)
+ *          
+ *          "dur":      длительность соединения.
+ *          
+ *          "file":     имя файла.
+ */
+
+"getCalls": {
+    "type":                 "method",
+    "target":               "server",
+    "description":          "List of calls",
+    
+    "params": {
+        "contactid":        "string",
+        "period":           "number",
+        "since":            "number",
+        "limit":            "number",
+    },
+
+    "result": [
+        {
+            "id":           "string",
+            "contactid":    "string",
+            "number":       "string",
+            "status":       "number",
+            "time":         "number",
+            "dur":          "number",
+            "file":         "string",
+        }
+    ],
+    
+},
+
+/* 
+ * Записать информацию пользователя
+ * 
+ * method:  "setUserInfo"
+ * 
+ * params:  
+ *          "userid":   идентификатор пользователя 
+ *          "position": 
+ *          "birthday":
+ *          "email":
+ *          "location":
+ *          "department":
+ *          "about":
+ *          "lastname":
+ *          "firstname":
+ *          "mobile":
+ * 
+ */
+
+"setUserInfo": {
+    "type":             "method",
+    
+    "params": {
+        "userid":       "string",
+        "position":     "string",
+        "birthday":     "string",
+        "email":        "string",
+        "mobile":       "string",
+        "firstname":    "string",
+        "lastname":     "string",
+        "location":     "string",
+        "department":   "string",
+        "about":        "string",
+    },
+},
+
+
+/* 
+ * Получить информацию пользователя
+ * 
+ * method:  "getUserInfo"
+ * 
+ * params:  
+ *          "userid":   идентификатор пользователя 
+ *          
+ * result:  
+ *          "position": 
+ *          "birthday":
+ *          "email":
+ *          "location":
+ *          "department":
+ *          "about":
+ *          "lastname":
+ *          "firstname":
+ *          "mobile":
+ * 
+ */
+
+"getUserInfo": {
+    "type":             "method",
+    
+    "params": {
+        "userid":       "string",
+    },
+    
+    "result": {
+        "position":     "string",
+        "birthday":     "string",
+        "email":        "string",
+        "mobile":       "string",
+        "firstname":    "string",
+        "lastname":     "string",
+        "location":     "string",
+        "department":   "string",
+        "about":        "string",
+    },
+},
+
+
+/* 
+ * Информация контакта
+ * 
+ *      "Contacts": - список дополнительных контактных данных:
+ *                    "type":   тип данных:
+ *                              "SIP", "Mobile", "Phone", "Fax", "Email", "Web", "BusinessPhone", "PrivatePhone","BusinessMobile",
+ *                              "PrivateMobile", "BusinessFax", "PrivateFax", "BusinessEmail", "PrivateEmail", "BusinessWeb", "PrivateWeb"
+ *                    "value"   значение    
+ */
+
+"ContactInfo": {
+    "type": "object",
+    
+    "params": {
+        "email":        "string",
+        "www":          "string",
+        "FirstName":    "string",
+        "LastName":     "string",
+        "FullName":     "string",
+        "JobTitle":     "string",
+        "Organization": "string",
+        "Branch":       "string",
+        "Department":   "string",
+        "Address":      "string",
+        "City":         "string",
+        "State":        "string",
+        "Country":      "string",
+        "PostalCode":   "string",
+        "Birthday":     "string",
+        "About":        "string",
+        "Contacts": [
+            {
+                "type": "string",
+                "value":"string",
+            }
+        ]
+    }
+},
+
+
+/* 
+ * Получить информацию контакта
+ * 
+ * method:  "getContact"
+ * 
+ * params:  
+ *          "id":          идентификатор контакта 
+ *          
+ * result:  
+ *          "id":          идентификатор контакта 
+ *          "name":        имя контакта 
+ *          "userid":      номер телефона
+ *          "status":      статус контакта:
+ *                         3 - в черном списке
+ *                         4 - нормальный
+ *                         6 - в списке избранных
+ *                         7 - временный
+ *          
+ *          "usinfo": -    информация контакта
+ *                         
+ * 
+ */
+
+"getContact": {
+    "type":             "method",
+    
+    "params": {
+        "id":           "string",
+    },
+    
+    "result": {
+        "id":           "string",
+        "name":         "string",
+        "userid":       "string",
+        "status":       "number",
+        "usinfo":       "ContactInfo",
+    },
+},
+
+
+/* 
+ * Получить список контактов
+ * 
+ * method:  "getContacts"
+ * 
+ *          
+ * result:  
+ *          "id":          идентификатор контакта 
+ *          "name":        имя контакта 
+ *          "userid":      номер телефона
+ *          "status":      статус контакта:
+ *                         3 - в черном списке
+ *                         4 - нормальный
+ *                         6 - в списке избранных
+ *                         7 - временный
+ *          
+ *          "usinfo": -    информация контакта
+ *                         
+ * 
+ */
+
+"getContacts": {
+    "type":             "method",
+    
+    "result": [
+        {
+            "id":           "string",
+            "name":         "string",
+            "userid":       "string",
+            "status":       "number",
+            "usinfo":       "ContactInfo",
+        },
+    ]
+},
+
+
+/* 
+ * Создать контакт 
+ * 
+ * method:  "createContact"
+ * 
+ * params:  
+ *          "name":     имя контакта
+ *          "userid":   номер телефона 
+ *          "usinfo":   информация контакта
+ *          
+ * result:              идентификатор контакта
+ * 
+ */
+
+"createContact": {
+    "type":             "method",
+    
+    "params": {
+        "name":         "string",
+        "userid":       "string",
+        "usinfo":       "ContactInfo",
+    },
+    
+    "result":           "string",
+},
+
+
+/* 
+ * Обновить данные контакта 
+ * 
+ * method:  "updateContact"
+ * 
+ * params:  
+ *          "id":       идентификатор контакта
+ *          "name":     имя контакта
+ *          "userid":   номер телефона 
+ *          "usinfo":   информация контакта
+ * 
+ */
+
+"updateContact": {
+    "type":             "method",
+    
+    "params": {
+        "id":           "string",
+        "name":         "string",
+        "userid":       "string",
+        "usinfo":       "ContactInfo",
+    },
+},
+
+
+/* 
+ * Удалить контакт 
+ * 
+ * method:  "deleteContact"
+ * 
+ * params:  
+ *          "id":       идентификатор контакта
+ * 
+ */
+
+"deleteContact": {
+    "type":             "method",
+    
+    "params": {
+        "id":           "string",
+    },
+},
+
+
+/* 
+ * Создана конференция.
+ * 
+ * Запрос от клиента, на котором создана конференция
+ * 
+ * method:  "conferenceCreated"
+ * 
+ * params:  
+ *          "owner":    номер инициатора конференции
+ *          "parties":  список номеров участников
+ *          "media":    тип конференции
+ *                      0 - аудио
+ *                      1 - видео
+ *          
+ * result:              идентификатор конференции
+ * 
+ */
+
+"conferenceCreated": {
+    "type":             "method",
+    
+    "params": {
+        "owner":        "string",
+        "parties":      ["string"],
+        "media":        "number",
+    },
+    
+    "result":           "string",
+},
+
+/* 
+ * Создана конференция.
+ * 
+ * Рассылка от сервера клиентам - участникам конференции
+ * 
+ * method:  "conferenceCreated"
+ * 
+ * params:  
+ *          "id":       идентификатор конференции
+ *          "owner":    номер инициатора конференции
+ *          "parties":  список номеров участников
+ *          "media":    тип конференции
+ *                      0 - аудио
+ *                      1 - видео
+ *          
+ * result:              идентификатор конференции
+ * 
+ */
+
+"conferenceCreated": {
+    "type":             "indication",
+    
+    "params": {
+        "id":           "string",
+        "owner":        "string",
+        "parties":      ["string"],
+        "media":        "number",
+    },
+},
+
+
+/* 
+ * Изменение состава участников конференции 
+ * 
+ * Запрос от клиента, на котором была создана конференция
+ * 
+ * method:  "conferenceUpdated"
+ * 
+ * params:  
+ *          "id":       идентификатор конференции
+ *          "party":    номер участника
+ *          "event":    состояние
+ *                      1 - подключен
+ *                      2 - отключен владельцем конференции
+ *                      3 - отключился
+ * 
+ */
+
+"conferenceUpdated": {
+    "type":             "indication",
+    
+    "params": {
+        "id":           "string",
+        "party":        "string",
+        "event":        "number",
+    }
+},
+
+
+/* 
+ * Изменение состава участников конференции 
+ * 
+ * Рассылка от сервера клиентам - участникам конференции
+ * 
+ * method:  "conferenceUpdated"
+ * 
+ * params:  
+ *          "id":       идентификатор конференции
+ *          "party":    номер участника
+ *          "event":    состояние
+ *                      1 - подключен
+ *                      2 - отключен владельцем конференции
+ *                      3 - отключился
+ *          "owner":    номер инициатора конференции
+ *          "parties":  текущий список номеров участников
+ * 
+ */
+
+"conferenceUpdated": {
+    "type":             "indication",
+    
+    "params": {
+        "id":           "string",
+        "party":        "string",
+        "event":        "number",
+        "owner":        "string",
+        "parties":      ["string"],
+    }
+},
+
+/* 
+ * Конференция завершена
+ * 
+ * Запрос от клиента, на котором была создана конференция
+ * 
+ * method:  "conferenceDeleted"
+ * 
+ * params:  
+ *          "id":       идентификатор конференции
+ *          
+ */
+
+"conferenceDeleted": {
+    "type":             "indication",
+    
+    "params": {
+        "id":          "string",
+    },
+},
+
+/* 
+ * Конференция завершена
+ * 
+ * Рассылка от сервера клиентам - участникам конференции
+ * 
+ * method:  "conferenceDeleted"
+ * 
+ * params:  список параметров
+ * 
+ *          "id":       идентификатор конференции
+ *          "timecode": время старта конференции (в миллисекундах от 1.01.1970)
+ *          "media":    тип конференции
+ *                      0 - аудио
+ *                      1 - видео
+ *          "owner":    номер инициатора конференции
+ *          "parties":  список номеров участников
+ *          "uptime":   время окончания конференции (в миллисекундах от 1.01.1970)
+ * 
+ */
+
+"conferenceDeleted": {
+    "type":             "indication",
+    
+    "params": {
+        "id":          "string",
+        "timecode":    "number",
+        "media":       "string",
+        "owner":       "string",
+        "parties":     ["string"],
+        "uptime":      "number",
+    }
+},
+
+
+/* 
+ * Установить список номеров и транков для записи разговоров
+ * 
+ * method:  "setVoiceRecordingList"
+ * 
+ * params:  список параметров
+ * 
+ *          "trunks":        список идентификаторов транков
+ *          "trunksmode":    тип списка идентификаторов
+ *                           0 - список для записи (записываются только те, которые есть в списке)
+ *                           1 - список исключений (записываются все, кроме тех, которые в списке)
+ *                           
+ *          "extensions":   список внутренних номеров
+ *          "extmode":      тип списка номеров
+ *                           0 - список для записи (записываются только те, которые есть в списке)
+ *                           1 - список исключений (записываются все, кроме тех, которые в списке)
+ * 
+ */
+
+"setVoiceRecordingList": {
+    
+    "type":             "method",
+    
+    "params": {
+        "trunksmode":   "integer",
+        "trunks":       ["string"],
+        "extmode":      "integer",
+        "extensions":   ["string"],
+    }
+},
+
+
+/* 
+ * Получить список номеров и транков для записи разговоров
+ * 
+ * method:  "getVoiceRecordingList"
+ * 
+ * result:  список параметров
+ * 
+ *          "trunks":        список идентификаторов транков
+ *          "trunksmode":    тип списка идентификаторов
+ *                           0 - список для записи (записываются только те, которые есть в списке)
+ *                           1 - список исключений (записываются все, кроме тех, которые в списке)
+ *                           
+ *          "extensions":   список внутренних номеров
+ *          "extmode":      тип списка номеров
+ *                           0 - список для записи (записываются только те, которые есть в списке)
+ *                           1 - список исключений (записываются все, кроме тех, которые в списке)
+ * 
+ */
+
+"getVoiceRecordingList": {
+    
+    "type":             "method",
+
+    "params": {    
+    },
+    
+    "result": {
+        "trunksmode":   "integer",
+        "trunks":       ["string"],
+        "extmode":      "integer",
+        "extensions":   ["string"],
+    }
+},
+
+
+/* 
+ * Управление записью разговора
+ * 
+ * method:  "setRecordingState"
+ * 
+ * params:  список параметров
+ * 
+ *          "rec":      включить/выключить запись
+ *                      true - включить
+ *                      false - выключить
+ * 
+ */
+
+"setRecordingState": {
+    
+    "type":             "method",
+    
+    "params": {
+        "rec":          "boolean",
+    }
+},
+
+
+/* 
+ * Индикация о включении/выключении записи. От сервера к клиенту
+ * 
+ * method:  "voiceRecording"
+ * 
+ * params:  список параметров
+ * 
+ *          "oid":           идентификатор объекта
+ *          "userid":        логин пользователя
+ *          "ext":           внутренний номер пользователя
+ *          "party":         номер абонента, с которым пользователь соединен
+ *          "rec":           индикация записи:
+ *                              true - включена
+ *                              false - выключена
+ * 
+ */
+
+"voiceRecording": {
+    
+    "type":             "indication",
+    
+    "params": {
+        "oid":          "string",
+        "userid":       "string",
+        "ext":          "string",
+        "party":        "string",
+        "rec":          "boolean",
+    }
+},
+
+
+/* 
+ * Отчет о завершившемся звонке от сервера клиенту.
+ * 
+ * method:  "callReport"
+ * 
+ * params:  таблица параметров:
+ *          "id":        идентификатор записи
+ *          "contactid": идентификатор контакта
+ *          "time":      время начала звонка (в миллисекундах от 1.01.1970)
+ *          "number":    номер абонента
+ *          "dur":       длительность соединения в секундах
+ *          "status":    статус звонка:
+ *                       5 - входящий (EVENT_CALL_INCOMING);
+ *                       6 - исходящий (EVENT_CALL_OUTGOING);
+ *                       12 - пропущенный входящий (EVENT_CALL_MISSED_NEW);
+ *                       14 - несостоявшийся исходящий (EVENT_CALL_OUTGOING_MISSED);
+ *                       
+ *          "file":      файл с записью разговора
+ * 
+ */
+
+"callReport": {
+    "type":                 "indication",
+    
+    "params": {
+        "id":               "string",
+        "contactid":        "string",
+        "time":             "number",
+        "number":           "string",
+        "dur":              "number",
+        "status":           "number",
+        "file":             "string",
+    },
+},
+
+
+/*
+ * Информация о входящем вызове. Передается от сервера клиенту при поступлении входящего вызова
+ * 
+ * method:  "incomingCall"
+ * 
+ * params:  
+ *          "caller":       вызывающий номер
+ *          "called":       вызываемый номер
+ * 
+ * result:  нет
+ * 
+ * Пример: server -> client: {"method":"setProcess","params":{"pid":"14213451234567splink1","type":1,"task":"hotline","caller":"1234567","called":"333777"}}
+ */
+"incomingCall": {
+    "type":                 "indication",
+
+    "params": {
+        "caller":           "string",
+        "called":           "string",
+    }
+},
+  
+
+/* 
+ * Удаление записи разговора
+ * 
+ * method:  "deleteRecord"
+ * 
+ * params:  список параметров
+ * 
+ *          "id":      идентификатор записи
+ * 
+ */
+
+"deleteRecord": {
+    
+    "type":             "method",
+    
+    "params": {
+        "id":          "string",
+    }
+},
+
+
+/*
+ *  Method "objectCreated"
+ *  Нотификация о создании объекта
+ *
+ *  params: список параметров
+ *  
+ *          "oid":           идентификатор объекта
+ *          "name":          имя объекта
+ *          "kind":          тип объекта:
+ *                           "equipment" - группа оборудования
+ *                           "users" - группа пользователей
+ *                           "unit" - организационная группа
+ *                           "user" - пользователь
+ *                           "phone" - телефон
+ *                           
+ *          Параметр для объектов типа "equipment", "users" или "unit":
+ *                           
+ *          "pmask":         маска профиля группы
+ *          
+ *          
+ *          Параметры для объектов типа "user" или "phone":
+ *          
+ *          "userid":   логин пользователя
+ *          "ext":      внутренний номер
+ *          "group":    имя группы
+ *          "groupid":  идентификатор группы
+ *          "fmask":    маска профиля пользователя
+ */
+
+"objectCreated": {
+    "type":         "indication",
+    
+    "params": {
+        "oid":      "string",
+        "name":     "string",
+        "kind":     "string",
+        
+        "pmask":    "integer",
+        
+        "userid":   "string",
+        "ext":      "string",
+        "group":    "string",
+        "groupid":  "string",
+        "fmask":    "integer",
+    },
+},
+
+
+/*
+ *  Method "objectUpdated"
+ *  
+ *  Нотификация об изменении параметров объекта
+ *
+ *  params: список параметров
+ *  
+ *          "oid":           идентификатор объекта
+ *          "name":          имя объекта
+ *          "kind":          тип объекта:
+ *                           "equipment" - группа оборудования
+ *                           "users" - группа пользователей
+ *                           "unit" - организационная группа
+ *                           "user" - пользователь
+ *                           "phone" - телефон
+ *                           
+ *          Параметр для объектов типа "equipment", "users" или "unit":
+ *                           
+ *          "pmask":         маска профиля группы
+ *          
+ *          
+ *          Параметры для объектов типа "user" или "phone":
+ *          
+ *          "userid":   логин пользователя
+ *          "ext":      внутренний номер
+ *          "group":    имя группы
+ *          "groupid":  идентификатор группы
+ *          "fmask":    маска профиля пользователя
+ *          "reg":      IP адрес регистрации
+ *          "state":    состояние
+ *                      0 - не зарегистрирован
+ *                      1 - свободен
+ *                      2 - установлена переадресация на внешний номер
+ *                      3 - не беспокоить
+ *                      4 - невидимый
+ *                      5 - выключен
+ *                      6 - исходящий вызов
+ *                      7 - входящий вызов
+ *                      8 - соединен
+ */
+
+"objectUpdated": {
+    "type":         "indication",
+    
+    "params": {
+        "oid":      "string",
+        "name":     "string",
+        "kind":     "string",
+        
+        "pmask":    "integer",
+        
+        "userid":   "string",
+        "ext":      "string",
+        "group":    "string",
+        "groupid":  "string",
+        "fmask":    "integer",
+        "reg":      "string",
+        "state":    "integer",
+    },
+},
+
+/*
+ *  Method "objectDeleted"
+ *  
+ *  Нотификация об удалении объекта
+ *
+ *  params: 
+ *          "oid":           идентификатор объекта
+ *          "kind":          тип объекта:
+ *                           "equipment" - группа оборудования
+ *                           "users" - группа пользователей
+ *                           "unit" - организационная группа
+ *                           "selector" - селектор
+ *                           "channel" - канал
+ *                           "user" - пользователь
+ *                           "phone" - телефон
+ *                           
+ *          "ext":           внутренний номер (если был)
+ *  
+ */
+
+"objectDeleted": {
+    "type":         "indication",
+    "params": {
+        "oid":      "string",
+        "kind":     "string",
+        "ext":      "string",
+    }
+},
+
+
+/*
+ *  Method "extensionCreated"
+ *  
+ *  Нотификация о создании записи в таблице маршрутизации
+ *
+ *  params: список параметров
+ *  
+ *          "oid":           идентификатор объекта
+ *          "name":          имя объекта
+ *          "kind":          тип объекта:
+ *                           "equipment" - группа оборудования
+ *                           "users" - группа пользователей
+ *                           "unit" - организационная группа
+ *                           "selector" - селектор
+ *                           "channel" - канал
+ *                           "conference" - конференция
+ *                           "application" - приложение
+ *                           "hunting" - группа поиска
+ *                           "icd" - группа обслуживания входящих вызовов
+ *                           
+ *          "ext":           внутренний номер
+ *          "group":         имя группы
+ *          "state":         состояние
+ *                           0 - выключен
+ *                           1 - включен
+ *                           8 - соединен (для конференций)
+ */
+
+"extensionCreated": {
+    "type":         "indication",
+    
+    "params": {
+        "oid":      "string",
+        "name":     "string",
+        "kind":     "string",       
+        "ext":      "string",
+        "group":    "string",
+        "state":    "integer",
+    },
+},
+
+/*
+ *  Method "extensionDeleted"
+ *  
+ *  Нотификация об удалении записи в таблице маршрутизации
+ *
+ *  params: 
+ *          "oid":           идентификатор объекта
+ *          "ext":           внутренний номер
+ *  
+ */
+
+"extensionDeleted": {
+    "type":         "indication",
+    "params": {
+        "oid":      "string",
+        "ext":      "string",
+    }
+},
+
+
+/*************************************************************************************************************
+ *  Методы админа
+ *************************************************************************************************************/
+
+/*
+ *  Method "getBranchOptions"
+ *  
+ *  Получить настройки бранча
+ *
+ *  params: 
+ *          "oid":          идентификатор бранча
+ *          
+ *  result: список параметров:
+ *          
+ *          "name":         имя бранча
+ *          "lang":         язык интерфейса
+ *          "adminname":    логин администратора бранча
+ *          "adminpass":    пароль администратора бранча
+ *          "maxlines":     количество линий
+ *          "extensions":   список диапазонов внутренних номеров:
+ *                          "firstnumber":  начальный номер
+ *                          "poolsize":     количество номеров
+ *          "enabled":      статус:
+ *                          true - активен
+ *                          false- выключен
+ *          "config":       конфигурация бранча (список опций):
+ *          "storelimit":   размер файлового хранилища
+ *          "storesize":    использованный размер файлового хранилища
+ */
+
+"getBranchOptions": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string" 
+    },
+
+    "result": {
+        "name":         "string",
+        "lang":         "string",
+        "adminname":    "string",
+        "adminpass":    "string",
+        "maxlines":     "number",
+        "extensions": [
+            {
+                "firstnumber":  "number",
+                "poolsize":     "number",
+            }
+        ],
+        "enabled":      "boolean",
+        "config":       ["string"],
+        "storesize":    "number",
+        "storelimit":   "number",
+    }
+},
+
+
+/*
+ *  Method "setBranchOptions"
+ *  
+ *  Изменить настройки бранча
+ *
+ *  params: список параметров:
+ *          
+ *          "name":         имя бранча
+ *          "lang":         язык интерфейса
+ *          "adminname":    логин администратора бранча
+ *          "adminpass":    пароль администратора бранча
+ *          "maxlines":     количество линий
+ *          "extensions":   список диапазонов внутренних номеров:
+ *                          "firstnumber":  начальный номер
+ *                          "poolsize":     количество номеров
+ *          "enabled":      статус:
+ *                          true - активен
+ *                          false- выключен
+ *          "config":       конфигурация бранча (список опций):
+ *          "storelimit":   размер файлового хранилища
+ *  
+ */
+
+"setBranchOptions": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string",
+        "name":         "string",
+        "lang":         "string",
+        "adminname":    "string",
+        "adminpass":    "string",
+        "maxlines":     "number",
+        "extensions": [
+            {
+                "firstnumber":  "number",
+                "poolsize":     "number",
+            }
+        ],
+        "enabled":      "boolean",
+        "config":       ["string"],
+        "storelimit":   "number",
+    }
+},
+
+
+
+/*
+ *  Method "createBranch"
+ *  
+ *  Создать бранч
+ *
+ *  params: список параметров:
+ *          
+ *          "name":         имя бранча
+ *          "lang":         язык интерфейса
+ *          "protocol":     протокол (по умолчанию "wss", но возможно "sip" или "sips")
+ *          "prefix":       префикс бранча
+ *          "adminname":    логин администратора бранча
+ *          "adminpass":    пароль администратора бранча
+ *          "maxlines":     количество линий
+ *          "extensions":   список диапазонов внутренних номеров:
+ *                          "firstnumber":  начальный номер
+ *                          "poolsize":     количество номеров
+ *          "config":       конфигурация бранча (список опций):
+ *          "storelimit":   размер файлового хранилища
+ *  
+ *  result: идентификатор бранча
+ */
+
+"createBranch": {
+    
+    "type":             "method",
+    
+    "params": {
+        "name":         "string",
+        "lang":         "string",
+        "protocol":     "string",
+        "prefix":       "string",
+        "adminname":    "string",
+        "adminpass":    "string",
+        "maxlines":     "number",
+        "extensions": [
+            {
+                "firstnumber":  "number",
+                "poolsize":     "number",
+            }
+        ],
+        "config":       ["string"],
+        "storelimit":   "number",
+    },
+    
+    "result":           "string" 
+},
+
+
+/*
+ *  Method "deleteBranch"
+ *  
+ *  Удалить бранч
+ *
+ *  params: 
+ *          "oid":          идентификатор бранча
+ *  
+ */
+
+"deleteBranch": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string" 
+    },
+},
+
+
+/*
+ *  Method "setBranchState"
+ *  
+ *  Установить состояние бранча
+ *
+ *  params: 
+ *          "oid":          идентификатор бранча
+ *          "enabled":      состояние:
+ *                          true - включить
+ *                          false- выключить
+ *          "description":  описание (или код) состояния
+ *  
+ */
+
+"setBranchState": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string", 
+        "enabled":      "boolean",
+        "description":  "string",
+    },
+},
+
+
+/*
+ *  Method "getBranchState"
+ *  
+ *  Получить состояние бранча
+ *
+ *  params: 
+ *          "oid":          идентификатор бранча
+ *          
+ *          
+ *  "result":
+ *          "enabled":      состояние:
+ *                          true - работает
+ *                          false- выключен
+ *          "description":  описание (или код) состояния
+ */
+
+"getBranchState": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string" 
+    },
+    
+    "result": {
+        "enabled":      "boolean",
+        "description":  "string",
+    },
+},
+
 }
+
+

@@ -23,11 +23,11 @@ function load_channels(result){
 
     addEvent(table, 'click', tableClickHandler);
 
-    $('[data-toggle="popover"]').popover({
-        content: function(){
-            return showParties(this);
-        }
-    });
+    // $('[data-toggle="popover"]').popover({
+    //     content: function(){
+    //         return showParties(this);
+    //     }
+    // });
 }
 
 function tableClickHandler(e){
@@ -39,7 +39,7 @@ function tableClickHandler(e){
     // if(targ.nodeName !== 'BUTTON') return;
     cl = targ.className;
     if(cl.indexOf('showPartiesBtn') != -1){
-        // showParties(targ);
+        showParties(targ);
     } else if(cl.indexOf('deleteObjBtn') != -1){
         delete_extension(e);
     }
@@ -87,6 +87,9 @@ function createChannelRow(data){
     if(!data.parties) button.disabled = 'disabled';
 
     cell = row.insertCell(5);
+    cell.innerHTML = '<a type="button" class="btn btn-primary btn-sm" href="#channel_records?'+data.oid+'"><i class="fa fa-history"></i></a>';
+
+    cell = row.insertCell(6);
     if(data.oid) {
         button = createNewButton({
             title: PbxObject.frases.DELETE,
@@ -121,7 +124,7 @@ function showParties(targ){
             }
         }
     });
-    // console.log(cont);
-    return cont;
-    // targ.setAttribute('data-content', cont);
+    targ.setAttribute('data-content', cont);
+    $(targ).popover('toggle');
+    // return cont;
 }

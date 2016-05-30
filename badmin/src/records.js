@@ -9,7 +9,7 @@ function load_records(){
     // });
 
     PbxObject.Pagination = new Pagination();
-    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecords, actionButton: false, buttonSize: 'md'});
+    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecParams, actionButton: false, buttonSize: 'md'});
 
     var elmode = [].slice.call(document.querySelectorAll('.init-mode'));
     elmode.forEach(function(item){
@@ -25,7 +25,7 @@ function load_records(){
         fill_select_items('searchtrunk', result);
     });
     $('#getcalls-btn').click(function(e){
-        getRecords(e);
+        getRecParams(e);
     });
     $('#sample-data').hide();
     $('#search-calls .panel-body').slideToggle();
@@ -44,6 +44,12 @@ function load_records(){
         $el.slideToggle();
     });
     TableSortable.sortables_init();
+
+    getRecords({
+        begin: PbxObject.recPicker.date.start,
+        end: PbxObject.recPicker.date.end
+    });
+
     show_content();
 
 }
@@ -67,9 +73,11 @@ function build_records_row(data, table){
     cell.textContent = formatDateString(data.ts);
 
     cell = row.insertCell(1);
+    cell.className = 'nowrap';
     cell.textContent = data['na'];
 
     cell = row.insertCell(2);
+    cell.className = 'nowrap';
     cell.textContent = data['nb'];
 
     cell = row.insertCell(3);
@@ -111,7 +119,7 @@ function build_records_row(data, table){
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 }
 
-function getRecords(e){
+function getRecParams(e){
 
     show_loading_panel(e.target);
     
@@ -139,25 +147,35 @@ function getRecords(e){
     //     alert(PbxObject.frases.PICKERROR2);
     //     return;
     // }
-    var params = '';
-    params += '"begin": ' + PbxObject.recPicker.date.start;
-    params += ', "end": ' + PbxObject.recPicker.date.end;
-    if(number.value)
-        params += ', "number": "' + number.value + '"';
-    if(trunk.value !== PbxObject.frases.ALL)
-        params += ', "trunk": "' + trunk.options[trunk.selectedIndex].textContent + '"';
-    // if(rows.value)
-    //     params += ', "limit": ' + parseInt(rows.value);
-    if(mode)
-        params += ', "mode": ' + mode;
-    if(order)
-        params += ', "order": ' + order;
+    
+    // var params = '';
+    // params += '"begin": ' + PbxObject.recPicker.date.start;
+    // params += ', "end": ' + PbxObject.recPicker.date.end;
+    // if(number.value)
+    //     params += ', "number": "' + number.value + '"';
+    // if(trunk.value !== PbxObject.frases.ALL)
+    //     params += ', "trunk": "' + trunk.options[trunk.selectedIndex].textContent + '"';    
+    // if(mode)
+    //     params += ', "mode": ' + mode;
+    // if(order)
+    //     params += ', "order": ' + order;
 
-    // params = JSON.stringify(params);
-    // console.log(params);
+    var params = {
+        begin: PbxObject.recPicker.date.start,
+        end: PbxObject.recPicker.date.end
+    }
+    if(number.value) params.number = number.value;
+    if(trunk.value !== PbxObject.frases.ALL) 
+        params.trunk = trunk.options[trunk.selectedIndex].textContent;
+    if(mode) params.mode = parseInt(mode, 10);
+    if(order) params.order = parseInt(order, 10);
 
+    getRecords(params);
+
+}
+
+function getRecords(params) {
     json_rpc_async('getCalls', params, showRecords);
-
 }
 
 function showRecords(result){

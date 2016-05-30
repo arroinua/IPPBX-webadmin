@@ -1,5 +1,9 @@
 function load_certificates(){
-	$('#createCertBtn').click(createCert);
+	if(PbxObject.options.mode && PbxObject.options.mode !== 0)
+		$('#createCertBtn').click(createCert);
+	else
+		$('#createCertBtn').remove();
+	
 	$('#importCertBtn').click(importCert);
 
 	getCertificates();
@@ -73,12 +77,11 @@ function downloadCert(e, certName){
 function createCert(){
 	openModal({
 		tempName: 'create_cert', 
-		modalId: 'createCertModal',
-		cb: function(){
-			$('#createCert').click(function(){
-				addNewCert();
-			});
-		}
+		modalId: 'createCertModal'
+	}, function() {
+		$('#createCert').click(function(){
+			addNewCert();
+		});
 	});
 }
 
@@ -100,17 +103,20 @@ function importCert(){
 	openModal({
 		tempName: 'import_cert', 
 		modalId: 'importCertModal',
-		cb: function(){
-			$('#importCert').click(function(){
-				importNewCert();
-			});
+		data: {
+			certonly: (PbxObject.options.mode === 0)
 		}
+	}, function() {
+		$('#importCert').click(function(){
+			importNewCert();
+		});
 	});
 }
 
 function importNewCert(){
 	var certForm = document.getElementById('importCertForm');
 	var certInfo = retrieveFormData(certForm);
+	console.log('certInfo: ', certInfo);
 	if(certInfo && Object.keys(certInfo).length !== 0){
 	    json_rpc_async('setCertificate', certInfo, function(result){
 	    	if(result === 'OK'){
@@ -140,17 +146,18 @@ function removeCert(cert){
 	});
 }
 
-function openModal(params){
-	var data = {};
-	getPartial(params.tempName, function(template){
-		data.frases = PbxObject.frases;
-		if(params.data) data.data = params.data;
+// function openModal(params){
+// 	var data = {};
+// 	getPartial(params.tempName, function(template){
+// 		data.frases = PbxObject.frases;
+// 		if(params.data) data.data = params.data;
 
-		var rendered = Mustache.render(template, data),
-			cont = document.querySelector('#el-loaded-content');
+// 		var rendered = Mustache.render(template, data),
+// 			cont = document.querySelector('#el-loaded-content');
 
-		cont.insertAdjacentHTML('afterbegin', rendered);
-		if(params.cb) params.cb();
-		$('#'+params.modalId).modal();
-	});
-}
+// 		cont.insertAdjacentHTML('afterbegin', rendered);
+
+// 		if(params.cb) params.cb();
+// 		$('#'+params.modalId).modal();
+// 	});
+// }

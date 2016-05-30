@@ -14,9 +14,8 @@ function load_trunk(result){
         if(result.name) {
             addEvent(enabled, 'change', function(){
                 // console.log(result.oid+' '+this.checked);
-                json_rpc_async('setObjectState', '\"oid\":\"'+result.oid+'\", \"enabled\":'+this.checked+'', function(result){
-                    // console.log(result);
-                    if(result !== 'OK') enabled.checked = !(enabled.checked);
+                setTrunkState(result.oid, this.checked, function(result) {
+                    if(!result) enabled.checked = !enabled.checked;
                 });
             });
         }
@@ -176,6 +175,15 @@ function load_trunk(result){
     
 }
 
+function setTrunkState(oid, state, callback) {
+    json_rpc_async('setObjectState', {
+        oid: oid,
+        enabled: state
+    }, function(result){
+        callback(result);
+    });
+}
+
 function set_trunk(){
     var name = document.getElementById('objname').value,
         enabled = document.getElementById('enabled'),
@@ -266,10 +274,14 @@ function set_trunk(){
 
     // console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
-        if(result !== 'OK') 
+        if(result) {
             if(handler) handler();
-        else{
+        } else {
             if(enabled.checked) enabled.checked = false;
         }
-    }); 
+
+        // else{
+        //     if(enabled.checked) enabled.checked = false;
+        // }
+    });
 };

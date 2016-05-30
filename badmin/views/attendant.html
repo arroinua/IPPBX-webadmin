@@ -37,17 +37,30 @@
                 <div class="panel-body">
                     <form class="form-horizontal" id="attvariables">
                         <div class="form-group">
-                            <label for="debug" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__DEBUG}}">{{DEBUG}}</label>
-                            <div class="col-sm-8">
-                                <input type="checkbox" id="debug">
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label for="greetings" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__GREETINGS}}">{{GREETNAME}}</label>
                             <div class="col-sm-8">
                                 <input type="file" accept=".wav" name="greetings" id="attGreetings" class="upload-custom">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="defaultConnector" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__DEFAULT_CONNECTOR}}">{{ATTENDANT.DEFAULT_CONNECTOR}}</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="defaultConnector" value="" onkeydown='validateInput(event)' placeholder="{{ATT__DEFAULT_CONNECTOR_PH}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="connectionTimeout" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__CONN_TOUT}}">{{ATTENDANT.CONN_TOUT}}</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="connectionTimeout" value="60" onkeydown='validateInput(event)'>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="connectionFailed" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__CONN_FAILED_PROMPT}}">{{ATTENDANT.CONN_FAILED_PROMPT}}</label>
+                            <div class="col-sm-8">
+                                <input type="file" accept=".wav" name="connectionFailed" id="connectionFailed" class="upload-custom">
+                            </div>
+                        </div>
+                        
                         <div class="panel minimized no-shadow">
                             <div class="panel-header custom-header-1">{{ATT__GEN_MENU_SETTINGS}}
                                 <i class="fa fa-chevron-down"></i>
@@ -83,7 +96,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="panel minimized no-shadow">
+                        <!-- <div class="panel minimized no-shadow">
                             <div class="panel-header custom-header-1">{{ATT__GEN_CONNECTOR_SETTINGS}}
                                 <i class="fa fa-chevron-down"></i>
                             </div>
@@ -107,7 +120,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="panel minimized no-shadow">
                             <div class="panel-header custom-header-1">{{ATT__GEN_EMAIL_SETTINGS}}
                                 <i class="fa fa-chevron-down"></i>
@@ -143,6 +156,12 @@
                                         <input type="password" class="form-control" name="SMTPpass" placeholder="{{ATTENDANT.SMTP_PWD}}">
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="debug" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__DEBUG}}">{{DEBUG}}</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="debug">
                             </div>
                         </div>
                     </form>

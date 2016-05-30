@@ -25,7 +25,7 @@ function load_routes(result){
         priorities = result.priorities;
     for(i=0; i<priorities.length; i++){
         var li = document.createElement('li');
-        li.setAttribute('data-value', priorities[i]);
+        li.setAttribute('data-routepriority', priorities[i]);
         li.innerHTML = PbxObject.routepriorities[priorities[i]];
         ul.appendChild(li);
     }
@@ -86,7 +86,7 @@ function set_routes(){
     var ul = document.getElementById('priorities');
     var i, j;
     for(i=0; i<ul.children.length; i++){
-        jprms += ul.children[i].getAttribute('data-value')+',';
+        jprms += ul.children[i].getAttribute('data-routepriority')+',';
     }
     
     jprms += '],';
@@ -119,39 +119,37 @@ function build_routes_table(routes){
     var result, fragment,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
-    if(typeof PbxObject.objects === 'object') {
-        result = PbxObject.objects;
-    } else {
-        result = json_rpc('getObjects', '\"kind\":\"all\"');
-        sortByKey(result, 'name');
-        PbxObject.objects = result;
-    }
-    result = result.filter(function(obj){
-        return (obj.kind !== 'equipment' && obj.kind !== 'cli' && obj.kind !== 'timer' && obj.kind !== 'routes' && obj.kind !== 'users' && obj.kind !== 'pickup');
-    });
+    getAllowedObjects('routes', function(result) {
+        if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
+        else {
+            sortByKey(routes, 'number');
+            fragment = document.createDocumentFragment();
+            for(var i=0; i<routes.length; i++){
+                fragment.appendChild(add_route_row(routes[i], result));
+            }
+            tbody.appendChild(fragment);
+        }    
+        show_content();
+    }); 
+}
 
-    if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
-    else {
-        sortByKey(routes, 'number');
-        fragment = document.createDocumentFragment();
-        for(var i=0; i<routes.length; i++){
-            fragment.appendChild(add_route_row(routes[i], result));
-        }
-        tbody.appendChild(fragment);
-    }    
-    show_content();
+function editRow(row, route) {
+    getAllowedObjects('routes', function(result) {
+        var newroute = build_route_row(route, result);
+        row.parentNode.insertBefore(newroute, row);
+        row.style.display = 'none';
+    });
 }
 
 function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    var objects = PbxObject.objects.filter(function(obj){
-        return (obj.kind !== 'equipment' && obj.kind !== 'cli' && obj.kind !== 'timer' && obj.kind !== 'routes' && obj.kind !== 'users' && obj.kind !== 'pickup');
+    getAllowedObjects('routes', function(result) {
+        var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
+        tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
     });
 
-    var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
-    tbody.insertBefore(build_route_row(null, objects), tbody.children[0]);
 }
 
 function add_route_row(route, objects){
@@ -188,9 +186,10 @@ function add_route_row(route, objects){
     button.className = 'btn btn-primary btn-sm';
     button.innerHTML = '<i class="fa fa-edit"></i>';
     addEvent(button, 'click', function(){
-        var newroute = build_route_row(route, objects);
-        row.parentNode.insertBefore(newroute, row);
-        row.style.display = 'none';
+        editRow(row, route);
+        // var newroute = build_route_row(route, objects);
+        // row.parentNode.insertBefore(newroute, row);
+        // row.style.display = 'none';
     });
     cell.appendChild(button);
 
@@ -231,8 +230,8 @@ function build_route_row(route, objects){
         number.value = route.number;
         rowData.oid = route.oid;
     }
-    rowData.number = number.value;
-    number.onchange = function(){ rowData.number = number.value };
+    rowData.number = number.value.trim();
+    number.onchange = function(){ rowData.number = number.value.trim() };
     div.appendChild(number);
     td.appendChild(div);
     tr.appendChild(td);
@@ -337,25 +336,6 @@ function build_route_row(route, objects){
     td.appendChild(div);
     tr.appendChild(td);
 
-    // if(route != null && route.huntstop != undefined){
-    //     td = document.createElement('td');
-    //     cell = document.createElement('input');
-    //     cell.setAttribute('type', 'checkbox');
-    //     cell.setAttribute('name', 'huntstop');
-    //     if(route.huntstop) cell.setAttribute('checked', route.huntstop);
-    //     td.appendChild(cell);
-    //     tr.appendChild(td);
-    // }
-    
-    // td = document.createElement('td');
-    // cell = document.createElement('a');
-    // cell.href = "#";
-    // cell.className = 'remove-clr';
-    // cell.innerHTML = '<i class="glyphicon glyphicon-remove"></i>';
-    // addEvent(cell, 'click', remove_row);
-    // td.appendChild(cell);
-    // tr.appendChild(td);
-
     td = document.createElement('td');
     button = document.createElement('button');
     button.className = 'btn btn-default btn-sm';
@@ -378,6 +358,10 @@ function build_route_row(route, objects){
         var name = document.getElementById('objname').value;
         if(!name) {
             alert(PbxObject.frases.MISSEDNAMEFIELD);
+            return;
+        }
+        if(!rowData.number) {
+            alert(PbxObject.frases.MISSED_ROUTE_NUMBER);
             return;
         }
         var row = tr.nextSibling;

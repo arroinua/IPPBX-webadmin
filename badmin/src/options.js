@@ -26,27 +26,27 @@ function poolStringToObject(string){
     return extensions;
 }
 
-function getDeviceSettings(event){
-    var e = event || window.event;
-    if(e) e.preventDefault();
-    if(PbxObject.deviceSettings) {
-        switch_options_tab('deviceopt-tab');
-    } else {
+function getDeviceSettings(){
+    // var e = event || window.event;
+    // if(e) e.preventDefault();
+    // if(PbxObject.deviceSettings) {
+    //     switch_options_tab('deviceopt-tab');
+    // } else {
         json_rpc_async('getDeviceSettings', null, loadDeviceSettings);
         // if(e) show_loading_panel(e.target);
-    }
+    // }
 }
 
 function loadDeviceSettings(result){
-    // console.log(result);
+    console.log('loadDeviceSettings: ', result);
     PbxObject.deviceSettings = result;
     var data = {
         data: result,
-        lang: PbxObject.frases
+        frases: PbxObject.frases
     };
     var template = document.getElementById('device-options');
     var rendered = Mustache.render(template.innerHTML, data);
-    document.getElementById('deviceopt-tab').insertAdjacentHTML('beforeend', rendered);
+    document.getElementById('device-options-cont').insertAdjacentHTML('afterbegin', rendered);
     template.parentNode.removeChild(template);
 
     var codecsTables = [], codecsTable;
@@ -77,7 +77,7 @@ function loadDeviceSettings(result){
         }
     }
 
-    setAccordion();
+    setAccordion('#device-options-cont');
 
     codecsTables.forEach(function(table){
         new Sortable(table);
@@ -97,7 +97,7 @@ function load_pbx_options(result) {
 
     if (result.lang) {
         var select = document.getElementById('interfacelang'),
-                i = select.options.length - 1;
+            i = select.options.length - 1;
         while (i >= 0) {
             if (select.options[i].value === result.lang) {
                 select.options[i].selected = true;
@@ -144,14 +144,67 @@ function load_pbx_options(result) {
     // toggle_presentation();
     if(result.mode === 1 || !result.prefix){
         getDeviceSettings();
-    } else {
+    }
+    else {
         var deviceTab = document.getElementById('deviceopt-tab');
         var deviceBtn = document.getElementById('deviceopt-btn');
         
         if(deviceTab) deviceTab.parentNode.removeChild(deviceTab);
         if(deviceBtn) deviceBtn.parentNode.removeChild(deviceBtn);
-        setAccordion();
+        // setAccordion();
     }
+
+    // set LDAP options
+    loadAdvancedOptions({
+        ldap: result.ldap || {}
+    } || {});
+
+    setAccordion('#featureopt-tab');
+    if(result.services) setServices(result.services);
+}
+
+// function loadLdapOptions(opts){
+function loadAdvancedOptions(opts){
+    console.log('Advanced options: ', opts);
+
+    function isCustomPhoneAttr(val){
+        var regex = new RegExp('telephoneNumber|mobile|ipPhone');
+        return !regex.test(val);
+    }
+
+    var data = {
+        data: opts,
+        frases: PbxObject.frases
+    },
+    template = document.getElementById('ldap-settings'),
+    rendered = Mustache.render(template.innerHTML, data);
+
+    document.getElementById('services-options-cont').insertAdjacentHTML('afterbegin', rendered);
+    template.parentNode.removeChild(template);
+
+    $('#directoryAttributePhone').on('change', function(e) {
+        switchVisibility('#customDirectoryAttributePhone', isCustomPhoneAttr(this.value));
+    })
+    $('#directoryAuth').on('change', function(e) {
+        switchVisibility('#gssapi-settings', this.value === 'GSSAPI');    
+    });
+    switchVisibility('#gssapi-settings', opts.ldap.directoryAuth === 'GSSAPI');
+
+    // setAccordion('#advanced-options-cont');
+
+    // If settings wasn't set - return 
+    if(!opts.ldap.directoryServer) return;
+
+    $('#directoryAttributeUID').val(opts.ldap.directoryAttributeUID);
+    if(isCustomPhoneAttr(opts.ldap.directoryAttributePhone)) {
+        $('#directoryAttributePhone').val('0');
+        $('#customDirectoryAttributePhone').show();
+    } else {
+        $('#directoryAttributePhone').val(opts.ldap.directoryAttributePhone);
+    }
+
+    $('#directoryAuth').val(opts.ldap.directoryAuth);
+
 }
 
 function set_pbx_options(e) {
@@ -169,7 +222,8 @@ function set_pbx_options(e) {
         select = document.getElementById('interfacelang'),
         firstnumber = document.getElementById('firstnumber'),
         lastnumber = document.getElementById('lastnumber'),
-        lang = select.options[select.selectedIndex].value;
+        lang = select.options[select.selectedIndex].value,
+        ldapOptions = getLdapOptions();
 
     // if (firstnumber && firstnumber.value) {
     //     var fvalue = firstnumber.value;
@@ -230,6 +284,27 @@ function set_pbx_options(e) {
     jprms += '"lang":"' + lang + '", ';
     if (pass) jprms += '"adminpass":"' + pass + '", ';
 
+    if(ldapOptions) jprms += '\"ldap\":' + JSON.stringify(ldapOptions) + ', ';
+    if(PbxObject.options.services) {
+        var forms = [].slice.call(document.querySelectorAll('#externalServices form')),
+        serviceObj = {},
+        services = forms.map(retrieveFormData).map(function(item){
+            serviceObj = {};
+            Object.keys(item).forEach(function(key){
+                serviceObj.props = serviceObj.props || {};
+                if(key.indexOf('prop_') !== -1) {
+                    serviceObj.props[key.replace('prop_', '')] = item[key] || "";
+                } else {
+                    serviceObj[key] = item[key] !== undefined ? item[key] : "";
+                }
+            });
+            return serviceObj;
+        });
+
+        console.log('Saved services: ', services);
+        jprms += '\"services\":' + JSON.stringify(services) + ', ';
+    }
+
     jprms += '\"options\":{';
     var file = document.getElementById("musonhold");
     if (file.value) {
@@ -253,6 +328,7 @@ function set_pbx_options(e) {
     }
     else {
         handler = set_object_success;
+        PbxObject.options.ldap = ldapOptions;
     }
 
     json_rpc_async('setPbxOptions', jprms, handler);
@@ -309,10 +385,10 @@ function setDeviceSettings(){
     if(document.getElementById('rec-path')) jprms += '"store":"' + ( document.getElementById('rec-path').value || "" ) + '", ';
     if(document.getElementById('rec-format')) jprms += '"recformat":"' + ( document.getElementById('rec-format').value || "" ) + '", ';
     jprms += '\"smtp\":{';
-    if(document.getElementById('smtp-host')) jprms += '"host":"' + ( document.getElementById('smtp-host').value || "" ) + '", ';
-    if(document.getElementById('smtp-port')) jprms += '"port":"' + ( document.getElementById('smtp-port').value || "" ) + '", ';
-    if(document.getElementById('smtp-username')) jprms += '"username":"' + ( document.getElementById('smtp-username').value || "" ) + '", ';
-    if(document.getElementById('smtp-password')) jprms += '"password":"' + ( document.getElementById('smtp-password').value || "" ) + '", ';
+    if(document.getElementById('smtp-host').value) jprms += '"host":"' + ( document.getElementById('smtp-host').value || "" ) + '", ';
+    if(document.getElementById('smtp-port').value) jprms += '"port":"' + ( document.getElementById('smtp-port').value || "" ) + '", ';
+    if(document.getElementById('smtp-username').value) jprms += '"username":"' + ( document.getElementById('smtp-username').value || "" ) + '", ';
+    if(document.getElementById('smtp-password').value) jprms += '"password":"' + ( document.getElementById('smtp-password').value || "" ) + '", ';
     if(document.getElementById('smtp-from')) jprms += '"from":"' + ( document.getElementById('smtp-from').value || "" ) + '", ';
     jprms += '},';
     jprms += '\"smdr\":{';
@@ -325,3 +401,49 @@ function setDeviceSettings(){
     // console.log(jprms);
     json_rpc_async('setDeviceSettings', jprms, null);
 }
+
+function getLdapOptions(){
+    var ldapForm = document.querySelector('#ldap-tab form'),
+        data = null;
+    if(ldapForm) {
+        data = retrieveFormData(ldapForm);
+        if(!data.directoryAttributePhone === '0') data.directoryAttributePhone = $('#customDirectoryAttributePhone').val();
+        if(data.directoryAuth !== 'GSSAPI') {
+            delete data.directoryKDC;
+            delete data.directoryAdminServer;
+        }
+    }
+    console.log('setLdapOptions: ', data);
+    return data;
+}
+
+function setServices(services){
+    
+    // convert services props into array of keys and values
+    services.forEach(function(service){
+        if(service.props && Object.keys.length) {
+            service.props = Object.keys(service.props).map(function(key) {
+                return { name: key.replace('_', ' '), key: key, value: service.props[key] };
+            });
+        } else {
+            service.props = [];
+        }
+    });
+        
+    var tmpParams = {
+        services: services,
+        frases: PbxObject.frases
+    },
+    cont = document.querySelector('#services-options-cont'),
+    render;
+
+    console.log('Services: ', services);
+
+    getPartial('services', function(template){
+        rendered = Mustache.render(template, tmpParams);
+        cont.insertAdjacentHTML('beforeend', rendered);
+
+        setAccordion('#services-options-cont');
+    });
+}
+

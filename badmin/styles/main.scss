@@ -43,6 +43,15 @@ legend{
     font-size: 1.2em;
 }
 
+input[type="radio"] + .help-block,
+input[type="checkbox"] + .help-block {
+    display: none;
+}
+input[type="radio"]:checked + .help-block,
+input[type="checkbox"]:checked + .help-block {
+    display: block;
+}
+
 .context-icon{
 	position: relative;
 	margin-right: 2px;
@@ -165,14 +174,14 @@ legend{
     overflow: hidden;
 }
 
-.pl-kind,
-.pl-trunk-kind{
-    display: none;
-}
-.pl-kind.revealed,
-.pl-trunk-kind.revealed{
-    display: block;
-}
+// .pl-kind,
+// .pl-trunk-kind{
+//     display: none;
+// }
+// .pl-kind.revealed,
+// .pl-trunk-kind.revealed{
+//     display: block;
+// }
 
 ul.tab-toggles{
     position: relative;
@@ -211,10 +220,10 @@ ul.tab-toggles li a{
     background-color: rgb(250,250,250);
 }
 .pl-txt{
+    padding: 1px;
     margin-bottom: 20px;
     text-align: center;
     border-top: 1px solid #ccc; 
-    /*background-color: #333;*/
     background-color: $primary-color;
 }
 .pl-txt h5{
@@ -376,7 +385,7 @@ Helpers
     transform: rotate(0deg);
 }
 .nowrap{
-    max-width: 250px;
+    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -387,6 +396,10 @@ Helpers
 .ghosted{
     opacity: 0;
     height: 1px;
+}
+
+.chart-label {
+    padding-right: 10px;
 }
 
 @media only screen and (max-width: $handheld) {

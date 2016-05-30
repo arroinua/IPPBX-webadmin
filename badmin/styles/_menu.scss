@@ -69,6 +69,27 @@
             line-height: 20px;
             width: 100%;
             border-bottom: 1px solid $primary-color-l1;
+
+            &.nav-divider {
+                line-height: 40px;
+                border-bottom: none;
+
+                > a i {
+                    line-height: 38px;
+                }
+
+                > ul {
+                    background-color: $primary-color;
+
+                    > li > a {
+                        padding: 15px 7px;
+                    }
+
+                    ul li a {
+                        padding: 12px 15px 12px 20px;
+                    }
+                }
+            }
         }
         li:hover{
            /*background-color: #222;*/
@@ -89,7 +110,7 @@
             border-bottom: 1px solid #37474F;
         }
         li a {
-            padding: 15px 15px;
+            padding: 15px 7px;
         }
         ul li a {
             padding: 12px 15px 12px 20px;

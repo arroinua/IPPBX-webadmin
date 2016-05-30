@@ -186,9 +186,30 @@ input[readonly].readonly-custom {
   height: 34px;
 }
 
+.bg-connected {
+  background-color: #ace496;
+}
+
 .select2-dropdown {
   border: 1px solid #ebebeb;
   border-radius: 2px;
+}
+
+.btn.noradius-padding-lg {
+  border-radius: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.btn.padding-lg {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .el-notifier {
@@ -267,6 +288,21 @@ a.remove-clr:hover {
     -webkit-transform: translateY(0px);
   }
 }
+#channel-player-cont {
+  z-index: 100;
+}
+
+#channel-player-cont.affix {
+  top: 0;
+  margin-right: 15px;
+}
+
+.list-group-custom li > i {
+  padding-right: 25px;
+  margin-right: 10px;
+  border-right: 1px solid #eee;
+}
+
 .pl-cont {
   position: fixed;
   bottom: -100%;
@@ -294,6 +330,7 @@ a.remove-clr:hover {
 }
 
 .pl-control {
+  display: inline-block;
   height: 100%;
   padding: 0 10px;
   border: none;
@@ -576,8 +613,8 @@ input.cmn-toggle-round:checked + label:before {
 .pbx-options a.el-save-options:hover {
   background-color: #449d44;
 }
-.pbx-options .tab-pane form, .pbx-options .tab-pane h4 {
-  padding: 20px;
+.pbx-options .tab-pane > form, .pbx-options .tab-pane h4 {
+  padding: 0 15px;
 }
 .pbx-options .tab-pane h4 {
   border-top: 1px solid #ccc;
@@ -722,6 +759,22 @@ input.cmn-toggle-round:checked + label:before {
   width: 100%;
   border-bottom: 1px solid #455A64;
 }
+.pbx-menu .nav-list li.nav-divider {
+  line-height: 40px;
+  border-bottom: none;
+}
+.pbx-menu .nav-list li.nav-divider > a i {
+  line-height: 38px;
+}
+.pbx-menu .nav-list li.nav-divider > ul {
+  background-color: #37474F;
+}
+.pbx-menu .nav-list li.nav-divider > ul > li > a {
+  padding: 15px 7px;
+}
+.pbx-menu .nav-list li.nav-divider > ul ul li a {
+  padding: 12px 15px 12px 20px;
+}
 .pbx-menu .nav-list li:hover {
   /*background-color: #222;*/
   background-color: #263238;
@@ -741,7 +794,7 @@ input.cmn-toggle-round:checked + label:before {
   border-bottom: 1px solid #37474F;
 }
 .pbx-menu .nav-list li a {
-  padding: 15px 15px;
+  padding: 15px 7px;
 }
 .pbx-menu .nav-list ul li a {
   padding: 12px 15px 12px 20px;
@@ -986,6 +1039,16 @@ legend {
   font-size: 1.2em;
 }
 
+input[type="radio"] + .help-block,
+input[type="checkbox"] + .help-block {
+  display: none;
+}
+
+input[type="radio"]:checked + .help-block,
+input[type="checkbox"]:checked + .help-block {
+  display: block;
+}
+
 .context-icon, .pbx-menu .nav-list li a i, .panel-header i {
   position: relative;
   margin-right: 2px;
@@ -1113,16 +1176,6 @@ legend {
   overflow: hidden;
 }
 
-.pl-kind,
-.pl-trunk-kind {
-  display: none;
-}
-
-.pl-kind.revealed,
-.pl-trunk-kind.revealed {
-  display: block;
-}
-
 ul.tab-toggles {
   position: relative;
   list-style: none;
@@ -1163,10 +1216,10 @@ ul.tab-toggles li a {
 }
 
 .pl-txt {
+  padding: 1px;
   margin-bottom: 20px;
   text-align: center;
   border-top: 1px solid #ccc;
-  /*background-color: #333;*/
   background-color: #37474F;
 }
 
@@ -1334,7 +1387,7 @@ Helpers
 }
 
 .nowrap {
-  max-width: 250px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1347,6 +1400,10 @@ Helpers
 .ghosted {
   opacity: 0;
   height: 1px;
+}
+
+.chart-label {
+  padding-right: 10px;
 }
 
 @media only screen and (max-width: 767px) {

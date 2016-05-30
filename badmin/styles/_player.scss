@@ -1,3 +1,18 @@
+#channel-player-cont {
+    z-index: 100;
+}
+
+#channel-player-cont.affix {
+    top: 0;
+    margin-right: 15px;
+}
+
+.list-group-custom li > i{
+    padding-right: 25px;
+    margin-right: 10px;
+    border-right: 1px solid #eee;
+}
+
 .pl-cont{
     position: fixed;
     bottom: -100%;
@@ -25,6 +40,7 @@
     z-index: 200;
 }
 .pl-control{
+    display: inline-block;
     height: 100%;
     padding: 0 10px;
     border: none;

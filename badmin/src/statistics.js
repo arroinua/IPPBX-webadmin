@@ -111,7 +111,9 @@ function Statistics(){
         newdata.inbounds.duration = formatTimeString(newdata.inbounds.duration, 'hh:mm:ss');
         newdata.outbounds.duration = formatTimeString(newdata.outbounds.duration, 'hh:mm:ss');
         newdata.internals.duration = formatTimeString(newdata.internals.duration, 'hh:mm:ss');
-        if(newdata.outbounds.cost) newdata.outbounds.cost = newdata.outbounds.cost.toFixed(2);
+        if(newdata.outbounds.cost !== undefined) {
+            newdata.outbounds.cost = parseFloat(newdata.outbounds.cost).toFixed(2);
+        }
 
         inc.forEach(function(item){
             attr = item.getAttribute('data-model');
@@ -167,7 +169,7 @@ function Statistics(){
             cell.textContent = data[i].outsec !== undefined ? formatTimeString(data[i].outsec, 'hh:mm:ss') : '';
 
             cell = row.insertCell(5);
-            cell.textContent = data[i].cost !== undefined ? data[i].cost.toFixed(2) : '';
+            cell.textContent = data[i].cost !== undefined ? parseFloat(data[i].cost).toFixed(2) : '';
         }
     };
 
@@ -190,7 +192,10 @@ function Statistics(){
                 case 2: param='duration';break;
                 case 3: param='cost';break;
             }
-            newCell.innerHTML = data[param] !== undefined ? (param === 'duration' ? formatTimeString(data[param], 'hh:mm:ss') : param === 'cost' ? data[param].toFixed(2) : data[param]) : '';
+            newCell.innerHTML = data[param] !== undefined ?
+                (param === 'duration' ?
+                    formatTimeString(data[param], 'hh:mm:ss') : param === 'cost' ?
+                        parseFloat(data[param]).toFixed(2) : data[param]) : '';
         }
     };
 

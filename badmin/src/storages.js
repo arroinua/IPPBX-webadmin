@@ -13,6 +13,7 @@ function load_storages(){
 	} else {
 		availableStorages = document.getElementById('storages-cont');
 		availableStorages.parentNode.removeChild(availableStorages);
+		show_content();
 	}
 
 	getStoreInfo(function (result){
@@ -51,10 +52,12 @@ function setTotalStore(result){
 	var storesize = result.storesize,
 		storelimit = result.storelimit,
 		elStoresize = document.querySelector('.store-size'),
+		elStorefree = document.querySelector('.store-free'),
 		elStorelimit = document.querySelector('.store-limit');
 	
-	if(storesize) elStoresize.textContent = storesize.toFixed(2);
+	if(storesize) elStoresize.textContent = convertBytes(storesize, 'Byte', 'GB').toFixed(2);
 	if(storelimit) elStorelimit.textContent = convertBytes(storelimit, 'Byte', 'GB').toFixed(2);
+	if(storesize && storelimit) elStorefree.textContent = convertBytes((storelimit - storesize), 'Byte', 'GB').toFixed(2);
 }
 
 function createStorageRow(params){
@@ -123,7 +126,7 @@ function createStoreInfoRow(params){
 	input = document.createElement('input');
 	input.value = params.limit ? convertBytes(params.limit, 'Byte', 'GB').toFixed(2) : parseFloat(0.00).toFixed(2);
 	input.className = 'form-control';
-	input.type = 'number';
+	// input.type = 'number';
 	input.setAttribute('step', '0.10');
 	input.setAttribute('min', '0');
 	addEvent(input, 'change', function (e){
@@ -157,7 +160,7 @@ function createStoreInfoRow(params){
 
 	var setUserLimitValue = debounce(function (){
 		setUserStoreLimit(params.oid, parseFloat(input.value), input);
-	}, 1000);
+	}, 2000);
 
 	return row;
 }
@@ -224,21 +227,4 @@ function setUserStoreLimit(oid, limit, input){
 
 function getFriendlyStorageState(state){
 	return PbxObject.frases.STORAGE.STATES[state];
-}
-
-function openModal(params, callback){
-	var data = {},
-		modal = document.getElementById(params.modalId);
-	getPartial(params.tempName, function(template){
-		data.frases = PbxObject.frases;
-		if(params.data) data.data = params.data;
-
-		var rendered = Mustache.render(template, data),
-			cont = document.querySelector('#el-loaded-content');
-
-		if(modal) modal.parentNode.removeChild(modal);
-		cont.insertAdjacentHTML('afterbegin', rendered);
-		$('#'+params.modalId).modal();
-		if(callback) callback();
-	});
 }

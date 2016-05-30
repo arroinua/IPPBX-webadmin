@@ -171,6 +171,10 @@ function CallsBoard(){
     this.createGraph = function(data){
         // console.log(data);
         if(!data.length){
+            $("#outCalls-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
+            $("#inAndLost-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
+            $("#intCalls-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
+            $("#linesLoad-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
             // var graph = document.getElementById('calls-graph');
             // graph.innerHTML = '<h2 class="back-msg">'+PbxObject.frases.STATISTICS.NO_DATA+'</h2>';
         }

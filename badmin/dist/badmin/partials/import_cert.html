@@ -11,10 +11,12 @@
                         <label for="certificate">{{frases.CERTIFICATES.CERTIFICATE}}</label>
                         <textarea name="certificate" class="form-control" cols="30" rows="10"></textarea>
                     </div>
+                    {{^data.certonly}}
                     <div class="form-group">
                         <label for="privateKey">{{frases.CERTIFICATES.PRIVAT_KEY}}</label>
                         <textarea name="privatekey" class="form-control" cols="30" rows="10"></textarea>
                     </div>
+                    {{/data.certonly}}
                 </form>
             </div>
             <div class="modal-footer">
