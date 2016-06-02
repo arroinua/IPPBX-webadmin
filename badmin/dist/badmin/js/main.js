@@ -4592,7 +4592,7 @@ function init_page(){
     $('#pagecontainer').html(mainrend);
 
     switchMode(PbxObject.options.config);
-    document.getElementsByTagName('title')[0].innerHTML = 'SmileSoft - ' + PbxObject.frases.PBXADMIN;
+    document.getElementsByTagName('title')[0].innerHTML = 'UCC ' + PbxObject.frases.PBXADMIN;
 
     setPageHeight();
 

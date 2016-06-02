@@ -541,7 +541,6 @@ input.cmn-toggle-round:checked + label:before {
   position: relative;
   width: 250px;
   height: 50px;
-  padding: 1rem;
   margin: auto;
   overflow: hidden;
   background-color: #fff;
@@ -550,6 +549,7 @@ input.cmn-toggle-round:checked + label:before {
 .nav-logo a {
   position: absolute;
   width: 100%;
+  padding: 7px;
   /*float: left;*/
   opacity: 1;
   -webkit-transition: all 300ms ease-in-out;
@@ -557,10 +557,11 @@ input.cmn-toggle-round:checked + label:before {
 }
 .nav-logo a.small-logo {
   opacity: 0;
+  text-align: center;
 }
 .nav-logo img {
   position: relative;
-  max-height: 40px;
+  max-height: 34px;
   margin: 0;
 }
 
