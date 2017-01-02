@@ -8,6 +8,23 @@ input[readonly].readonly-custom{
     background-color: #fff;
     cursor: text;
 }
+
+.btn-primary {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: $primary-text-color-1;
+}
+.btn-primary:hover {
+    background-color: $primary-color-2;
+    border-color: $primary-color-2;
+}
+
+.btn-xl {
+    padding: 20px 16px;
+    font-size: 18px;
+    line-height: 1.3333333;
+}
+
 .custom-dropdown .dropdown-menu{
     max-width: 420px;
     color: #333;
@@ -59,7 +76,7 @@ input[readonly].readonly-custom{
 }
 .panel-header.custom-header-1{
     background-color: #fff;
-    border-bottom: 1px solid #eee; 
+    border-bottom: 1px solid $primary-color-l1; 
     box-shadow: none;
     text-transform: none;
     cursor: pointer;
@@ -69,14 +86,14 @@ input[readonly].readonly-custom{
 }
 .panel-header.custom-header-2{
     text-align: center;
-    background-color: #eee;
+    background-color: $primary-color-l1;
     color: #428bca;
     /*cursor: auto;*/
 }
 .panel-header.custom-header-2:hover{
     color: #2a6496;
     text-decoration: underline;
-    background-color: #ddd;
+    background-color: $primary-color-l2;
 }
 .panel-header.custom-header-2 i{
     float: none;
@@ -92,7 +109,7 @@ input[readonly].readonly-custom{
     border-radius: 0;
 }
 .modal-custom .modal-footer{
-    background-color: #eee;
+    background-color: $primary-color-l1;
 }
 .object-name .input-group-addon{
     border-radius: 0;
@@ -101,7 +118,7 @@ input[readonly].readonly-custom{
 }
 
 .rd-container{
-    color: #333;
+    color: $primary-text-color-1;
     z-index: 2000;
 }
 .rd-day-body{

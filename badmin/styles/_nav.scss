@@ -5,16 +5,17 @@
     margin-right: auto;
     background-color: #fff;
     -moz-box-shadow:    0 2px 0 0 #ccc;
-    -webkit-box-shadow: 0 2px 0 0 #ccc;
-    box-shadow:         0 2px 0 0 #ccc;
+    -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+    box-shadow:         0 1px 0 rgba(0,0,0,0.05);
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
     border-radius: 0;
-    border: none;
+    border-bottom: $primary-color-l1;
+    
 
     a{
         font-size: 1.5em;
-        color: #333;
+        color: $primary-text-color-1;
     }
 	a i{
 	    @include transition-all(500ms);
@@ -49,12 +50,13 @@
 }
 .nav-logo{
     position: relative;
-    width: 250px;
+    width: 100%;
     height: 50px;
     margin: auto;
     overflow: hidden;
-    background-color: #fff;
-    border-right: 1px solid #eee;
+    background-color: $primary-color;
+    border-bottom: 1px solid #ececec;
+    // border-right: 1px solid #eee;
 
 	a{
 	    position: absolute;
@@ -62,7 +64,7 @@
     	padding: 7px;
 	    /*float: left;*/
 	    // padding: 4px 10px;
-	    // text-align: center;
+	    text-align: center;
 	    opacity: 1;
 	    
 	    @include transition-all(300ms);

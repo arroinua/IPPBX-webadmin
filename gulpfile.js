@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
     sass = require('gulp-ruby-sass'),
     autoprefixer = require('gulp-autoprefixer'),
+    sourcemaps = require('gulp-sourcemaps'),
     minifycss = require('gulp-minify-css'),
     rename = require('gulp-rename'),
     // jshint = require('gulp-jshint'),
@@ -8,7 +9,8 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     notify = require('gulp-notify'),
     del = require('del'),
-    zip = require('gulp-zip');
+    zip = require('gulp-zip'),
+    babel = require('gulp-babel');
 
 var getDateString = function(){
   
@@ -51,6 +53,17 @@ gulp.task('scripts', function() {
     .pipe(uglify())
     .pipe(gulp.dest('badmin/dist/badmin/js'))
     .pipe(notify({ message: 'Scripts task complete' }));
+});
+
+gulp.task('components', function() {
+  return gulp.src('badmin/components/**/*.jsx')
+    // .pipe(sourcemaps.init())
+    .pipe(babel({
+      presets: ['react']
+    }))
+    .pipe(concat('components.js'))
+    // .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('badmin/dist/badmin/js'))
 });
 
 gulp.task('zip', function() {

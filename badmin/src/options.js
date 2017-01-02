@@ -161,6 +161,7 @@ function load_pbx_options(result) {
 
     setAccordion('#featureopt-tab');
     if(result.services) setServices(result.services);
+    else PbxObject.options.services = [];
 }
 
 // function loadLdapOptions(opts){

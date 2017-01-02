@@ -55,9 +55,9 @@ function setTotalStore(result){
 		elStorefree = document.querySelector('.store-free'),
 		elStorelimit = document.querySelector('.store-limit');
 	
-	if(storesize) elStoresize.textContent = convertBytes(storesize, 'Byte', 'GB').toFixed(2);
-	if(storelimit) elStorelimit.textContent = convertBytes(storelimit, 'Byte', 'GB').toFixed(2);
-	if(storesize && storelimit) elStorefree.textContent = convertBytes((storelimit - storesize), 'Byte', 'GB').toFixed(2);
+	if(storesize !== undefined) elStoresize.textContent = convertBytes(storesize, 'Byte', 'GB').toFixed(2);
+	if(storelimit !== undefined) elStorelimit.textContent = convertBytes(storelimit, 'Byte', 'GB').toFixed(2);
+	if(storesize !== undefined && storelimit !== undefined) elStorefree.textContent = convertBytes((storelimit - storesize), 'Byte', 'GB').toFixed(2);
 }
 
 function createStorageRow(params){

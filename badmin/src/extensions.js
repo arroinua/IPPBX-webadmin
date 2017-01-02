@@ -532,7 +532,7 @@ function set_extension(kind){
         $('#el-extension').modal('hide');
     });
 
-    upload('upload-avatar', '/$AVATAR$?userid='+login);
+    upload('upload-avatar', '/$AVATAR$?userid='+(PbxObject.options.prefix + login));
 }
 
 function loadAvatar(e){

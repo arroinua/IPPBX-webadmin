@@ -159,10 +159,11 @@ function load_bgroup(result){
                 switchVisibility($enabledCont, eqtype === 'trunk');
             }
 
-            // if(eqtype == 'gateway'){
+            if(result.options.gateway !== undefined){
                 d.getElementById('regname').value = result.options.gateway.regname || '';
                 d.getElementById('regpass').value = result.options.gateway.regpass || '';
-            // }
+            }
+            
             if(eqtype == 'trunk'){
                 document.getElementById('tr-domain').value = result.options.trunk.domain || '';
                 document.getElementById('tr-user').value = result.options.trunk.user || '';

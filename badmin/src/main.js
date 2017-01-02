@@ -220,9 +220,9 @@ function handleMessage(data){
 function callbackOnId(id, result){
 
     if(id == 5){
-        PbxObject.CallsBoard.setCurrentCalls(result);
+        PbxObject.Dashboard.setCurrentCalls(result);
     } else if(id == 6){
-        PbxObject.CallsBoard.setCurrentState(result);
+        PbxObject.Dashboard.setCurrentState(result);
     } else if(id == 7){
         setCallStatistics(result);
     }
@@ -262,7 +262,7 @@ function init_page(){
     
     //set default loading page
     if(!location.hash.substring(1))
-        location.hash = 'calls';
+        location.hash = 'dashboard';
 
     load_pbx_options(PbxObject.options);
     get_object();

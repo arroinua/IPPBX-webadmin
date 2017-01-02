@@ -5,7 +5,7 @@ html, body {
   font-size: 100%;
   font: inherit;
   vertical-align: baseline;
-  background-color: #fff;
+  background-color: #f3f8f9;
 }
 
 .initCont {
@@ -14,7 +14,6 @@ html, body {
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: #37474F;
 }
 
 .initLangModal {
@@ -25,8 +24,8 @@ html, body {
   left: 50%;
   margin-top: -125px;
   margin-left: -150px;
-  background-color: #fefefe;
-  box-shadow: 0 2px 0 0 #ccc;
+  background-color: #fff;
+  box-shadow: 0 2px 0 0 #ececec;
 }
 
 .modalCont {
@@ -45,6 +44,7 @@ html, body {
 .modalCont .loader {
   width: 32px;
   height: 32px;
+  color: #333;
   -webkit-transform-origin: 50% 47%;
   transform-origin: 50% 47%;
   -ms-transform-origin: 50% 47%;

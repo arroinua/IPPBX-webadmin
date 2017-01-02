@@ -108,8 +108,8 @@
 }
 
 .tree li.active > a{
-  background-color: #37474F;
-  color: #fff;
+  background-color: $primary-color;
+  color: $primary-text-color-1;
 }
 
 .tree li.active > a:after {
@@ -117,12 +117,12 @@
 	position: absolute;
 	margin-left: 7px;
 	font-size: 1.2em;
-	color: #333;
+	color: $primary-text-color-1;
 }
 
 .tree label{
   cursor: pointer;
-  color: #333;
+  color: $primary-text-color-1;
 }
 
 .tree input[name="tree-node"]{

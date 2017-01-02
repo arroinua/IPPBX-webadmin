@@ -1,6 +1,7 @@
 .pbx-options{
-    color: #ccc;
+    color: $primary-text-color-1;
     overflow-x: hidden;
+    border-left: 1px solid $primary-color-l2;
     transform:translateX(100%);
     -ms-transform:translateX(100%);
     -webkit-transform:translateX(100%);
@@ -12,10 +13,10 @@
     }
     .options-nav{
         margin-bottom: 20px;
-        background-color: $primary-color;
+        background-color: $secondary-color;
     }
     .nav-bar-nav a{
-        color: #eee;
+        color: $primary-text-color-1;
     }
     .panel-body{
         background-color: $primary-color;
@@ -42,6 +43,31 @@
             border-bottom: 1px solid #ccc;
             margin: 20px 0;
         }
+    }
+
+    ul.tab-toggles{
+        position: relative;
+        list-style: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    ul.tab-toggles li{
+        position: relative;
+        display: block;
+        line-height: 20px;
+        width: 100%;
+        margin-bottom: 10px; 
+    }
+    ul.tab-toggles li a{
+        position: relative;
+        display: block;
+        width: 90%;
+        margin: 0 auto;
+        padding: 11.5px 20px;
+        text-decoration: none;
+        border: 1px solid #333;
+        color: $primary-text-color-1;
     }
     
 }

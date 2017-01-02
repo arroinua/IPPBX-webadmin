@@ -1,0 +1,54 @@
+<form>
+	<div class="row">
+		<div class="col-sm-8">
+			<div class="form-group">
+			    <label for="group-name">Group name</label>
+			    <input type="text" class="form-control" name="group-name" placeholder="Group name">
+			</div>
+
+            <div class="form-group">
+                <label for="available-users" class="control-label" data-toggle="tooltip" title="{{EXT_SETTS__EXTENSION}}">{{frases.NUMBER}}</label>
+                <select id="available-users" class="form-control select2"></select>
+            </div>
+            <div class="form-group">
+                <label for="user-name" class="control-label" data-toggle="tooltip" title="{{EXT_SETTS__NAME}}">{{NAME}}</label>
+                <input type="text" class="form-control" id="user-name" placeholder="{{NAME}}">
+            </div>
+            <div class="form-group">
+                <label for="user-dname" class="control-label" data-toggle="tooltip" title="{{EXT_SETTS__DISPLAY_NAME}}">{{DISPLAY}}</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="user-alias" placeholder="{{DISPLAY}}">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" onclick="copyFromField(this, 'user-name')">
+                            <i class="fa fa-exchange" data-toggle="tooltip" title="{{COPY}}"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="user-pass" class="control-label" data-toggle="tooltip" title="{{EXT_SETTS__PASSWORD}}">{{PASSWORD}}</label>
+                <div class="input-group">
+                    <input type="password" name="trunk" class="form-control" id="user-pass" placeholder="{{PASSWORD}}">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                            <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                        </button>
+                        <button type="button" class="btn btn-default" onclick="generatePassword(this)">
+                            <i class="fa fa-refresh" data-toggle="tooltip" title="{{GENERATE_PWD}}"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+
+		</div>
+    	<div class="col-sm-4">
+    		<div class="form-group">
+    		    <label for="group-name">Extensions type</label>
+    		    <select class="form-control" name="group-type">
+    		    	<option value="user"><i class="fa fa-user"></i> Users</option>
+    		    	<option value="phone"><i class="fa fa-fax"></i> Equipment</option>
+    		    </select>
+    		</div>
+    	</div>
+	</div>
+</form>

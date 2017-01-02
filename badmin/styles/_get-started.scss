@@ -1,0 +1,45 @@
+.gs-items-cont {
+
+	position: relative;
+	width: 100%;
+	overflow: auto;
+
+	.gs-items {
+
+		width: 1100px;
+		padding: 0;
+
+		.gs-item {
+			display: inline-block;
+			position: relative;
+			float: left;
+			width: 270px;
+			padding: 10px;
+			padding-right: 20px;
+			vertical-align: top;
+			border-left: 5px solid #eee;
+			margin-bottom: 10px;
+
+			&:after {
+				content: "";
+				position: absolute;
+				right: 7px;
+				top: 15px;
+				width: 15px;
+				height: 15px;
+				border-top: 1px solid #777;
+				border-right: 1px solid #777;
+				transform: rotate(45deg);
+			}
+
+			&.gs-done {
+				border-left-color: green;
+			}
+
+			.gs-item-header {
+				margin-bottom: 10px; 
+			}
+		}
+
+	}
+}

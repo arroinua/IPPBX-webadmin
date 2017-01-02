@@ -1,6 +1,6 @@
 .panel{
     border-radius: 0;
-    border: none;
+    border: 1px solid #eee;
     background-color: #fff;
     margin-bottom: 20px;
 
@@ -39,14 +39,14 @@
     margin: 0;
     padding: 15px;
     text-transform: uppercase;
-    background-color: #fff;
+    background-color: $secondary-color;
     border-bottom: 1px solid #eee;
-    color: #555;
+    color: $primary-text-color-2;
     cursor: pointer;
 
     i{
     	@extend .context-icon;
-   		color: #555;
+   		color: $primary-text-color-2;
     }
 }
 .panel-body{
@@ -58,4 +58,26 @@
 	@media only screen and (max-width: $handheld) {
         padding: 5px;
 	}
+}
+
+.pl-img{
+    text-align: right;
+    vertical-align: middle;
+    // line-height: 2.5em;
+    margin: 0;
+}
+.pl-img i{
+    padding: 15px;
+    border-radius: 50%;
+    background-color: rgb(250,250,250);
+}
+.pl-txt{
+    padding: 1px;
+    // margin-bottom: 20px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    background-color: $primary-color;
+}
+.pl-txt h5{
+    color: $primary-text-color-1;
 }

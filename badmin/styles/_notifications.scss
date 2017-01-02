@@ -5,13 +5,14 @@
     width: 400px;
     left: 50%;
     margin-left: -200px; 
-    background: #333;
+    background: #fff;
     text-align: center;
     line-height: 2.5;
-    -webkit-box-shadow: 0 0 5px black;
-    -moz-box-shadow:    0 0 5px black;
-    box-shadow:         0 0 5px black;
-    color: #fff;
+    -webkit-box-shadow: 0 0 5px $primary-color-l1;
+    box-shadow:         0 0 5px $primary-color-l1;
+    border: 1px solid #333;
+    border-top: none;
+    color: #333;
     animation: slideDown 7s;
     -webkit-animation: slideDown 7s;
 
@@ -28,7 +29,7 @@
     top: 0;
     right: 0;
     padding: 7px;
-    color: #fff;
+    color: #333;
     cursor: pointer;
 }
 

@@ -723,8 +723,8 @@ function showAttObjectSetts(params, object){
         $(cont).html(rendered);
 
         var cont = document.getElementById('att-setts-cont'),
-        connEl = document.querySelector('#ext-general select[name="data"]'),
-        btnEl = document.querySelector('#ext-general select[name="button"]');
+        connEl = document.querySelector('#att-setts-form select[name="data"]'),
+        btnEl = document.querySelector('#att-setts-form select[name="button"]');
 
         if(connEl && params.connector) connEl.value = params.connector;
         if(btnEl && params.button) btnEl.value = params.button;
@@ -1290,10 +1290,11 @@ function load_bgroup(result){
                 switchVisibility($enabledCont, eqtype === 'trunk');
             }
 
-            // if(eqtype == 'gateway'){
+            if(result.options.gateway !== undefined){
                 d.getElementById('regname').value = result.options.gateway.regname || '';
                 d.getElementById('regpass').value = result.options.gateway.regpass || '';
-            // }
+            }
+            
             if(eqtype == 'trunk'){
                 document.getElementById('tr-domain').value = result.options.trunk.domain || '';
                 document.getElementById('tr-user').value = result.options.trunk.user || '';
@@ -3180,8 +3181,9 @@ function add_cli_row(object){
     // tr.appendChild(td);
     // table.appendChild(tr);
 }
-function CallsBoard(){
-    var loaded = false,
+function Dashboard(){
+    var self = this,
+        loaded = false,
         inc = document.querySelectorAll('.calls-incoming'),
         out = document.querySelectorAll('.calls-outgoing'),
         conn = document.querySelectorAll('.calls-connected'),
@@ -3189,7 +3191,7 @@ function CallsBoard(){
         ttrunks = document.getElementById('calls-trunks').querySelector('tbody'),
         tcalls = document.getElementById('calls-table').querySelector('tbody'),
         lrow = ttrunks.rows.length,
-        self = this,
+        trunks = [],
         insData, outsData, intsData, lostData, linesData, time, item,
         row, cell, a, picker, chartData, chartOpts;
 
@@ -3206,6 +3208,10 @@ function CallsBoard(){
         this.update = setInterval(this.checkStates.bind(this), 1000);
         this.statUpdate = setInterval(this.updateStatistics.bind(this), 1800*1000);
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
+
+        set_page();
+
+        var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
 
     this.checkStates = function(){
@@ -3237,23 +3243,23 @@ function CallsBoard(){
             // console.log(loaded);
         }
 
-        var i, trunks = result.trunks;
+        trunks = result.trunks;
 
-        for (i = 0; i < inc.length; i++) {
+        for (var i = 0; i < inc.length; i++) {
             if(inc[i].textContent != result.in) inc[i].textContent = result.in;
         }
-        for (i = 0; i < out.length; i++) {
+        for (var i = 0; i < out.length; i++) {
             if(out[i].textContent != result.out) out[i].textContent = result.out;
         }
-        for (i = 0; i < conn.length; i++) {
+        for (var i = 0; i < conn.length; i++) {
             if(conn[i].textContent != result.conn) conn[i].textContent = result.conn;
         }
-        for (i = 0; i < load.length; i++) {
+        for (var i = 0; i < load.length; i++) {
             // load[i].textContent = Math.round(result.load) + '%';
             load[i].textContent = parseFloat(result.load).toFixed(1) + '%';
         }
 
-        for (i = 0; i < trunks.length; i++) {
+        for (var i = 0; i < trunks.length; i++) {
             
             var className = trunks[i].enabled ? 'success' : 'danger';
             if(ttrunks.rows[i]){
@@ -3267,7 +3273,7 @@ function CallsBoard(){
                 ttrunks.rows[i].cells[4].textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
                 if(ttrunks.rows[i].cells[5].textContent != trunks[i].address)
                     ttrunks.rows[i].cells[5].textContent = trunks[i].address;
-            } else{
+            } else {
                 row = ttrunks.insertRow(i);
                 
                 cell = row.insertCell(0);
@@ -3467,8 +3473,8 @@ function CallsBoard(){
 
 }
 
-function load_calls(){
-    PbxObject.CallsBoard = new CallsBoard();
+function load_dashboard(){
+    PbxObject.Dashboard = new Dashboard();
 }
 function load_extensions(result) {
     // console.log(result);
@@ -4004,7 +4010,7 @@ function set_extension(kind){
         $('#el-extension').modal('hide');
     });
 
-    upload('upload-avatar', '/$AVATAR$?userid='+login);
+    upload('upload-avatar', '/$AVATAR$?userid='+(PbxObject.options.prefix + login));
 }
 
 function loadAvatar(e){
@@ -4103,6 +4109,147 @@ function getUserInfo(userid){
     });
 }
 
+function GetStarted(container) {
+	var extensions = [],
+		trunks = [],
+		objects = PbxObject.objects,
+		icd = [],
+		hunting = [],
+		attendant = [],
+		welcomeModal = 'welcome-modal',
+		wgSteps = [],
+		tour = {};
+
+	this.init = function() {
+
+		// Get initial data fot the Widget
+		
+		json_rpc_async('getExtensions', null, function(result) {
+		    extensions = result;
+		    console.log('extensions:', extensions);
+		});
+
+		if(typeof objects === 'object') {
+			createWidget();
+		} else {
+			json_rpc_async('getObjects', {kind: 'all'}, function(result) {
+				objects = PbxObject.objects = result;
+
+				console.log('objects:', objects);
+				createWidget();
+			});
+		}
+
+		loadWelcomeModal();
+		createTour();
+		
+
+		// $('#init-wizard-btn').click(openWizard);
+	};
+
+	function startTour() {
+		tour.start();
+	}
+
+	function createTour() {
+		tour = new Tour({
+			name: "get-started",
+			backdrop: true,
+			backdropContainer: "#pagecontent",
+			storage: false,
+			steps: [
+				{
+					element: "#pbxmenu",
+					title: "Navigation",
+					content: "Navigate to the object of your Ringotel cloud using navigation menu."
+				}, {
+					element: "#el-slidemenu",
+					title: "Reports and Statistics",
+					content: "Watch reports and statistics, and monitor call records.",
+					placement: "left"
+				}, {
+					element: "#get-started-cont",
+					title: "Get Started",
+					content: "User Get Started guide to set up you cloud.",
+					placement: "bottom"
+				}
+			]
+		});
+		tour.init();
+	}
+
+	function createWidget() {
+
+		wgSteps = [
+			{
+				component: "AddExtensions",
+			    name: "addExtensions",
+			    icon: "fa fa-users",
+			    title: "Add extensions",
+			    desc: "Add extensions for company eployees",
+			    done: filterKinds(objects, 'users').length > 0 || filterKinds(objects, 'equipment').length > 0
+			}, {
+				component: "AddCallGroup",
+			    name: "addCallGroup",
+			    icon: "icon-headset_mic",
+			    title: "Create call group",
+			    desc: "Call groups defines how incomming calls would be handled and by whom",
+			    done: filterKinds(objects, 'icd').length > 0 || filterKinds(objects, 'hunting').length > 0
+			}, {
+				component: "AddTrunk",
+			    name: "addTrunk",
+			    icon: "fa fa-cloud",
+			    title: "Create trunk",
+			    desc: "Connect trunk to make and recieve calls from the outside world",
+			    done: filterKinds(objects, 'trunk').length > 0
+			}
+		];
+
+		ReactDOM.render(GsWidget({
+		    steps: wgSteps
+		}), document.getElementById('get-started-cont'));
+	}
+
+	function createExtGroup(params) {
+		console.log('createExtGroup', params);
+	}
+
+	function addExtension(params) {
+		console.log('addExtension: ', params);
+	}
+
+	function loadWelcomeModal() {
+		var modalCont = document.createElement('div');
+		$('body').prepend(modalCont);
+
+		ReactDOM.render(WelcomeModal({
+		    startTour: startTour
+		}), modalCont);
+
+		openModal('welcome-modal');
+
+		// getPartial('welcome-modal', function(template) {
+		// 	var data = {};
+		// 	data.frases = PbxObject.frases;
+		// 	rendered = Mustache.render(template, data);
+		// 	$('body').prepend(rendered);
+		// 	openModal('welcome-modal');
+		// });
+	}
+
+	function openModal(modalName, onShow) {
+		$('#'+modalName).modal();
+		if(onShow) 
+			$('#'+modalName).on('shown.bs.modal', onShow);
+	}
+
+	function filterKinds(array, kind) {
+		return array.filter(function(item) {
+			return item.kind === kind;
+		});
+	}
+		
+}
 function Ldap(options){
     var options = options || {},
     available = [],
@@ -4127,7 +4274,7 @@ function Ldap(options){
         };
         if(authData) {
             params.method = 'POST';
-            params.data = 'login='+authData.username+'&password='+authData.password;
+            params.data = 'username='+authData.username+'&password='+authData.password;
         }
         $.ajax(params).then(function(data){
             console.log('getExternalUsers: ', data);
@@ -4577,9 +4724,9 @@ function handleMessage(data){
 function callbackOnId(id, result){
 
     if(id == 5){
-        PbxObject.CallsBoard.setCurrentCalls(result);
+        PbxObject.Dashboard.setCurrentCalls(result);
     } else if(id == 6){
-        PbxObject.CallsBoard.setCurrentState(result);
+        PbxObject.Dashboard.setCurrentState(result);
     } else if(id == 7){
         setCallStatistics(result);
     }
@@ -4619,7 +4766,7 @@ function init_page(){
     
     //set default loading page
     if(!location.hash.substring(1))
-        location.hash = 'calls';
+        location.hash = 'dashboard';
 
     load_pbx_options(PbxObject.options);
     get_object();
@@ -6624,6 +6771,7 @@ function load_pbx_options(result) {
 
     setAccordion('#featureopt-tab');
     if(result.services) setServices(result.services);
+    else PbxObject.options.services = [];
 }
 
 // function loadLdapOptions(opts){
@@ -8784,9 +8932,9 @@ function setTotalStore(result){
 		elStorefree = document.querySelector('.store-free'),
 		elStorelimit = document.querySelector('.store-limit');
 	
-	if(storesize) elStoresize.textContent = convertBytes(storesize, 'Byte', 'GB').toFixed(2);
-	if(storelimit) elStorelimit.textContent = convertBytes(storelimit, 'Byte', 'GB').toFixed(2);
-	if(storesize && storelimit) elStorefree.textContent = convertBytes((storelimit - storesize), 'Byte', 'GB').toFixed(2);
+	if(storesize !== undefined) elStoresize.textContent = convertBytes(storesize, 'Byte', 'GB').toFixed(2);
+	if(storelimit !== undefined) elStorelimit.textContent = convertBytes(storelimit, 'Byte', 'GB').toFixed(2);
+	if(storesize !== undefined && storelimit !== undefined) elStorefree.textContent = convertBytes((storelimit - storesize), 'Byte', 'GB').toFixed(2);
 }
 
 function createStorageRow(params){
@@ -9464,3 +9612,34 @@ function set_trunk(){
         // }
     });
 };
+function load_wizard() {
+	console.log('load wizard!');
+
+	var activeTab = 'extensions';
+
+	$('a[href="#wizard-tab-'+activeTab+'"]').tab('show');
+
+	$('#wizard-tablist a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+		activeTab = e.target.getAttribute('data-tab');
+		loadTab(activeTab, '#wizard-tab-'+activeTab);
+		console.log('show.bs.tab: ', activeTab);
+	});
+
+	loadTab(activeTab, '#wizard-tab-'+activeTab);
+
+	show_content();
+}
+
+function loadTab(activeTab, container, params){
+	getPartial('wizards/'+activeTab, function(template) {
+		var data = {};
+		var rendered;
+
+		data.frases = PbxObject.frases;
+		if(params) data.data = params;
+
+		rendered = Mustache.render(template, data);
+
+		$(container).html(rendered);
+	});
+}

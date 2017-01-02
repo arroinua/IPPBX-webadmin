@@ -22,7 +22,7 @@ function Ldap(options){
         };
         if(authData) {
             params.method = 'POST';
-            params.data = 'login='+authData.username+'&password='+authData.password;
+            params.data = 'username='+authData.username+'&password='+authData.password;
         }
         $.ajax(params).then(function(data){
             console.log('getExternalUsers: ', data);

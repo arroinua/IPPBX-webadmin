@@ -1,5 +1,6 @@
-function CallsBoard(){
-    var loaded = false,
+function Dashboard(){
+    var self = this,
+        loaded = false,
         inc = document.querySelectorAll('.calls-incoming'),
         out = document.querySelectorAll('.calls-outgoing'),
         conn = document.querySelectorAll('.calls-connected'),
@@ -7,7 +8,7 @@ function CallsBoard(){
         ttrunks = document.getElementById('calls-trunks').querySelector('tbody'),
         tcalls = document.getElementById('calls-table').querySelector('tbody'),
         lrow = ttrunks.rows.length,
-        self = this,
+        trunks = [],
         insData, outsData, intsData, lostData, linesData, time, item,
         row, cell, a, picker, chartData, chartOpts;
 
@@ -24,6 +25,10 @@ function CallsBoard(){
         this.update = setInterval(this.checkStates.bind(this), 1000);
         this.statUpdate = setInterval(this.updateStatistics.bind(this), 1800*1000);
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
+
+        set_page();
+
+        var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
 
     this.checkStates = function(){
@@ -55,23 +60,23 @@ function CallsBoard(){
             // console.log(loaded);
         }
 
-        var i, trunks = result.trunks;
+        trunks = result.trunks;
 
-        for (i = 0; i < inc.length; i++) {
+        for (var i = 0; i < inc.length; i++) {
             if(inc[i].textContent != result.in) inc[i].textContent = result.in;
         }
-        for (i = 0; i < out.length; i++) {
+        for (var i = 0; i < out.length; i++) {
             if(out[i].textContent != result.out) out[i].textContent = result.out;
         }
-        for (i = 0; i < conn.length; i++) {
+        for (var i = 0; i < conn.length; i++) {
             if(conn[i].textContent != result.conn) conn[i].textContent = result.conn;
         }
-        for (i = 0; i < load.length; i++) {
+        for (var i = 0; i < load.length; i++) {
             // load[i].textContent = Math.round(result.load) + '%';
             load[i].textContent = parseFloat(result.load).toFixed(1) + '%';
         }
 
-        for (i = 0; i < trunks.length; i++) {
+        for (var i = 0; i < trunks.length; i++) {
             
             var className = trunks[i].enabled ? 'success' : 'danger';
             if(ttrunks.rows[i]){
@@ -85,7 +90,7 @@ function CallsBoard(){
                 ttrunks.rows[i].cells[4].textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
                 if(ttrunks.rows[i].cells[5].textContent != trunks[i].address)
                     ttrunks.rows[i].cells[5].textContent = trunks[i].address;
-            } else{
+            } else {
                 row = ttrunks.insertRow(i);
                 
                 cell = row.insertCell(0);
@@ -285,6 +290,6 @@ function CallsBoard(){
 
 }
 
-function load_calls(){
-    PbxObject.CallsBoard = new CallsBoard();
+function load_dashboard(){
+    PbxObject.Dashboard = new Dashboard();
 }

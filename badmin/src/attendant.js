@@ -581,8 +581,8 @@ function showAttObjectSetts(params, object){
         $(cont).html(rendered);
 
         var cont = document.getElementById('att-setts-cont'),
-        connEl = document.querySelector('#ext-general select[name="data"]'),
-        btnEl = document.querySelector('#ext-general select[name="button"]');
+        connEl = document.querySelector('#att-setts-form select[name="data"]'),
+        btnEl = document.querySelector('#att-setts-form select[name="button"]');
 
         if(connEl && params.connector) connEl.value = params.connector;
         if(btnEl && params.button) btnEl.value = params.button;
