@@ -13,12 +13,12 @@
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
 
-    z-index: 100;
+    // z-index: 100;
 
     &.pbx-menu{
         width: 250px;
         left: 0;
-        z-index: 50;
+        // z-index: 50;
 
         @media only screen and (max-width: $handheld) {
             -ms-transform:translateX(-100%);
