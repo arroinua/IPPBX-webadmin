@@ -271,6 +271,10 @@ function init_page(){
         delay: {"show": 1000, "hide": 100}
     });
 
+    $('.tab-switcher', '#pbxoptions').click(function(e) {
+        switch_options_tab($(this).attr('data-tab'));
+    });
+
     // var wizzard = Wizzard({frases: PbxObject.frases});
 }
 
@@ -606,15 +610,12 @@ function toggle_menu(){
 }
 
 function open_options(e){
-    // get_pbx_options();
-    // $(this).off('click');
-    // $(this).addClass('spinner');
-    // $('#pbxoptions').addClass('top-layer');
-    if(e) e.preventDefault();
-    toggle_presentation();
+    $('#el-slidemenu').addClass('hide-menu');
+    $('#pagecontent').addClass('pushed-left');
+    $('#pbxoptions').addClass('pushed-left');
+    isOptionsOpened(true);
 }
 function close_options(e){
-    // $('.options-open', '#pagecontent').click(open_options);
     $('#pagecontent').removeClass('pushed-left');
     $('#pbxoptions').removeClass('pushed-left');
     $('#el-slidemenu').removeClass('hide-menu');
@@ -622,7 +623,12 @@ function close_options(e){
        $('#pbxoptions').removeClass('top-layer');
        $('#el-options-content').remove();
     }, 500);
-    if(e) e.preventDefault();
+    isOptionsOpened(false);
+}
+
+function isOptionsOpened(bool) {
+    if(bool !== undefined) PbxObject.optionsOpened = bool;
+    return PbxObject.optionsOpened ? true : false;
 }
 
 function showModal(modalId, data, onsubmit, onopen, onclose){
@@ -691,11 +697,9 @@ function toggle_presentation() {
     // $('.options-open', '#pagecontent').removeClass('spinner');
     $('#pagecontent').addClass('pushed-left');
     $('#pbxoptions').addClass('pushed-left');
-    $('.tab-switcher', '#pbxoptions').click(function(e) {
-        var e = e || window.event;
-        switch_options_tab($(this).attr('data-tab'));
-        e.preventDefault();
-    });
+    // $('.tab-switcher', '#pbxoptions').click(function(e) {
+    //     switch_options_tab($(this).attr('data-tab'));
+    // });
 }
 
 function show_loading_panel(container){
