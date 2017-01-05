@@ -27,6 +27,7 @@ function Dashboard(){
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
         set_page();
+        createTour();
 
         var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
@@ -287,6 +288,81 @@ function Dashboard(){
     };
 
     this.init();
+
+    function createTour() {
+        PbxObject.tours = PbxObject.tours || {};
+
+        PbxObject.tours.dashboard = new Tour({
+            name: "get-started",
+            backdrop: true,
+            backdropContainer: "#pagecontent",
+            storage: false,
+            steps: [
+                {
+                    orphan: true,
+                    title: "Ringotel Dashboard",
+                    content: "Dashboard is where you can in real time monitor calls and instance payload, trunks state and missed calls."
+                }, {
+                    backdropPadding: { top: 10 },
+                    element: "#dash-graph-cont",
+                    title: "Real-time reports",
+                    content: "Shows the amount of calls and lines payload for the last several hours.",
+                    placement: "top"
+                }, {
+                    backdropPadding: { top: 10 },
+                    element: "#dash-monitor-cont",
+                    title: "Real-time monitoring",
+                    content: "Shows current amount of calls and lines payload.",
+                    placement: "top"
+                }, {
+                    element: "#dash-trstate-cont",
+                    title: "Trunks state monitoring",
+                    content: "Shows registration state of all created trunks.",
+                    placement: "top"
+                }, {
+                    element: "#dash-callmonitor-cont",
+                    title: "Calls monitoring",
+                    content: "Shows the list of current calls.",
+                    placement: "top"
+                }, {
+                    element: "#pbxmenu",
+                    title: "Navigation",
+                    content: "Navigate to the object of your Ringotel cloud using navigation menu.",
+                    placement: "right"
+                }, {
+                    element: "#history-dropdown-cont",
+                    title: "Reports and Statistics",
+                    content: "Watch reports and statistics, and monitor call records.",
+                    placement: "left"
+                }, {
+                    reflex: true,
+                    element: "#open-opts-btn",
+                    content: "Click this icon to open options panel",
+                    placement: "left",
+                    onShow: function() {
+                        if(isOptionsOpened()) close_options();
+                    }
+                }, {
+                    element: "#pbxoptions",
+                    title: "Options panel",
+                    content: "Here you can set instance options, manage services integrations, monitor cloud storage and many more...",
+                    placement: "left",
+                    onShow: function() {
+                        if(!isOptionsOpened()) open_options();
+                    }
+                }, {
+                    element: "#get-started-cont",
+                    title: "Get Started",
+                    content: "Use Get Started guide to set up you cloud.",
+                    placement: "bottom",
+                    onShow: function() {
+                        if(isOptionsOpened()) close_options();
+                    }
+                }
+            ]
+        });
+        PbxObject.tours.dashboard.init();
+    }
 
 }
 

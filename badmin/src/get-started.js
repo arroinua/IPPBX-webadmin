@@ -12,59 +12,51 @@ function GetStarted(container) {
 	this.init = function() {
 
 		// Get initial data fot the Widget
-		
-		json_rpc_async('getExtensions', null, function(result) {
-		    extensions = result;
-		    console.log('extensions:', extensions);
-		});
 
 		if(typeof objects === 'object') {
 			createWidget();
 		} else {
-			json_rpc_async('getObjects', {kind: 'all'}, function(result) {
-				objects = PbxObject.objects = result;
 
-				console.log('objects:', objects);
-				createWidget();
+			json_rpc_async('getExtensions', null, function(exts) {
+			    extensions = exts;
+			    console.log('extensions:', extensions);
+
+			    json_rpc_async('getObjects', {kind: 'all'}, function(objs) {
+			    	objects = PbxObject.objects = objs;
+
+			    	console.log('objects:', objects);
+
+			    	createWidget();
+
+			    	if(doWelcomeModalNeeded())
+			    		loadWelcomeModal();
+			    });
+
 			});
 		}
-
-		loadWelcomeModal();
-		createTour();
 		
-
-		// $('#init-wizard-btn').click(openWizard);
 	};
 
-	function startTour() {
-		tour.start();
+	function doWelcomeModalNeeded() {
+		var noRoutesObjs = filterKinds(objects, 'routes', true);
+		return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
 	}
 
-	function createTour() {
-		tour = new Tour({
-			name: "get-started",
-			backdrop: true,
-			backdropContainer: "#pagecontent",
-			storage: false,
-			steps: [
-				{
-					element: "#pbxmenu",
-					title: "Navigation",
-					content: "Navigate to the object of your Ringotel cloud using navigation menu."
-				}, {
-					element: "#el-slidemenu",
-					title: "Reports and Statistics",
-					content: "Watch reports and statistics, and monitor call records.",
-					placement: "left"
-				}, {
-					element: "#get-started-cont",
-					title: "Get Started",
-					content: "User Get Started guide to set up you cloud.",
-					placement: "bottom"
-				}
-			]
-		});
-		tour.init();
+	function loadWelcomeModal() {
+	    var modalCont = document.createElement('div');
+	    $('body').prepend(modalCont);
+
+	    ReactDOM.render(WelcomeModal({
+	        startTour: startTour
+	    }), modalCont);
+
+	    $('#welcome-modal').modal();
+
+	    appStorage.set('welcomed', true);
+	}
+
+	function startTour() {
+	    PbxObject.tours.dashboard.start();
 	}
 
 	function createWidget() {
@@ -99,42 +91,9 @@ function GetStarted(container) {
 		}), document.getElementById('get-started-cont'));
 	}
 
-	function createExtGroup(params) {
-		console.log('createExtGroup', params);
-	}
-
-	function addExtension(params) {
-		console.log('addExtension: ', params);
-	}
-
-	function loadWelcomeModal() {
-		var modalCont = document.createElement('div');
-		$('body').prepend(modalCont);
-
-		ReactDOM.render(WelcomeModal({
-		    startTour: startTour
-		}), modalCont);
-
-		openModal('welcome-modal');
-
-		// getPartial('welcome-modal', function(template) {
-		// 	var data = {};
-		// 	data.frases = PbxObject.frases;
-		// 	rendered = Mustache.render(template, data);
-		// 	$('body').prepend(rendered);
-		// 	openModal('welcome-modal');
-		// });
-	}
-
-	function openModal(modalName, onShow) {
-		$('#'+modalName).modal();
-		if(onShow) 
-			$('#'+modalName).on('shown.bs.modal', onShow);
-	}
-
-	function filterKinds(array, kind) {
+	function filterKinds(array, kind, out) {
 		return array.filter(function(item) {
-			return item.kind === kind;
+			return out ? item.kind !== kind : item.kind === kind;
 		});
 	}
 		
