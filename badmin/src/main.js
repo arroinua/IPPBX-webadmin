@@ -1175,6 +1175,9 @@ function delete_extension(e){
         msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
         c = confirm(msg);
 
+    PbxObject.members = PbxObject.members || {};
+    PbxObject.available = PbxObject.available || {};
+
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             if(anchor) {
