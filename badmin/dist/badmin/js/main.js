@@ -3210,6 +3210,7 @@ function Dashboard(){
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
         set_page();
+        createTour();
 
         var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
@@ -3470,6 +3471,81 @@ function Dashboard(){
     };
 
     this.init();
+
+    function createTour() {
+        PbxObject.tours = PbxObject.tours || {};
+
+        PbxObject.tours.dashboard = new Tour({
+            name: "get-started",
+            backdrop: true,
+            backdropContainer: "#pagecontent",
+            storage: false,
+            steps: [
+                {
+                    orphan: true,
+                    title: "Ringotel Dashboard",
+                    content: "Dashboard is where you can in real time monitor calls and instance payload, trunks state and missed calls."
+                }, {
+                    backdropPadding: { top: 10 },
+                    element: "#dash-graph-cont",
+                    title: "Real-time reports",
+                    content: "Shows the amount of calls and lines payload for the last several hours.",
+                    placement: "top"
+                }, {
+                    backdropPadding: { top: 10 },
+                    element: "#dash-monitor-cont",
+                    title: "Real-time monitoring",
+                    content: "Shows current amount of calls and lines payload.",
+                    placement: "top"
+                }, {
+                    element: "#dash-trstate-cont",
+                    title: "Trunks state monitoring",
+                    content: "Shows registration state of all created trunks.",
+                    placement: "top"
+                }, {
+                    element: "#dash-callmonitor-cont",
+                    title: "Calls monitoring",
+                    content: "Shows the list of current calls.",
+                    placement: "top"
+                }, {
+                    element: "#pbxmenu",
+                    title: "Navigation",
+                    content: "Navigate to the object of your Ringotel cloud using navigation menu.",
+                    placement: "right"
+                }, {
+                    element: "#history-dropdown-cont",
+                    title: "Reports and Statistics",
+                    content: "Watch reports and statistics, and monitor call records.",
+                    placement: "left"
+                }, {
+                    reflex: true,
+                    element: "#open-opts-btn",
+                    content: "Click this icon to open options panel",
+                    placement: "left",
+                    onShow: function() {
+                        if(isOptionsOpened()) close_options();
+                    }
+                }, {
+                    element: "#pbxoptions",
+                    title: "Options panel",
+                    content: "Here you can set instance options, manage services integrations, monitor cloud storage and many more...",
+                    placement: "left",
+                    onShow: function() {
+                        if(!isOptionsOpened()) open_options();
+                    }
+                }, {
+                    element: "#get-started-cont",
+                    title: "Get Started",
+                    content: "Use Get Started guide to set up you cloud.",
+                    placement: "bottom",
+                    onShow: function() {
+                        if(isOptionsOpened()) close_options();
+                    }
+                }
+            ]
+        });
+        PbxObject.tours.dashboard.init();
+    }
 
 }
 
@@ -4123,59 +4199,51 @@ function GetStarted(container) {
 	this.init = function() {
 
 		// Get initial data fot the Widget
-		
-		json_rpc_async('getExtensions', null, function(result) {
-		    extensions = result;
-		    console.log('extensions:', extensions);
-		});
 
 		if(typeof objects === 'object') {
 			createWidget();
 		} else {
-			json_rpc_async('getObjects', {kind: 'all'}, function(result) {
-				objects = PbxObject.objects = result;
 
-				console.log('objects:', objects);
-				createWidget();
+			json_rpc_async('getExtensions', null, function(exts) {
+			    extensions = exts;
+			    console.log('extensions:', extensions);
+
+			    json_rpc_async('getObjects', {kind: 'all'}, function(objs) {
+			    	objects = PbxObject.objects = objs;
+
+			    	console.log('objects:', objects);
+
+			    	createWidget();
+
+			    	if(doWelcomeModalNeeded())
+			    		loadWelcomeModal();
+			    });
+
 			});
 		}
-
-		loadWelcomeModal();
-		createTour();
 		
-
-		// $('#init-wizard-btn').click(openWizard);
 	};
 
-	function startTour() {
-		tour.start();
+	function doWelcomeModalNeeded() {
+		var noRoutesObjs = filterKinds(objects, 'routes', true);
+		return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
 	}
 
-	function createTour() {
-		tour = new Tour({
-			name: "get-started",
-			backdrop: true,
-			backdropContainer: "#pagecontent",
-			storage: false,
-			steps: [
-				{
-					element: "#pbxmenu",
-					title: "Navigation",
-					content: "Navigate to the object of your Ringotel cloud using navigation menu."
-				}, {
-					element: "#el-slidemenu",
-					title: "Reports and Statistics",
-					content: "Watch reports and statistics, and monitor call records.",
-					placement: "left"
-				}, {
-					element: "#get-started-cont",
-					title: "Get Started",
-					content: "User Get Started guide to set up you cloud.",
-					placement: "bottom"
-				}
-			]
-		});
-		tour.init();
+	function loadWelcomeModal() {
+	    var modalCont = document.createElement('div');
+	    $('body').prepend(modalCont);
+
+	    ReactDOM.render(WelcomeModal({
+	        startTour: startTour
+	    }), modalCont);
+
+	    $('#welcome-modal').modal();
+
+	    appStorage.set('welcomed', true);
+	}
+
+	function startTour() {
+	    PbxObject.tours.dashboard.start();
 	}
 
 	function createWidget() {
@@ -4210,42 +4278,9 @@ function GetStarted(container) {
 		}), document.getElementById('get-started-cont'));
 	}
 
-	function createExtGroup(params) {
-		console.log('createExtGroup', params);
-	}
-
-	function addExtension(params) {
-		console.log('addExtension: ', params);
-	}
-
-	function loadWelcomeModal() {
-		var modalCont = document.createElement('div');
-		$('body').prepend(modalCont);
-
-		ReactDOM.render(WelcomeModal({
-		    startTour: startTour
-		}), modalCont);
-
-		openModal('welcome-modal');
-
-		// getPartial('welcome-modal', function(template) {
-		// 	var data = {};
-		// 	data.frases = PbxObject.frases;
-		// 	rendered = Mustache.render(template, data);
-		// 	$('body').prepend(rendered);
-		// 	openModal('welcome-modal');
-		// });
-	}
-
-	function openModal(modalName, onShow) {
-		$('#'+modalName).modal();
-		if(onShow) 
-			$('#'+modalName).on('shown.bs.modal', onShow);
-	}
-
-	function filterKinds(array, kind) {
+	function filterKinds(array, kind, out) {
 		return array.filter(function(item) {
-			return item.kind === kind;
+			return out ? item.kind !== kind : item.kind === kind;
 		});
 	}
 		
@@ -4775,6 +4810,10 @@ function init_page(){
         delay: {"show": 1000, "hide": 100}
     });
 
+    $('.tab-switcher', '#pbxoptions').click(function(e) {
+        switch_options_tab($(this).attr('data-tab'));
+    });
+
     // var wizzard = Wizzard({frases: PbxObject.frases});
 }
 
@@ -5110,15 +5149,12 @@ function toggle_menu(){
 }
 
 function open_options(e){
-    // get_pbx_options();
-    // $(this).off('click');
-    // $(this).addClass('spinner');
-    // $('#pbxoptions').addClass('top-layer');
-    if(e) e.preventDefault();
-    toggle_presentation();
+    $('#el-slidemenu').addClass('hide-menu');
+    $('#pagecontent').addClass('pushed-left');
+    $('#pbxoptions').addClass('pushed-left');
+    isOptionsOpened(true);
 }
 function close_options(e){
-    // $('.options-open', '#pagecontent').click(open_options);
     $('#pagecontent').removeClass('pushed-left');
     $('#pbxoptions').removeClass('pushed-left');
     $('#el-slidemenu').removeClass('hide-menu');
@@ -5126,7 +5162,12 @@ function close_options(e){
        $('#pbxoptions').removeClass('top-layer');
        $('#el-options-content').remove();
     }, 500);
-    if(e) e.preventDefault();
+    isOptionsOpened(false);
+}
+
+function isOptionsOpened(bool) {
+    if(bool !== undefined) PbxObject.optionsOpened = bool;
+    return PbxObject.optionsOpened ? true : false;
 }
 
 function showModal(modalId, data, onsubmit, onopen, onclose){
@@ -5195,11 +5236,9 @@ function toggle_presentation() {
     // $('.options-open', '#pagecontent').removeClass('spinner');
     $('#pagecontent').addClass('pushed-left');
     $('#pbxoptions').addClass('pushed-left');
-    $('.tab-switcher', '#pbxoptions').click(function(e) {
-        var e = e || window.event;
-        switch_options_tab($(this).attr('data-tab'));
-        e.preventDefault();
-    });
+    // $('.tab-switcher', '#pbxoptions').click(function(e) {
+    //     switch_options_tab($(this).attr('data-tab'));
+    // });
 }
 
 function show_loading_panel(container){
@@ -5674,6 +5713,9 @@ function delete_extension(e){
         group = PbxObject.kind === 'extensions' ? row.cells[2].textContent : PbxObject.name,
         msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
         c = confirm(msg);
+
+    PbxObject.members = PbxObject.members || {};
+    PbxObject.available = PbxObject.available || {};
 
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
@@ -8874,6 +8916,37 @@ function Statistics(){
     };
 
     this._init();
+}
+var appStorage = new AppStorage('app-storage', 'localStorage');
+
+function AppStorage(id, type) {
+
+	if(type !== 'localStorage' && type !== 'sessionStorage')
+		return console.error('No such storage type. Choose either "localStorage" or "sessionStorage".');
+
+	var glObj = window[type],
+		cache = glObj.getItem(id) ? JSON.parse(glObj.getItem(id)) : {};
+
+	this.set = function(key, data, cacheOnly) {
+		cache[key] = data;
+		if(!cacheOnly) glObj.setItem(id, JSON.stringify(cache));
+		return this;
+	};
+
+	this.get = function(key) {
+		return key ? cache[key] : cache;
+	};
+
+	this.remove = function(key) {
+		key ? delete cache[key] : cache = {};
+		return this;
+	};
+
+	this.setType = function(type) {
+		if(window[type]) glObj = window[type];
+		return this;
+	};
+		
 }
 function load_storages(){
 	var storeTable,
