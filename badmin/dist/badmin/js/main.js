@@ -1342,7 +1342,7 @@ function load_bgroup(result){
             if(result.options.timeout !== undefined)
                 d.getElementById("timeout2").value = result.options.timeout;
             if(result.options.huntmode  !== undefined)
-                d.getElementById("huntmode2").value = result.options.huntmode;
+                d.getElementById("huntmode2").value = result.options.huntmode || 1;
             if(result.options.huntfwd  !== undefined)
                 d.getElementById("huntfwd2").checked = result.options.huntfwd;
         } else if(kind == 'pickup'){
