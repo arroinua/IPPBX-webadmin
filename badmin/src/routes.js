@@ -226,6 +226,9 @@ function build_route_row(route, objects){
     number.setAttribute('type', 'text');
     number.setAttribute('name', 'number');
     number.setAttribute('size', '12');
+
+    rowData.groupid = PbxObject.oid;
+
     if(route != null) {
         number.value = route.number;
         rowData.oid = route.oid;
@@ -381,17 +384,23 @@ function build_route_row(route, objects){
 
 function setRoute(data, callback){
     var jprms = '',
+        params = data,
         cb = callback || null;
-    if(data.oid) jprms += '\"oid\":\"'+data.oid+'\",';
-    jprms += '\"groupid\":\"'+PbxObject.oid+'\",';
-    jprms += '"number":"'+data.number+'",';
-    jprms += '"description":"'+data.description+'",';
-    jprms += '"target":{"oid":"'+data.target.oid+'", "name":"'+data.target.name+'"},';
-    jprms += '"priority":'+data.priority+',';
-    jprms += '"cost":'+data.cost+',';
+
+    if(data.oid) params.oid = data.oid;
+    if(data.priority) params.priority = parseFloat(data.priority);
+    if(data.cost) params.cost = parseFloat(data.cost);
+
+    // if(data.oid) jprms += '\"oid\":\"'+data.oid+'\",';
+    // jprms += '\"groupid\":\"'+PbxObject.oid+'\",';
+    // jprms += '"number":"'+data.number+'",';
+    // jprms += '"description":"'+data.description+'",';
+    // jprms += '"target":{"oid":"'+data.target.oid+'", "name":"'+data.target.name+'"},';
+    // jprms += '"priority":'+data.priority+',';
+    // jprms += '"cost":'+data.cost+',';
     
-    // console.log(jprms);
-    json_rpc_async('setRoute', jprms, cb);
+    console.log(params);
+    json_rpc_async('setRoute', params, cb);
 }
 
 function deleteRoute(routeOid){

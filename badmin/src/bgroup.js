@@ -1,5 +1,5 @@
 function load_bgroup(result){
-    // console.log(result);
+    console.log('load_bgroup: ', result);
     switch_presentation(result.kind);
     // switch_tab(result.kind);
     var i, cl,
@@ -35,7 +35,7 @@ function load_bgroup(result){
             });
         }
     }
-    if(kind == 'users' || kind == 'equipment') {
+    if(kind === 'users' || kind === 'equipment') {
         var table = document.getElementById('group-extensions').querySelector('tbody'),
             available = document.getElementById('available-users'),
             protocol = document.getElementById('group-protocol'),
@@ -123,19 +123,16 @@ function load_bgroup(result){
         // changeGroupType(type);
 
     } else {
-        // add_search_handler();
-        // $('.selectable-cont').click(function(e){
-        //     if(e.target.getAttribute('data-value')) {
-        //         move_list_item(e);
-        //     } else if(e.target.classList.contains('assign-all')) {
-        //         move_list('members', 'available');
-        //     } else if(e.target.classList.contains('unassign-all')) {
-        //         move_list('available', 'members');
-        //     }
-        // });
+        
         if(availableUsers) fill_list_items('available', availableUsers);
         // if(members) fill_list_items('members', members.sort());
         if(members) fill_list_items('members', members);
+
+        // Render route parameters
+        renderObjRoute({
+            currentRoute: result.ext,
+            onChange: setCurrObjRoute
+        });
     }
 
     if(result.options){
@@ -873,6 +870,14 @@ function set_bgroup(param, callback){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
         if(!result) enabled.checked = false;
+
+        // Add new route to the object
+        if(PbxObject.currentObjRoute) {
+            setRoute({
+                number: PbxObject.currentObjRoute,
+                target: { oid: result, name: name }
+            });
+        }
     });
     // console.log(jprms);
 }

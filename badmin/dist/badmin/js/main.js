@@ -1130,7 +1130,7 @@ function set_attendant(){
 }
 
 function load_bgroup(result){
-    // console.log(result);
+    console.log('load_bgroup: ', result);
     switch_presentation(result.kind);
     // switch_tab(result.kind);
     var i, cl,
@@ -1166,7 +1166,7 @@ function load_bgroup(result){
             });
         }
     }
-    if(kind == 'users' || kind == 'equipment') {
+    if(kind === 'users' || kind === 'equipment') {
         var table = document.getElementById('group-extensions').querySelector('tbody'),
             available = document.getElementById('available-users'),
             protocol = document.getElementById('group-protocol'),
@@ -1254,19 +1254,16 @@ function load_bgroup(result){
         // changeGroupType(type);
 
     } else {
-        // add_search_handler();
-        // $('.selectable-cont').click(function(e){
-        //     if(e.target.getAttribute('data-value')) {
-        //         move_list_item(e);
-        //     } else if(e.target.classList.contains('assign-all')) {
-        //         move_list('members', 'available');
-        //     } else if(e.target.classList.contains('unassign-all')) {
-        //         move_list('available', 'members');
-        //     }
-        // });
+        
         if(availableUsers) fill_list_items('available', availableUsers);
         // if(members) fill_list_items('members', members.sort());
         if(members) fill_list_items('members', members);
+
+        // Render route parameters
+        renderObjRoute({
+            currentRoute: result.ext,
+            onChange: setCurrObjRoute
+        });
     }
 
     if(result.options){
@@ -2004,6 +2001,14 @@ function set_bgroup(param, callback){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
         if(!result) enabled.checked = false;
+
+        // Add new route to the object
+        if(PbxObject.currentObjRoute) {
+            setRoute({
+                number: PbxObject.currentObjRoute,
+                target: { oid: result, name: name }
+            });
+        }
     });
     // console.log(jprms);
 }
@@ -4733,9 +4738,11 @@ function changeOnResize(isSmall){
 function handleMessage(data){
     var data = JSON.parse(data),
         method = data.method;
-    // console.log(data);
+    
     if(data.method){ //if the message content has no "id" parameter, i.e. sent from the server without request
         var params = data.params;
+        console.log(params);
+
         if(method == 'stateChanged' || method == 'objectUpdated'){
             // if(PbxObject.kind === 'extensions') {
                 updateExtension(params);
@@ -4745,7 +4752,7 @@ function handleMessage(data){
         }  else if(method == 'objectCreated'){
             newObjectAdded(params);
         } else if(method == 'objectDeleted') {
-            if(params.ext) {
+            if(PbxObject.kind === 'extensions') {
                 delete_extension_row(params);
             } else {
                 objectDeleted(params);
@@ -5063,7 +5070,7 @@ function set_page(){
     if(delobj){
         if(PbxObject.name){
             delobj.onclick = function(){
-                delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+                delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, PbxObject.currentObjRoute);
             };
         }
         else delobj.setAttribute('disabled', 'disabled');
@@ -5132,6 +5139,33 @@ function setBreadcrumbs(){
     crumbs.appendChild(bc1);
     crumbs.appendChild(bc2);
     breadcrumb.appendChild(crumbs);
+}
+
+function getAvailablePool(cb) {
+    json_rpc_async('getObject', { oid: 'user' }, function(result) {
+        console.log('getAvailablePool: ', result);
+        cb(result.available.sort());
+    });
+}
+
+function renderObjRoute(params) {
+    ReactDOM.render(
+        ObjectRoute({
+            getOptions: getAvailablePool,
+            currentRoute: params.currentRoute,
+            clearCurrObjRoute: clearCurrObjRoute,
+            onChange: params.onChange
+        }),
+        document.getElementById('object-route-cont')
+    );
+}
+
+function setCurrObjRoute(route) {
+    PbxObject.currentObjRoute = route;
+}
+
+function clearCurrObjRoute() {
+    PbxObject.currentObjRoute = '';
 }
 
 function toggle_sidebar(e){
@@ -5631,7 +5665,7 @@ function newObjectAdded(data){
     if(delobj && delobj.hasAttribute('disabled')) {
         delobj.removeAttribute('disabled');
         delobj.onclick = function(){
-            delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+            delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, data.ext);
         };
     }
 
@@ -5691,13 +5725,15 @@ function set_options_success() {
     window.location.href = newURL;
 }
 
-function delete_object(name, kind, oid){
+function delete_object(name, kind, oid, route){
+    console.log('delete_object: ', route);
     var c = confirm(PbxObject.frases.DODELETE+' '+name+'?');
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
             window.location.hash = kind+'?'+kind;
         });
+
     } else{
         return false;
     }
@@ -5714,8 +5750,8 @@ function delete_extension(e){
         msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
         c = confirm(msg);
 
-    PbxObject.members = PbxObject.members || {};
-    PbxObject.available = PbxObject.available || {};
+    PbxObject.members = PbxObject.members || [];
+    PbxObject.available = PbxObject.available || [];
 
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
@@ -8519,6 +8555,9 @@ function build_route_row(route, objects){
     number.setAttribute('type', 'text');
     number.setAttribute('name', 'number');
     number.setAttribute('size', '12');
+
+    rowData.groupid = PbxObject.oid;
+
     if(route != null) {
         number.value = route.number;
         rowData.oid = route.oid;
@@ -8674,17 +8713,23 @@ function build_route_row(route, objects){
 
 function setRoute(data, callback){
     var jprms = '',
+        params = data,
         cb = callback || null;
-    if(data.oid) jprms += '\"oid\":\"'+data.oid+'\",';
-    jprms += '\"groupid\":\"'+PbxObject.oid+'\",';
-    jprms += '"number":"'+data.number+'",';
-    jprms += '"description":"'+data.description+'",';
-    jprms += '"target":{"oid":"'+data.target.oid+'", "name":"'+data.target.name+'"},';
-    jprms += '"priority":'+data.priority+',';
-    jprms += '"cost":'+data.cost+',';
+
+    if(data.oid) params.oid = data.oid;
+    if(data.priority) params.priority = parseFloat(data.priority);
+    if(data.cost) params.cost = parseFloat(data.cost);
+
+    // if(data.oid) jprms += '\"oid\":\"'+data.oid+'\",';
+    // jprms += '\"groupid\":\"'+PbxObject.oid+'\",';
+    // jprms += '"number":"'+data.number+'",';
+    // jprms += '"description":"'+data.description+'",';
+    // jprms += '"target":{"oid":"'+data.target.oid+'", "name":"'+data.target.name+'"},';
+    // jprms += '"priority":'+data.priority+',';
+    // jprms += '"cost":'+data.cost+',';
     
-    // console.log(jprms);
-    json_rpc_async('setRoute', jprms, cb);
+    console.log(params);
+    json_rpc_async('setRoute', params, cb);
 }
 
 function deleteRoute(routeOid){
