@@ -62,67 +62,94 @@ var ModalComponent = React.createClass({
 ModalComponent = React.createFactory(ModalComponent);
 
 var ObjectRoute = React.createClass({
-	displayName: 'ObjectRoute',
+	displayName: "ObjectRoute",
 
 
 	propTypes: {
 		getOptions: React.PropTypes.func,
-		currentRoute: React.PropTypes.string,
-		clearCurrObjRoute: React.PropTypes.func,
+		routes: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		// clearCurrObjRoute: React.PropTypes.func,
 		onChange: React.PropTypes.func
 	},
 
 	getInitialState: function () {
 		return {
 			route: {},
+			routeId: "",
 			options: []
 		};
 	},
 
 	componentDidMount: function () {
 		var options = [],
-		    route;
+		    route = this.props.routes.length ? this.props.routes[0] : null;
 
 		this.props.getOptions(function (result) {
 			options = result.sort().map(function (item) {
 				return { value: item, label: item };
 			});
 
-			options.unshift({ value: 0, label: 'Not selected' });
+			options.unshift({ value: 0, label: this.props.frases.SELECT_ROUTE });
 
-			route = this.props.currentRoute ? { value: this.props.currentRoute, label: this.props.currentRoute } : options[0];
-
+			// set route options
 			this.setState({ options: options });
-			this._onChange(route);
+
+			// select route and set current route oid
+			if (route && route.id) {
+				this.setState({ routeId: route.id });
+				this._onChange({ value: route.ext, label: route.ext });
+			} else {
+				this._onChange(options[0]);
+			}
 		}.bind(this));
 	},
 
-	componentWillUnmount: function () {
-		this.props.clearCurrObjRoute();
+	// componentWillUnmount: function() {
+	// 	this.props.clearCurrObjRoute();
+	// },
+
+	_getRouteObj: function (ext) {
+		var currRouteObj = {
+			ext: ext
+		};
+
+		if (this.state.routeId) currRouteObj.oid = this.state.routeId;
+
+		return currRouteObj;
+
+		// var routeObj = this.props.routes.map(function(item) {
+		// 	if(item.ext === ext) return item;
+		// });
+
+		// console.log('_getRouteObj: ', routeObj);
+
+		// return (routeObj.length ? routeObj[0] : { ext: ext })
 	},
 
 	_onChange: function (val) {
 		console.log('Select: ', val);
+		if (!val) return;
+
 		this.setState({ route: val });
-		this.props.onChange(val ? val.value : '');
+		this.props.onChange(this._getRouteObj(val.value));
 	},
 
 	render: function () {
 
-		return React.createElement(
-			PanelComponent,
-			null,
-			React.createElement(
-				'label',
-				{ htmlFor: 'form-field-name' },
-				'Route'
-			),
+		return (
+			// <PanelComponent>
+			// <label htmlFor="form-field-name">Route</label>
 			React.createElement(Select, {
-				name: 'form-field-name',
+				name: "form-field-name",
+				className: "obj-route-select",
+				clearable: false,
 				value: this.state.route,
 				options: this.state.options,
 				onChange: this._onChange
 			})
+			// </PanelComponent>
+
 		);
 	}
 });
@@ -147,6 +174,211 @@ function PanelComponent(props) {
 		)
 	);
 }
+function IpTableRowComponent(props) {
+
+	return React.createElement(
+		"tr",
+		null,
+		React.createElement(
+			"td",
+			null,
+			React.createElement("input", { className: "form-control", name: "net", value: props.rule.net, onChange: props.onChange })
+		),
+		React.createElement(
+			"td",
+			null,
+			React.createElement("input", { className: "form-control", name: "mask", value: props.rule.mask, onChange: props.onChange })
+		),
+		React.createElement(
+			"td",
+			null,
+			React.createElement(
+				"button",
+				{ type: "button", className: "btn btn-default btn-link", onClick: props.onClick },
+				React.createElement("i", { className: "fa fa-remove text-muted" })
+			)
+		)
+	);
+}
+
+var IpTable = React.createClass({
+	displayName: 'IpTable',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		iptable: React.PropTypes.array,
+		addRuleHandler: React.PropTypes.func,
+		deleteRuleHandler: React.PropTypes.func
+	},
+
+	_validateIp: function (string) {
+		var value;
+		var validIp = true;
+		var bytes = string.split('.');
+
+		value = bytes.map(function (str, index, array) {
+			if (isNaN(str) || array.length > 4) {
+				validIp = false;
+			} else if (str.length > 3) {
+				if (array.length === 4) validIp = false;else str = str.substring(0, 3) + '.' + str.substring(3);
+			}
+
+			return str;
+		}).join('.');
+
+		if (!validIp) return false;
+
+		return value;
+	},
+
+	_handleRuleChange: function (ruleIndex, event) {
+		var target = event.target;
+		var name = target.name;
+		var value = this._validateIp(target.value);
+		var iptable = this.props.iptable;
+		var rule = iptable[ruleIndex];
+
+		if (value === false) return;
+
+		rule[name] = value;
+
+		this.props.updateRules(iptable);
+	},
+
+	_deleteRule: function (index) {
+		this.props.deleteRuleHandler(index);
+	},
+
+	render: function () {
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'table',
+				{ className: 'table table-condensed' },
+				React.createElement(
+					'thead',
+					null,
+					React.createElement(
+						'tr',
+						null,
+						React.createElement(
+							'th',
+							null,
+							this.props.frases.SETTINGS.SECURITY.NETWORK
+						),
+						React.createElement(
+							'th',
+							null,
+							this.props.frases.SETTINGS.SECURITY.NETMASK
+						),
+						React.createElement('th', null)
+					)
+				),
+				React.createElement(
+					'tbody',
+					null,
+					this.props.iptable.map(function (rule, index) {
+						return React.createElement(IpTableRowComponent, { key: index, rule: rule, onClick: this._deleteRule.bind(this, index), onChange: this._handleRuleChange.bind(this, index) });
+					}.bind(this))
+				)
+			),
+			React.createElement(
+				'button',
+				{ type: 'button', className: 'btn btn-default btn-block', onClick: this.props.addRuleHandler },
+				this.props.frases.SETTINGS.SECURITY.ADD_RULE
+			)
+		);
+	}
+});
+
+IpTable = React.createFactory(IpTable);
+
+var SecuritySettings = React.createClass({
+	displayName: 'SecuritySettings',
+
+
+	propTypes: {
+		params: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			ipcheck: false,
+			iptable: []
+		};
+	},
+
+	componentDidMount: function () {
+		this.setState({ ipcheck: this.props.params.ipcheck, iptable: this.props.params.iptable });
+	},
+
+	_enableIpCheck: function (enabled, event) {
+		var target = event.target;
+		this.setState({ ipcheck: enabled });
+
+		this.props.onChange({ ipcheck: enabled, iptable: this.state.iptable });
+	},
+
+	_addRule: function () {
+		var iptable = this.state.iptable;
+		iptable.push({ net: '', mask: '' });
+		this.setState({ iptable: iptable });
+	},
+
+	_updateRules: function (iptable) {
+		this.setState({ iptable: iptable });
+
+		this.props.onChange(this.state);
+	},
+
+	_deleteRule: function (index) {
+		var iptable = this.state.iptable;
+		iptable.splice(index, 1);
+		this.setState({ iptable: iptable });
+	},
+
+	render: function () {
+
+		return React.createElement(
+			'form',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'radio' },
+				React.createElement(
+					'label',
+					{ 'data-toggle': 'tooltip', title: this.props.frases.OPTS__IPCHECK },
+					React.createElement('input', { type: 'radio', checked: !this.state.ipcheck, onChange: this._enableIpCheck.bind(this, false) }),
+					' ',
+					this.props.frases.SETTINGS.SECURITY.IPCHECK_DISABLE
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'radio' },
+				React.createElement(
+					'label',
+					{ 'data-toggle': 'tooltip', title: this.props.frases.OPTS__IPCHECK },
+					React.createElement('input', { type: 'radio', checked: this.state.ipcheck, onChange: this._enableIpCheck.bind(this, true) }),
+					' ',
+					this.props.frases.SETTINGS.SECURITY.IPCHECK_ENABLE
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(IpTable, { frases: this.props.frases, iptable: this.state.iptable, deleteRuleHandler: this._deleteRule, addRuleHandler: this._addRule, updateRules: this._updateRules })
+			)
+		);
+	}
+});
+
+SecuritySettings = React.createFactory(SecuritySettings);
 
 var AddCallGroup = React.createClass({
 	displayName: 'AddCallGroup',
@@ -820,3 +1052,211 @@ var GsWidget = React.createClass({
 });
 
 GsWidget = React.createFactory(GsWidget);
+
+var TrunkIncRoute = React.createClass({
+	displayName: 'TrunkIncRoute',
+
+
+	propTypes: {
+		options: React.PropTypes.array,
+		route: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			route: {},
+			options: []
+		};
+	},
+
+	componentDidMount: function () {
+
+		options = this.props.options.sort().map(this._toRouteObj);
+
+		options.unshift({ value: 0, label: this.props.frases.TRUNK.INC_ROUTE_DEFAULT_OPTION });
+
+		this.setState({ options: options });
+
+		// select route and set current route oid
+		if (this.props.route) {
+			this._onChange(this._toRouteObj(this.props.route));
+		} else {
+			this._onChange(options[0]);
+		}
+	},
+
+	_toRouteObj: function (item) {
+		return { value: item.ext, label: item.name ? item.ext + ' - ' + item.name : item.ext };
+	},
+
+	_getRouteObj: function (ext) {
+		var currRouteObj = {
+			ext: ext
+		};
+
+		return currRouteObj;
+	},
+
+	_onChange: function (val) {
+		console.log('Select: ', val);
+		if (!val) return;
+
+		this.setState({ route: val });
+		this.props.onChange(this._getRouteObj(val.value));
+	},
+
+	render: function () {
+
+		return (
+			// <PanelComponent>
+			// <label htmlFor="form-field-name">Route</label>
+			React.createElement(Select, {
+				name: 't-inc-route',
+				clearable: false,
+				value: this.state.route,
+				options: this.state.options,
+				onChange: this._onChange
+			})
+			// </PanelComponent>
+
+		);
+	}
+
+});
+
+TrunkIncRoute = React.createFactory(TrunkIncRoute);
+
+var TrunkOutRoute = React.createClass({
+	displayName: 'TrunkOutRoute',
+
+
+	propTypes: {
+		rule: React.PropTypes.object,
+		ruleIndex: React.PropTypes.number,
+		deleteRule: React.PropTypes.func,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			rule: {},
+			options: []
+		};
+	},
+
+	componentDidMount: function () {
+
+		var options = [{
+			value: 1,
+			label: 'starting with prefix'
+		}, {
+			value: 2,
+			label: 'with a number length of'
+		}];
+
+		this.setState({ options: options });
+		this.setState({ rule: this.props.rule });
+	},
+
+	_onChange: function (val) {
+		console.log('on rule change: ', val);
+		this.setState({ rule: val });
+	},
+
+	render: function () {
+
+		return React.createElement(
+			'div',
+			{ className: 'input-group' },
+			React.createElement(
+				'span',
+				{ className: 'input-group-addon tout-route-row' },
+				React.createElement(Select, {
+					name: 't-out-route',
+					clearable: false,
+					value: this.state.rule,
+					options: this.state.options,
+					onChange: this._onChange
+				})
+			),
+			this.state.rule.value === 1 && React.createElement('input', { name: 'oroute-prefix', className: 'form-control' }),
+			this.state.rule.value === 2 && React.createElement('input', { type: 'number', name: 'oroute-numlength', className: 'form-control' }),
+			this.state.rule.value && React.createElement(
+				'span',
+				{ className: 'input-group-addon' },
+				React.createElement(
+					'button',
+					{ type: 'button', className: 'btn btn-default', onClick: this.props._deleteRule(this.props.ruleIndex) },
+					React.createElement('span', { className: 'fa fa-remove' })
+				)
+			)
+		);
+	}
+
+});
+
+TrunkOutRoute = React.createFactory(TrunkOutRoute);
+
+var TrunkOutRoutes = React.createClass({
+	displayName: 'TrunkOutRoutes',
+
+
+	propTypes: {
+		// options: React.PropTypes.array,
+		// route: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			rules: []
+		};
+	},
+
+	// componentDidMount: function() {
+
+	// },
+
+	_addRule: function () {
+		console.log('_addRule');
+
+		var rules = this.state.rules;
+		var route = {
+			rule: 0,
+			value: ''
+		};
+
+		rules.push(route);
+
+		this.setState({ rules: rules });
+	},
+
+	_deleteRule: function (index) {
+		if (index === undefined) return;
+		this.state.rules.splice(index, 1);
+	},
+
+	render: function () {
+
+		return React.createElement(
+			'div',
+			{ className: 'tout-routes-cont' },
+			this.state.rules.map(function (rule, index) {
+				console.log('rules: ', rule);
+				return React.createElement(TrunkOutRoute, { rule: rule, ruleIndex: index, deleteRule: this._deleteRule });
+			}.bind(this)),
+			React.createElement(
+				'button',
+				{ type: 'button', className: 'btn btn-link', onClick: this._addRule },
+				'+ ',
+				this.props.frases.TRUNK.ADD_RULE
+			)
+		);
+	}
+
+});
+
+TrunkOutRoutes = React.createFactory(TrunkOutRoutes);

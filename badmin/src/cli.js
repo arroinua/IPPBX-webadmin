@@ -2,12 +2,23 @@ function load_cli(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
     // PbxObject.kind = 'cli';
+
+    var enabled = document.getElementById('enabled');
+    var name = document.getElementById('objname');
+
     if(result.name) {
-        document.getElementById('objname').value = result.name;
+        name.value = result.name;
     }
     
-    document.getElementById('enabled').checked = result.enabled;
-    
+    if(enabled) {
+        enabled.checked = result.enabled;
+        addEvent(enabled, 'change', function(){
+            setObjectState(result.oid, this.checked, function(result) {
+                if(!result) enabled.checked = !enabled.checked;
+            });
+        });
+    }
+
     var transforms = result.bnumbertransforms;
     if(transforms.length) {
         for(var i=0; i<transforms.length; i++){
@@ -35,6 +46,8 @@ function load_cli(result){
 function set_cli(){
         
     var name = document.getElementById('objname').value;
+    var handler;
+
     if(name)
         var jprms = '\"name\":\"'+name+'\",';
     else{
@@ -44,7 +57,6 @@ function set_cli(){
         
     show_loading_panel();
     
-    var handler;
     if(PbxObject.name) {
         handler = set_object_success;
     }
@@ -83,7 +95,7 @@ function set_cli(){
     }
     jprms += ']';
         
-    json_rpc_async('setObject', jprms, handler);     
+    json_rpc_async('setObject', jprms, handler);
 }
 
 function add_cli_row(object){

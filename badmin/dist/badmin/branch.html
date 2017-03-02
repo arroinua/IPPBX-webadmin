@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/bootstrap-tour.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/rome.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/flatpickr.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/select2.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/react-select.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" />
@@ -74,6 +75,13 @@
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
+                        <li class="branch-mode mode-equipment">
+                            <a href="#" data-kind="timer" title="{{KINDS.timer}}">
+                                <i class="fa fa-calendar fa-fw"></i>
+                                <span>{{KINDS.timer}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
                         <li>
                             <a href="#" data-kind="routes" title="{{KINDS.routes}}">
                                 <i class="fa fa-arrows fa-fw"></i>
@@ -133,13 +141,6 @@
                                     <a href="#" data-kind="cli" title="{{KINDS.cli}}">
                                         <i class="icon-fingerprint"></i>
                                         <span>{{KINDS.cli}}</span>
-                                        <i class="fa fa-angle-right fa-fw"></i>
-                                    </a>
-                                </li>
-                                <li class="branch-mode mode-equipment">
-                                    <a href="#" data-kind="timer" title="{{KINDS.timer}}">
-                                        <i class="fa fa-calendar fa-fw"></i>
-                                        <span>{{KINDS.timer}}</span>
                                         <i class="fa fa-angle-right fa-fw"></i>
                                     </a>
                                 </li>
@@ -231,45 +232,15 @@
                         </ul>
                     </div>
                     <div id="mainopt-tab" class="tab-pane active" role="tabpanel">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label for="interfacelang" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LANGUAGE}}">{{LANGUAGE}}</label>
-                                <div class="col-sm-12">
-                                    <select id="interfacelang" class="form-control">
-                                        <option value="en">English</option>
-                                        <option value="uk">Українська</option>
-                                        <option value="ru">Русский</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="adminname" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LOGIN}}">{{LOGIN}}</label>
-                                <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="adminname" placeholder="{{LOGIN}}" readonly>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="adminpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__PWD}}">{{PASSWORD}}</label>
-                                <div class="col-sm-12">
-                                    <input type="password" class="form-control" id="adminpass" placeholder="{{PASSWORD}}">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirmpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__CONFIRM_PWD}}">{{CONFIRM}} {{PASSWORD}}</label>
-                                <div class="col-sm-12">
-                                    <input type="password" class="form-control" id="confirmpass" placeholder="{{CONFIRM}} {{PASSWORD}}">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="firstnumber" class="col-xs-12" data-toggle="tooltip" title="{{OPTS__POOL_TOOLTIP}}">{{NUMBERING_POOL}}</label>
-                                <div class="col-xs-12">
-                                    <input type="text" class="form-control" onkeydown='validateInput(event)' id="firstnumber">
-                                </div>
-                            </div>
-                        </form>
                         <div class="row">
                             <div class="col-xs-12">
                                 <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="general-tab" title="{{SETTINGS.GENERAL_SETTS}}">
+                                            {{SETTINGS.GENERAL_SETTS}}
+                                            <i class="fa fa-angle-right fa-fw"></i>
+                                        </a>
+                                    </li>
                                     <li>
                                         <a href="#" class="tab-switcher" data-tab="featureopt-tab" title="{{SETTINGS.FUNCSETTINGS}}">
                                             {{SETTINGS.FUNCSETTINGS}}
@@ -285,6 +256,12 @@
                                     <li class="branch-mode mode-users">
                                         <a href="#" class="tab-switcher" data-tab="services-tab" title="{{SETTINGS.BRANCH_SERVICES}}">
                                             {{SETTINGS.BRANCH_SERVICES}}
+                                            <i class="fa fa-angle-right fa-fw"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="security-tab" title="{{SETTINGS.SECURITY}}">
+                                            {{SETTINGS.SECURITY.SECURITY_SETTS}}
                                             <i class="fa fa-angle-right fa-fw"></i>
                                         </a>
                                     </li>
@@ -310,6 +287,66 @@
                             </div>
                         </div>
                     </div>
+                    <div id="general-tab" class="tab-pane" role="tabpanel">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="mainopt-tab">
+                                            <i class="fa fa-angle-left fa-fw"></i>
+                                            {{SETTINGS.TO_MAIN_TAB_BTN}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="interfacelang" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LANGUAGE}}">{{LANGUAGE}}</label>
+                                <div class="col-sm-12">
+                                    <select id="interfacelang" class="form-control">
+                                        <option value="en">English</option>
+                                        <option value="uk">Українська</option>
+                                        <option value="ru">Русский</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="branch_timezone" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__TIMEZONE}}">{{SETTINGS.TIMEZONE}}</label>
+                                <div class="col-sm-12">
+                                    <select id="branch_timezone" class="form-control"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="firstnumber" class="col-xs-12" data-toggle="tooltip" title="{{OPTS__POOL_TOOLTIP}}">{{NUMBERING_POOL}}</label>
+                                <div class="col-xs-12">
+                                    <input type="text" class="form-control" onkeydown='validateInput(event)' id="firstnumber">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="adminname" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LOGIN}}">{{LOGIN}}</label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="adminname" placeholder="{{LOGIN}}" readonly>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-default btn-block" role="button" data-toggle="collapse" data-target="#change-pass-cont" aria-expanded="false" aria-controls="change-pass-cont">{{SETTINGS.CHANGE_PASSWORD}}</button>
+                            <div id="change-pass-cont" class="collapse">
+                                <hr>
+                                <div class="form-group">
+                                    <label for="adminpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__PWD}}">{{PASSWORD}}</label>
+                                    <div class="col-sm-12">
+                                        <input type="password" class="form-control" id="adminpass" placeholder="{{PASSWORD}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__CONFIRM_PWD}}">{{CONFIRM}} {{PASSWORD}}</label>
+                                    <div class="col-sm-12">
+                                        <input type="password" class="form-control" id="confirmpass" placeholder="{{CONFIRM}} {{PASSWORD}}">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div id="featureopt-tab" class="tab-pane">
                         <div class="row">
                             <div class="col-xs-12">
@@ -317,7 +354,7 @@
                                     <li>
                                         <a href="#" class="tab-switcher" data-tab="mainopt-tab">
                                             <i class="fa fa-angle-left fa-fw"></i>
-                                            {{SETTINGS.GENERAL_SETTS}}
+                                            {{SETTINGS.TO_MAIN_TAB_BTN}}
                                         </a>
                                     </li>
                                 </ul>
@@ -404,7 +441,7 @@
                                     <li>
                                         <a href="#" class="tab-switcher" data-tab="mainopt-tab">
                                             <i class="fa fa-angle-left fa-fw"></i>
-                                            {{SETTINGS.GENERAL_SETTS}}
+                                            {{SETTINGS.TO_MAIN_TAB_BTN}}
                                         </a>
                                     </li>
                                 </ul>
@@ -419,13 +456,28 @@
                                     <li>
                                         <a href="#" class="tab-switcher" data-tab="mainopt-tab">
                                             <i class="fa fa-angle-left fa-fw"></i>
-                                            {{SETTINGS.GENERAL_SETTS}}
+                                            {{SETTINGS.TO_MAIN_TAB_BTN}}
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                         <div id="services-options-cont" class="tab-pane col-xs-12"></div>
+                    </div>
+                    <div id="security-tab">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#" class="tab-switcher" data-tab="mainopt-tab">
+                                            <i class="fa fa-angle-left fa-fw"></i>
+                                            {{SETTINGS.TO_MAIN_TAB_BTN}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="security-settings-cont" class="tab-pane"></div>
                     </div>
                 </div>
             </script>
@@ -774,9 +826,11 @@
         <script type="text/javascript" src="/badmin/js/vendors/excellentexport.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/sorttable.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/rome-moment.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/moment-timezone-with-data-2010-2020.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/flatpickr.all.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/select2.full.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/react-select-utils.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/react-select.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/react-select.min.js"></script>
         <script type="text/javascript" src="/badmin/js/main.js"></script>
         <script type="text/javascript" src="/badmin/js/components.js"></script>
     </body>

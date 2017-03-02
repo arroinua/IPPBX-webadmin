@@ -3,11 +3,21 @@ function load_attendant(result){
     PbxObject.oid = result ? result.oid : '';
     PbxObject.name = result ? result.name : '';
 
-    if(result && result.name){
-        document.getElementById('objname').value = result.name;
+    var enabled = document.getElementById('enabled');
+    var name = document.getElementById('objname');
+
+    if(result.name){
+        name.value = result.name;
     }
 
-    document.getElementById('enabled').checked = result.enabled;
+    if(enabled) {
+        enabled.checked = result.enabled;
+        addEvent(enabled, 'change', function(){
+            setObjectState(result.oid, this.checked, function(result) {
+                if(!result) enabled.checked = !enabled.checked;
+            });
+        });
+    }
 
     if(result.debug)
         document.getElementById('debug').checked = result.debug;
@@ -36,6 +46,14 @@ function load_attendant(result){
         });
         PbxObject.attendant.routes = routes;
     });
+
+    // Render route parameters
+    renderObjRoute({
+        routes: result.routes || [],
+        frases: PbxObject.frases,
+        onChange: setCurrObjRoute
+    });
+
     // sortByKey(PbxObject.attendant.connectors, 'ext');
     // addAttBreadcrumb('<i class="fa fa-home"></i>', '');
 }
@@ -230,6 +248,7 @@ function fillBtnsSelectList(array, selectEl, selectedValue){
 function setAttSettings(params, temp){
     var objects, settsForm = document.getElementById('attvariables'),
         greetsFile = '',
+        ringbackMusic = '',
         connFailedFile = '',
         leaveMsg = '',
         moveBtns = {};
@@ -245,6 +264,8 @@ function setAttSettings(params, temp){
             addConnectors(JSON.parse(obj.value));
         } else if(obj.key === 'greetings'){
             greetsFile = obj.value;
+        } else if(obj.key === 'ringbackMusic'){
+            ringbackMusic = obj.value;
         } else if(obj.key === 'connectionFailed'){
             connFailedFile = obj.value;
         } else if(obj.key === 'leaveMessage'){
@@ -262,6 +283,7 @@ function setAttSettings(params, temp){
     }
 
     customize_upload('attGreetings', greetsFile);
+    customize_upload('ringbackMusic', ringbackMusic);
     customize_upload('connectionFailed', connFailedFile);
     customize_upload('leaveMessage', leaveMsg);
     setInitAttMoveBtns(moveBtns);
@@ -915,6 +937,7 @@ function set_attendant(){
 
     var varsFormData = retrieveFormData(document.getElementById('attvariables'));
     var greetings = document.getElementById('attGreetings');
+    var ringbackMusic = document.getElementById('ringbackMusic');
     var connFailedPrompt = document.getElementById('connectionFailed');
     var leaveMsg = document.getElementById('leaveMessage');
     var prefix = PbxObject.options.prefix;
@@ -922,6 +945,8 @@ function set_attendant(){
 
     if(greetings.files[0])
         upload(greetings, '/attendant/'+name+'/'+greetings.files[0].name);
+    if(ringbackMusic.files[0])
+        upload(ringbackMusic, '/attendant/'+name+'/'+ringbackMusic.files[0].name);
     if(connFailedPrompt.files[0])
         upload(connFailedPrompt, '/attendant/'+name+'/'+connFailedPrompt.files[0].name);
     if(leaveMsg.files[0])
@@ -984,5 +1009,20 @@ function set_attendant(){
     jprms += '],';
     // console.log(jprms);
 
-    json_rpc_async('setObject', jprms, set_object_success);
+    json_rpc_async('setObject', jprms, function(result) {
+        
+        set_object_success(result);
+
+        // Add new route to the object
+        if(result && getTempParams().ext) {
+            var routeParams = {
+                number: getTempParams().ext,
+                target: { oid: result, name: name }
+            };
+            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+
+            console.log('set route params: ', routeParams);
+            setObjRoute(routeParams);
+        }
+    });
 }

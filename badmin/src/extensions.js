@@ -5,7 +5,7 @@ function load_extensions(result) {
         // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
         fragment = document.createDocumentFragment();
 
-    // PbxObject.extensions = result;
+    PbxObject.extensions = result;
 
     for(var i=0; i<result.length; i++){
 
@@ -33,6 +33,10 @@ function load_extensions(result) {
     set_page();
     show_content();
 
+}
+
+function getExtensions(cb) {
+    json_rpc_async('getExtensions', null, cb);
 }
 
 function createExtRow(data){
@@ -115,7 +119,7 @@ function createExtRow(data){
 
 }
 
-function updateExtension(data){
+function updateExtensionRow(event, data){
 
     // console.log(data);
 
@@ -123,69 +127,46 @@ function updateExtension(data){
     var state = data.state;
     var info = getInfoFromState(state, data.group);
 
-    // var table = document.getElementById('extensions') || document.getElementById('group-extensions');
+    if(row) {
+        var cells = row.cells,
+            status = info.rstatus,
+            className = info.rclass,
+            cell;
 
-    // if(!row) return;
-    
-    // var state = data.state,
-    //     cells = row.cells,
-    //     info = getInfoFromState(state, data.group),
-    //     status = info.rstatus,
-    //     className = info.rclass;
-    
-    // if(table) {
-        // table = table.querySelector('tbody');
-        if(row) {
-            var cells = row.cells,
-                status = info.rstatus,
-                className = info.rclass,
-                cell;
+        row.className = className;
 
-            row.className = className;
-
-            if(data.name){
-                cell = row.querySelector('[data-cell="name"]');
-                if(cell) cell.innerHTML = data.name;
-                // cells[1].innerHTML = data.name;
-            }
-            if(data.display){
-                cell = row.querySelector('[data-cell="display"]');
-                if(cell) cell.innerHTML = data.display;
-                // cells[1].innerHTML = data.name;
-            }
-            if(data.hasOwnProperty('group')){
-                cell = row.querySelector('[data-cell="group"]');
-                if(cell) cell.innerHTML = data.group;
-                // cells[2].innerHTML = data.group;
-            }
-            // else{
-            //     cells[2].innerHTML = "";   
-            // }
-            if(data.hasOwnProperty('reg')){
-                cell = row.querySelector('[data-cell="reg"]');
-                if(cell) cell.innerHTML = data.reg;
-                // cells[3].innerHTML = data.reg;
-            }
-            // else{
-            //     cells[3].innerHTML = "";
-            // }
-            cell = row.querySelector('[data-cell="status"]');
-            if(cell) cell.innerHTML = status;
-            // cells[5].innerHTML = status;
+        if(data.name){
+            cell = row.querySelector('[data-cell="name"]');
+            if(cell) cell.innerHTML = data.name;
+            // cells[1].innerHTML = data.name;
         }
-            
-    // }
-    // for(var ext in PbxObject.extensions){
+        if(data.display){
+            cell = row.querySelector('[data-cell="display"]');
+            if(cell) cell.innerHTML = data.display;
+            // cells[1].innerHTML = data.name;
+        }
+        if(data.hasOwnProperty('group')){
+            cell = row.querySelector('[data-cell="group"]');
+            if(cell) cell.innerHTML = data.group;
+            // cells[2].innerHTML = data.group;
+        }
+        // else{
+        //     cells[2].innerHTML = "";   
+        // }
+        if(data.hasOwnProperty('reg')){
+            cell = row.querySelector('[data-cell="reg"]');
+            if(cell) cell.innerHTML = data.reg;
+            // cells[3].innerHTML = data.reg;
+        }
+        // else{
+        //     cells[3].innerHTML = "";
+        // }
+        cell = row.querySelector('[data-cell="status"]');
+        if(cell) cell.innerHTML = status;
+        // cells[5].innerHTML = status;
+    }
 
-    //     if(PbxObject.extensions[ext].oid === data.oid || PbxObject.extensions[ext].ext === data.ext){
-    //         var ext = PbxObject.extensions[ext];
-    //         if(ext.state) ext.state = data.state;
-    //         if(ext.name) ext.name = data.name;
-    //         if(ext.group) ext.group = data.group;
-    //         if(ext.reg) ext.reg = data.reg;
-    //     }
-
-    // }
+    updateObjects(PbxObject.extensions, data, 'ext');
 
 }
 
@@ -341,6 +322,7 @@ function load_extension(result){
     };
 
     PbxObject.extOid = result.oid;
+    PbxObject.userid = result.userid;
     PbxObject.vars = PbxObject.vars || {};
     PbxObject.vars.infoShown = false;
     
@@ -524,7 +506,7 @@ function set_extension(kind){
     var userInfoForm = document.getElementById('userInfo');
     var userInfo = retrieveFormData(userInfoForm);
     if(userInfo && Object.keys(userInfo).length !== 0){
-        userInfo.userid = login;
+        userInfo.userid = PbxObject.userid;
         json_rpc_async('setUserInfo', userInfo, null);
     }
     
@@ -532,7 +514,7 @@ function set_extension(kind){
         $('#el-extension').modal('hide');
     });
 
-    upload('upload-avatar', '/$AVATAR$?userid='+(PbxObject.options.prefix + login));
+    upload('upload-avatar', '/$AVATAR$?userid='+PbxObject.userid);
 }
 
 function loadAvatar(e){

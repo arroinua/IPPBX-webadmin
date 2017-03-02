@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 .selectable-cont div ul li:hover {
-  background-color: #f3f8f9;
+  background-color: #33C3F0;
   color: #333;
 }
 .selectable-cont .glyphicon {
@@ -56,9 +56,34 @@ input[readonly].readonly-custom {
   cursor: text;
 }
 
+#security-settings-cont table button {
+  padding: 6px 0;
+}
+
+#security-settings-cont table input {
+  padding: 6px;
+}
+
+.modal-backdrop,
+.tour-backdrop {
+  opacity: .5;
+  background-color: #000;
+}
+
+/*
+    Flatpickr custom styles
+*/
+.timer-dates-wrapper.no-weekdays .flatpickr-weekdays {
+  display: none;
+}
+
+.timer-dates-wrapper.no-years .flatpickr-current-month .numInputWrapper {
+  display: none;
+}
+
 .btn-primary {
-  background-color: #f3f8f9;
-  border-color: #f3f8f9;
+  background-color: #33C3F0;
+  border-color: #33C3F0;
   color: #333;
 }
 
@@ -182,6 +207,7 @@ input[readonly].readonly-custom {
   border-radius: 0;
   border: none;
   background-color: #fff;
+  padding: 6px 10px 6px 0;
 }
 
 .rd-container {
@@ -194,7 +220,7 @@ input[readonly].readonly-custom {
 }
 
 .rd-day-selected {
-  background-color: #f3f8f9;
+  background-color: #33C3F0;
 }
 
 .select2-container .select2-selection--single {
@@ -207,6 +233,29 @@ input[readonly].readonly-custom {
   background-color: #ace496;
 }
 
+.tout-routes-cont .input-group {
+  margin-bottom: 5px;
+}
+
+.tout-routes-cont .tout-route-row {
+  width: 150px;
+}
+
+.tout-routes-cont .input-group-addon {
+  padding: 0;
+  border: none;
+}
+
+.Select.obj-route-select {
+  min-width: 150px;
+  text-align: left;
+}
+
+@media only screen and (max-width: 767px) {
+  .Select.obj-route-select {
+    min-width: 115px;
+  }
+}
 .select2-dropdown {
   border: 1px solid #ebebeb;
   border-radius: 2px;
@@ -476,6 +525,10 @@ input.cmn-toggle-round + label:before {
   transition: background 0.3s;
 }
 
+input.cmn-toggle-round:checked.unregistered + label:before {
+  background-color: #fdf03a;
+}
+
 input.cmn-toggle-round:disabled + label:before {
   opacity: 0.3;
 }
@@ -562,7 +615,7 @@ input.cmn-toggle-round:checked + label:before {
   height: 50px;
   margin: auto;
   overflow: hidden;
-  background-color: #f3f8f9;
+  background-color: #33C3F0;
   border-bottom: 1px solid #ececec;
 }
 .nav-logo a {
@@ -620,7 +673,7 @@ input.cmn-toggle-round:checked + label:before {
   color: #333;
 }
 .pbx-options .panel-body {
-  background-color: #f3f8f9;
+  background-color: #33C3F0;
 }
 .pbx-options .panel-header {
   border-top: 1px solid #eee;
@@ -947,7 +1000,7 @@ input.cmn-toggle-round:checked + label:before {
   padding: 1px;
   text-align: center;
   border-top: 1px solid #eee;
-  background-color: #f3f8f9;
+  background-color: #33C3F0;
 }
 
 .pl-txt h5 {
@@ -1067,7 +1120,7 @@ input.cmn-toggle-round:checked + label:before {
 }
 
 .tree li.active > a {
-  background-color: #f3f8f9;
+  background-color: #33C3F0;
   color: #333;
 }
 

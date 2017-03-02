@@ -29,6 +29,11 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">
+                            <label for="t-inc-route" class="col-lg-4 control-label">{{TRUNK.INC_ROUTE}}</label>
+                            <div class="col-lg-8" id="trunk-inc-route"></div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
                             <div class="col-lg-offset-4 col-lg-8">
                               <div class="checkbox">
                                 <label>
@@ -37,7 +42,7 @@
                               </div>
                             </div>
                         </div>
-                        <div class="form-group">    
+                        <div class="form-group">
                             <label for="maxinbounds" class="col-lg-4 control-label" data-toggle="tooltip" title="{{TRUNK__MAX_CONN}}">{{SETTINGS.MAXCONN}}</label>
                             <div class="col-lg-4">
                                 <input type="text" class="form-control" id="maxinbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
@@ -47,7 +52,7 @@
                     <hr>
                     <p class="text-center">
                         <a data-toggle="collapse" href="#trunkIncAdvanceSetts" aria-expanded="false" aria-controls="collapseAdvancedSettings">
-                          Advanced settings
+                          {{TRUNK.ADVANCED_SETTINGS_BTN}}
                         </a>
                     </p>
                     <div class="collapse" id="trunkIncAdvanceSetts">
@@ -99,6 +104,11 @@
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
+                        <!-- <div class="form-group">
+                            <label for="t-out-route" class="col-lg-4 control-label">{{TRUNK.OUT_ROUTE}}</label>
+                            <div class="col-lg-8" id="trunk-out-routes"></div>
+                        </div>
+                        <hr> -->
                         <div class="form-group">
                             <div class="col-lg-offset-4 col-lg-8">
                               <div class="checkbox">
@@ -118,7 +128,7 @@
                     <hr>
                     <p class="text-center">
                         <a data-toggle="collapse" href="#trunkOutAdvanceSetts" aria-expanded="false" aria-controls="collapseAdvancedSettings">
-                          Advanced settings
+                          {{TRUNK.ADVANCED_SETTINGS_BTN}}
                         </a>
                     </p>
                     <div class="collapse" id="trunkOutAdvanceSetts">
@@ -203,12 +213,12 @@
                             <div class="form-group">    
                                 <label for="int-trunk-user" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__USERNAME}}">{{NAME}}</label>
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control" id="int-trunk-user" placeholder="{{NAME}}">
+                                    <input type="text" class="form-control" id="int-trunk-user" placeholder="{{NAME}}" readonly="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="int-trunk-pass" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
-                                <div class="col-sm-4">
+                                <div class="col-md-4">
                                     <div class="input-group">
                                         <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}">
                                         <span class="input-group-btn">

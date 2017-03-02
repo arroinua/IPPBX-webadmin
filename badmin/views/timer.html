@@ -23,38 +23,77 @@
     <div class="row">
         <div class="col-md-6 col-xs-12 col-custom">
             <div class="panel">
+                <div class="panel-header"> {{OBJPICK}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <table class="table" id="targets">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <select id="actions" class="form-control">
+                                        <option value="Enable">{{ENABLE}}</option>
+                                        <option value="Disable">{{DISABLE}}</option>
+                                    </select>
+                                </th>
+                                <th>
+                                    <select id="objects" class="form-control"></select>
+                                </th>
+                                <th><button type="button" id="add-timer-target" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel">
                 <div class="panel-header">{{PICKADATE}}
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <div class="from-inline">
-                        <div class="form-group">
-                            <label for="hh" class="col-xs-2">{{TIME}}</label>
-                            <div class="col-xs-4">
+                    <form class="form-inline">
+                        <label class="col-xs-12">{{TIME}}</label>
+                        <div class="col-xs-12">
+                            <table style="border-collapse: initial; border-spacing: 5px;">
+                                <tbody>
+                                    <tr>
+                                        <td><select id="hh" class="form-control" style="min-width: 50px"></select></td>
+                                        <td><label> : </label></td>
+                                        <td><select id="mm" class="form-control" style="min-width: 50px"></select></td>
+                                        <td><select id="timer_timezone" class="form-control"></select></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                            
+                        <!-- <div class="col-xs-12">
+                            <div class="form-group">
                                 <select id="hh" class="form-control"></select>
                             </div>
-                            <span class="col-xs-1">:</span>
-                            <div class="col-xs-4">
+                            <div class="form-group">
+                                <label> : </label>
                                 <select id="mm" class="form-control"></select>
+                                <select id="timer_timezone" class="form-control"></select>
                             </div>
-                        </div>
-                        <div class="col-xs-12">
-                            <hr>
-                            <div id="timer-range" class="btn-group btn-group-justified" data-toggle="buttons">
-                                <label class="btn btn-default">
-                                    <input type="radio" autocomplete="off" value="timer-everyday"> {{EVERYDAY}}
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" autocomplete="off" value="timer-workdays"> {{WEEKDAYS}}
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" autocomplete="off" value="timer-holidays"> {{WEEKEND}}
-                                </label>
+                        </div> -->
+                    </form>
+                    <hr class="col-xs-12">
+                    <form>
+                        <div class="form-gorup">
+                            <label class="col-xs-12">{{DAYS_OF_THE_WEEK}}</label>
+                            <div id="timer-range" class="col-xs-12">
+                                <a href="#" data-filter="timer-everyday">{{EVERYDAY}}</a> |
+                                <a href="#" data-filter="timer-workdays">{{WEEKDAYS}}</a> |
+                                <a href="#" data-filter="timer-holidays">{{WEEKEND}}</a>
                             </div>
+                            <div class="col-xs-12"><br></div>  
                         </div>
-                        <div class="col-xs-12">
-                            <hr>
-                            <div class="btn-group btn-group-justified" data-toggle="buttons">
+                        <div class="form-group">
+                            <div class="btn-group btn-group-justified col-xs-12" data-toggle="buttons">
                                 <label class="btn btn-default">
                                     <input type="checkbox" autocomplete="off" id="t-d0"> {{MON}}
                                 </label>
@@ -78,35 +117,14 @@
                                 </label>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-header"> {{OBJPICK}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <table class="table" id="targets">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <select id="objects" class="form-control"></select>
-                                </th>
-                                <th>
-                                    <select id="actions" class="form-control">
-                                        <option value="Enable">{{ENABLE}}</option>
-                                        <option value="Disable">{{DISABLE}}</option>
-                                    </select>
-                                </th>
-                                <th><button type="button" id="add-timer-target" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
+                        <hr class="col-xs-12">
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <label>{{DAYS_OF_THE_YEAR}}</label>
+                                <input type="text" name="timer-dates" id="timer-dates" class="form-control">
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

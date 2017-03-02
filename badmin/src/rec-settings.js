@@ -32,12 +32,15 @@ function getRecObjects(result){
 		checkCount();
 	});
 	json_rpc_async('getExtensions', null, function(exts){
-		if(result.extensions){
-			obj.exts = exts.filter(function(ext){
+		var extresult = filterObject(exts, 'phone|user');
+		if(result.extensions) {
+
+			obj.exts = extresult.filter(function(ext){
 				return result.extensions.indexOf(ext.ext) == -1;
 			});
-		} else
-			obj.exts = exts;
+		} else {
+			obj.exts = extresult;
+		}
 
 		checkCount();
 	});

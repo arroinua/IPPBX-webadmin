@@ -3,11 +3,26 @@ function load_timer(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
     // PbxObject.kind = 'timer';
+
+    var date = new Date();
+    var yeardays = [];
+    var pickr;
+    var enabled = document.getElementById('enabled');
+    var name = document.getElementById('objname');
     
     if(result.name){
-        document.getElementById('objname').value = result.name;
+        name.value = result.name;
     }
-    document.getElementById('enabled').checked = result.enabled;
+
+    if(enabled) {
+        enabled.checked = result.enabled;
+        addEvent(enabled, 'change', function(){
+            setObjectState(result.oid, this.checked, function(result) {
+                if(!result) enabled.checked = !enabled.checked;
+            });
+        });
+    }
+
     var i;
     var hours = document.getElementById('hh');
     for(i=0;i<24;i++){
@@ -44,7 +59,11 @@ function load_timer(result){
     }
     
     fill_timer_targets('objects');
-    
+    setTimezones(
+        document.getElementById('timer_timezone'), 
+        (result.timezone || PbxObject.options.timezone)
+    );
+
     var targets = document.getElementById('targets').getElementsByTagName('tbody')[0];
     for(i=0; i < result.targets.length; i++){
         targets.appendChild(timer_target_row(result.targets[i].oid, result.targets[i].name, result.targets[i].action));
@@ -60,11 +79,40 @@ function load_timer(result){
     
     var trange = document.getElementById('timer-range');
     addEvent(trange, 'click', check_days);
+
+    var calendarWrapper = document.createElement('div');
+    calendarWrapper.className = "timer-dates-wrapper no-weekdays no-years";
+    document.body.appendChild(calendarWrapper);
+
+    // init yeardates picker
+    pickr = flatpickr('#timer-dates', {
+        locale: PbxObject.language || 'en',
+        mode: 'multiple',
+        dateFormat: 'd F',
+        appendTo: calendarWrapper,
+        minDate: new Date(2017, 0, 1), // not a leap year
+        maxDate: new Date(2017, 11, 31), // not a leap year
+        onChange: function(selectedDates, dateStr){
+            setTempParams({ selectedDates: selectedDates });
+        }
+    });
+
+    // format yeardates and set them in picker
+    if(result.yeardays) {
+        result.yeardays.forEach(function(item){
+            yeardays.push(moment().dayOfYear(item).format());
+        })
+        
+        pickr.setDate(yeardays);
+    }
 }
 
 function set_timer(){
         
-    var jprms, name = document.getElementById('objname').value;
+    var jprms, 
+        name = document.getElementById('objname').value,
+        timezone = document.getElementById('timer_timezone');
+
     if(name)
         jprms = '\"name\":\"'+name+'\",';
     else{
@@ -97,6 +145,9 @@ function set_timer(){
     jprms += '\"hour\":\"'+h.options[h.selectedIndex].value+'\",';
     jprms += '\"minute\":\"'+m.options[m.selectedIndex].value+'\",';
 
+    if(timezone.value || PbxObject.options.timezone)
+        jprms += '\"timezone\":\"'+ (timezone.value || PbxObject.options.timezone) +'\",';
+
     jprms += '\"weekdays\":[';
     var i;
     for(i=0; i<7; i++){
@@ -106,13 +157,24 @@ function set_timer(){
     }
     jprms += '],';
 
+    // Set yeardays
+    if(PbxObject.currentObj && PbxObject.currentObj.selectedDates) {
+        jprms += '\"yeardays\":[';
+        PbxObject.currentObj.selectedDates.forEach(function(item){
+            jprms += (moment(item).dayOfYear() + ',');
+        });
+        jprms += '],';
+    }
+        
+
+
     var targets = document.getElementById('targets').getElementsByTagName('tbody')[0];
     
     jprms += '\"targets\":[';
     for(i=0; i < targets.children.length; i++){
         var tr = targets.children[i];
         if(tr.id != undefined && tr.id != ''){
-            jprms += '{\"oid\":\"'+targets.children[i].id+'\",\"action\":\"'+(tr.children[1].getAttribute('data-action'))+'\"},';
+            jprms += '{\"oid\":\"'+targets.children[i].id+'\",\"action\":\"'+(tr.children[0].getAttribute('data-action'))+'\"},';
         }
     }
     jprms += ']';
@@ -126,6 +188,11 @@ function timer_target_row(oid, name, action){
     var a = document.createElement('a');
     var straction = action == "Enable" ? PbxObject.frases.ENABLE : PbxObject.frases.DISABLE;
 
+    td.textContent = straction;
+    td.setAttribute('data-action', action);
+    tr.appendChild(td);
+
+    td = document.createElement('td');
     tr.id = oid;
     a.href = '#';
     a.onclick = function(e){
@@ -135,10 +202,7 @@ function timer_target_row(oid, name, action){
     a.innerHTML = name;
     td.appendChild(a);
     tr.appendChild(td);
-    td = document.createElement('td');
-    td.textContent = straction;
-    td.setAttribute('data-action', action);
-    tr.appendChild(td);
+    
     td = document.createElement('td');
     var button = document.createElement('button');
     button.className = 'btn btn-danger btn-sm';
@@ -205,11 +269,14 @@ function fill_timer_targets(id){
 
 function check_days(e){
     var e = e || window.event,
-        targ = e.target.children[0],
-        id = targ.value, i, day;
-    for(i=0;i<7;i++){
+        targ = e.target,
+        filter = targ.getAttribute('data-filter'), day;
+
+    e.preventDefault();
+
+    for(var i=0; i<7; i++){
         day = document.getElementById('t-d'+i);
-        if((id === 'timer-workdays' && (i===5 || i===6)) || (id === 'timer-holidays' && i<5)){
+        if((filter === 'timer-workdays' && (i===5 || i===6)) || (filter === 'timer-holidays' && i<5)){
             if(day.checked) day.checked = false;
             if(day.parentNode.nodeName === 'LABEL') day.parentNode.classList.remove('active');
             continue;

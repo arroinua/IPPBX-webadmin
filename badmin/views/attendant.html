@@ -5,6 +5,7 @@
                 <div class="panel-body">
                     <div class="input-group object-name">
                         <input type="text" id="objname" class="form-control" placeholder="{{APPNAME}}" autofocus>
+                        <span class="input-group-addon" id="object-route-cont"></span>
                         <span class="input-group-addon">
                             <div class="switch switch-lg">
                                 <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
@@ -52,6 +53,12 @@
                             <label for="connectionTimeout" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__CONN_TOUT}}">{{ATTENDANT.CONN_TOUT}}</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="connectionTimeout" value="60" onkeydown='validateInput(event)'>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ringbackMusic" class="col-sm-4 control-label" data-toggle="tooltip" title="{{ATT__RINGBACK_MUSIC}}">{{ATTENDANT.RINGBACK_MUSIC}}</label>
+                            <div class="col-sm-8">
+                                <input type="file" accept=".wav" name="ringbackMusic" id="ringbackMusic" class="upload-custom">
                             </div>
                         </div>
                         <div class="form-group">

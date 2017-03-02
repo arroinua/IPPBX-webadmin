@@ -16,7 +16,7 @@
 		"CLI" : "CLI Group"
 	},
 	"SELECT_GROUP": "Select group",
-	"TRUNK" : "Trunk",
+	"SELECT_ROUTE": "Select route",
 	"TRUNKS" : "Trunks",
 	"TRUNK_TYPE" : "Trunk type",
 	"APPS" : "Applications",
@@ -72,6 +72,8 @@
 	},
 	"SETTINGS" : {
 		"SETTINGS" : "Settings",
+		"TO_MAIN_TAB_BTN" : "Back",
+		"CHANGE_PASSWORD": "Change password",
 		"SIP" : "SIP",
 		"SIPS" : "SIPS",
 		"WSS" : "WSS",
@@ -100,13 +102,21 @@
 			"CALL_RECORDS_PATH" : "Call records path",
 			"CALL_RECORDS_FORMAT" : "Call records format"
 		},
+		"SECURITY": {
+			"SECURITY_SETTS": "Security",
+			"IPCHECK_ENABLE": "Allow registration only from these networks",
+			"IPCHECK_DISABLE": "Allow registration from any network",
+			"NETWORK": "Network",
+			"NETMASK": "Netmask",
+			"ADD_RULE": "Add rule"
+		},
 		"LDAP" : "LDAP",
 		"SMDR" : "SMDR",
 		"SMTP" : "SMTP",
 		"UNLIMITEDCONN" : "Unlimited connections",
 		"LIMITEDCONN" : "Limited connections",
-		"MAXCONN" : "Maximum connections",
-		"GENERAL_SETTS" : "General settings",
+		"MAXCONN" : "Max. connections",
+		"GENERAL_SETTS" : "General",
 		"FUNCSETTINGS" : "PBX Features",
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
@@ -131,7 +141,8 @@
 		"CALLINGTRANSF" : "Calling number transforms",
 		"CALLEDTRANSF" : "Called number transforms",
 		"OUTBARGING" : "Deny calls to outer numbers",
-		"COSTBARGING" : "Deny paid calls"
+		"COSTBARGING" : "Deny paid calls",
+		"TIMEZONE": "Time zone"
 	},
 	"OPTIONS" : "Options",
 	"GENERAL" : "General",
@@ -147,6 +158,7 @@
 	"SEARCH" : "Search",
 	"SEARCH_IN" : "Search in",
 	"DATE" : "Date",
+	"TIMEZONE": "Time zone",
 	"GATEWAY" : "Gateway",
 	"COMPANY" : "Company",
 	"TITLE" : "Title",
@@ -275,6 +287,7 @@
 	"AUTOREDIAL" : "Auto redial",
 	"PLAYGREET" : "Play greetings",
 	"GREETNAME" : "Greetings file",
+	"WAIT_MUSIC" : "Ringback music",
 	"CALLROUTING" : "Call routing",
 	"ROUTEMETH" : {
 		"ROUTEMETH" : "Routing method",
@@ -286,7 +299,9 @@
 	"NOANSTOUT" : "Waiting for answer time",
 	"RESUMETIME" : "Wrap time",
 	"QUEUESETTS" : "Queue settings",
-	"MUSICONHOLD" : "Music for Hold mode",
+	"MUSICONHOLD" : "Music on hold",
+	"QUEUEPROMPT" : "Greetings in call queue",
+	"QUEUEMUSIC" : "Music in call queue",
 	"QUEUELEN" : "Queue length",
 	"OVERFLOWREDIR" : "Redirection when queue overload",
 	"MAXQWAIT" : "Max time of waiting in queue",
@@ -357,6 +372,8 @@
 	"TIMERSNAME": "Timer name",
 	"PICKADATE": "Select date and time",
     "TIME": "Time",
+    "DAYS_OF_THE_WEEK": "Days of the week",
+    "DAYS_OF_THE_YEAR": "Days of the year",
     "SECONDS": "seconds",
     "MINUTES": "minutes",
     "HOURS": "hours",
@@ -523,6 +540,14 @@
     	"CUSTOM_RANGE" : "Custom Range",
     	"INTERVAL" : "Interval"
     },
+    "TRUNK": {
+    	"TRUNK": "Trunk",
+    	"INC_ROUTE": "Route calls to",
+    	"INC_ROUTE_DEFAULT_OPTION": "Select extension",
+    	"OUT_ROUTE": "Route calls",
+    	"ADVANCED_SETTINGS_BTN": "Advanced settings",
+    	"ADD_RULE": "Add rule"
+    },
     "ATTENDANT" : {
     	"MENU" : "Menu",
     	"MAIL" : "Send Email",
@@ -537,6 +562,7 @@
     	"BACK_BTN" : "Back Button",
     	"MAIN_MENU_BTN" : "To Main Menu",
     	"NO_CONN_CREATED" : "No connectors created",
+    	"RINGBACK_MUSIC" : "Ringback music",
     	"CONN_FAILED_PROMPT" : "Connection Failed Prompt",
     	"CONN_TOUT" : "Connection Timeout",
     	"DEFAULT_CONNECTOR" : "Default Connector",
@@ -617,6 +643,7 @@
     "ATT__BACK_BTN" : "Button to move to the previous menu",
     "ATT__MAIN_MENU_BTN" : "Button to move to the main menu",
     "ATT__INPUT_TRIES" : "Number of attempts to enter a digit. If the number of attempts exceeds the call terminates, or connects to the secretary if its number is specified in the parameter \"Default connector\"",
+    "ATT__RINGBACK_MUSIC" : "Audio file that is played instead of ringback. The file format must be .wav/8khz/16bit.",
     "ATT__CONN_FAILED_PROMPT" : "Audio file that is played when the connection has failed. The file format must be .wav/8khz/16bit.",
     "ATT__CONN_TOUT" : "If the connection with the external number or IP PBX extension failed during that time the call terminates, or connected with the secretary if its number is specified in the parameter \"Default connector\"",
     "ATT__DEFAULT_CONNECTOR" : "Secretary number",

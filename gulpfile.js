@@ -81,6 +81,15 @@ gulp.task('flot', function() {
     .pipe(notify({ message: 'Flot task complete' }));
 });
 
+gulp.task('flatpickr', function() {
+  return gulp.src('badmin/src/vendors/flatpickr/*.js')
+    .pipe(concat('flatpickr.all.js'))
+    .pipe(rename({suffix: '.min'}))
+    .pipe(uglify())
+    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'))
+    .pipe(notify({ message: 'Flatpickr task complete' }));
+});
+
 gulp.task('views', function() {
   gulp.src('badmin/branch.html')
   .pipe(gulp.dest('badmin/dist/badmin/'));
@@ -121,7 +130,7 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('default', ['clean'], function() {
-    gulp.start('styles', 'styles2', 'scripts', 'views', 'flot');
+    gulp.start('styles', 'styles2', 'scripts', 'views', 'flot', 'flatpickr');
 });
 
 gulp.task('watch', function() {

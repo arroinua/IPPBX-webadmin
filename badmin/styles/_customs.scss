@@ -9,10 +9,29 @@ input[readonly].readonly-custom{
     cursor: text;
 }
 
+#security-settings-cont table button {
+    padding: 6px 0;
+}
+
+#security-settings-cont table input {
+    padding: 6px;
+}
+
 .modal-backdrop,
 .tour-backdrop {
     opacity: .5;
     background-color: #000;
+}
+
+/*
+    Flatpickr custom styles
+*/
+
+.timer-dates-wrapper.no-weekdays .flatpickr-weekdays {
+    display: none;
+}
+.timer-dates-wrapper.no-years .flatpickr-current-month .numInputWrapper {
+    display: none;
 }
 
 .btn-primary {
@@ -121,6 +140,7 @@ input[readonly].readonly-custom{
     border-radius: 0;
     border: none;
     background-color: #fff;
+    padding: 6px 10px 6px 0;
 }
 
 .rd-container{
@@ -142,6 +162,30 @@ input[readonly].readonly-custom{
 
 .bg-connected {
     background-color: #ace496;
+}
+
+.tout-routes-cont .input-group {
+    margin-bottom: 5px;
+}
+
+.tout-routes-cont .tout-route-row {
+    width: 150px;
+}
+
+.tout-routes-cont .input-group-addon {
+    padding: 0;
+    border: none;
+}
+
+.Select.obj-route-select {
+    min-width: 150px;
+    text-align: left;
+}
+
+@media only screen and (max-width: $handheld) {
+    .Select.obj-route-select {
+        min-width: 115px;
+    }    
 }
 
 .select2-dropdown{

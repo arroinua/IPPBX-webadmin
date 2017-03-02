@@ -1,18 +1,23 @@
 function load_application(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
+
+    var enabled = document.getElementById('enabled');
+    var name = document.getElementById('objname');
+
     if(result.name){
-        document.getElementById('objname').value = result.name;
+        name.value = result.name;
     }
+    
     if(enabled) {
         enabled.checked = result.enabled;
-        if(result.name) {
-            addEvent(enabled, 'change', function(){
-                // console.log(result.oid+' '+this.checked);
-                json_rpc_async('setObjectState', '\"oid\":\"'+result.oid+'\", \"enabled\":'+this.checked+'', null); 
+        addEvent(enabled, 'change', function(){
+            setObjectState(result.oid, this.checked, function(result) {
+                if(!result) enabled.checked = !enabled.checked;
             });
-        }
+        });
     }
+    
     // if(result.enabled)
     //     document.getElementById('enabled').checked = result.enabled;
     if(result.debug)
@@ -49,6 +54,13 @@ function load_application(result){
     else{
         add_app_row();
     }
+
+    // Render route parameters
+    renderObjRoute({
+        routes: result.routes || [],
+        frases: PbxObject.frases,
+        onChange: setCurrObjRoute
+    });
     
     show_content();
     set_page();
@@ -57,7 +69,8 @@ function load_application(result){
 function set_application(){
     show_loading_panel();
     var tbody = document.getElementById('appvariables').getElementsByTagName('tbody')[0];
-    var jprms = '\"name\":\"'+document.getElementById('objname').value+'\",';
+    var name = document.getElementById('objname').value;
+    var jprms = '\"name\":\"'+name+'\",';
     jprms += '"enabled":'+document.getElementById('enabled').checked+',';
     if(PbxObject.oid) jprms += '\"oid\":\"'+PbxObject.oid+'\",';
     
@@ -104,7 +117,22 @@ function set_application(){
         jprms += '"password":"'+document.getElementById('dbpass').value+'",';
     jprms += '},';
     
-    json_rpc_async('setObject', jprms, set_object_success);
+    json_rpc_async('setObject', jprms, function(result) {
+
+        set_object_success(result)
+
+        // Add new route to the object
+        if(result && getTempParams().ext) {
+            var routeParams = {
+                number: getTempParams().ext,
+                target: { oid: result, name: name }
+            };
+            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+
+            console.log('set route params: ', routeParams);
+            setObjRoute(routeParams);
+        }
+    });
 }
 
 function add_app_row(object){

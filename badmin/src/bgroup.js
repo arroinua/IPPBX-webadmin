@@ -3,7 +3,7 @@ function load_bgroup(result){
     switch_presentation(result.kind);
     // switch_tab(result.kind);
     var i, cl,
-        d = document,
+        d = document, 
         kind = result.kind,
         members = result.members,
         cont = d.getElementById('dcontainer'),
@@ -24,17 +24,14 @@ function load_bgroup(result){
     }
     
     if(enabled) {
-        enabled.checked = result.enabled || true;
-        if(result.name) {
-            addEvent(enabled, 'change', function(){
-                // console.log(result.oid+' '+this.checked);
-                setTrunkState(result.oid, this.checked, function(result) {
-                    if(!result) enabled.checked = !enabled.checked;
-                });
-                // json_rpc_async('setObjectState', '\"oid\":\"'+result.oid+'\", \"enabled\":'+this.checked+'', null);
+        enabled.checked = result.enabled;
+        addEvent(enabled, 'change', function(){
+            setObjectState(result.oid, this.checked, function(result) {
+                if(!result) enabled.checked = !enabled.checked;
             });
-        }
+        });
     }
+    
     if(kind === 'users' || kind === 'equipment') {
         var table = document.getElementById('group-extensions').querySelector('tbody'),
             available = document.getElementById('available-users'),
@@ -130,7 +127,8 @@ function load_bgroup(result){
 
         // Render route parameters
         renderObjRoute({
-            currentRoute: result.ext,
+            routes: result.routes || [],
+            frases: PbxObject.frases,
             onChange: setCurrObjRoute
         });
     }
@@ -204,6 +202,12 @@ function load_bgroup(result){
             }
             if(result.options.huntfwd  !== undefined)
                 d.getElementById("huntfwd1").checked = result.options.huntfwd;
+
+            var unitGreeting = result.options.greeting || '';
+            var unitWaitMusic = result.options.waitmusic || '';
+            customize_upload('unit-greeting', unitGreeting);
+            customize_upload('unit-waitmusic', unitWaitMusic);
+
         } else if(kind == 'hunting'){
             if(result.options.timeout !== undefined)
                 d.getElementById("timeout2").value = result.options.timeout;
@@ -211,6 +215,12 @@ function load_bgroup(result){
                 d.getElementById("huntmode2").value = result.options.huntmode || 1;
             if(result.options.huntfwd  !== undefined)
                 d.getElementById("huntfwd2").checked = result.options.huntfwd;
+
+            var huntGreeting = result.options.greeting || '';
+            var huntWaitMusic = result.options.waitmusic || '';
+            customize_upload('hunt-greeting', huntGreeting);
+            customize_upload('hunt-waitmusic', huntWaitMusic);
+
         } else if(kind == 'pickup'){
             d.getElementById("groupno2").value = result.options.groupno || '';
         } else if(kind == 'icd'){
@@ -249,7 +259,12 @@ function load_bgroup(result){
 
             //customizing upload element
             var greetFile = result.options.greeting || '';
+            var queuemusic = result.options.queuemusic || '';
+            var queueprompt = result.options.queueprompt || '';
             customize_upload('greeting', greetFile);
+            customize_upload('queuemusic', queuemusic);
+            customize_upload('queueprompt', queueprompt);
+
         } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
 
             var formats = [ "OFF", "320x240", "352x288", "640x360", "640x480", "704x576", "1024x768", "1280x720", "1920x1080" ];
@@ -771,10 +786,38 @@ function set_bgroup(param, callback){
         jprms += '"timeout":'+d.getElementById("timeout1").value+',';
         jprms += '"huntmode":'+d.getElementById("huntmode1").value+',';
         jprms += '"huntfwd":'+d.getElementById("huntfwd1").checked+',';
+
+        var unitGreeting = document.getElementById("unit-greeting");
+        var unitWaitMusic = document.getElementById("unit-waitmusic");
+        
+        if(unitGreeting.value){
+            if(unitGreeting.files[0]) jprms += '"greeting":"'+unitGreeting.files[0].name+'",';
+            upload('unit-greeting');
+        }
+
+        if(unitWaitMusic.value){
+            if(unitWaitMusic.files[0]) jprms += '"waitmusic":"'+unitWaitMusic.files[0].name+'",';
+            upload('unit-waitmusic');
+        }
+
     } else if(kind == 'hunting'){
         jprms += '"timeout":'+d.getElementById("timeout2").value+',';
         jprms += '"huntmode":'+d.getElementById("huntmode2").value+',';
         jprms += '"huntfwd":'+d.getElementById("huntfwd2").checked+',';
+
+        var huntGreeting = document.getElementById("hunt-greeting");
+        var huntWaitMusic = document.getElementById("hunt-waitmusic");
+
+        if(huntGreeting.value){
+            if(huntGreeting.files[0]) jprms += '"greeting":"'+huntGreeting.files[0].name+'",';
+            upload('hunt-greeting');
+        }
+
+        if(huntWaitMusic.value){
+            if(huntWaitMusic.files[0]) jprms += '"waitmusic":"'+huntWaitMusic.files[0].name+'",';
+            upload('hunt-waitmusic');
+        }
+
     } else if(kind == 'pickup'){
         jprms += '"groupno":"'+d.getElementById("groupno2").value+'",';
     } else if(kind == 'icd'){
@@ -794,10 +837,24 @@ function set_bgroup(param, callback){
         jprms += '"overtimeredirect":"'+d.getElementById("overtimeredirect").value+'",';
         jprms += '"indicationmode":'+d.getElementById("indicationmode").value+',';
         jprms += '"indicationtime":'+d.getElementById("indicationtime").value+',';
+        
         var file1 = document.getElementById("greeting");
+        var queuemusic = document.getElementById("queuemusic");
+        var queueprompt = document.getElementById("queueprompt");
+        
         if(file1.value){
             if(file1.files[0]) jprms += '"greeting":"'+file1.files[0].name+'",';
             upload('greeting');
+        }
+
+        if(queuemusic.value){
+            if(queuemusic.files[0]) jprms += '"queuemusic":"'+queuemusic.files[0].name+'",';
+            upload('queuemusic');
+        }
+
+        if(queueprompt.value){
+            if(queueprompt.files[0]) jprms += '"queueprompt":"'+queueprompt.files[0].name+'",';
+            upload('queueprompt');
         }
 
         if(PbxObject.autologinOptions) {
@@ -872,15 +929,45 @@ function set_bgroup(param, callback){
         if(!result) enabled.checked = false;
 
         // Add new route to the object
-        if(PbxObject.currentObjRoute) {
-            setRoute({
-                number: PbxObject.currentObjRoute,
+        if(result && getTempParams().ext) {
+            var routeParams = {
+                number: getTempParams().ext,
                 target: { oid: result, name: name }
-            });
+            };
+            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+
+            console.log('set route params: ', routeParams);
+            setObjRoute(routeParams);
         }
     });
     // console.log(jprms);
 }
+
+function setObjRoute(params) {
+    setRoute(params);
+}
+
+function renderObjRoute(params) {
+    ReactDOM.render(
+        ObjectRoute({
+            getOptions: getAvailablePool,
+            routes: params.routes,
+            frases: params.frases,
+            // clearCurrObjRoute: clearCurrObjRoute,
+            onChange: params.onChange
+        }),
+        document.getElementById('object-route-cont')
+    );
+}
+
+function setCurrObjRoute(route) {
+    console.log('setCurrObjRoute: ', route);
+    setTempParams(route);
+}
+
+// function clearCurrObjRoute() {
+//     clearTempParams();
+// }
 
 function addMembersRow(data){
 

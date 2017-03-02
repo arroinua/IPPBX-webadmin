@@ -14,12 +14,23 @@ function load_routes(result){
         "Max. priority (status)"    
     ];
     PbxObject.name = result.name;
+
+    var enabled = document.getElementById('enabled');
+    var name = document.getElementById('objname');
+
     if(result.name) {
-        document.getElementById('objname').value = result.name;
+        name.value = result.name;
     }
     
-    document.getElementById('enabled').checked = result.enabled;
-    
+    if(enabled) {
+        enabled.checked = result.enabled;
+        addEvent(enabled, 'change', function(){
+            setObjectState(result.oid, this.checked, function(result) {
+                if(!result) enabled.checked = !enabled.checked;
+            });
+        });
+    }
+
     var i, table = document.getElementById('rtable'),
         ul = document.getElementById('priorities'),
         priorities = result.priorities;
@@ -101,7 +112,8 @@ function set_routes(){
     var str, row, table = document.getElementById('rtable'); 
     for(i=1; i<table.rows.length; i++){
         row = table.rows[i];
-        if(row.className == 'route-on-edit') continue;
+        // if(row.className == 'route-on-edit') continue;
+        if(!row.cells[0].textContent) continue;
         str = '';
         str += '"number":"'+row.cells[0].textContent+'",';
         str += '"description":"'+row.cells[1].textContent+'",';
@@ -119,7 +131,7 @@ function build_routes_table(routes){
     var result, fragment,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
-    getAllowedObjects('routes', function(result) {
+    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
         if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
         else {
             sortByKey(routes, 'number');
@@ -130,25 +142,25 @@ function build_routes_table(routes){
             tbody.appendChild(fragment);
         }    
         show_content();
-    }); 
+    }, true); 
 }
 
 function editRow(row, route) {
-    getAllowedObjects('routes', function(result) {
+    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
         var newroute = build_route_row(route, result);
         row.parentNode.insertBefore(newroute, row);
         row.style.display = 'none';
-    });
+    }, true);
 }
 
 function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    getAllowedObjects('routes', function(result) {
+    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
         var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
         tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
-    });
+    }, true);
 
 }
 
@@ -328,7 +340,7 @@ function build_route_row(route, objects){
     cost.setAttribute('type', 'text');
     cost.setAttribute('name', 'cost');
     cost.setAttribute('size', '2');
-    if(route != null) {
+    if(route != null && route.cost) {
         cost.setAttribute('value', parseFloat(route.cost).toFixed(2));
     } else {
         cost.value = parseFloat(0).toFixed(2);
@@ -367,8 +379,12 @@ function build_route_row(route, objects){
             alert(PbxObject.frases.MISSED_ROUTE_NUMBER);
             return;
         }
+        
+        if(isNaN(rowData.cost)) rowData.cost = 0.00;
+
         var row = tr.nextSibling;
         var newrow = add_route_row(rowData, objects);
+
         tr.parentNode.insertBefore(newrow, tr);
         if(row && row.nodeName == 'TR' && row.style.display == 'none') {
             row.parentNode.removeChild(row);
@@ -399,7 +415,7 @@ function setRoute(data, callback){
     // jprms += '"priority":'+data.priority+',';
     // jprms += '"cost":'+data.cost+',';
     
-    console.log(params);
+    console.log('setRoute: ', params);
     json_rpc_async('setRoute', params, cb);
 }
 

@@ -1,10 +1,11 @@
 <div id="el-loaded-content">
     <div class="row">
-        <div class="col-sm-8 col-custom">
+        <div class="col-sm-12 col-custom">
             <div class="panel">
                 <div class="panel-body">
                     <div class="input-group object-name">
                         <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
+                        <span class="input-group-addon" id="object-route-cont"></span>
                         <span class="input-group-addon">
                             <div class="switch switch-lg pl-kind pl-all pl-no-users">
                                 <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox" checked="checked">
@@ -19,7 +20,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-4" id="object-route-cont"></div>
+        <!-- <div class="col-sm-4" id="object-route-cont"></div> -->
     </div>
     <div class="row pl-kind pl-equipment">
         <div class="col-sm-12 col-custom">
@@ -564,6 +565,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="unit-greeting" class="col-lg-4 control-label" data-toggle="tooltip" title="{{UNIT__GREETINGS}}">{{GREETNAME}}:</label>
+                            <div class="col-lg-8">
+                                <input type="file" id="unit-greeting" class="upload-custom">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-waitmusic" class="col-lg-4 control-label" data-toggle="tooltip" title="{{UNIT__WAITMUSIC}}">{{WAIT_MUSIC}}:</label>
+                            <div class="col-lg-8">
+                                <input type="file" id="unit-waitmusic" class="upload-custom">
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -597,6 +610,18 @@
                                         <input type="checkbox" id="huntfwd2"> {{FORWFROMHUNT}}
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hunt-greeting" class="col-lg-4 control-label" data-toggle="tooltip" title="{{UNIT__GREETINGS}}">{{GREETNAME}}:</label>
+                            <div class="col-lg-8">
+                                <input type="file" id="hunt-greeting" class="upload-custom">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hunt-waitmusic" class="col-lg-4 control-label" data-toggle="tooltip" title="{{UNIT__WAITMUSIC}}">{{WAIT_MUSIC}}:</label>
+                            <div class="col-lg-8">
+                                <input type="file" id="hunt-waitmusic" class="upload-custom">
                             </div>
                         </div>
                     </form>
@@ -675,6 +700,18 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="queueprompt" class="col-lg-4 control-label" data-toggle="tooltip" title="{{ICD__QUEUEPROMPT}}">{{QUEUEPROMPT}}:</label>
+                            <div class="col-lg-8">
+                                <input type="file" id="queueprompt" class="upload-custom">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="queuemusic" class="col-lg-4 control-label" data-toggle="tooltip" title="{{ICD__QUEUEMUSIC}}">{{QUEUEMUSIC}}:</label>
+                            <div class="col-lg-8">
+                                <input type="file" id="queuemusic" class="upload-custom">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <div class="col-lg-offset-4 col-lg-8">
                                 <div class="input-group">
                                     <div class="checkbox">
@@ -683,7 +720,7 @@
                                         </label>
                                     </div>
                                     <span class="input-group-btn">
-                                        <button class="btn btn-default" id="open-autologin-options" style="display: none;">
+                                        <button type="button" class="btn btn-default" id="open-autologin-options" style="display: none;">
                                             <i class="fa fa-cog fa-fw"></i>
                                         </button>
                                     </span>

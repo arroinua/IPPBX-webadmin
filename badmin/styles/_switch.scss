@@ -39,6 +39,7 @@ input.cmn-toggle-round + label:after {
     bottom: 1px;
     content: "";
 }
+
 input.cmn-toggle-round + label:before {
     content: '';
     /*padding-left: 45%;*/
@@ -51,6 +52,13 @@ input.cmn-toggle-round + label:before {
     -webkit-transition: background 0.3s;
     transition: background 0.3s;
 }
+// input.cmn-toggle-round:checked.registered + label:before {
+//     background-color: #8ce196;
+// }
+input.cmn-toggle-round:checked.unregistered + label:before {
+    background-color: #fdf03a;
+}
+
 input.cmn-toggle-round:disabled + label:before {
     opacity: 0.3;
 }
@@ -68,6 +76,7 @@ input.cmn-toggle-round:checked + label:before {
     content: '';
     /*padding-right: 45%;*/
     /*padding-left: 15px;*/
+
     background-color: #8ce196;
 }
 .switch input.cmn-toggle-round:checked + label:after {

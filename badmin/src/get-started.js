@@ -21,7 +21,7 @@ function GetStarted(container) {
 			    extensions = exts;
 			    console.log('extensions:', extensions);
 
-			    json_rpc_async('getObjects', {kind: 'all'}, function(objs) {
+			    getObjects('', function(objs) {
 			    	objects = PbxObject.objects = objs;
 
 			    	console.log('objects:', objects);

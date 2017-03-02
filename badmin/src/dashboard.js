@@ -27,9 +27,9 @@ function Dashboard(){
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
         set_page();
-        createTour();
+        // createTour();
 
-        var getStarted = new GetStarted(document.getElementById('ns-container')).init();
+        // var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
 
     this.checkStates = function(){

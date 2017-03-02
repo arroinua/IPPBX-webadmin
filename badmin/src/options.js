@@ -86,11 +86,34 @@ function loadDeviceSettings(result){
     // switch_options_tab('deviceopt-tab');
 }
 
+function setTimezones(el, defaultTz) {
+    if(!el) return;
+    var timezones = moment.tz.names() || [],
+        fragment = document.createDocumentFragment(),
+        option, defaultOption;
+
+    defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.innerText = "Default timezone";
+    fragment.appendChild(defaultOption);
+
+    timezones.forEach(function(tz) {
+        option = document.createElement('option');
+        option.value = tz;
+        option.innerText = tz;
+        fragment.appendChild(option);
+    });
+
+    el.appendChild(fragment);
+    el.value = defaultTz || "";
+}
+
 function load_pbx_options(result) {
     // console.log(result);
     var options, chk, trow, tables, transforms, so;
 
     switch_options_tab('mainopt-tab');
+    setTimezones(document.getElementById('branch_timezone'), result.timezone);
 
     // PbxObject.oidOptions = result.oid;
     PbxObject.config = result.config || [];
@@ -162,6 +185,21 @@ function load_pbx_options(result) {
     setAccordion('#featureopt-tab');
     if(result.services) setServices(result.services);
     else PbxObject.options.services = [];
+
+    loadSecuritySettings({ ipcheck: result.ipcheck || false, iptable: result.iptable || [] }, setSecuritySettings);
+}
+
+function loadSecuritySettings(params, cb) {
+    ReactDOM.render(
+        SecuritySettings({ params: params, frases: PbxObject.frases, onChange: cb}),
+        document.getElementById('security-settings-cont')
+    );
+}
+
+function setSecuritySettings(params) {
+    console.log('setSecuritySettings: ', params);
+    PbxObject.options.ipcheck = params.ipcheck;
+    PbxObject.options.iptable = params.iptable;
 }
 
 // function loadLdapOptions(opts){
@@ -223,43 +261,9 @@ function set_pbx_options(e) {
         select = document.getElementById('interfacelang'),
         firstnumber = document.getElementById('firstnumber'),
         lastnumber = document.getElementById('lastnumber'),
+        timezoneEl = document.getElementById('branch_timezone'),
         lang = select.options[select.selectedIndex].value,
         ldapOptions = getLdapOptions();
-
-    // if (firstnumber && firstnumber.value) {
-    //     var fvalue = firstnumber.value;
-    //     if(lastnumber){
-    //         var lvalue = lastnumber.value;
-    //         if(!lvalue){
-    //             alert(PbxObject.frases.OPTS__POOL_UNSPECIFIED);
-    //             return;
-    //         }
-    //         if(parseInt(lvalue) < parseInt(fvalue)){
-    //             lvalue = firstnumber.value;
-    //             fvalue = lastnumber.value;
-
-    //         }
-
-    //         //calculation numbering pool size
-    //         var poolsize = lvalue - fvalue;
-    //         if(poolsize === 0){
-    //             alert(PbxObject.frases.OPTS__POOL_ZERO);
-    //             return;
-    //         } else {
-    //             poolsize += 1;
-    //         }
-
-    //         if(PbxObject.options.firstnumber !== parseInt(fvalue) || PbxObject.options.poolsize !== parseInt(poolsize)){
-    //             var conf = confirm(PbxObject.frases.OPTS__POOL_CHANGE);
-    //             if(conf == true){
-    //                 jprms += '"firstnumber":' + fvalue + ', ';
-    //                 jprms += '"poolsize":' + poolsize + ', ';
-    //             } else{
-    //                 return;
-    //             }
-    //         }
-    //     }
-    // }
 
     if(firstnumber && firstnumber.value){
         var extensions = poolStringToObject(firstnumber.value);
@@ -284,6 +288,14 @@ function set_pbx_options(e) {
 
     jprms += '"lang":"' + lang + '", ';
     if (pass) jprms += '"adminpass":"' + pass + '", ';
+
+    if(timezoneEl.value) {
+        PbxObject.options.timezone = timezoneEl.value;
+        jprms += '"timezone":"' + timezoneEl.value + '", ';
+    }
+    jprms += '"ipcheck":' + (PbxObject.options.ipcheck || false) + ', ';
+    if(PbxObject.options.iptable) 
+        jprms += '"iptable":' + JSON.stringify(PbxObject.options.iptable) + ', ';
 
     if(ldapOptions) jprms += '\"ldap\":' + JSON.stringify(ldapOptions) + ', ';
     if(PbxObject.options.services) {
