@@ -262,6 +262,7 @@ function callbackOnId(id, result){
 
 function subscribeToEvents() {
     $(document).on('onmessage.object.update', updateExtensionRow);
+    $(document).on('onmessage.object.update', updateMenu);
     $(document).on('onmessage.object.update', function(event, params) {
         console.log('onmessage.object.update: ', PbxObject.oid, params);
         // if object's state change and object oid === params.oid
@@ -1276,6 +1277,19 @@ function newObjectAdded(event, data){
         sortByKey(PbxObject.objects, 'name');
     }
 
+}
+
+function updateMenu(event, data) {
+    var ul = document.getElementById('ul-'+data.kind);
+    var anchors = [];
+    if(ul) {
+        anchors = anchors.slice.call(ul.querySelectorAll('li a'));
+        anchors.forEach(function(a) {
+            if(a.href.indexOf(data.oid) !== -1) {
+                a.textContent = data.name;
+            }
+        });
+    }
 }
 
 function objectDeleted(data){
