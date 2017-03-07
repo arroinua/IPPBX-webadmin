@@ -185,7 +185,10 @@
                 <div class="panel-body">
                     <form class="form-horizontal">
                         <div class="form-group">
-                            <label for="protocols" class="col-md-5 control-label" data-toggle="tooltip" title="{{GRP__PROTOCOL}}">{{PROTOCOL}}</label>
+                            <label class="col-md-5 control-label">
+                                {{PROTOCOL}}
+                                <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-content="{{GRP__PROTOCOL}}" class="popover-trigger"><span class="fa fa-question-circle"></span></a>
+                            </label>
                             <div class="col-md-4">
                                 <div class="input-group">
                                     <select id="protocols" class="form-control"></select>
@@ -196,7 +199,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK_TYPE_TITLE}}">{{TRUNK_TYPE}}</label>
+                            <label class="col-md-5 control-label">
+                                {{TRUNK_TYPE}}
+                                <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK_TYPE_TITLE}}"><span class="fa fa-question-circle"></span></a>
+                            </label>
                             <div class="col-md-4">
                                 <div class="btn-group" data-toggle="buttons">
                                     <label class="btn btn-default active" onclick="switch_presentation('external', null, 'pl-trunk-kind')">
@@ -211,13 +217,19 @@
                         </div>
                         <div class="pl-trunk-kind pl-internal">
                             <div class="form-group">    
-                                <label for="int-trunk-user" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__USERNAME}}">{{NAME}}</label>
+                                <label class="col-md-5 control-label">
+                                    {{NAME}}
+                                    <a tabindex="0" role="button" class="popover-trigger" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__USERNAME}}"><span class="fa fa-question-circle"></span></a>
+                                </label>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" id="int-trunk-user" placeholder="{{NAME}}" readonly="">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="int-trunk-pass" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                <label class="col-md-5 control-label">
+                                    {{PASSWORD}}
+                                    <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__PWD}}"><span class="fa fa-question-circle"></span></a>
+                                </label>
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}">
@@ -235,7 +247,10 @@
                         </div>
                         <div class="pl-trunk-kind pl-external">
                             <div class="form-group">    
-                                <label for="domain" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__DOMAIN}}">{{DOMAIN}}</label>
+                                <label class="col-md-5 control-label">
+                                    {{DOMAIN}}
+                                    <a tabindex="0" role="button" class="popover-trigger" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__DOMAIN}}"><span class="fa fa-question-circle"></span></a>
+                                </label>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" id="domain" placeholder="{{DOMAIN}}">
                                 </div>
@@ -251,19 +266,28 @@
                             </div>
                             <div id="reg-setts">
                                 <div class="form-group">    
-                                    <label for="user" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__USERNAME}}">{{NAME}}</label>
+                                    <label class="col-md-5 control-label">
+                                        {{NAME}}
+                                        <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__USERNAME}}"><span class="fa fa-question-circle"></span></a>
+                                    </label>
                                     <div class="col-md-4">
                                         <input type="text" class="form-control" id="user" placeholder="{{NAME}}" class="reg-setts-el">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="auth" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__AUTHNAME}}">{{AUTHNAME}}</label>
+                                    <label class="col-md-5 control-label">
+                                        {{AUTHNAME}}
+                                        <a tabindex="0" role="button" class="popover-trigger" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__AUTHNAME}}"><span class="fa fa-question-circle"></span></a>
+                                    </label>
                                     <div class="col-md-4">
                                         <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}" class="reg-setts-el">
                                     </div>
                                 </div>
                                 <div class="form-group">    
-                                    <label for="pass" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                    <label class="col-md-5 control-label">
+                                        {{PASSWORD}}
+                                        <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__PWD}}"><span class="fa fa-question-circle"></span></a>
+                                    </label>
                                     <div class="col-md-4">
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}" class="reg-setts-el">
@@ -276,7 +300,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="regexpires" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__AUTH_PERIOD}}">{{REGEXPIRES}}</label>
+                                    <label class="col-md-5 control-label">
+                                        {{REGEXPIRES}}
+                                        <a tabindex="0" role="button" class="popover-trigger" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__AUTH_PERIOD}}"><span class="fa fa-question-circle"></span></a>
+                                    </label>
                                     <div class="col-md-2">
                                         <input type="text" class="form-control" id="regexpires" placeholder="{REGEXPIRES}" class="reg-setts-el">
                                     </div>
@@ -294,19 +321,28 @@
                                 </div>
                                 <div id="proxy-setts">
                                     <div class="form-group">    
-                                        <label for="paddr" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__DOMAIN}}">{{PROXYADDRESS}}</label>
+                                        <label class="col-md-5 control-label">
+                                            {{PROXYADDRESS}}
+                                            <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__DOMAIN}}"><span class="fa fa-question-circle"></span></a>
+                                        </label>
                                         <div class="col-md-4">
                                             <input type="text" class="form-control" name="proxy" id="paddr" placeholder="{{PROXYADDRESS}}" disabled="disabled">
                                         </div>
                                     </div>
                                     <div class="form-group">    
-                                        <label for="pauth" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__AUTHNAME}}">{{AUTHNAME}}</label>
+                                        <label class="col-md-5 control-label">
+                                            {{AUTHNAME}}
+                                            <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__AUTHNAME}}"><span class="fa fa-question-circle"></span></a>
+                                        </label>
                                         <div class="col-md-4">
                                             <input type="text" class="form-control" name="proxy" id="pauth" placeholder="{{AUTHNAME}}" disabled="disabled">
                                         </div>
                                     </div>
                                     <div class="form-group">    
-                                        <label for="ppass" class="col-md-5 control-label" data-toggle="tooltip" title="{{TRUNK__PWD}}">{{PASSWORD}}</label>
+                                        <label class="col-md-5 control-label">
+                                            {{PASSWORD}}
+                                            <a tabindex="0" role="button" class="popover-trigger" data-toggle="popover" data-trigger="focus" data-content="{{TRUNK__PWD}}"><span class="fa fa-question-circle"></span></a>
+                                        </label>
                                         <div class="col-md-4">
                                             <div class="input-group">
                                                 <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" disabled>

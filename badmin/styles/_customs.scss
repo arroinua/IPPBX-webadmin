@@ -17,10 +17,73 @@ input[readonly].readonly-custom{
     padding: 6px;
 }
 
+#welcome-modal .modal-body {
+    padding: 20px 100px;
+}
+
+/*
+    Modal custom styles
+*/
+
 .modal-backdrop,
 .tour-backdrop {
-    opacity: .5;
-    background-color: #000;
+    background-color: rgba(243,248,249,.7);
+}
+
+.modal-header {
+    &.standalone {
+        border-bottom: none;
+    }
+}
+
+.modal-custom .modal-content{
+    border-radius: 0;
+}
+.modal-custom .modal-footer{
+    background-color: $primary-color-l1;
+}
+
+/*
+    Popover custom styles
+*/
+
+.popover {
+    padding: 0;
+    min-width: 200px;
+    max-width: 400px;
+    border: 1px solid $primary-color;
+    border-radius: 4px;
+}
+
+.popover-trigger {
+    color: #ccc;
+    font-size: 1.5rem;
+}
+
+/*
+    Tourjs custom styles
+*/
+
+.popover.tour-get-started {
+    font-size: 16px;
+}
+
+.popover.tour-get-started .popover-title {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    border-radius-top-left: 4px;
+    border-radius-top-right: 4px;
+    text-transform: uppercase;
+    padding: 15px;
+    font-size: 16px;
+}
+
+.popover.tour-get-started .popover-content {
+    padding: 15px;
+}
+
+.tour-step-background {
+    border-radius: 4px;
 }
 
 /*
@@ -130,12 +193,7 @@ input[readonly].readonly-custom{
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
 }
-.modal-custom .modal-content{
-    border-radius: 0;
-}
-.modal-custom .modal-footer{
-    background-color: $primary-color-l1;
-}
+
 .object-name .input-group-addon{
     border-radius: 0;
     border: none;

@@ -1,5 +1,46 @@
 {
 	"PBXADMIN" : "Administrator",
+	"GET_STARTED": {
+		"GET_STARTED": "Get started",
+		"WELCOME_MSG": "Welcome to the administrative panel",
+		"TOUR_OFFER": "Would you like to have a short tour of how to get started?",
+		"START_TOUR": "Start tour",
+		"DISMISS_TOUR": "No, dismiss",
+		"STEPS": {
+			"A": {
+				"TITLE": "Add extensiosn",
+				"BODY": "Add extensions for company eployees",
+				"MODAL": {
+					"OPTION_1": {
+						"TITLE": "Add user group",
+						"DESC": "Users are extensions that can be registered with Ringotel messaging apps"
+					},
+					"OPTION_2": {
+						"TITLE": "Add equipment group",
+						"DESC": "Equipment are extensions that can be registered with third-party SIP softphones, IP phones, etc."
+					}
+				}
+			},
+			"B": {
+				"TITLE": "Create call group",
+				"BODY": "Call groups define how incomming calls would be handled and by whom",
+				"MODAL": {
+					"OPTION_1": {
+						"TITLE": "Create hunting group",
+						"DESC": "Within a hunting group calls would be allocated to the available extensions, either circular, or simultaneous"
+					},
+					"OPTION_2": {
+						"TITLE": "Create hotline",
+						"DESC": "Define how incoming calls would be serverd and allocated with queue settings, routing methods, greeting prompt, etc."
+					}
+				}
+			},
+			"C": {
+				"TITLE": "Create trunk",
+				"BODY": "Connect SIP trunk to make and recieve calls from the outside world"
+			}
+		}
+	},
 	"OBJECT" : "Object",
 	"EXTENSIONS" : "Extensions",
 	"EXTENSION" : "Extension",
@@ -596,6 +637,57 @@
     		"2" : "Reserve",
     		"3" : "Error",
     		"4" : "Full"
+    	}
+    },
+    "TOURS": {
+    	"NEXT_STEP": "Next",
+    	"PREV_STEP": "Prev",
+    	"END_TOUR": "Close",
+    	"DASHBOARD": {
+    		"A": {
+    			"TITLE": "Dashboard",
+    			"BODY": "Dashboard is where you can in real time monitor calls and instance payload, trunks state and missed calls."
+    		},
+    		"B": {
+    			"TITLE": "REAL-TIME REPORTS",
+    			"BODY": "Shows the amount of calls and lines payload for the last several hours."
+    		},
+    		"C": {
+    			"TITLE": "REAL-TIME MONITORING",
+    			"BODY": "Shows current amount of calls and lines payload."
+    		},
+    		"D": {
+    			"TITLE": "TRUNKS STATE MONITORING",
+    			"BODY": "Shows registration state of all created trunks."
+    		},
+    		"E": {
+    			"TITLE": "CALLS MONITORING",
+    			"BODY": "Shows the list of current calls."
+    		},
+    		"F": {
+    			"TITLE": "",
+    			"BODY": "You can open the dashboard, by clicking the home button"
+    		},
+    		"G": {
+    			"TITLE": "Navigation",
+    			"BODY": "Create and manage instance objects using navigation menu."
+    		},
+    		"H": {
+    			"TITLE": "Reports and statistics",
+    			"BODY": "Build reports, export calls and trunks statistics, and listen call records"
+    		},
+    		"I": {
+    			"TITLE": "",
+    			"BODY": "Click the icon to open options panel"
+    		},
+    		"J": {
+    			"TITLE": "Options panel",
+    			"BODY": "Here you can set instance options, manage integrations, set security settings, monitor cloud storage and more"
+    		},
+    		"K": {
+    			"TITLE": "Get Started",
+    			"BODY": "Use Get Started guide to setup your instance"
+    		}
     	}
     },
     "LDAP" : {

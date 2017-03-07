@@ -3382,9 +3382,8 @@ function Dashboard(){
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
         set_page();
-        // createTour();
 
-        // var getStarted = new GetStarted(document.getElementById('ns-container')).init();
+        var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
 
     this.checkStates = function(){
@@ -3643,81 +3642,6 @@ function Dashboard(){
     };
 
     this.init();
-
-    function createTour() {
-        PbxObject.tours = PbxObject.tours || {};
-
-        PbxObject.tours.dashboard = new Tour({
-            name: "get-started",
-            backdrop: true,
-            backdropContainer: "#pagecontent",
-            storage: false,
-            steps: [
-                {
-                    orphan: true,
-                    title: "Ringotel Dashboard",
-                    content: "Dashboard is where you can in real time monitor calls and instance payload, trunks state and missed calls."
-                }, {
-                    backdropPadding: { top: 10 },
-                    element: "#dash-graph-cont",
-                    title: "Real-time reports",
-                    content: "Shows the amount of calls and lines payload for the last several hours.",
-                    placement: "top"
-                }, {
-                    backdropPadding: { top: 10 },
-                    element: "#dash-monitor-cont",
-                    title: "Real-time monitoring",
-                    content: "Shows current amount of calls and lines payload.",
-                    placement: "top"
-                }, {
-                    element: "#dash-trstate-cont",
-                    title: "Trunks state monitoring",
-                    content: "Shows registration state of all created trunks.",
-                    placement: "top"
-                }, {
-                    element: "#dash-callmonitor-cont",
-                    title: "Calls monitoring",
-                    content: "Shows the list of current calls.",
-                    placement: "top"
-                }, {
-                    element: "#pbxmenu",
-                    title: "Navigation",
-                    content: "Navigate to the object of your Ringotel cloud using navigation menu.",
-                    placement: "right"
-                }, {
-                    element: "#history-dropdown-cont",
-                    title: "Reports and Statistics",
-                    content: "Watch reports and statistics, and monitor call records.",
-                    placement: "left"
-                }, {
-                    reflex: true,
-                    element: "#open-opts-btn",
-                    content: "Click this icon to open options panel",
-                    placement: "left",
-                    onShow: function() {
-                        if(isOptionsOpened()) close_options();
-                    }
-                }, {
-                    element: "#pbxoptions",
-                    title: "Options panel",
-                    content: "Here you can set instance options, manage services integrations, monitor cloud storage and many more...",
-                    placement: "left",
-                    onShow: function() {
-                        if(!isOptionsOpened()) open_options();
-                    }
-                }, {
-                    element: "#get-started-cont",
-                    title: "Get Started",
-                    content: "Use Get Started guide to set up you cloud.",
-                    placement: "bottom",
-                    onShow: function() {
-                        if(isOptionsOpened()) close_options();
-                    }
-                }
-            ]
-        });
-        PbxObject.tours.dashboard.init();
-    }
 
 }
 
@@ -4385,12 +4309,13 @@ function GetStarted(container) {
 		attendant = [],
 		welcomeModal = 'welcome-modal',
 		wgSteps = [],
-		tour = {};
+		dashTour = {};
 
 	this.init = function() {
 
-		// Get initial data fot the Widget
+		createTour();
 
+		// Get initial data for the Widget
 		if(typeof objects === 'object') {
 			createWidget();
 		} else {
@@ -4411,13 +4336,13 @@ function GetStarted(container) {
 			    });
 
 			});
-		}
-		
+		}		
 	};
 
 	function doWelcomeModalNeeded() {
-		var noRoutesObjs = filterKinds(objects, 'routes', true);
-		return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
+		return true;
+		// var noRoutesObjs = filterKinds(objects, 'routes', true);
+		// return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
 	}
 
 	function loadWelcomeModal() {
@@ -4425,7 +4350,8 @@ function GetStarted(container) {
 	    $('body').prepend(modalCont);
 
 	    ReactDOM.render(WelcomeModal({
-	        startTour: startTour
+	        startTour: startTour,
+	        frases: PbxObject.frases
 	    }), modalCont);
 
 	    $('#welcome-modal').modal();
@@ -4434,40 +4360,144 @@ function GetStarted(container) {
 	}
 
 	function startTour() {
-	    PbxObject.tours.dashboard.start();
+	    dashTour.start();
 	}
 
 	function createWidget() {
+
+		var allDone = true;
 
 		wgSteps = [
 			{
 				component: "AddExtensions",
 			    name: "addExtensions",
 			    icon: "fa fa-users",
-			    title: "Add extensions",
-			    desc: "Add extensions for company eployees",
+			    title: PbxObject.frases.GET_STARTED.STEPS.A.TITLE,
+			    desc: PbxObject.frases.GET_STARTED.STEPS.A.BODY,
 			    done: filterKinds(objects, 'users').length > 0 || filterKinds(objects, 'equipment').length > 0
 			}, {
 				component: "AddCallGroup",
 			    name: "addCallGroup",
 			    icon: "icon-headset_mic",
-			    title: "Create call group",
-			    desc: "Call groups defines how incomming calls would be handled and by whom",
+			    title: PbxObject.frases.GET_STARTED.STEPS.B.TITLE,
+			    desc: PbxObject.frases.GET_STARTED.STEPS.B.BODY,
 			    done: filterKinds(objects, 'icd').length > 0 || filterKinds(objects, 'hunting').length > 0
 			}, {
-				component: "AddTrunk",
+				// component: "AddTrunk",
 			    name: "addTrunk",
 			    icon: "fa fa-cloud",
-			    title: "Create trunk",
-			    desc: "Connect trunk to make and recieve calls from the outside world",
-			    done: filterKinds(objects, 'trunk').length > 0
+			    title: PbxObject.frases.GET_STARTED.STEPS.C.TITLE,
+			    desc: PbxObject.frases.GET_STARTED.STEPS.C.BODY,
+			    done: filterKinds(objects, 'trunk').length > 0,
+			    onClick: function() {
+			    	window.location.hash = '#trunk?trunk';
+			    }
 			}
 		];
 
+		wgSteps.forEach(function(item) {
+			if(!item.done) allDone = false;
+		});
+
 		ReactDOM.render(GsWidget({
-		    steps: wgSteps
+		    steps: wgSteps,
+		    frases: PbxObject.frases
 		}), document.getElementById('get-started-cont'));
+
+		if(allDone) setAllDone();
 	}
+
+	function createTour() {
+        // PbxObject.tours = PbxObject.tours || {};
+
+        // PbxObject.tours.dashboard = new Tour({
+        dashTour = MyTour('dashboard', {
+            steps: [
+                {
+                    // orphan: true,
+                    backdropPadding: { top: 10 },
+                    placement: 'top',
+                    element: "#dash-tour-cont",
+                    title: PbxObject.frases.TOURS.DASHBOARD.A.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.A.BODY
+                }, {
+                    backdropPadding: { top: 10 },
+                    element: "#dash-graph-cont",
+                    title: PbxObject.frases.TOURS.DASHBOARD.B.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.B.BODY,
+                    placement: "bottom"
+                }, {
+                    backdropPadding: { top: 10 },
+                    element: "#dash-monitor-cont",
+                    title: PbxObject.frases.TOURS.DASHBOARD.C.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.C.BODY,
+                    placement: "top"
+                }, {
+                    element: "#dash-trstate-cont",
+                    title: PbxObject.frases.TOURS.DASHBOARD.D.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.D.BODY,
+                    placement: "top"
+                }, {
+                    element: "#dash-callmonitor-cont",
+                    title: PbxObject.frases.TOURS.DASHBOARD.E.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.E.BODY,
+                    placement: "top"
+                }, {
+                    element: "#home-btn",
+                    content: PbxObject.frases.TOURS.DASHBOARD.F.BODY,
+                    placement: "bottom"
+                }, {
+                    element: "#pbxmenu",
+                    title: PbxObject.frases.TOURS.DASHBOARD.G.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.G.BODY,
+                    placement: "right"
+                }, {
+                    element: "#history-dropdown-cont .dropdown-menu",
+                    title: PbxObject.frases.TOURS.DASHBOARD.H.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.H.BODY,
+                    placement: "left",
+                    onShow: function() {
+                    	$('#history-dropdown-cont').addClass('open');
+                    },
+                    onShown: function() {
+                    	$('#history-dropdown-cont .tour-step-backdrop').css('position', 'absolute');
+                    },
+                    onHide: function() {
+                    	$('#history-dropdown-cont').removeClass('open');
+                    }
+                }, {
+                    reflex: true,
+                    element: "#open-opts-btn",
+                    content: PbxObject.frases.TOURS.DASHBOARD.I.BODY,
+                    placement: "left"
+                }, {
+                    element: "#pbxoptions",
+                    title: PbxObject.frases.TOURS.DASHBOARD.J.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.J.BODY,
+                    placement: "left",
+                    onShow: function() {
+                        if(!isOptionsOpened()) open_options();
+                    },
+                    onHide: function() {
+                    	if(isOptionsOpened()) close_options();
+                    }
+                }, {
+                    element: "#get-started-cont",
+                    title: PbxObject.frases.TOURS.DASHBOARD.K.TITLE,
+                    content: PbxObject.frases.TOURS.DASHBOARD.K.BODY,
+                    placement: "bottom"
+                }
+            ]
+        });
+        console.log('dashTour: ', dashTour);
+        // PbxObject.tours.dashboard.init();
+    }
+
+    function setAllDone() {
+    	var panelEl = document.querySelector('#get-started-panel');
+    	panelEl.classList.add('minimized');
+    	panelEl.classList.add('all-done');
+    }
 
 	function filterKinds(array, kind, out) {
 		return array.filter(function(item) {
@@ -5365,6 +5395,9 @@ function set_page(){
     });
 
     $('#dcontainer div.panel-header:not(.panel-static)').click(toggle_panel);
+    $('#dcontainer [data-toggle="popover"]').popover({
+        placement: 'top'
+    });
     $('#dcontainer [data-toggle="tooltip"]').tooltip({
         delay: {"show": 1000, "hide": 100}
     });
@@ -9901,6 +9934,44 @@ function check_days(e){
         day.checked = true;
         if(day.parentNode.nodeName === 'LABEL') day.parentNode.classList.add('active');
     }
+}
+function MyTour(name, options) {
+
+	if(!name) return console.error('tour name is undefined');
+
+	PbxObject.tours = PbxObject.tours || [];
+
+	var tour = {};
+	var defaults = {
+		name: "get-started",
+        backdrop: true,
+        backdropContainer: "#pagecontent",
+        storage: false,
+        template: ["<div class='popover tour'>",
+        			"<div class='arrow'></div>",
+        			"<h3 class='popover-title'></h3>",
+					"<div class='popover-content'></div>",
+					"<div class='popover-navigation'>",
+    					"<button class='btn btn-default' data-role='prev'><i class='fa fa-angle-left'></i></button>",
+    					"<span data-role='separator'> </span>",
+    					"<button class='btn btn-default' data-role='next'><i class='fa fa-angle-right'></i></button>",
+    					"<button class='btn btn-link' data-role='end'>", 
+    						PbxObject.frases.TOURS.END_TOUR,
+    					"</button>",
+						// "<button class='btn btn-default' data-role='end'>End tour</button>",
+					"</div>",
+					"</div>"].join(''),
+        steps: []
+	};
+
+	if(options) extend(defaults, options);
+
+	tour = new Tour(defaults);
+	tour.init();
+
+	PbxObject.tours[name] = tour;
+
+	return tour;
 }
 function load_trunk(result){
     // console.log(result);

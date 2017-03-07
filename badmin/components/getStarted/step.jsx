@@ -2,7 +2,8 @@
 var GsStep = React.createClass({
 
 	propTypes: {
-		step: React.PropTypes.object
+		step: React.PropTypes.object,
+		frases: React.PropTypes.object
 	},
 
 	getDefaultProps: function() {
@@ -19,34 +20,36 @@ var GsStep = React.createClass({
 
 	_loadStep: function() {
 		var step = this.props.step;
-		console.log('step: ', step);
-
+		var frases = this.props.frases;
 		var stepCont = document.createElement('div');
 		var Step = function() {
-			var comp = {};
+			var comp;
 			switch(step.component) {
 				case 'AddExtensions':
-					comp = <AddExtensions step={step} />;
+					comp = <AddExtensions step={step} frases={frases} />;
 					break;
 				case 'AddCallGroup':
-					comp = <AddCallGroup step={step} />;
+					comp = <AddCallGroup step={step} frases={frases} />;
 					break;
-				case 'AddTrunk':
-					comp = <AddTrunk step={step} />;
-					break;
+				// case 'AddTrunk':
+				// 	comp = <AddTrunk step={step} />;
+				// 	break;
 			};
 
 			console.log('loadStep: ', step, comp);
 
-			return (
-				<ModalComponent 
-					id={ step.name }
-					title={ step.title }
-					size="lg"
-					body={ comp }
-					// submit={ this._stepDone }
-				/>
-			);
+			if(!comp) return null;
+			else {
+				return (
+					<ModalComponent 
+						id={ step.name }
+						title={ step.title }
+						size="lg"
+						body={ comp }
+						// submit={ this._stepDone }
+					/>
+				);
+			}
 		};
 
 		document.body.appendChild(stepCont);
@@ -67,7 +70,7 @@ var GsStep = React.createClass({
 	render: function() {
 		var stepDone = this.props.step.done;
 		return (
-			<li className={"gs-item " + (stepDone ? "gs-done" : "")} onClick={this._loadStep}>
+			<li className={"gs-item " + (stepDone ? "gs-done" : "")} onClick={ this.props.step.onClick ? this.props.step.onClick : this._loadStep}>
 			    <div className="gs-item-header">
 			        <i className={this.props.step.icon}></i> {this.props.step.title}
 			    </div>
