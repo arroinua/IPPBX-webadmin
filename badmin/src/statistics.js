@@ -10,6 +10,7 @@ function Statistics(){
         extStatBtn = document.getElementById('ext-stats-btn'),
         btnGroup = document.getElementById('ext-stat-kind'),
         lostStatBtn = document.getElementById('lost-stats-btn'),
+        // trunksQosBtn = document.getElementById('trunks-qos-btn'),
         cont = document.getElementById('dcontainer'),
         inc = [].slice.call(cont.querySelectorAll('.data-model')),
         extStatKind = 'inbound',
@@ -53,9 +54,24 @@ function Statistics(){
             }
         };
 
+        // trunksQosBtn.onclick = function() {
+
+        // }
+
         switch_presentation(oid);
         set_page();
     };
+
+    // this.getTrunksQosData = function(){
+    //     $('#trunks-qos-cont').addClass('faded');
+    //     start = picker.date.start;
+    //     end = picker.date.end;
+    //     params = '\"begin\":'+start+', \"end\":'+end;
+    //     json_rpc_async('getTrunkStatistics', params, function(result){
+    //         console.log('');
+    //         $('#trunks-qos-cont').removeClass('faded');
+    //     });   
+    // };
 
     this.getStatisticsData = function(){
         $('#statistics-cont').addClass('faded');

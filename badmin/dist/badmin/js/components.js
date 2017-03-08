@@ -187,6 +187,214 @@ function PanelComponent(props) {
 	);
 }
 
+var TrunkIncRoute = React.createClass({
+	displayName: 'TrunkIncRoute',
+
+
+	propTypes: {
+		options: React.PropTypes.array,
+		route: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			route: {},
+			options: []
+		};
+	},
+
+	componentDidMount: function () {
+
+		options = this.props.options.sort().map(this._toRouteObj);
+
+		options.unshift({ value: 0, label: this.props.frases.TRUNK.INC_ROUTE_DEFAULT_OPTION });
+
+		this.setState({ options: options });
+
+		// select route and set current route oid
+		if (this.props.route) {
+			this._onChange(this._toRouteObj(this.props.route));
+		} else {
+			this._onChange(options[0]);
+		}
+	},
+
+	_toRouteObj: function (item) {
+		return { value: item.ext, label: item.name ? item.ext + ' - ' + item.name : item.ext };
+	},
+
+	_getRouteObj: function (ext) {
+		var currRouteObj = {
+			ext: ext
+		};
+
+		return currRouteObj;
+	},
+
+	_onChange: function (val) {
+		console.log('Select: ', val);
+		if (!val) return;
+
+		this.setState({ route: val });
+		this.props.onChange(this._getRouteObj(val.value));
+	},
+
+	render: function () {
+
+		return (
+			// <PanelComponent>
+			// <label htmlFor="form-field-name">Route</label>
+			React.createElement(Select, {
+				name: 't-inc-route',
+				clearable: false,
+				value: this.state.route,
+				options: this.state.options,
+				onChange: this._onChange
+			})
+			// </PanelComponent>
+
+		);
+	}
+
+});
+
+TrunkIncRoute = React.createFactory(TrunkIncRoute);
+
+var TrunkOutRoute = React.createClass({
+	displayName: 'TrunkOutRoute',
+
+
+	propTypes: {
+		rule: React.PropTypes.object,
+		ruleIndex: React.PropTypes.number,
+		deleteRule: React.PropTypes.func,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			rule: {},
+			options: []
+		};
+	},
+
+	componentDidMount: function () {
+
+		var options = [{
+			value: 1,
+			label: 'starting with prefix'
+		}, {
+			value: 2,
+			label: 'with a number length of'
+		}];
+
+		this.setState({ options: options });
+		this.setState({ rule: this.props.rule });
+	},
+
+	_onChange: function (val) {
+		console.log('on rule change: ', val);
+		this.setState({ rule: val });
+	},
+
+	render: function () {
+
+		return React.createElement(
+			'div',
+			{ className: 'input-group' },
+			React.createElement(
+				'span',
+				{ className: 'input-group-addon tout-route-row' },
+				React.createElement(Select, {
+					name: 't-out-route',
+					clearable: false,
+					value: this.state.rule,
+					options: this.state.options,
+					onChange: this._onChange
+				})
+			),
+			this.state.rule.value === 1 && React.createElement('input', { name: 'oroute-prefix', className: 'form-control' }),
+			this.state.rule.value === 2 && React.createElement('input', { type: 'number', name: 'oroute-numlength', className: 'form-control' }),
+			this.state.rule.value && React.createElement(
+				'span',
+				{ className: 'input-group-addon' },
+				React.createElement(
+					'button',
+					{ type: 'button', className: 'btn btn-default', onClick: this.props._deleteRule(this.props.ruleIndex) },
+					React.createElement('span', { className: 'fa fa-remove' })
+				)
+			)
+		);
+	}
+
+});
+
+TrunkOutRoute = React.createFactory(TrunkOutRoute);
+
+var TrunkOutRoutes = React.createClass({
+	displayName: 'TrunkOutRoutes',
+
+
+	propTypes: {
+		// options: React.PropTypes.array,
+		// route: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			rules: []
+		};
+	},
+
+	// componentDidMount: function() {
+
+	// },
+
+	_addRule: function () {
+		console.log('_addRule');
+
+		var rules = this.state.rules;
+		var route = {
+			rule: 0,
+			value: ''
+		};
+
+		rules.push(route);
+
+		this.setState({ rules: rules });
+	},
+
+	_deleteRule: function (index) {
+		if (index === undefined) return;
+		this.state.rules.splice(index, 1);
+	},
+
+	render: function () {
+
+		return React.createElement(
+			'div',
+			{ className: 'tout-routes-cont' },
+			this.state.rules.map(function (rule, index) {
+				console.log('rules: ', rule);
+				return React.createElement(TrunkOutRoute, { rule: rule, ruleIndex: index, deleteRule: this._deleteRule });
+			}.bind(this)),
+			React.createElement(
+				'button',
+				{ type: 'button', className: 'btn btn-link', onClick: this._addRule },
+				'+ ',
+				this.props.frases.TRUNK.ADD_RULE
+			)
+		);
+	}
+
+});
+
+TrunkOutRoutes = React.createFactory(TrunkOutRoutes);
+
 var AddCallGroup = React.createClass({
 	displayName: 'AddCallGroup',
 
@@ -692,7 +900,13 @@ var GsStep = React.createClass({
 				{ className: 'gs-item-header' },
 				React.createElement('i', { className: this.props.step.icon }),
 				' ',
-				this.props.step.title
+				this.props.step.title,
+				React.createElement(
+					'span',
+					{ className: stepDone ? "fa-stack pull-right" : "hidden" },
+					React.createElement('i', { className: 'fa fa-circle fa-stack-2x text-success' }),
+					React.createElement('i', { className: 'fa fa-check fa-stack-1x text-white' })
+				)
 			),
 			React.createElement(
 				'div',
@@ -1036,211 +1250,3 @@ var SecuritySettings = React.createClass({
 });
 
 SecuritySettings = React.createFactory(SecuritySettings);
-
-var TrunkIncRoute = React.createClass({
-	displayName: 'TrunkIncRoute',
-
-
-	propTypes: {
-		options: React.PropTypes.array,
-		route: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			route: {},
-			options: []
-		};
-	},
-
-	componentDidMount: function () {
-
-		options = this.props.options.sort().map(this._toRouteObj);
-
-		options.unshift({ value: 0, label: this.props.frases.TRUNK.INC_ROUTE_DEFAULT_OPTION });
-
-		this.setState({ options: options });
-
-		// select route and set current route oid
-		if (this.props.route) {
-			this._onChange(this._toRouteObj(this.props.route));
-		} else {
-			this._onChange(options[0]);
-		}
-	},
-
-	_toRouteObj: function (item) {
-		return { value: item.ext, label: item.name ? item.ext + ' - ' + item.name : item.ext };
-	},
-
-	_getRouteObj: function (ext) {
-		var currRouteObj = {
-			ext: ext
-		};
-
-		return currRouteObj;
-	},
-
-	_onChange: function (val) {
-		console.log('Select: ', val);
-		if (!val) return;
-
-		this.setState({ route: val });
-		this.props.onChange(this._getRouteObj(val.value));
-	},
-
-	render: function () {
-
-		return (
-			// <PanelComponent>
-			// <label htmlFor="form-field-name">Route</label>
-			React.createElement(Select, {
-				name: 't-inc-route',
-				clearable: false,
-				value: this.state.route,
-				options: this.state.options,
-				onChange: this._onChange
-			})
-			// </PanelComponent>
-
-		);
-	}
-
-});
-
-TrunkIncRoute = React.createFactory(TrunkIncRoute);
-
-var TrunkOutRoute = React.createClass({
-	displayName: 'TrunkOutRoute',
-
-
-	propTypes: {
-		rule: React.PropTypes.object,
-		ruleIndex: React.PropTypes.number,
-		deleteRule: React.PropTypes.func,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			rule: {},
-			options: []
-		};
-	},
-
-	componentDidMount: function () {
-
-		var options = [{
-			value: 1,
-			label: 'starting with prefix'
-		}, {
-			value: 2,
-			label: 'with a number length of'
-		}];
-
-		this.setState({ options: options });
-		this.setState({ rule: this.props.rule });
-	},
-
-	_onChange: function (val) {
-		console.log('on rule change: ', val);
-		this.setState({ rule: val });
-	},
-
-	render: function () {
-
-		return React.createElement(
-			'div',
-			{ className: 'input-group' },
-			React.createElement(
-				'span',
-				{ className: 'input-group-addon tout-route-row' },
-				React.createElement(Select, {
-					name: 't-out-route',
-					clearable: false,
-					value: this.state.rule,
-					options: this.state.options,
-					onChange: this._onChange
-				})
-			),
-			this.state.rule.value === 1 && React.createElement('input', { name: 'oroute-prefix', className: 'form-control' }),
-			this.state.rule.value === 2 && React.createElement('input', { type: 'number', name: 'oroute-numlength', className: 'form-control' }),
-			this.state.rule.value && React.createElement(
-				'span',
-				{ className: 'input-group-addon' },
-				React.createElement(
-					'button',
-					{ type: 'button', className: 'btn btn-default', onClick: this.props._deleteRule(this.props.ruleIndex) },
-					React.createElement('span', { className: 'fa fa-remove' })
-				)
-			)
-		);
-	}
-
-});
-
-TrunkOutRoute = React.createFactory(TrunkOutRoute);
-
-var TrunkOutRoutes = React.createClass({
-	displayName: 'TrunkOutRoutes',
-
-
-	propTypes: {
-		// options: React.PropTypes.array,
-		// route: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			rules: []
-		};
-	},
-
-	// componentDidMount: function() {
-
-	// },
-
-	_addRule: function () {
-		console.log('_addRule');
-
-		var rules = this.state.rules;
-		var route = {
-			rule: 0,
-			value: ''
-		};
-
-		rules.push(route);
-
-		this.setState({ rules: rules });
-	},
-
-	_deleteRule: function (index) {
-		if (index === undefined) return;
-		this.state.rules.splice(index, 1);
-	},
-
-	render: function () {
-
-		return React.createElement(
-			'div',
-			{ className: 'tout-routes-cont' },
-			this.state.rules.map(function (rule, index) {
-				console.log('rules: ', rule);
-				return React.createElement(TrunkOutRoute, { rule: rule, ruleIndex: index, deleteRule: this._deleteRule });
-			}.bind(this)),
-			React.createElement(
-				'button',
-				{ type: 'button', className: 'btn btn-link', onClick: this._addRule },
-				'+ ',
-				this.props.frases.TRUNK.ADD_RULE
-			)
-		);
-	}
-
-});
-
-TrunkOutRoutes = React.createFactory(TrunkOutRoutes);

@@ -82,10 +82,20 @@ function GetStarted(container) {
 			    done: filterKinds(objects, 'icd').length > 0 || filterKinds(objects, 'hunting').length > 0
 			}, {
 				// component: "AddTrunk",
-			    name: "addTrunk",
-			    icon: "fa fa-cloud",
+			    name: "addAttendant",
+			    icon: "icon-room_service",
 			    title: PbxObject.frases.GET_STARTED.STEPS.C.TITLE,
 			    desc: PbxObject.frases.GET_STARTED.STEPS.C.BODY,
+			    done: filterKinds(objects, 'attendant').length > 0,
+			    onClick: function() {
+			    	window.location.hash = '#attendant?attendant';
+			    }
+			}, {
+				// component: "AddTrunk",
+			    name: "addTrunk",
+			    icon: "fa fa-cloud",
+			    title: PbxObject.frases.GET_STARTED.STEPS.D.TITLE,
+			    desc: PbxObject.frases.GET_STARTED.STEPS.D.BODY,
 			    done: filterKinds(objects, 'trunk').length > 0,
 			    onClick: function() {
 			    	window.location.hash = '#trunk?trunk';

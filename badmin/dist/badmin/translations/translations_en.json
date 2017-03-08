@@ -36,6 +36,10 @@
 				}
 			},
 			"C": {
+				"TITLE": "Create Auto-attendant",
+				"BODY": "Greeting your callers and route them to the appropriate department, extension, phone number or voicemail"
+			},
+			"D": {
 				"TITLE": "Create trunk",
 				"BODY": "Connect SIP trunk to make and recieve calls from the outside world"
 			}
@@ -729,6 +733,7 @@
     "ATT__GEN_EMAIL_SETTINGS" : "General Email Settings",
     "ATT__BTN_MISSED" : "Button is not selected",
     "ATT__CONN_MISSED" : "Connector is not selected",
+    "ATT__AUDIO_FILE_MISSED" : "Audio file is not selected",
     "ATT__DEBUG" : "Enable application log",
     "ATT__GREETINGS" : "Audio file that is played after the connection with auto-attendant. The file format must be .wav/8khz/16bit.",
     "ATT__MSG_TOUT" : "Maximum duration of the voice message",

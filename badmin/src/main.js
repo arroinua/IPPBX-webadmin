@@ -636,7 +636,8 @@ function set_page(){
 
     $('#dcontainer div.panel-header:not(.panel-static)').click(toggle_panel);
     $('#dcontainer [data-toggle="popover"]').popover({
-        placement: 'top'
+        placement: 'top',
+        trigger: 'focus'
     });
     $('#dcontainer [data-toggle="tooltip"]').tooltip({
         delay: {"show": 1000, "hide": 100}

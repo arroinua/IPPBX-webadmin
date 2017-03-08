@@ -575,6 +575,9 @@ function checkParams(params){
     if(params.type !== PbxObject.attendant.types.menu && !params.connector){
         msg += PbxObject.frases.ATT__CONN_MISSED+'\n';
     }
+    if(params.type === PbxObject.attendant.types.menu && !params.file) {
+        msg += PbxObject.frases.ATT__AUDIO_FILE_MISSED+'\n';
+    }
 
     if(msg !== ''){
         alert(msg);
@@ -592,6 +595,7 @@ function showAttObjectSetts(params, object){
     // }
 
     var data = formAttParams(params);
+    console.log('showAttObjectSetts data: ', data);
     getAttTemplate('attendant_modal', function(temp){
 
         var rendered = Mustache.render(temp, data);
@@ -611,26 +615,25 @@ function showAttObjectSetts(params, object){
         if(params.type === PbxObject.attendant.types.menu)
             customize_upload('audioFile', (params.data || ''));
 
-        $('#set-att-object').one('click', function(){
+        $('#set-att-object').on('click', function(){
             setAttObject(params, object);
-            // var attParams = collectAttParams(params);
-            // if(!checkParams(attParams)) return;
-            // if(object){
-            //     // object.params = attParams;
-            //     // setAttObject(attParams, object.element);
-            //     addAttObject(attParams, object);
-            // } else{
-            //     addAttObject(attParams);
-            // }
-            // $('#att-setts-modal').modal('hide');
         });
-        $(document).one('keypress', function(e) {
+        $(document).on('keypress', function(e) {
             if(e.keyCode == 10 || e.keyCode == 13) {
                 setAttObject(params, object);
             }
         });
+
+        $('#att-setts-modal [data-toggle="popover"]').popover({
+            placement: 'top',
+            trigger: 'focus'
+        });
+
         $("#att-setts-modal .select2").select2();
         $('#att-setts-modal').modal();
+        $('#att-setts-modal').on('hide.bs.modal', function() {
+            $('#att-setts-modal [data-toggle="popover"]').popover('destroy');
+        });
     });
 }
 
@@ -657,8 +660,7 @@ function collectAttParams(instParams){
 
     if(!isMainEl()) params.button = cont.querySelector('select[name="button"]').value;
     else params.button = null;
-    // params.name = cont.querySelector('input[name="name"]').value || generateAttObjName(objType, params.button);
-    params.name = generateAttObjName(objType, params.button, (cont.querySelector('input[name="name"]').value || null));
+    params.name = cont.querySelector('input[name="name"]').value || generateAttObjName(objType, params.button);
     params.type = objType;
     // if(data) params.data = data;
 
@@ -733,6 +735,7 @@ function formAttParams(data){
             return this.frases.ATTENDANT[this.data.type.toUpperCase()];
         }
     };
+    params.data.name = params.data.name || generateAttObjName(params.data.type, params.pid);
     params.connectors = (data.type === PbxObject.attendant.types.commutator) ? PbxObject.attendant.connectors.concat(PbxObject.attendant.routes) : PbxObject.attendant.connectors;
     sortByKey(params.connectors, 'ext');
 
@@ -740,58 +743,26 @@ function formAttParams(data){
 }
 
 function generateAttObjName(type, button, objName){
-    if(!button && button !== null) return;
-    var name, num, value;
+    // if(!button && button !== null) return;
+    var value = "";
     if(!PbxObject.attendant.currentPid && !objName){
         value = PbxObject.frases.ATTENDANT.MAIN_MENU;
     } else {
-        name = objName || PbxObject.frases.ATTENDANT[type.toUpperCase()],
-        // num = (PbxObject.attendant.currentPid.replace('0', '') + button)
-        //     .split('')
-        //     .reduce(function(prev, curr){
-        //         return prev+'.'+curr;
-        //     });
-        // value = num+' '+name;
-        value = name;
+        value = objName || PbxObject.frases.ATTENDANT[type.toUpperCase()];
     }
 
+    console.log('generateAttObjPath: ', value);
+    
     return value;
 }
 
 function generateAttObjPath(oid){
-    // return (PbxObject.attendant.currentPid.replace('0', '') + button)
     return oid.replace('0', '')
         .split('')
         .reduce(function(prev, curr){
             return prev+'.'+curr;
         });
 }
-
-// function addAttBreadcrumb(menuName, parent){
-//     var breadcrumb = document.getElementById('att-breadcrumb'),
-//         li = document.createElement('li'),
-//         a = document.createElement('a');
-
-//     a.href = "#"+(parent || '');
-//     a.innerHTML = menuName;
-//     li.appendChild(a);
-//     breadcrumb.appendChild(li);
-// }
-
-// function rebuildBreadcrumb(hash){
-//     var crumbs = [].slice.call(document.querySelectorAll('#att-breadcrumb li')),
-//         found = false;
-
-//     crumbs.forEach(function(crumb){
-//         if(found) crumb.parentNode.removeChild(crumb);
-//         if(crumb.firstChild.hash === hash) found = true;
-//     });
-// }
-
-// function setAttBreadcrumb(){
-//     var breadcrumb = document.getElementById('att-breadcrumb');
-//     addEvent(breadcrumb, 'click', setAttPosition);
-// }
 
 function setAttPosition(e){
     var e = e || window.event;

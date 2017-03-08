@@ -421,12 +421,19 @@ function load_extension(result){
     };
 
     show_content();
+    $('#el-extension [data-toggle="popover"]').popover({
+        placement: 'top',
+        trigger: 'focus'
+    });
     $('#el-extension [data-toggle="tooltip"]').tooltip();
     $('#el-extension').modal();
 
     $('#el-extension').on('hidden.bs.modal', function (e) {
+        $('#el-extension [data-toggle="popover"]').popover('destroy');
         PbxObject.vars.infoShown = false;
     });
+
+
 }
 
 function set_extension(kind){

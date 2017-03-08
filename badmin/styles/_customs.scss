@@ -27,7 +27,7 @@ input[readonly].readonly-custom{
 
 .modal-backdrop,
 .tour-backdrop {
-    background-color: rgba(243,248,249,.7);
+    background-color: rgba(0,0,0,.7);
 }
 
 .modal-header {
@@ -50,14 +50,30 @@ input[readonly].readonly-custom{
 .popover {
     padding: 0;
     min-width: 200px;
-    max-width: 400px;
+    max-width: 320px;
     border: 1px solid $primary-color;
     border-radius: 4px;
 }
 
 .popover-trigger {
-    color: #ccc;
-    font-size: 1.5rem;
+    color: #aaa;
+    
+    &:hover, &:focus {
+        text-decoration: none;
+    }
+
+    &.info {
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+
+        &:before {
+            content: "\f05a";
+        }
+    }
 }
 
 /*
