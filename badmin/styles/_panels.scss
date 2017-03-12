@@ -43,6 +43,10 @@
             display: inline-block;
         }
     }
+
+    &.no-margin {
+        margin-bottom: 0;
+    }
 	    
 }
 .panel-header{

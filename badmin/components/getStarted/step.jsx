@@ -73,7 +73,7 @@ var GsStep = React.createClass({
 			<li className={"gs-item " + (stepDone ? "gs-done" : "")} onClick={ this.props.step.onClick ? this.props.step.onClick : this._loadStep}>
 			    <div className="gs-item-header">
 			        <i className={this.props.step.icon}></i> {this.props.step.title}
-			        <span className={ stepDone ? "fa-stack pull-right" : "hidden" }>
+			        <span className={ stepDone ? "fa-stack" : "hidden" } style={{ position: 'absolute', top: '5px', right: '5px' }}>
                             <i className="fa fa-circle fa-stack-2x text-success"></i>
                             <i className="fa fa-check fa-stack-1x text-white"></i>
                     </span>

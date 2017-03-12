@@ -149,8 +149,10 @@
 		},
 		"SECURITY": {
 			"SECURITY_SETTS": "Security",
-			"IPCHECK_ENABLE": "Allow registration only from these networks",
-			"IPCHECK_DISABLE": "Allow registration from any network",
+			"IPCHECK_ENABLE": "Allow registration of extensions only from these networks",
+			"IPCHECK_DISABLE": "Allow registration of extensions from any network",
+			"ADMIN_IPCHECK_ENABLE": "Allow access to administrative panel only from these networks",
+			"ADMIN_IPCHECK_DISABLE": "Allow access to administrative panel from any network",
 			"NETWORK": "Network",
 			"NETMASK": "Netmask",
 			"ADD_RULE": "Add rule"
@@ -572,7 +574,24 @@
 	    "EXT_STATS" : "Extensions Statistics",
 	    "NO_DATA" : "No data for the selected period",
 	    "LINES_PAYLOAD" : "Lines payload",
-	    "LOST_AND_SERVED" : "Lost and Connected"
+	    "LOST_AND_SERVED" : "Lost and Connected",
+	    "INCOMING_CALLS": "Incoming",
+	    "OUTGOING_CALLS": "Outgoing",
+	    "TRNUK_QOS": {
+	    	"TC": "Total calls",
+	    	"CC": "Connected calls",
+	    	"ACD": "Average call duration",
+	    	"ASR": "Percentage of successful outgoing calls",
+	    	"JFE": "Jitter (trunk)",
+	    	"JNE": "Jitter (server)",
+	    	"LAT": "Average latency",
+	    	"LFE": "Percentage of packet loss (trnuk)",
+	    	"LNE": "Percentage of packet loss (server)",
+	    	"MFE": "MOS (trnuk)",
+	    	"MNE": "MOS (server)",
+	    	"RFE": "R-factor (trnuk)",
+	    	"RNE": "R-factor (server)"
+	    }
     },
     "DATE_PICKER" : {
     	"TODAY" : "Today",

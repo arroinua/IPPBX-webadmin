@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
     sourcemaps = require('gulp-sourcemaps'),
     minifycss = require('gulp-minify-css'),
+    jsonminify = require('gulp-jsonminify'),
     rename = require('gulp-rename'),
     // jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
@@ -115,7 +116,8 @@ gulp.task('views', function() {
   gulp.src('badmin/styles/vendors/*.css')
   .pipe(gulp.dest('badmin/dist/badmin/css/vendors/'));
 
-  gulp.src('badmin/translations/**/*')
+  gulp.src('badmin/translations/*.json')
+  .pipe(jsonminify())
   .pipe(gulp.dest('badmin/dist/badmin/translations/'));
 
   gulp.src('badmin/fonts/**/*')

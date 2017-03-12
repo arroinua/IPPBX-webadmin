@@ -10,7 +10,7 @@ function Statistics(){
         extStatBtn = document.getElementById('ext-stats-btn'),
         btnGroup = document.getElementById('ext-stat-kind'),
         lostStatBtn = document.getElementById('lost-stats-btn'),
-        // trunksQosBtn = document.getElementById('trunks-qos-btn'),
+        trunksQosBtn = document.getElementById('trunks-qos-btn'),
         cont = document.getElementById('dcontainer'),
         inc = [].slice.call(cont.querySelectorAll('.data-model')),
         extStatKind = 'inbound',
@@ -18,7 +18,41 @@ function Statistics(){
         start, end, params,
         renewStat = true,
         renewLost = true,
+        trunksQosOpened = false;
         self = this;
+
+    function renderTrunksQosStat(data) {
+        if(!data) return;
+        ReactDOM.render(
+            TrunksQosTable({
+                frases: PbxObject.frases,
+                data: data,
+                utils: {
+                    formatTimeString: formatTimeString
+                }
+            }),
+            document.getElementById('trunks-qos-cont')
+        );
+    }
+
+    function openTrunksQosStat() {
+        if(trunksQosOpened) return false;
+        trunksQosOpened = true;
+
+        $('#trunks-qos-cont').addClass('faded');
+        getTrunksQosData({ begin: picker.date.start,  end: picker.date.end }, function(data) {
+            console.log('openTrunksQosStat data: ', data);
+            renderTrunksQosStat(data);
+            $('#trunks-qos-cont').removeClass('faded');
+        });
+    }
+
+    function getTrunksQosData(params, callback){
+        json_rpc_async('getTrunksStatistics', {
+            begin: params.begin, 
+            end: params.end
+        }, callback);   
+    }
 
     this._init = function(){
         picker = new Picker('statistics-date-picker', {submitFunction: self.getStatisticsData, buttonSize: 'md'});
@@ -54,34 +88,23 @@ function Statistics(){
             }
         };
 
-        // trunksQosBtn.onclick = function() {
-
-        // }
+        trunksQosBtn.onclick = openTrunksQosStat;
 
         switch_presentation(oid);
         set_page();
     };
 
-    // this.getTrunksQosData = function(){
-    //     $('#trunks-qos-cont').addClass('faded');
-    //     start = picker.date.start;
-    //     end = picker.date.end;
-    //     params = '\"begin\":'+start+', \"end\":'+end;
-    //     json_rpc_async('getTrunkStatistics', params, function(result){
-    //         console.log('');
-    //         $('#trunks-qos-cont').removeClass('faded');
-    //     });   
-    // };
-
     this.getStatisticsData = function(){
+        var params = { begin: picker.date.start,  end: picker.date.end };
+
         $('#statistics-cont').addClass('faded');
-        start = picker.date.start;
-        end = picker.date.end;
-        params = '\"begin\":'+start+', \"end\":'+end;
+
         json_rpc_async('getCallStatistics', params, function(result){
             self._setStatistics(result);
             $('#statistics-cont').removeClass('faded');
         });
+
+        getTrunksQosData(params, renderTrunksQosStat);
 
         renewStat = true;
         renewLost = true;

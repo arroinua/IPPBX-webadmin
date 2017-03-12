@@ -38,9 +38,8 @@ function GetStarted(container) {
 	};
 
 	function doWelcomeModalNeeded() {
-		return true;
-		// var noRoutesObjs = filterKinds(objects, 'routes', true);
-		// return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
+		var noRoutesObjs = filterKinds(objects, 'routes', true);
+		return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
 	}
 
 	function loadWelcomeModal() {

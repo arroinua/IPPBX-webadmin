@@ -1023,6 +1023,9 @@ input.cmn-toggle-round:checked + label:before {
 .panel.all-done .all-done-icon {
   display: inline-block;
 }
+.panel.no-margin {
+  margin-bottom: 0;
+}
 
 .panel-header {
   margin: 0;
@@ -1256,7 +1259,7 @@ input.cmn-toggle-round:checked + label:before {
   display: none;
 }
 .gs-items-cont .gs-items .gs-item.gs-done {
-  border-left-color: green;
+  color: #777;
 }
 .gs-items-cont .gs-items .gs-item.gs-done:after {
   display: none;

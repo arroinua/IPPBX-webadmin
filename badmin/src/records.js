@@ -11,10 +11,28 @@ function load_records(){
     PbxObject.Pagination = new Pagination();
     PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecParams, actionButton: false, buttonSize: 'md'});
 
+    var methods = {
+        playRecord: playRecord,
+        showQos: showQos
+    };
+
     var elmode = [].slice.call(document.querySelectorAll('.init-mode'));
     elmode.forEach(function(item){
         if(item.value === "0") item.checked = true;
     });
+
+    function handleTableClick(e) {
+        e.preventDefault();
+
+        var target = e.target.nodeName === 'I' ? e.target.parentNode : e.target;
+        var method = target.getAttribute('data-method');
+        var param = target.getAttribute('data-param');
+
+        if(methods[method])
+            methods[method](param, target);
+        
+    }
+
     json_rpc_async('getObjects', '\"kind\":\"trunk\"', function(result){
         // var trunks = document.getElementById('searchtrunk');
         // var opt = document.createElement('option');
@@ -43,12 +61,15 @@ function load_records(){
 
         $el.slideToggle();
     });
+
+    $('#records-table').click(handleTableClick);
+
     TableSortable.sortables_init();
 
     getRecords({
         begin: PbxObject.recPicker.date.start,
         end: PbxObject.recPicker.date.end
-    });
+    }, showRecords);
 
     show_content();
 
@@ -60,13 +81,9 @@ function build_records_row(data, table){
     var cell,
         lrow = table.rows.length,
         row = table.insertRow(lrow),
-        // ts = parseInt(data['ts']),
-        // date = new Date(ts),
-        // day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate(),
-        // month = (date.getMonth()+1) < 10 ? '0' + (date.getMonth()+1) : date.getMonth()+1,
-        // hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours(),
-        // minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes(),
-        time = data['td'], h, m, s;
+        qosData = (data.mfe1 !== undefined || data.mfe2 !== undefined || data.mne1 !== undefined || data.mne2 !== undefined),
+        time = data['td'],
+        h, m, s;
 
     cell = row.insertCell(0);
     // date = day + '/' + month + '/' + date.getFullYear() + ' ' + hours + ':' + minutes;
@@ -107,16 +124,23 @@ function build_records_row(data, table){
     if(data['fi']){
         var a = document.createElement('a');
         a.href = '#';
-        a.setAttribute('data-src', data['fi']);
+        // a.setAttribute('data-src', data['fi']);
+        a.setAttribute('data-method', 'playRecord');
+        a.setAttribute('data-param', data['fi']);
         a.innerHTML = '<i class="fa fa-play fa-fw"></i>';
-        a.onclick = function(e){
-            playRecord(e);
-        };
+        // a.onclick = function(e){
+        //     playRecord(e);
+        // };
         cell.appendChild(a);
     }
     cell = row.insertCell(11);
     cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'"><i class="fa fa-fw fa-download"></i></a>' : '';
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
+
+    // if(qosData) {
+        cell = row.insertCell(12);
+        cell.innerHTML = '<a href="#" data-method="showQos" data-param="'+ data.id +'"><i class="fa fa-fw fa-info"></i></a>';
+    // }
 }
 
 function getRecParams(e){
@@ -132,6 +156,7 @@ function getRecParams(e){
         elmode = document.querySelectorAll('.init-mode'),
         number = document.getElementById('searchnum'),
         trunk = document.getElementById('searchtrunk'),
+        qosEl = document.querySelector('input[name="qos"]'),
         order, mode, i;
 
     for(i=0; i<elorder.length; i++){
@@ -162,20 +187,22 @@ function getRecParams(e){
 
     var params = {
         begin: PbxObject.recPicker.date.start,
-        end: PbxObject.recPicker.date.end
-    }
+        end: PbxObject.recPicker.date.end,
+        qos: qosEl.checked
+    };
+
     if(number.value) params.number = number.value;
     if(trunk.value !== PbxObject.frases.ALL) 
         params.trunk = trunk.options[trunk.selectedIndex].textContent;
     if(mode) params.mode = parseInt(mode, 10);
     if(order) params.order = parseInt(order, 10);
 
-    getRecords(params);
+    getRecords(params, showRecords);
 
 }
 
-function getRecords(params) {
-    json_rpc_async('getCalls', params, showRecords);
+function getRecords(params, cb) {
+    json_rpc_async('getCalls', params, cb);
 }
 
 function showRecords(result){
@@ -187,11 +214,6 @@ function showRecords(result){
     if(!rows.value && result.length > 20) rows.value = 20; //if result is bigger than 20 records then "max rows" is set to 20
     var rlength = rows.value ? parseInt(rows.value) : result.length, //the amount of rows on page is set based of the "max rows" parameter or is equal result.length
         pagnum = result.length > rlength ? Math.ceil(result.length / rlength) : 1; //if the number rows is less "than max rows" then the number of pages is equal 1
-
-    // pagnum = pagnum > this.maxpagins ? this.maxpagins : pagnum;
-
-    // this.rowsOnPage = rlength;
-    // this.records = result;
 
     var key, cost = 0;
     for (var i = 0; i < result.length; i++) {
@@ -220,15 +242,35 @@ function showRecords(result){
     PbxObject.Pagination.selectPage(1);
 }
 
-function playRecord(e){
-    if(!e) e = window.event;
-    e.preventDefault();
-    var player,
-        targ = e.currentTarget,
-        src = targ.getAttribute('data-src');
+function showQos(id, targ) {
+    console.log('showQos: ', id, targ);
+    if(!id) return;
+    // var targInitHtml = targ.innerHTML;
+    var targInitHtml = targ.innerHTML;
+    var targMethod = targ.getAttribute('data-method');
+    targ.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+    targ.setAttribute('data-method', '');
+    getRecords({
+        begin: PbxObject.recPicker.date.start,
+        end: PbxObject.recPicker.date.end,
+        qos: true,
+        id: id
+    }, function(result) {
+        console.log('showQos result: ', result);
+        targ.innerHTML = targInitHtml;
+        targ.setAttribute('data-method', targMethod);
+    });
+}
+
+function playRecord(src, targ){
+    // if(!e) e = window.event;
+    // e.preventDefault();
+    // var player
+        // targ = e.currentTarget,
+        // src = targ.getAttribute('data-src');
 
     PbxObject.Player = PbxObject.Player || new Player();
-    player = PbxObject.Player;
+    var player = PbxObject.Player;
     if(player.lastEl !== null && player.lastEl != targ){
         player.lastEl.innerHTML = '<i class="fa fa-fw fa-play"></i>';
     }

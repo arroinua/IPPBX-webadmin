@@ -186,7 +186,12 @@ function load_pbx_options(result) {
     if(result.services) setServices(result.services);
     else PbxObject.options.services = [];
 
-    loadSecuritySettings({ ipcheck: result.ipcheck || false, iptable: result.iptable || [] }, setSecuritySettings);
+    loadSecuritySettings({
+        ipcheck: result.ipcheck || false,
+        iptable: result.iptable || [],
+        adminipcheck: result.adminipcheck || false,
+        adminiptable: result.adminiptable || [] 
+    }, setSecuritySettings);
 }
 
 function loadSecuritySettings(params, cb) {
@@ -197,9 +202,14 @@ function loadSecuritySettings(params, cb) {
 }
 
 function setSecuritySettings(params) {
-    console.log('setSecuritySettings: ', params);
+    function _filterEmptyRules(rule) {
+        return rule.net && rule.mask;
+    }
+
     PbxObject.options.ipcheck = params.ipcheck;
-    PbxObject.options.iptable = params.iptable;
+    PbxObject.options.iptable = params.iptable.filter(_filterEmptyRules);
+    PbxObject.options.adminipcheck = params.adminipcheck;
+    PbxObject.options.adminiptable = params.adminiptable.filter(_filterEmptyRules);
 }
 
 // function loadLdapOptions(opts){
@@ -296,6 +306,10 @@ function set_pbx_options(e) {
     jprms += '"ipcheck":' + (PbxObject.options.ipcheck || false) + ', ';
     if(PbxObject.options.iptable) 
         jprms += '"iptable":' + JSON.stringify(PbxObject.options.iptable) + ', ';
+
+    jprms += '"adminipcheck":' + (PbxObject.options.adminipcheck || false) + ', ';
+    if(PbxObject.options.adminiptable) 
+        jprms += '"adminiptable":' + JSON.stringify(PbxObject.options.adminiptable) + ', ';
 
     if(ldapOptions) jprms += '\"ldap\":' + JSON.stringify(ldapOptions) + ', ';
     if(PbxObject.options.services) {
