@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="el-extension-num">
                     {{#typeEmail}}
                     <i class="fa fa-envelope"></i>
@@ -18,7 +18,7 @@
             </div>
             <div class="modal-body">
                 <div class="tab-content clearfix">
-                    <form id="att-setts-form" class="form-horizontal">
+                    <form id="att-setts-form" class="form-horizontal" autocomplete="off">
                         <!-- <div class="row"> -->
                             <div class="col-xs-12">
                                 <div class="form-group">
@@ -35,7 +35,8 @@
                                         <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{frases.ATT__CONNECTOR}}"></a>
                                     </label>
                                     <br>
-                                    <select name="data" class="form-control select2" style="width:100%">
+                                    <div id="att-setts-data"></div>
+                                    <!-- <select name="data" class="form-control select2" style="width:100%">
                                         {{#connectors}}
                                         <option value="{{ext}}">
                                             {{ext}}{{#name}} - {{name}}{{/name}}
@@ -44,7 +45,7 @@
                                         {{^connectors}}
                                         <option>{{frases.ATTENDANT.ATT__NO_CONN_CREATED}}</option>
                                         {{/connectors}}
-                                    </select>
+                                    </select> -->
                                 </div>
                                 <div class="form-group">
                                     <label for="subject" class="control-label">
@@ -77,8 +78,8 @@
                                         {{frases.NUMBER}}
                                         <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{frases.ATT__CONNECTOR}}"></a>
                                     </label>
-                                    <select name="data" class="form-control select2" style="width:100%">
-                                    <!-- <select name="data" class="form-control"> -->
+                                    <div id="att-setts-data"></div>
+                                    <!-- <select name="data" class="form-control select2" style="width:100%">
                                         {{#connectors}}
                                         <option value="{{ext}}">
                                             {{ext}}{{#name}} - {{name}}{{/name}}
@@ -87,7 +88,7 @@
                                         {{^connectors}}
                                         <option>{{frases.ATTENDANT.NO_CONN_CREATED}}</option>
                                         {{/connectors}}
-                                    </select>
+                                    </select> -->
                                 </div>
                                 {{/typeCommutator}}
                                 {{#pid}}

@@ -1,0 +1,64 @@
+.Select3 {
+    position: relative;
+    box-sizing: border-box;
+
+    input {
+        box-sizing: border-box;
+        background-color: #fff;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        color: #333;
+        border-spacing: 0;
+        border-collapse: separate;
+        padding: 6px 12px;
+        height: 34px;
+        outline: 0;
+        overflow: hidden;
+        width: 100%;
+        font-size: 14px;
+    }
+
+    &.is-opened input {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .Select3-menu-list {
+        position: absolute;
+        box-sizing: border-box;
+        background-color: #fff;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: #fff;
+        z-index: 9999;
+        width: 100%;
+        overflow-x: hidden;
+        // overflow-y: auto;
+
+        ul {
+            max-height: 100px;
+            margin: 0;
+            padding: 0;
+            overflow-y: scroll;
+
+            li {
+                list-style: none;
+
+                a {
+                    display: block;
+                    padding: 7px 10px;
+                    text-decoration: none;
+                    color: #333;
+
+                    &:hover,
+                    &.is-selected {
+                        color: #fff;
+                        background-color: #11a5fb;
+                    }
+                }
+            }
+        }
+    }
+}

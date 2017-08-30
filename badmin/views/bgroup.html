@@ -5,7 +5,7 @@
                 <div class="panel-body">
                     <div class="input-group object-name">
                         <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
-                        <span class="input-group-addon" id="object-route-cont"></span>
+                        <span class="input-group-addon object-route view-1" id="object-route-cont"></span>
                         <span class="input-group-addon">
                             <div class="switch switch-lg pl-kind pl-all pl-no-users">
                                 <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox" checked="checked">
@@ -15,16 +15,190 @@
                     </div>
                 </div>
                 <div class="panel-footer">
-                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-check fa-fw"></i> {{SAVE}}</button>
                     <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>
         <!-- <div class="col-sm-4" id="object-route-cont"></div> -->
     </div>
+    <div class="row pl-kind pl-users pl-equipment pl-unit" id="profile">
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel minimized" id="ext-features-panel">
+                <div class="panel-header">{{EXT_FEATURES}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="busyover"> {{FUNCTIONS.BUSYOVER}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="callpickup"> {{FUNCTIONS.PICKUP}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="monitor"> {{FUNCTIONS.CALLMONITOR}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 pl-kind pl-equipment pl-unit">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dnd"> {{FUNCTIONS.DND}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 pl-kind pl-equipment pl-unit">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="callwaiting"> {{FUNCTIONS.CALLWAITING}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="forwarding"> {{FORWARDING.FORWARDING}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 pl-kind pl-users">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="recording"> {{FUNCTIONS.ALLOW_RECORDING}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 pl-kind pl-users">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="voicemail"> {{FUNCTIONS.VOICEMAIL}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="busyoverdeny"> {{FUNCTIONS.BUSYOVERDENY}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="pickupdeny"> {{FUNCTIONS.PICKUPDENY}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="monitordeny"> {{FUNCTIONS.MONITORDENY}}
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-sm-12 pl-kind pl-users">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="hiderecind"> {{FUNCTIONS.HIDE_REC_IND}}
+                                        </label>
+                                    </div>
+                                </div> -->
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
+                                        </label>
+                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{GRP_OUTBARGING}}"></a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
+                                        </label>
+                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{GRP_COSTBARGING}}"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel minimized">
+                <div class="panel-header"> {{SETTINGS.OUTCALLS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <!-- <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-lg-6">
+                                <div class="checkbox">
+                                    <label data-toggle="tooltip" title="{{GRP_OUTBARGING}}">
+                                        <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkbox">
+                                    <label data-toggle="tooltip" title="{{GRP_COSTBARGING}}">
+                                        <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <hr> -->
+                    <div class="table-responsive">
+                        <table class="table table-responsive" id="transforms">
+                            <thead>
+                                <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
+                                <tr>
+                                    <th>{{NUMBER}}</th>
+                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                    <th>{{PREFIX}}</th>
+                                    <th>
+                                        <a href="#" class="add-clr transrow">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row pl-kind pl-equipment">
         <div class="col-sm-12 col-custom">
-            <div class="panel">
+            <div class="panel" id="equipment-group-setts">
                 <div class="panel-header"> {{GROUPSETTS}}
                     <i class="fa fa-chevron-down"></i>
                 </div>
@@ -221,180 +395,6 @@
             </div>
         </div>
     </div>
-    <div class="row pl-kind pl-users pl-equipment pl-unit" id="profile">
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized">
-                <div class="panel-header">{{EXTFUNCTIONS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="row">
-                            <div class="col-sm-6 col-xs-12">
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="busyover"> {{FUNCTIONS.BUSYOVER}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="callpickup"> {{FUNCTIONS.PICKUP}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="monitor"> {{FUNCTIONS.CALLMONITOR}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 pl-kind pl-equipment pl-unit">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="dnd"> {{FUNCTIONS.DND}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 pl-kind pl-equipment pl-unit">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="callwaiting"> {{FUNCTIONS.CALLWAITING}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="forwarding"> {{FORWARDING.FORWARDING}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 pl-kind pl-users">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="recording"> {{FUNCTIONS.ALLOW_RECORDING}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 pl-kind pl-users">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="voicemail"> {{FUNCTIONS.VOICEMAIL}}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6 col-xs-12">
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="dndover"> {{FUNCTIONS.DNDOVER}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="busyoverdeny"> {{FUNCTIONS.BUSYOVERDENY}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="pickupdeny"> {{FUNCTIONS.PICKUPDENY}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="monitordeny"> {{FUNCTIONS.MONITORDENY}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <!-- <div class="col-sm-12 pl-kind pl-users">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="hiderecind"> {{FUNCTIONS.HIDE_REC_IND}}
-                                        </label>
-                                    </div>
-                                </div> -->
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
-                                        </label>
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{GRP_OUTBARGING}}"></a>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
-                                        </label>
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{GRP_COSTBARGING}}"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom">
-            <div class="panel minimized">
-                <div class="panel-header"> {{SETTINGS.OUTCALLS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <!-- <form class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-lg-6">
-                                <div class="checkbox">
-                                    <label data-toggle="tooltip" title="{{GRP_OUTBARGING}}">
-                                        <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="checkbox">
-                                    <label data-toggle="tooltip" title="{{GRP_COSTBARGING}}">
-                                        <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <hr> -->
-                    <div class="table-responsive">
-                        <table class="table table-responsive" id="transforms">
-                            <thead>
-                                <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
-                                <tr>
-                                    <th>{{NUMBER}}</th>
-                                    <th><i class="fa fa-cut fa-rotate-90"></i></th>
-                                    <th>{{PREFIX}}</th>
-                                    <th>
-                                        <a href="#" class="add-clr transrow">
-                                            <i class="fa fa-plus"></i>
-                                        </a>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="row pl-kind pl-users pl-equipment">
         <div class="col-sm-12 col-custom">
             <div class="panel">
@@ -408,11 +408,11 @@
                         <div class="col-sm-8 col-xs-12" style="margin-bottom: 5px;">
                             <button type="button" id="add-newuser-btn" class="btn btn-default padding-lg ellipsis" data-toggle="collapse" data-target="#new-user-form" aria-expanded="false" aria-controls="new-user-form">
                                 <i class="fa fa-user-plus"></i>
-                                <span class="pl-kind pl-users">{{CREATE_USER}}</span>
-                                <span class="pl-kind pl-equipment">{{CREATE_EXTENSION}}</span>
+                                <span class="pl-kind pl-users">{{CREATE_USERS}}</span>
+                                <span class="pl-kind pl-equipment">{{CREATE_EXTENSIONS}}</span>
                             </button>
                             <button type="button" id="add-external-user" class="btn btn-default padding-lg ellipsis pl-kind pl-users" data-toggle="collapse" data-target="#services-cont" aria-expanded="false" aria-controls="services-cont">
-                               <i class="fa fa-sitemap"></i><span> {{ADD_USER}}</span>
+                               <i class="fa fa-sitemap"></i><span> {{IMPORT_USERS}}</span>
                             </button>
                             
                         </div>
@@ -430,24 +430,7 @@
                             </button>
                         </div>
                         <form class="form-horizontal col-xs-12 collapse" id="new-user-form">
-                            <hr class="col-xs-12">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{NUMBER}}
-                                            <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{EXT_SETTS__EXTENSION}}"></a> -->
-                                        </label>
-                                        <div class="col-lg-4">
-                                            <!-- <datalist id="user-ext">
-                                                <select name="user-ext" id="available-users" class="form-control"></select>
-                                            </datalist>
-                                            <input id="selected-user" list="user-ext" class="form-control"> -->
-                                            <select id="available-users" class="form-control select2"></select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <hr>
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group">
@@ -463,8 +446,39 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label class="col-lg-4 control-label">
+                                            {{EXTENSION}}
+                                        </label>
+                                        <div class="col-lg-4">
+                                            <select id="available-users" class="form-control select2"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6 pl-kind pl-users" id="user-login-cont">
+                                    <div class="form-group">
+                                        <label class="col-lg-4 control-label">
+                                            {{LOGIN}}
+                                        </label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" id="user-login" placeholder="{{EXT_SETTS__LOGIN}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 pl-kind pl-users" id="user-email-cont">
+                                    <div class="form-group">
+                                        <label class="col-lg-4 control-label">
+                                            {{EMAIL}}
+                                        </label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" id="user-email" placeholder="{{EXT_SETTS__EMAIL}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="col-lg-4 control-label">
                                             {{DISPLAY}}
-                                            <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{EXT_SETTS__DISPLAY_NAME}}"></a> -->
                                         </label>
                                         <div class="col-lg-8">
                                             <div class="input-group">
@@ -477,7 +491,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
@@ -501,7 +515,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6" id="storelimit-cont">
+                                <div class="col-sm-6 pl-kind pl-users" id="storelimit-cont">
                                     <div class="form-group">
                                         <label class="col-lg-4 control-label">
                                             {{STORAGE.MAXSIZE}}
@@ -518,7 +532,9 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-offset-2 col-xs-12">
-                                    <button type="button" class="btn btn-success btn-md" id="add-user">{{ADD}}</button>
+                                    <button type="button" class="btn btn-success btn-md" id="add-user">
+                                        <span>{{CREATE}}</span>
+                                    </button>
                                     <button type="button" class="btn btn-default btn-md" id="clear-input" onclick="cleanForm('new-user-form')">{{CLEAR}}</button>
                                 </div>
                             </div>

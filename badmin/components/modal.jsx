@@ -28,7 +28,8 @@ var ModalComponent = React.createClass({
 						</div>
 						{ this.props.submit ? 
 						<div className="modal-footer">
-							<button className="btn btn-primary" onClick={this.submitModal}>Submit & Close</button>
+							<button className="btn btn-default" data-dismiss="modal">{this.props.cancelText}</button>
+							<button className="btn btn-primary" onClick={this.props.submit}>{this.props.submitText}</button>
 						</div>
 						: null }
 					</div>

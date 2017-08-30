@@ -17,15 +17,17 @@ var SecuritySettings = React.createClass({
 	},
 
 	componentDidMount: function() {
+		var iptable = this.props.params.iptable;
+		var adminiptable = this.props.params.adminiptable;
 
-		this._addRule(this.props.params.iptable);
-		this._addRule(this.props.params.adminiptable);
+		if(!iptable.length) this._addRule(iptable);
+		if(!adminiptable.length) this._addRule(adminiptable);
 
 		this.setState({
 			ipcheck: this.props.params.ipcheck,
-			iptable: this.props.params.iptable,
+			iptable: iptable,
 			adminipcheck: this.props.params.adminipcheck,
-			adminiptable: this.props.params.adminiptable
+			adminiptable: adminiptable
 		});
 	},
 

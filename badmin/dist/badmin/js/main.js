@@ -175,9 +175,17 @@ function load_attendant(result){
 
     var enabled = document.getElementById('enabled');
     var name = document.getElementById('objname');
+    var attTour = {};
 
     if(result.name){
         name.value = result.name;
+    } else {
+        getObjects(null, function(objs) {
+            if(!filterObject(objs, 'attendant').length) {
+                attTour = MyTour('attendant', PbxObject.tours.attendant()).start();
+                updateTempParams({ tour: true });
+            }
+        });
     }
 
     if(enabled) {
@@ -243,6 +251,26 @@ function setInitAttParams(){
         }
     };
 }
+
+// function initAttObjTour(type) {
+//     console.log('initAttObjTour: ', type);
+//     var tour = {};
+//     if(type === PbxObject.attendant.types.menu && getTempParams().menuTour) {
+//         tour = MyTour('attendantMenu', PbxObject.tours.attendantMenu());
+//         console.log('initAttObjTour menu tour: ', tour);
+
+//         tour.start();
+
+//         updateTempParams({ menuTour: false });
+//     } else if(type === PbxObject.attendant.types.mail && getTempParams().emailTour) {
+//         tour = MyTour('attendantEmail', PbxObject.tours.attendantEmail());
+//         console.log('initAttObjTour email tour: ', tour);
+
+//         tour.start();
+
+//         updateTempParams({ emailTour: false });
+//     }
+// }
 
 function changeAvailableButtons(buttons, canvas){
     var canv = canvas || document.querySelector('.att-canvas.active'),
@@ -764,11 +792,18 @@ function showAttObjectSetts(params, object){
     //     params.dataUnchanged = true;
     // }
 
-    var data = formAttParams(params);
-    console.log('showAttObjectSetts data: ', data);
+    function setAttObjectOnKeypress(e) {
+        if(e.keyCode == 10 || e.keyCode == 13) {
+            setAttObject(params, object);
+        }
+    }
+
+    var renderParams = formAttParams(params);
+
+    console.log('showAttObjectSetts data: ', renderParams);
     getAttTemplate('attendant_modal', function(temp){
 
-        var rendered = Mustache.render(temp, data);
+        var rendered = Mustache.render(temp, renderParams);
         if(!cont){
             cont = document.createElement('div');
             cont.id = 'att-setts-cont';
@@ -777,6 +812,7 @@ function showAttObjectSetts(params, object){
         $(cont).html(rendered);
 
         var cont = document.getElementById('att-setts-cont'),
+        dataEl = document.getElementById('att-setts-data'),
         connEl = document.querySelector('#att-setts-form select[name="data"]'),
         btnEl = document.querySelector('#att-setts-form select[name="button"]');
 
@@ -785,13 +821,8 @@ function showAttObjectSetts(params, object){
         if(params.type === PbxObject.attendant.types.menu)
             customize_upload('audioFile', (params.data || ''));
 
-        $('#set-att-object').on('click', function(){
+        $('#set-att-object').on('click', function(e){
             setAttObject(params, object);
-        });
-        $(document).on('keypress', function(e) {
-            if(e.keyCode == 10 || e.keyCode == 13) {
-                setAttObject(params, object);
-            }
         });
 
         $('#att-setts-modal [data-toggle="popover"]').popover({
@@ -799,11 +830,31 @@ function showAttObjectSetts(params, object){
             trigger: 'focus'
         });
 
-        $("#att-setts-modal .select2").select2();
-        $('#att-setts-modal').modal();
+        // render 'data' element
+        if(dataEl) {
+            ReactDOM.render(Select3({
+                name: "data",
+                placeholder: PbxObject.frases.ATTENDANT.DATA_PLACEHOLDER,
+                frases: PbxObject.frases,
+                value: { value: renderParams.data.data, label: renderParams.data.data },
+                options: renderParams.connectors
+            }), dataEl);
+        }
+
+        // trigger modal events
+        // $("#att-setts-modal .select2").select2();
+        $('#att-setts-modal').on('shown.bs.modal', function(){
+            document.querySelector('#att-setts-modal input[name="name"]').focus();
+        });
         $('#att-setts-modal').on('hide.bs.modal', function() {
             $('#att-setts-modal [data-toggle="popover"]').popover('destroy');
+            $('#set-att-object').off('click', function(e){
+                setAttObject(params, object);
+            });
         });
+
+        $('#att-setts-modal').modal();
+
     });
 }
 
@@ -825,6 +876,7 @@ function collectAttParams(instParams){
         objType = instParams.type,
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
         // data = cont.querySelector(el+'[name="data"]').value,
+        connectorName,
         data = '',
         params = {};
 
@@ -836,7 +888,7 @@ function collectAttParams(instParams){
 
     if(objType === PbxObject.attendant.types.menu){
         var fileEl = cont.querySelector('input[type="file"]'),
-            digits = cont.querySelector(el+'[name="digits"]');
+            digits = cont.querySelector('[name="digits"]');
 
         if(fileEl){
             if(fileEl.files.length){
@@ -863,8 +915,8 @@ function collectAttParams(instParams){
         params.digits = digits.checked ? '14' : '1';
 
     } else{
-        params.data = cont.querySelector(el+'[name="data"]').value;
-        var connectorName = cont.querySelector(el+'[name="data"]').value;
+        connectorName = cont.querySelector('[name="data"]').value;
+        params.data = connectorName;
         params.connector = connectorName;
         // params.data = getConnectorNumber(data);
     }
@@ -907,16 +959,24 @@ function formAttParams(data){
     };
     params.data.name = params.data.name || generateAttObjName(params.data.type, params.pid);
     params.connectors = (data.type === PbxObject.attendant.types.commutator) ? PbxObject.attendant.connectors.concat(PbxObject.attendant.routes) : PbxObject.attendant.connectors;
+    params.connectors = params.connectors.map(formatConnectors);
     sortByKey(params.connectors, 'ext');
 
     return params;
+}
+
+function formatConnectors(object) {
+    return {
+        value: object.ext,
+        label: (object.name ? (object.ext + ' - ' + object.name) : object.ext)
+    };
 }
 
 function generateAttObjName(type, button, objName){
     // if(!button && button !== null) return;
     var value = "";
     if(!PbxObject.attendant.currentPid && !objName){
-        value = PbxObject.frases.ATTENDANT.MAIN_MENU;
+        value = type === PbxObject.attendant.types.menu ? PbxObject.frases.ATTENDANT.MAIN_MENU : PbxObject.frases.ATTENDANT.MAIL;
     } else {
         value = objName || PbxObject.frases.ATTENDANT[type.toUpperCase()];
     }
@@ -977,9 +1037,16 @@ function addConnector(e) {
         tbody = table.querySelector('tbody'),
         name = table.querySelector('input[name="connName"]'),
         val = table.querySelector('input[name="connVal"]'),
-        data = {name: name.value, ext: val.value},
-        connectors = PbxObject.attendant.connectors;
-    
+        connectors = PbxObject.attendant.connectors,
+        valid = true,
+        data = {};
+
+    Utils.validateElement(name, name.parentNode);
+    Utils.validateElement(val, val.parentNode);
+
+    if(!val.value || !name.value) return false;
+
+    data = {name: name.value, ext: val.value};
     tbody.appendChild(createConnectorRow(data));
     
     //clear fields
@@ -990,18 +1057,18 @@ function addConnector(e) {
     
 }
 
-function getConnectorNumber(connName){
-    var val;
-    PbxObject.attendant.connectors.forEach(function(conn){
-        if(conn.name === connName)
-            val = conn.ext;
-    });
+// function getConnectorNumber(connName){
+//     var val;
+//     PbxObject.attendant.connectors.forEach(function(conn){
+//         if(conn.name === connName)
+//             val = conn.ext;
+//     });
 
-    if(!val)
-        console.error('Connector not found!');
-    else
-        return val;
-}
+//     if(!val)
+//         console.error('Connector not found!');
+//     else
+//         return val;
+// }
 
 function removeConnector(object){
     var conns = PbxObject.attendant.connectors;
@@ -1189,6 +1256,13 @@ function load_bgroup(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
 
+    getObjects(null, function(objs) {
+        // if(!filterObject(objs, kind).length) {
+            updateTempParams({ tour: true });
+            initTour({ kind: kind });
+        // }
+    });
+
     if(result.name) {
         d.getElementById('objname').value = result.name;
     }
@@ -1214,8 +1288,12 @@ function load_bgroup(result){
         
         if(kind == 'equipment'){
             var prots = result.options.protocols || result.options.protocol;
-            var storelimitCont = document.getElementById('storelimit-cont');
-            if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
+            // var storelimitCont = document.getElementById('storelimit-cont');
+            // var userEmailCont = document.getElementById('user-email-cont');
+            
+            // if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
+            // if(userEmailCont) userEmailCont.parentNode.removeChild(userEmailCont);
+
             if(typeof prots === 'object'){
                 prots.forEach(function(item){
                     protocol.innerHTML += '<option value="'+item+'">'+item+'</option>';
@@ -1306,10 +1384,14 @@ function load_bgroup(result){
     if(result.options){
         if(kind == 'equipment'){
             var devselect = document.getElementById('devtype');
+            var protoselect = document.getElementById('group-protocol');
             var eqtype = result.options.kind || 'ipphones';
             var register = document.getElementById('tr-register');
             var proxy = document.getElementById('tr-proxy');
             devselect.value = eqtype;
+            if(!result.options.protocol) 
+                protoselect.value = 'sip';
+            
             switch_options_tab('tab-'+eqtype);
             devselect.onchange = function(){
                 eqtype = this.options[this.selectedIndex].value;
@@ -1658,6 +1740,7 @@ function load_bgroup(result){
             getExternalUsers(qparams.service_id, parseInt(qparams.service_type, 10));
             window.sessionStorage.removeItem('lastURL');
         }
+
     }
 }
 
@@ -2093,6 +2176,7 @@ function set_bgroup(param, callback){
         jprms += '"initmode":'+initmode+',';
     }
     jprms += '}';
+    
     json_rpc_async('setObject', jprms, function(result){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
@@ -2132,7 +2216,7 @@ function renderObjRoute(params) {
 
 function setCurrObjRoute(route) {
     console.log('setCurrObjRoute: ', route);
-    setTempParams(route);
+    updateTempParams(route);
 }
 
 // function clearCurrObjRoute() {
@@ -2189,30 +2273,39 @@ function addMembersRow(data){
 }
 
 function addUser(type){
-    var e = e || window.event;
-    var table = document.getElementById('group-extensions').querySelector('tbody'),
+    var e = e || window.event,
+        table = document.getElementById('group-extensions').querySelector('tbody'),
         available = document.getElementById('available-users'),
         exts = available.options,
-        name = document.getElementById('user-name'),
-        alias = document.getElementById('user-alias'),
-        // followme = document.getElementById('user-followme'),
-        // login = document.getElementById('user-login'),
-        pass = document.getElementById('user-pass');
-        storelimit = document.getElementById('storelimit');
+        nameEl = document.getElementById('user-name'),
+        loginEl = document.getElementById('user-login'),
+        emailEl = document.getElementById('user-email'),
+        aliasEl = document.getElementById('user-alias'),
+        passEl = document.getElementById('user-pass'),
+        storelimit = document.getElementById('storelimit'),
+        ext, name, alias;
 
     if(!exts.length) return;
     if(!PbxObject.name) {
         set_bgroup(type, addUser);
         return;
     }
-    var ext = available.options[available.selectedIndex].value;
+    
+    ext = available.options[available.selectedIndex].value;
+    name = nameEl.value || (PbxObject.frases.KINDS[type] + " " + ext);
+    login = loginEl.value;
+    email = emailEl.value;
+    alias = aliasEl ? aliasEl.value : name;
+    // alias = aliasEl ? aliasEl.value : (PbxObject.frases.KINDS[type] + " " + ext);
 
     var jprms = '"kind":"'+type+'",';
     jprms += '"groupid":"'+PbxObject.oid+'",';
+    if(login) jprms += '"login":"'+login+'",';
+    if(email) jprms += '"info": { "email": "'+email+'" },';
     jprms += '"number":"'+ext+'",';
-    jprms += '"name":"'+name.value+'",';
-    jprms += '"display":"'+alias.value+'",';
-    jprms += '"password":"'+pass.value+'",';
+    jprms += '"name":"'+name+'",';
+    jprms += '"display":"'+alias+'",';
+    jprms += '"password":"'+passEl.value+'",';
     if(storelimit) {
         storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
         if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
@@ -2222,9 +2315,9 @@ function addUser(type){
         kind: type,
         groupid: PbxObject.oid,
         number: ext,
-        name: name.value,
-        display: alias.value,
-        password: pass.value
+        name: name,
+        display: alias,
+        password: passEl.value
     };
     // if(type == 'user') {
     //     jprms += '"followme":"'+followme.value+'",';
@@ -2276,6 +2369,9 @@ function addUser(type){
                 var add = document.getElementById('add-user');
                 add.setAttribute('disabled', 'disabled');
             }
+
+            // emmit event to trigger tour next step
+            $('#new-user-form').trigger("users.create");
 
             cleanForm('new-user-form');
         }
@@ -2337,6 +2433,226 @@ function checkHuntMode(e){
         document.getElementById('huntmodesetts').classList.add('hidden');
     else
         document.getElementById('huntmodesetts').classList.remove('hidden');
+}
+function load_billing() {
+	console.log('load_billing');
+	close_options();
+
+	var cont = document.getElementById('el-loaded-content');
+	var profile = {};
+	var sub = {};
+	var plans = [];
+	var stripeToken;
+	var stripeHandler;
+
+	billingRequest('getSubscription', null, function(err, response) {
+		console.log('getSubscription response: ', err, response.result);
+		if(err) return notify_about('error' , err);
+		sub = response.result._subscription;
+
+		billingRequest('getProfile', null, function(err, response) {
+			console.log('getProfile: ', err, response);
+			if(err) return notify_about('error' , err);
+			profile = response.result;
+
+			getPlans(sub.currency, function(err, result) {
+				if(err) return notify_about('error' , err);
+				plans = result;
+
+				// init();
+				loadStripeJs();
+			});
+
+		});
+
+	});
+
+	function loadStripeJs() {
+		if(window.StripeCheckout) return init();
+
+		$.ajaxSetup({ cache: true });
+		$.getScript('https://checkout.stripe.com/checkout.js', function(){
+			stripeHandler = StripeCheckout.configure({
+				key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+				image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+				locale: 'auto',
+				token: function(token) {
+					console.log('stripe token: ', token);
+					stripeToken = token;
+				}
+			});
+
+			// Close Checkout on page navigation:
+			window.addEventListener('popstate', function() {
+			  stripeHandler.close();
+			});
+
+			init();
+		});
+	}
+
+	function init() {
+		ReactDOM.render(BillingComponent({
+		    options: PbxObject.options,
+		    profile: profile,
+		    sub: sub,
+		    frases: PbxObject.frases,
+		    plans: plans,
+		    addCard: addCard,
+		    editCard: editCard,
+		    onPlanSelect: onPlanSelect,
+		    updateLicenses: updateLicenses
+		}), cont);
+
+		// set_page();
+		show_content();
+	}
+
+	function addCard() {
+		stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			allowRememberMe: false,
+			panelLabel: "Add card",
+			// currency: 'eur',
+			// amount: plan.amount*100,
+			closed: function(result) {
+				console.log('onPlanSelect closed: ', result);
+				saveCard(stripeToken, function(err, response) {
+					if(err || !response.success) return;
+
+					profile.billingDetails = profile.billingDetails || {};
+					profile.billingDetails.card = stripeToken.card;
+					init();
+				});
+			}
+		});
+	}
+
+	function editCard() {
+		stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			allowRememberMe: false,
+			panelLabel: "Add card",
+			// currency: 'eur',
+			// amount: plan.amount*100,
+			closed: function(result) {
+				console.log('onPlanSelect closed: ', result);
+				updateCard(stripeToken, function(err, response) {
+					if(err || !response.success) return;
+
+					profile.billingDetails = profile.billingDetails || {};
+					profile.billingDetails.card = stripeToken.card;
+					init();
+				});
+			}
+		});
+	}
+
+	function saveCard(params, callback) {
+		console.log('saveCard: ', params);
+		if(!params) return;
+		var reqParams = {
+			token: params.id,
+			card: params.card
+		};
+
+		billingRequest('addCard', reqParams, function(err, response) {
+			console.log('saveCard response: ', err, params, response);
+			callback(err, response);
+		});
+	}
+
+	function updateCard(params, callback) {
+		console.log('updateCard: ', params);
+		if(!params) return;
+		var reqParams = {
+			token: params.id,
+			card: params.card
+		};
+
+		billingRequest('updateCard', reqParams, function(err, response) {
+			console.log('updateCard response: ', err, params, response);
+			callback(err, response);
+		});
+	}
+
+	function onPlanSelect(plan) {
+		plan.amount = plan.price * sub.quantity;
+		checkout(plan);
+	}
+
+	function checkout(params) {
+		console.log('checkout: ', params);
+		// var amount = plan.price * sub.quantity;
+		var reqParams = {
+			// resultUrl: window.location.href,
+			// paymentMethod: 1,
+			// paymentService: 'stripe',
+			payment: {
+				method: 'card',
+				service: 'stripe'
+			},
+			amount: params.amount,
+			currency: params.currency,
+			order: [{
+				action: 'changePlan',
+				description: 'Subscription for plan "'+params.planId+'"',
+				amount: params.amount,
+				data: { planId: params.planId }
+			}]
+		};
+
+		if(confirm('Pay '+params.amount+''+params.currency+'?')) {
+			billingRequest('checkout', reqParams, function(err, response) {
+				console.log('checkout response: ', err, params, response);
+				if(response.locations) window.location = response.location;
+				// if(err) return callback();
+				// if(callback) callback(response.result || [])
+			});
+		}
+
+		// billingRequest('changePlan', { planId: planId }, function(err, response) {
+		// 	console.log('changePlan response: ', err, planId, response);
+		// 	// if(err) return callback();
+		// 	// if(callback) callback(response.result || [])
+		// });	
+	}
+
+	function updateLicenses(params){
+		console.log('updateLicenses: ', params);
+
+		var amount = plan.price * sub.quantity;
+		var reqParams = {
+			resultUrl: window.location.href,
+			paymentMethod: 1,
+			amount: amount,
+			currency: sub.currency,
+			order: [{
+				action: 'changePlan',
+				description: 'Subscription for plan "'+plan.planId+'"',
+				amount: amount,
+				data: { planId: plan.planId }
+			}]
+		};
+		billingRequest('checkout', reqParams, function(err, response) {
+			console.log('checkout response: ', err, plan, response);
+			if(response.locations) window.location = response.location;
+			// if(err) return callback();
+			// if(callback) callback(response.result || [])
+		});
+	}
+
+	function getPlans(currency, callback) {
+		billingRequest('getPlans', { currency: currency }, function(err, response) {
+			console.log('getPlans response: ', err, currency, response);
+			if(err) return callback(err);
+			if(callback) callback(null, response.result || [])
+		});
+	}
 }
 function load_certificates(){
 	if(PbxObject.options.mode && PbxObject.options.mode !== 0)
@@ -3166,6 +3482,375 @@ function showParties(targ){
     $(targ).popover('toggle');
     // return cont;
 }
+function load_chatchannel(params) {
+
+	console.log('load_chat_group: ', params);
+	var objParams = params;
+	var handler = null;
+	var defaultName = getDefaultName();
+	var modalId = 'available-users-modal';
+	var modalCont = document.getElementById('available-users-cont');
+
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+	}
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	function getDefaultName() {
+		var name = PbxObject.frases.CHAT_CHANNEL.DEFAULT_NAME + ' ';
+		name += PbxObject.objects ? filterObject(PbxObject.objects, PbxObject.kind).length+1 : 1;
+		return name;
+	}
+
+	function onNameChange(name) {
+		objParams.name = name;
+	}
+
+	function onStateChange(state) {
+		objParams.enabled = state;
+		if(!PbxObject.name) return;
+		setObjectState(PbxObject.oid, state, function(result) {
+		    console.log('onStateChange: ', state, result);
+		});
+	}
+
+	function getAvailableUsers() {
+		var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
+
+	    json_rpc_async('getAvailableUsers', params, function(result){
+			console.log('getAvailableUsers: ', result);
+			showAvailableUsers(result);
+		});
+	}
+
+	function showAvailableUsers(data) {
+		console.log('showAvailableUsers: ', data);
+
+		ReactDOM.render(AvailableUsersComponent({
+			modalId: modalId,
+		    frases: PbxObject.frases,
+		    data: data,
+		    onSubmit: addMembers
+		}), modalCont);
+
+		$('#'+modalId).modal();
+	}
+
+	function addMembers(array) {
+		objParams.members = objParams.members.concat(array);
+		console.log('addMembers: ', array, objParams);
+
+		setChatChannel(objParams, function(result) {
+			init(objParams);
+		});
+		$('#available-users-modal').modal('hide');
+	}
+
+	function deleteMember(oid) {
+		console.log('deleteMember: ', oid);
+		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+		setChatChannel(objParams, function(result) {
+			init(objParams);
+		});
+	}
+
+	function setChatChannel(params, callback) {
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    }
+
+	    var objName = params.name || defaultName;
+
+		json_rpc_async('setObject', {
+			kind: PbxObject.kind,
+			oid: params.oid,
+			name: objName,
+			enabled: params.enabled || true,
+			members: (params.members.length ? params.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
+		}, function(result) {
+			PbxObject.name = objParams.name = objName;
+			if(handler) handler();
+			if(callback) callback(result);
+		});
+	}
+
+	function removeChatChannel() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	}
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    getAvailableUsers: getAvailableUsers,
+		    setObject: setChatChannel,
+		    onNameChange: onNameChange,
+		    onStateChange: onStateChange,
+		    getInfoFromState: getInfoFromState,
+		    getExtension: get_extension,
+		    deleteMember: deleteMember
+		};
+
+		if(params.name) {
+			componentParams.removeObject = removeChatChannel;
+		}
+
+		ReactDOM.render(ChatchannelComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+	init(objParams);
+	show_content();
+    set_page();
+
+}
+function load_chattrunk(params) {
+
+	console.log('load_chat_trunk: ', params);
+	var initParams = params;
+	var handler = null;
+	var type = params.type || 'FacebookMessenger';
+	var routes = [];
+	var serviceParams = {
+		loginHandler: null,
+		pages: null, // Facebook & Messenger
+		userAccessToken: null // Facebook & Messenger
+	};
+	var servicesOptions = {
+		facebook: {
+			appId: '1920629758202993'
+		},
+		twitter: {
+			oauth_consumer_key: 'RBk2sDm5bYowCA7mLttioe4BC',
+			oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
+		}
+	};
+	var services = [{
+		id: 'Facebook',
+		name: "Facebook",
+		icon: 'fa fa-fw fa-facebook'
+	},{
+		id: 'Twitter',
+		name: "Twitter",
+		icon: 'fa fa-fw fa-twitter'
+	}];
+
+	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
+	params.replytimeout = (params.replytimeout || 86400)/60;
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	init();
+    set_page();
+
+	function init() {
+		getObjects('chatchannel', function(result) {
+			console.log('getObjects: ', result);
+			routes = result || [];
+
+			initServices(type);
+
+		});
+	}
+
+	function initServices(type) {
+		if(type === 'FacebookMessenger' || type === 'Facebook') {
+			console.log('initServices '+ type);
+			serviceParams.loginHandler = fbLogin;
+			initFB();
+		} else if(type === 'Twitter') {
+			console.log('initServices '+ type);
+			serviceParams.loginHandler = fbLogin;
+			initTwitter();
+		}
+	}
+
+	function initTwitter() {
+		console.log('initTwitter');
+	}
+
+	function initFB() {
+		if(window.FB === undefined) {
+			getFbSDK(function() {
+				FB.init({
+					appId: servicesOptions.facebook.appId,
+					autoLogAppEvents: true,
+					status: true,
+					version: 'v2.9'
+				});     
+				FB.getLoginStatus(updateStatusCallback);
+			});
+		} else {
+			FB.getLoginStatus(updateStatusCallback);
+		}
+	}
+
+	function updateStatusCallback(result) {
+		console.log('updateStatusCallback: ', result);
+		if(result.status === 'connected') {
+			
+			serviceParams.userAccessToken = result.authResponse.accessToken;
+
+			getFbPages(function(pages) {
+				serviceParams.pages = pages;
+				if(!params.properties.id) {
+					params.properties = pages[0];
+					params.properties.access_token = serviceParams.userAccessToken;
+				}
+				render(serviceParams);
+			});
+		} else {
+			render(serviceParams);
+		}
+	}
+
+	function getFbPages(cb) {
+		FB.api('/me/accounts', function(response) {
+			console.log('getFbPages: ', response);
+			if(cb) cb(response.data || null); 
+		});
+	}
+
+	// function subToFbPage(params, cb) {
+	// 	FB.api('/'+params.id+'/subscribed_apps', 'post', { access_token: params.access_token }, function(response) {
+	// 		console.log('subscribeToApp response: ', response);
+	// 		if(cb) cb(response.error, response);
+	// 	});
+	// }
+
+	// function getPageProps(pages, id) {
+	// 	var props = {};
+	// 	pages.forEach(function(item) {
+	// 		if(item.id === id) { props = item; }
+	// 	});
+	// 	return props;
+	// }
+
+	function fbLogin() {
+		FB.login(function(response) {
+			console.log('FB.login: ', response);
+			updateStatusCallback(response);
+		}, {scope: 'email, manage_pages, read_page_mailboxes, pages_messaging'});
+	}
+
+	function getFbSDK(cb) {
+		$.ajaxSetup({ cache: true });
+		$.getScript('//connect.facebook.net/en_US/sdk.js', cb);
+
+	}
+
+	function onStateChange(state) {
+		if(!PbxObject.name) return;
+		setObjectState(PbxObject.oid, state, function(result) {
+		    console.log('onStateChange: ', state, result);
+		});
+	}
+
+	// function setService(params, cb) {
+
+	// 	console.log('setService params', params);
+	// 	if(PbxObject.name) return cb();
+
+	//     if(type === 'FacebookMessenger' || type === 'Facebook') {
+	// 	    subToFbPage(params, function(err, response) {
+	// 			if(err || !response.success) return cb(err || ("Page wasn't subscribed. Status: "+response.status));
+	// 			cb(null, response);
+	//     	});
+	//     } else {
+	//     	cb();
+	//     }
+		
+	// }
+	
+	function onServiceChange(serviceType) {
+		initServices(serviceType);
+	}
+
+	function setObject(params, cb) {
+
+	    if(!params.pageid) return console.error('pageid is not defined');
+	    var props = {
+	    	kind: PbxObject.kind,
+	    	oid: params.oid,
+	    	name: params.name,
+	    	enabled: params.enabled || true,
+	    	type: type,
+	    	pageid: params.pageid,
+	    	pagename: params.pagename,
+	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
+	    	replytimeout: parseFloat(params.replytimeout)*60,
+	    	// properties: params.properties,
+	    	routes: params.routes
+	    };
+
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    } else {
+	    	props.properties = params.properties;
+	    }
+
+	    // setService(params.properties, function(err, response) {
+	    // 	if(err) return notify_about('error', err);
+	    	
+	    	json_rpc_async('setObject', props, function(result) {
+	    		if(handler) handler();
+	    		if(cb) cb(null, result);
+	    	});
+	    // });		
+	}
+
+	// function removeService(params, cb) {
+	// 	console.log('removeService: ', params);
+	// 	if(type === 'FacebookMessenger' || type === 'Facebook') {
+	// 		var access_token = getPageProps(serviceParams.pages, params.id).access_token;
+
+	// 		FB.api('/'+params.id+'/subscribed_apps', 'delete', { access_token: access_token }, function(response) {
+	// 			console.log('Unsubscribe app response: ', response);
+	// 			if(response.error || !response.success) {
+	// 				return cb(response.error || { message: ('Unsubscribe failed. Reason: '+response.status) });
+	// 			}
+	// 			cb(null, response);
+	// 		});
+	// 	}
+	// }
+
+	function removeObject(params) {
+		// if(params.pageid) {
+		// 	if (confirm(PbxObject.frases.DODELETE+' '+params.name+'?')){
+		// 		removeService(params.properties, function(err, response) {
+		// 			if(err) return notify_about('error', err.message);
+		// 			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+		// 		});
+		// 	}
+		// } else {
+			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+		// }
+	}
+
+	function render(serviceParams) {
+		var componentParams = {
+			type: type,
+			services: services,
+			onServiceChange: onServiceChange,
+			frases: PbxObject.frases,
+		    params: params,
+		    serviceParams: serviceParams,
+		    routes: routes,
+		    onStateChange: onStateChange,
+		    setObject: setObject,
+		    removeObject: removeObject
+		};
+
+		ReactDOM.render(ChatTrunkComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		show_content();
+	}
+
+}
 function load_cli(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
@@ -3428,7 +4113,7 @@ function Dashboard(){
                     cell.innerText = trunks[i].name;
                 } else {
                     a = document.createElement('a');
-                    a.href = '#trunk?'+trunks[i].oid;
+                    a.href = '#trunk/'+trunks[i].oid;
                     a.textContent = trunks[i].name;
                     cell.appendChild(a);
                 }
@@ -4011,8 +4696,11 @@ function load_extension(result){
         var storageUsage = document.querySelector('#el-extension .user-storage-usage');
         if(storageUsage) storageUsage.classList.add('hidden');
 
-        var storelimitCont = document.querySelector('#storelimit-cont');
+        var storelimitCont = document.getElementById('storelimit-cont');
         if(storelimitCont) storelimitCont.classList.add('hidden');
+    } else {
+        var pinCont = document.getElementById('pin-cont');
+        if(pinCont) pinCont.classList.add('hidden');
     }
 
     // getAvatar(result.userid, function(binary){
@@ -4069,7 +4757,7 @@ function load_extension(result){
             d.getElementById('ext-plock').setAttribute('disabled','');
         }
     }
-    d.getElementById('extpassword').value = result.password || '';
+    // d.getElementById('extpassword').value = result.password || '';
     d.getElementById('el-set-extension').onclick = function(){
         set_extension(kind);
     };
@@ -4103,7 +4791,7 @@ function set_extension(kind){
 
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
-    var login = d.getElementById("extlogin").textContent;
+    // var login = d.getElementById("extlogin").textContent;
     var storelimit = d.getElementById('extstorelimit');
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
@@ -4117,7 +4805,7 @@ function set_extension(kind){
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
-    if(login) jprms += '\"login\":\"'+login+'\",';
+    // if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {
@@ -4302,7 +4990,7 @@ function GetStarted(container) {
 			    extensions = exts;
 			    console.log('extensions:', extensions);
 
-			    getObjects('', function(objs) {
+			    getObjects(null, function(objs) {
 			    	objects = PbxObject.objects = objs;
 
 			    	console.log('objects:', objects);
@@ -4367,7 +5055,7 @@ function GetStarted(container) {
 			    desc: PbxObject.frases.GET_STARTED.STEPS.C.BODY,
 			    done: filterKinds(objects, 'attendant').length > 0,
 			    onClick: function() {
-			    	window.location.hash = '#attendant?attendant';
+			    	window.location.hash = '#attendant/attendant';
 			    }
 			}, {
 				// component: "AddTrunk",
@@ -4377,7 +5065,7 @@ function GetStarted(container) {
 			    desc: PbxObject.frases.GET_STARTED.STEPS.D.BODY,
 			    done: filterKinds(objects, 'trunk').length > 0,
 			    onClick: function() {
-			    	window.location.hash = '#trunk?trunk';
+			    	window.location.hash = '#trunk/trunk';
 			    }
 			}
 		];
@@ -4395,89 +5083,87 @@ function GetStarted(container) {
 	}
 
 	function createTour() {
-        // PbxObject.tours = PbxObject.tours || {};
+		dashTour = MyTour('dashboard', PbxObject.tours.dashboard());
 
-        // PbxObject.tours.dashboard = new Tour({
-        dashTour = MyTour('dashboard', {
-            steps: [
-                {
-                    // orphan: true,
-                    backdropPadding: { top: 10 },
-                    placement: 'top',
-                    element: "#dash-tour-cont",
-                    title: PbxObject.frases.TOURS.DASHBOARD.A.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.A.BODY
-                }, {
-                    backdropPadding: { top: 10 },
-                    element: "#dash-graph-cont",
-                    title: PbxObject.frases.TOURS.DASHBOARD.B.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.B.BODY,
-                    placement: "bottom"
-                }, {
-                    backdropPadding: { top: 10 },
-                    element: "#dash-monitor-cont",
-                    title: PbxObject.frases.TOURS.DASHBOARD.C.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.C.BODY,
-                    placement: "top"
-                }, {
-                    element: "#dash-trstate-cont",
-                    title: PbxObject.frases.TOURS.DASHBOARD.D.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.D.BODY,
-                    placement: "top"
-                }, {
-                    element: "#dash-callmonitor-cont",
-                    title: PbxObject.frases.TOURS.DASHBOARD.E.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.E.BODY,
-                    placement: "top"
-                }, {
-                    element: "#home-btn",
-                    content: PbxObject.frases.TOURS.DASHBOARD.F.BODY,
-                    placement: "bottom"
-                }, {
-                    element: "#pbxmenu",
-                    title: PbxObject.frases.TOURS.DASHBOARD.G.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.G.BODY,
-                    placement: "right"
-                }, {
-                    element: "#history-dropdown-cont .dropdown-menu",
-                    title: PbxObject.frases.TOURS.DASHBOARD.H.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.H.BODY,
-                    placement: "left",
-                    onShow: function() {
-                    	$('#history-dropdown-cont').addClass('open');
-                    },
-                    onShown: function() {
-                    	$('#history-dropdown-cont .tour-step-backdrop').css('position', 'absolute');
-                    },
-                    onHide: function() {
-                    	$('#history-dropdown-cont').removeClass('open');
-                    }
-                }, {
-                    reflex: true,
-                    element: "#open-opts-btn",
-                    content: PbxObject.frases.TOURS.DASHBOARD.I.BODY,
-                    placement: "left"
-                }, {
-                    element: "#pbxoptions",
-                    title: PbxObject.frases.TOURS.DASHBOARD.J.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.J.BODY,
-                    placement: "left",
-                    onShow: function() {
-                        if(!isOptionsOpened()) open_options();
-                    },
-                    onHide: function() {
-                    	if(isOptionsOpened()) close_options();
-                    }
-                }, {
-                    element: "#get-started-cont",
-                    title: PbxObject.frases.TOURS.DASHBOARD.K.TITLE,
-                    content: PbxObject.frases.TOURS.DASHBOARD.K.BODY,
-                    placement: "bottom"
-                }
-            ]
-        });
-        console.log('dashTour: ', dashTour);
-        // PbxObject.tours.dashboard.init();
+        // dashTour = MyTour('dashboard', {
+        //     steps: [
+        //         {
+        //             // orphan: true,
+        //             backdropPadding: { top: 10 },
+        //             placement: 'top',
+        //             element: "#dash-tour-cont",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.A.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.A.BODY
+        //         }, {
+        //             backdropPadding: { top: 10 },
+        //             element: "#dash-graph-cont",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.B.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.B.BODY,
+        //             placement: "bottom"
+        //         }, {
+        //             backdropPadding: { top: 10 },
+        //             element: "#dash-monitor-cont",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.C.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.C.BODY,
+        //             placement: "top"
+        //         }, {
+        //             element: "#dash-trstate-cont",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.D.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.D.BODY,
+        //             placement: "top"
+        //         }, {
+        //             element: "#dash-callmonitor-cont",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.E.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.E.BODY,
+        //             placement: "top"
+        //         }, {
+        //             element: "#home-btn",
+        //             content: PbxObject.frases.TOURS.DASHBOARD.F.BODY,
+        //             placement: "bottom"
+        //         }, {
+        //             element: "#pbxmenu",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.G.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.G.BODY,
+        //             placement: "right"
+        //         }, {
+        //             element: "#history-dropdown-cont .dropdown-menu",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.H.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.H.BODY,
+        //             placement: "left",
+        //             onShow: function() {
+        //             	$('#history-dropdown-cont').addClass('open');
+        //             },
+        //             onShown: function() {
+        //             	$('#history-dropdown-cont .tour-step-backdrop').css('position', 'absolute');
+        //             },
+        //             onHide: function() {
+        //             	$('#history-dropdown-cont').removeClass('open');
+        //             }
+        //         }, {
+        //             reflex: true,
+        //             element: "#open-opts-btn",
+        //             content: PbxObject.frases.TOURS.DASHBOARD.I.BODY,
+        //             placement: "left"
+        //         }, {
+        //             element: "#pbxoptions",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.J.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.J.BODY,
+        //             placement: "left",
+        //             onShow: function() {
+        //                 if(!isOptionsOpened()) open_options();
+        //             },
+        //             onHide: function() {
+        //             	if(isOptionsOpened()) close_options();
+        //             }
+        //         }, {
+        //             element: "#get-started-cont",
+        //             title: PbxObject.frases.TOURS.DASHBOARD.K.TITLE,
+        //             content: PbxObject.frases.TOURS.DASHBOARD.K.BODY,
+        //             placement: "bottom"
+        //         }
+        //     ]
+        // });
+        // console.log('dashTour: ', dashTour);
     }
 
     function setAllDone() {
@@ -4514,19 +5200,46 @@ function Ldap(options){
     function getExternalUsers(authData, cb){
         var params = {
             url: '/services/'+options.service_id+'/Users'
+            // method: 'GET'
         };
         if(authData) {
             params.method = 'POST';
+            // params.data = {username: authData.username, password: authData.password};
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
+
+        console.log('getExternalUsers params: ', params);
+        
+        // request(params.method, params.url, params.data, null, function(err, data) {
+        //     if(err) {
+        //         console.log('getExternalUsers error: ', err);
+        //         if(err && err.code === 401) {
+        //             options.external = true;
+        //             openAuthModal();
+        //         } else {
+        //             var loc = window.location,
+        //             newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
+        //             window.sessionStorage.setItem('lastURL', newhref);
+        //             window.location = loc.origin + '/services/'+options.service_id+'/Users';
+        //         }
+        //     } else {
+        //         console.log('getExternalUsers: ', data);
+        //         if(cb) cb(data.result);
+        //         else showUsers(data.result);
+        //     }
+        // })
+
         $.ajax(params).then(function(data){
             console.log('getExternalUsers: ', data);
             if(cb) cb(data.result);
             else showUsers(data.result);
 
         }, function(err){
-            console.log('getExternalUsers error: ', err);
-            if(err.responseJSON && err.responseJSON.error.code === 401) {
+            var error = err.responseJSON.error;
+            console.log('getExternalUsers error: ', error, error.redirection);
+            if(error && error.redirection) {
+                window.location = error.redirection;
+            } else if(error && error.code === 401) {
                 options.external = true;
                 openAuthModal();
             } else {
@@ -4800,20 +5513,31 @@ function init(){
     }
 }
 
+function logout() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/logout', true);
+    xhr.onload = function (e) {
+        console.log('logout: ', e);
+        window.location = '/';
+    };
+    xhr.send();
+}
+
 function createWebsocket(){
 
     var protocol = (location.protocol === 'https:') ? 'wss:' : 'ws:';
     PbxObject.websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
     PbxObject.websocket.onopen = function(e){
-        console.log('WebSocket opened');
+        console.log('WebSocket opened: ', e);
         PbxObject.websocketTry = 1;
     };
     PbxObject.websocket.onmessage = function(e){
         // console.log(e);
         handleMessage(e.data);
     };
-    PbxObject.websocket.onclose = function(){
-        console.log('WebSocket closed');
+    PbxObject.websocket.onclose = function(e){
+        console.log('WebSocket closed', e);
+        if(e.code === 1001) return window.location = '/';
         var time = generateInterval(PbxObject.websocketTry);
         setTimeout(function(){
             PbxObject.websocketTry++;
@@ -4834,6 +5558,26 @@ function generateInterval (k) {
     return Math.random() * maxInterval;
 }
 
+function billingRequest(path, params, cb) {
+    var access_token = window.localStorage.getItem('ringo_tid');
+    if(!access_token) return cb('MISSING_TOKEN');
+    request(
+        'POST',
+        'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        (params || null),
+        null,
+        function(err, result) {
+            console.log('billing response: ', err, result);
+            if(err) return notify_about('error' , err);
+            if(!result.success) {
+                notify_about('error' , result.message);
+                return cb(result.message);
+            }
+            if(cb) cb(null, result);
+        }
+    );
+}
+
 function json_rpc(method, params){
     var jsonrpc;
     if(params == null){
@@ -4846,6 +5590,9 @@ function json_rpc(method, params){
     xmlhttp.open("POST", "/", false);
     xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xmlhttp.send(jsonrpc);
+    
+    if(xmlhttp.status === 403) return window.location = '/';
+
     var parsedJSON = JSON.parse(xmlhttp.responseText);
     if(parsedJSON.error != undefined){
         notify_about('error' , parsedJSON.error.message);
@@ -4878,6 +5625,8 @@ function json_rpc_async(method, params, handler, id){
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
             if(xhr.status != 200) {
+                if(xhr.status === 403) return window.location = '/';
+
                 console.error(method, xhr.statusText);
                 notify_about('error', PbxObject.frases.ERROR);
                 if(handler) handler(null, xhr.statusText);
@@ -4906,17 +5655,83 @@ function json_rpc_async(method, params, handler, id){
     xhr.send(jsonrpc);
 }
 
+/**
+ * Send request to the server via XMLHttpRequest
+ */
+function request(method, url, data, options, callback){
+    var xhr, response, requestTimer, dataStr;
+
+    xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    if(options && options.headers) {
+        options.headers.forEach(function(header) {
+            xhr.setRequestHeader(header.name, header.value);
+        });
+    }
+
+    requestTimer = setTimeout(function(){
+        xhr.abort();
+    }, 60000);
+    
+    xhr.onload = function(e) {
+        
+        clearTimeout(requestTimer);
+
+        console.log('request" ', e);
+
+        var redirect = e.target.getAllResponseHeaders();
+        console.log('request redirect', redirect);
+        var status = e.target.status;
+        var response = e.target.responseText;
+        if(response) {
+            try {
+                response = JSON.parse(response);
+            } catch(err) {
+                console.log('response in not JSON');
+            }
+        }
+            
+        if(status) {
+            if(status === 403) {
+                logout();
+            } else if(status === 200) {
+                if(callback) callback(null, response);
+            } else if(status >= 500) {
+                if(callback) return callback('The service is under maintenance. Please, try again later.');
+            } else {
+                if(callback) callback(response.error, response);
+            }
+
+        }
+
+    };
+
+    if(data) {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        dataStr = JSON.stringify(data);
+        xhr.send(dataStr);
+    } else {
+        xhr.send();
+    }
+    
+}
+
 function getTranslations(language){
     var xhr = new XMLHttpRequest();
     var file = 'translations_'+language+'.json';
     xhr.open('GET', '/badmin/translations/'+file, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4 && xhr.status == "200") {
+    xhr.onload = function (e) {
+        if(e.target.status === 403) {
+            logout();
+        } else if(e.target.status === 200) {
+
             // console.log(xhr.responseText);
             var data = JSON.parse(xhr.responseText);
             loadTranslations(data);
 
-          }
+        } else {
+            notify_about('error' , 'ERROR_OCCURED');
+        }
     };
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send();
@@ -5014,6 +5829,7 @@ function subscribeToEvents() {
         console.log('onmessage.object.update: ', PbxObject.oid, params);
         // if object's state change and object oid === params.oid
         if(PbxObject.oid === params.oid) objectStateUpdated(params);
+        updateObjectCache(params);
     });
     $(document).on('onmessage.object.add', newObjectAdded);
     $(document).on('onmessage.object.delete', onObjectDelete);
@@ -5076,6 +5892,17 @@ function init_page(){
     // var wizzard = Wizzard({frases: PbxObject.frases});
 }
 
+// init tour
+function initTour(params) {
+    console.log('initTour: ', params, PbxObject.tours[params.kind]);
+    var kind = params.kind || '';
+    var tourOptions = params.tourOptions || {};
+    tourOptions.frases = PbxObject.frases;
+
+    if(PbxObject.tours[kind]) 
+        MyTour(kind, PbxObject.tours[kind](tourOptions)).start();
+}
+
 function set_listeners(){
 
     addEvent(window, 'hashchange', get_object);
@@ -5083,6 +5910,7 @@ function set_listeners(){
     $('.options-open', '#pagecontent').click(open_options);
     $('.options-close', '#pbxoptions').click(close_options);
     $('#pbxmenu li a').click(showGroups);
+    $('#logout-btn').click(logout);
     
     // var attachFastClick = Origami.fastclick;
     // attachFastClick(document.body);
@@ -5131,9 +5959,13 @@ function showGroups(e){
                         document.getElementById('uploadapp').click();
                         if(e) e.preventDefault;
                     });
-                }
+                } 
+                // else if(kind === 'trunk') {
+                //     a.href = '#new_trunk';
+                // } 
                 else{
-                    a.href = '#'+kind+'?'+kind;
+                    a.href = '#'+kind+'/'+kind;
+                    // a.href = '#'+kind+'?'+kind;
                 }
                 a.innerHTML ='<i class="fa fa-plus"></i><span>'+(isGroup(kind) ? PbxObject.frases.ADD_GROUP : PbxObject.frases.ADD)+'</span>';
                 li.appendChild(a);
@@ -5148,8 +5980,10 @@ function showGroups(e){
                         gid = objects[i].oid;
                         name = objects[i].name;
                         li = document.createElement('li');
+                        li.setAttribute('data-oid', gid);
                         a = document.createElement('a');
-                        a.href = '#'+kind+'?'+gid;
+                        a.href = '#'+kind+'/'+gid;
+                        // a.href = '#'+kind+'?'+gid;
                         a.innerHTML = name;
                         li.appendChild(a);
                         ul.appendChild(li);
@@ -5185,16 +6019,18 @@ function showGroups(e){
 function get_object(e){
 
     var query = location.hash.substring(1),
-        kind = query.indexOf('?') != -1 ? query.substring(0, query.indexOf('?')) : query.substring(0),
-        oid = query.indexOf('?') != -1 ? query.substring(query.indexOf('?')+1) : null,
+        search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null,
+        kind = query.indexOf('/') != -1 ? query.substring(0, query.indexOf('/')) : query.substring(0),
+        oid = query.indexOf('/') != -1 ? query.substring(query.indexOf('/')+1, (search ? query.indexOf('?') : query.length)) : null,
         lang = PbxObject.language,
         callback = null,
         fn = null;
         
     if(query === PbxObject.query) return;
-    if(query != ''){
+    if(query){
 
         PbxObject.query = query;
+        PbxObject.search = search;
         PbxObject.kind = kind;
         PbxObject.oid = oid;
 
@@ -5217,10 +6053,14 @@ function get_object(e){
             load_template(PbxObject.templates[kind], kind);
         } else {
             // $("#dcontainer").load('/badmin/views/'+kind+'.html', function(template){
-            $.get('/badmin/views/'+kind+'.html', function(template){
+            request('GET', '/badmin/views/'+kind+'.html', null, null, function(err, template) {
                 PbxObject.templates[kind] = template;
                 load_template(template, kind);
             });
+            // $.get('/badmin/views/'+kind+'.html', function(template){
+            //     PbxObject.templates[kind] = template;
+            //     load_template(template, kind);
+            // });
         }
     }
 
@@ -5257,10 +6097,14 @@ function getPartial(partialName, cb){
     if(template){
         cb(template);
     } else{
-        $.get('/badmin/partials/'+partialName+'.html', function(template){
+        request('GET', '/badmin/partials/'+partialName+'.html', null, null, function(err, template) {
             PbxObject.partials[partialName] = template;
             cb(template);
         });
+        // $.get('/badmin/partials/'+partialName+'.html', function(template){
+        //     PbxObject.partials[partialName] = template;
+        //     cb(template);
+        // });
     }
 }
 
@@ -5268,10 +6112,14 @@ function getTemplate(tempName, cb){
     PbxObject.templates = PbxObject.templates || {};
     var template = PbxObject.templates[tempName];
     if(!template){
-        $.get('/badmin/views/'+tempName+'.html', function(temp){
+        request('GET', '/badmin/views/'+tempName+'.html', null, null, function(err, template) {
             PbxObject.templates[tempName] = temp;
             cb(temp);
         });
+        // $.get('/badmin/views/'+tempName+'.html', function(temp){
+        //     PbxObject.templates[tempName] = temp;
+        //     cb(temp);
+        // });
     } else {
         cb(template);
     }
@@ -5283,7 +6131,7 @@ function getTempParams() {
 
 function updateTempParams(obj) {
     console.log('updateTempParams: ', obj);
-    extend(PbxObject.currentObj, obj);
+    PbxObject.currentObj = extend(PbxObject.currentObj || {}, obj);
 }
 
 function setTempParams(obj) {
@@ -5402,7 +6250,7 @@ function setBreadcrumbs(){
     var bc1, bc2;
     
     bc1 = document.createElement('li');
-    bc1.innerHTML = '<a href="#'+PbxObject.kind+'?'+PbxObject.kind+'">'+PbxObject.frases.KINDS[PbxObject.kind]+'</a>';
+    bc1.innerHTML = '<a href="#'+PbxObject.kind+'/'+PbxObject.kind+'">'+PbxObject.frases.KINDS[PbxObject.kind]+'</a>';
 
     bc2 = document.createElement('li');
     bc2.className = 'active';
@@ -5441,12 +6289,14 @@ function toggle_menu(){
 }
 
 function open_options(e){
+    if(e) e.preventDefault();
     $('#el-slidemenu').addClass('hide-menu');
     $('#pagecontent').addClass('pushed-left');
     $('#pbxoptions').addClass('pushed-left');
     isOptionsOpened(true);
 }
 function close_options(e){
+    if(e) e.preventDefault();
     $('#pagecontent').removeClass('pushed-left');
     $('#pbxoptions').removeClass('pushed-left');
     $('#el-slidemenu').removeClass('hide-menu');
@@ -5538,9 +6388,11 @@ function show_loading_panel(container){
     var back = document.createElement('div');
     back.id = 'el-loading';
     back.className = 'el-loading-panel ';
-    var load = document.createElement('img');
-    load.src = '/badmin/images/sprites_white.png';
+    // var load = document.createElement('img');
+    var load = document.createElement('div');
+    // load.src = '/badmin/images/sprites_white.png';
     load.className = 'loader';
+    load.innerHTML = '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>'
     back.appendChild(load);
 
     var cont = container || document.getElementById('pagecontainer');
@@ -5702,19 +6554,38 @@ function arrayToPattern(prev, next) {
     return prev+'|'+next;
 }
 
-function filterObject(object, kind, reverse) {
-    var array = [],
-        pattern = kind ? 
-            (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
-            '';
-            
-    console.log('filterObject: ', kind, pattern);
+function filterObject(array, kind, reverse) {
+    var newArray = [],
+        match = false,
+        kinds = !kind ? [] : (Array.isArray(kind) ? kind : [kind]);
+        // pattern = kind ? 
+        //     (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
+        //     '';
 
-    array = object.filter(function(item) {
-        return reverse ? !(new RegExp(pattern).test(item.kind)) : new RegExp(pattern).test(item.kind);
+    console.log('filterObject: ', array, kinds);
+
+    // pattern = new RegExp(pattern);
+    
+    if(!kinds.length) return array;
+
+    newArray = array.filter(function(item) {
+        match = kinds.indexOf(item.kind) !== -1;
+        console.log('match: ', match, item.kind);
+        return reverse ? !match : match;
+
+        // console.log('filterObject match: ', kind, match);
+
+        // match = reverse ? !(item.kind.match(pattern)) : item.kind.match(pattern); 
+
+        // if(!kind) {
+        //     return true;
+        // } else {
+        //     return Array.isArray(kind) ? (kind.indexOf(match[0]) !== -1) : (kind === match[0]);
+        // }
+        // return reverse ? !(pattern.test(item.kind)) : pattern.test(item.kind);
     });
 
-    return array;
+    return newArray;
 }
 
 function getObjects(kind, callback, reverse) {
@@ -5969,6 +6840,20 @@ function remove_row(e){
     el.removeChild(row);
 }
 
+// Updates object params in cached object
+function updateObjectCache(params) {
+    var objectsCache = PbxObject.objects || [];
+    var obj = objectsCache.filter(function(item) {
+        return item.oid === params.oid;
+    })[0];
+
+    if(obj) {
+        obj.enabled = params.enabled;
+        obj.name = params.name;
+    }
+
+}
+
 function objectStateUpdated(params) {
     var enabled = document.getElementById('enabled');
     if(enabled) {
@@ -5988,12 +6873,16 @@ function newObjectAdded(event, data){
         kind = data.kind,
         name = data.name,
         enabled = data.enabled,
+        nameEl = document.getElementById('objname'),
         setobj = document.getElementById('el-set-object'),
         delobj = document.getElementById('el-delete-object'),
         ul = document.getElementById('ul-'+data.kind);
 
     remove_loading_panel();
     notify_about('success', name+' '+PbxObject.frases.CREATED);
+
+    console.log('newObjectAdded: ', nameEl, name);
+    if(nameEl && name) nameEl.value = name;
 
     if(data.ext) 
         addObjects(PbxObject.extensions, data, 'ext');
@@ -6003,8 +6892,9 @@ function newObjectAdded(event, data){
     if(ul){
         var li = document.createElement('li'),
             a = document.createElement('a');
-        a.href = '#'+kind+'?'+oid;
+        a.href = '#'+kind+'/'+oid;
         a.innerHTML = name;
+        li.setAttribute('data-oid', oid);
         li.appendChild(a);
         ul.appendChild(li);
     }
@@ -6017,11 +6907,12 @@ function newObjectAdded(event, data){
     }
 
     if(kind !== 'application'){
-        PbxObject.query = kind+'?'+oid;
+        PbxObject.query = kind+'/'+oid;
         window.location.href = '#'+PbxObject.query;
     }
 
-    if(setobj) setobj.innerHTML = PbxObject.frases.SAVE;
+    if(setobj) 
+        setobj.innerHTML = "<i class=\"fa fa-check fa-fw\"></i> " + PbxObject.frases.SAVE;
     
     if(typeof PbxObject.objects === 'object') {
         PbxObject.objects.push(data);
@@ -6044,22 +6935,34 @@ function updateMenu(event, data) {
 }
 
 function objectDeleted(data){
-    var ul = document.getElementById('ul-'+data.kind);
-    if(ul){
-        var li, a, href;
-        for(var i=0;i<ul.children.length;i++){
-            li = ul.children[i];
-            a = li.querySelector('a');
-            if(a && a.href) {
-                href = a.href;
-                if(href && href.substring(href.indexOf('?')+1) == data.oid){
-                    ul.removeChild(li);
-                }
-            } else {
-                continue;
-            }
-        }
-    }
+    // var ul = document.getElementById('ul-'+data.kind);
+    // if(ul){
+    //     var li, a, href;
+    //     for(var i=0;i<ul.children.length;i++){
+    //         li = ul.children[i];
+    //         a = li.querySelector('a');
+    //         if(a && a.href) {
+    //             href = a.href;
+    //             if(href && href.substring(href.indexOf('/')+1) == data.oid){
+    //                 ul.removeChild(li);
+    //             }
+    //         } else {
+    //             continue;
+    //         }
+    //     }
+    // }
+
+    var ulEl = data.kind ? document.getElementById('ul-'+data.kind) : document.querySelector('#pbxmenu .nav-list');
+    var items = ulEl ? [].slice.call(ulEl.querySelectorAll('li ul li')) : [];
+    var itemOid;
+
+    console.log('objectDeleted: ', data.kind, ulEl, items);
+
+    items.forEach(function(item) {
+        itemOid = item.getAttribute('data-oid');
+        if(itemOid && itemOid === data.oid) item.parentNode.removeChild(item);
+    });
+
     if(typeof PbxObject.objects === 'object') {
         PbxObject.objects = PbxObject.objects.filter(function(obj){
             return obj.oid !== data.oid;
@@ -6086,12 +6989,12 @@ function set_options_success() {
     window.location.href = newURL;
 }
 
-function delete_object(name, kind, oid){
-    var c = confirm(PbxObject.frases.DODELETE+' '+name+'?');
+function delete_object(name, kind, oid, noConfirm){
+    var c = noConfirm ? true : confirm(PbxObject.frases.DODELETE+' '+name+'?');
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
-            window.location.hash = kind+'?'+kind;
+            window.location.hash = kind+'/'+kind;
         });
 
     } else{
@@ -6143,7 +7046,7 @@ function delete_extension(e){
 }
 
 function onObjectDelete(event, params) {
-    if(PbxObject.kind === 'extensions') {
+    if(params.ext && (/extensions|users|equipment/.test(PbxObject.kind)) ) {
         delete_extension_row(params);
         PbxObject.extensions = deleteObjects(PbxObject.extensions, params, 'ext');
     } else {
@@ -6313,7 +7216,7 @@ function b64EncodeUnicode(str) {
 
 function get_object_link(oid){
     var result = json_rpc('getObject', '\"oid\":\"'+oid+'\"');
-    location.hash = result.kind+'?'+oid;
+    location.hash = result.kind+'/'+oid;
 }
 
 function setObjectState(oid, state, callback) {
@@ -6962,7 +7865,7 @@ function getInfoFromState(state, group){
     } else if(state == 2 || state == 5) {
         className = 'warning';
     } else if(state == 0 || (state == -1 && group)) {
-        state = '';
+        // state = '';
         className = 'default';
     } else if(state == 3) {
         className = 'danger';
@@ -7047,6 +7950,11 @@ function change_protocol(){
     initGlobals(window);
     createWebsocket();
 
+    window.onbeforeunload = function() {
+        PbxObject.websocket.onclose = function () {}; // disable onclose handler first
+        PbxObject.websocket.close()
+    };
+
     if(window.localStorage.getItem('pbxOptions')) {
         var data = window.localStorage.getItem('pbxOptions');
         data = JSON.parse(data);
@@ -7068,6 +7976,38 @@ function change_protocol(){
         });
     }
 })();
+function load_new_trunk() {
+
+	var trunks = [
+		{
+			type: 'sip',
+			name: 'SIP trunk',
+			href: '#trunk/trunk',
+			icon: 'fa fa-fw fa-phone'
+		}, {
+			type: 'Messenger',
+			name: 'Messenger',
+			href: '#chattrunk/chattrunk?type=Messenger',
+			icon: 'fa fa-fw fa-facebook'
+		}
+	];
+
+	function init(params) {
+		console.log('init: ', params);
+
+		var componentParams = {
+			frases: PbxObject.frases,
+		    trunks: trunks
+		};
+
+		ReactDOM.render(NewTrunkComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+	init(trunks);
+	show_content();
+    set_page();
+
+}
 function poolArrayToString(array){
     var str = '';
     array.forEach(function(obj, indx, array){
@@ -7142,9 +8082,9 @@ function loadDeviceSettings(result){
         document.getElementById('http-log').value = result.http.log || 0;
     if(result.system){
         document.getElementById('rec-format').value = result.system.recformat || 'PCM 8 Khz 16 bit';
-        if(result.system.smdr){
-            document.getElementById('smdr-host').value = result.system.smdr.host;
-        }
+    }
+    if(result.system.smdr){
+        document.getElementById('smdr-host').value = result.system.smdr.host;
     }
 
     setAccordion('#device-options-cont');
@@ -7235,7 +8175,11 @@ function load_pbx_options(result) {
     so.onclick = set_pbx_options;
 
     // toggle_presentation();
-    if(result.mode === 1 || !result.prefix){
+    if(!window.localStorage['ringo_tid']) {
+        var billingTab = document.getElementById('billing-tab');
+        if(billingTab) billingTab.parentNode.removeChild(billingTab);
+    }
+    else if(result.mode === 1 || !result.prefix){
         getDeviceSettings();
     }
     else {
@@ -7335,7 +8279,9 @@ function set_pbx_options(e) {
         setDeviceSettings();
 
     var jprms = '',
+        passChanged = false,
         handler,
+        login = document.getElementById('adminname').value,
         pass = document.getElementById('adminpass').value,
         confpass = document.getElementById('confirmpass').value,
         select = document.getElementById('interfacelang'),
@@ -7353,13 +8299,16 @@ function set_pbx_options(e) {
         return;
     }
 
-    if (pass && pass !== confpass) {
-        if(!confpass){
-            alert(PbxObject.frases.OPTS__PWD_CONF_EMPTY);
-            return false;
-        } else if(confpass && confpass !== pass){
+    if (pass) {
+        if(pass !== confpass) {
+        // if(!confpass){
+        //     alert(PbxObject.frases.OPTS__PWD_CONF_EMPTY);
+        //     return false;
+        // } else if(confpass && confpass !== pass){
             alert(PbxObject.frases.OPTS__PWD_UNMATCH);
             return false;
+        } else {
+            passChanged = true;
         }
     }
     else{
@@ -7428,7 +8377,19 @@ function set_pbx_options(e) {
         PbxObject.options.ldap = ldapOptions;
     }
 
-    json_rpc_async('setPbxOptions', jprms, handler);
+    json_rpc_async('setPbxOptions', jprms, function() {
+        if(!passChanged) {
+            handler();
+        } else {
+            if(window.localStorage['ringo_tid'] && (PbxObject.options.mode !== 1 || PbxObject.options.prefix)) {
+                billingRequest('changePassword', { login: login, password: pass }, function(err, result) {
+                    if(!err) handler();
+                });
+            } else {
+                handler();
+            }
+        }
+    });
 }
 
 function setDeviceSettings(){
@@ -7481,6 +8442,7 @@ function setDeviceSettings(){
     if(document.getElementById('backup-path')) jprms += '"backup":"' + ( document.getElementById('backup-path').value || "" ) + '", ';
     if(document.getElementById('rec-path')) jprms += '"store":"' + ( document.getElementById('rec-path').value || "" ) + '", ';
     if(document.getElementById('rec-format')) jprms += '"recformat":"' + ( document.getElementById('rec-format').value || "" ) + '", ';
+    jprms += '},';
     jprms += '\"smtp\":{';
     if(document.getElementById('smtp-host').value) jprms += '"host":"' + ( document.getElementById('smtp-host').value || "" ) + '", ';
     if(document.getElementById('smtp-port').value) jprms += '"port":"' + ( document.getElementById('smtp-port').value || "" ) + '", ';
@@ -7492,7 +8454,6 @@ function setDeviceSettings(){
     if(document.getElementById('smdr-port') && document.getElementById('smdr-port').value) jprms += '"port":' + document.getElementById('smdr-port').value + ', ';
     if(document.getElementById('smdr-host') && document.getElementById('smdr-host').value) jprms += '"host":"' + document.getElementById('smdr-host').value + '", ';
     if(document.getElementById('smdr-enabled') && document.getElementById('smdr-enabled').value) jprms += '"state":' + document.getElementById('smdr-enabled').checked + ', ';
-    jprms += '},';
     jprms += '},';
 
     // console.log(jprms);
@@ -8244,7 +9205,8 @@ function load_records(){
 
     var methods = {
         playRecord: playRecord,
-        showQos: showQos
+        getQos: getQos,
+        toggleRecQoS: toggleRecQoS
     };
 
     var elmode = [].slice.call(document.querySelectorAll('.init-mode'));
@@ -8310,11 +9272,14 @@ function build_records_row(data, table){
 
     if(!data) return;
     var cell,
+        textContent = '',
         lrow = table.rows.length,
         row = table.insertRow(lrow),
-        qosData = (data.mfe1 !== undefined || data.mfe2 !== undefined || data.mne1 !== undefined || data.mne2 !== undefined),
         time = data['td'],
         h, m, s;
+
+    if(data['id'])
+        row.id = data['id'];
 
     cell = row.insertCell(0);
     // date = day + '/' + month + '/' + date.getFullYear() + ' ' + hours + ':' + minutes;
@@ -8325,33 +9290,40 @@ function build_records_row(data, table){
     cell.textContent = data['na'];
 
     cell = row.insertCell(2);
-    cell.className = 'nowrap';
-    cell.textContent = data['nb'];
+    // cell.className = 'nowrap';
+    textContent = (data['nc'] && data['nc'] !== data['nb'] ) ? (data['nb'] + ' (' + data['nc'] + ')') : data['nb'];
+    cell.textContent = textContent
+    cell.title = textContent;
+
+    // cell = row.insertCell(3);
+    // cell.textContent = data['nc'] || "";
+    // cell.className = 'nowrap';
+    // cell.title = data['nc'] || '';
 
     cell = row.insertCell(3);
-    cell.textContent = data['nc'] || "";
-    cell.className = 'nowrap';
-    cell.title = data['nc'] || '';
+    if(data['ta']) {
+        textContent = (data['tb'] ) ? data['ta'] + ' (' + data['tb'] + ')' : data['ta'];
+    } else {
+        textContent = data['tb'];
+    }
+    cell.textContent = textContent;
+
+    // cell = row.insertCell(4);
+    // if(data['tb']) cell.textContent = data['tb'];
 
     cell = row.insertCell(4);
-    if(data['ta']) cell.textContent = data['ta'];
-
-    cell = row.insertCell(5);
-    if(data['tb']) cell.textContent = data['tb'];
-
-    cell = row.insertCell(6);
     cell.textContent = formatTimeString(time, 'hh:mm:ss');
 
-    cell = row.insertCell(7);
+    cell = row.insertCell(5);
     cell.textContent = getFriendlyCodeName(data['cs']);
 
-    cell = row.insertCell(8);
+    cell = row.insertCell(6);
     cell.textContent = parseFloat(data['tr']).toFixed(2);
 
-    cell = row.insertCell(9);
+    cell = row.insertCell(7);
     cell.textContent = parseFloat(data['ch']).toFixed(2);
 
-    cell = row.insertCell(10);
+    cell = row.insertCell(8);
     if(data['fi']){
         var a = document.createElement('a');
         a.href = '#';
@@ -8364,14 +9336,12 @@ function build_records_row(data, table){
         // };
         cell.appendChild(a);
     }
-    cell = row.insertCell(11);
+    cell = row.insertCell(9);
     cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'"><i class="fa fa-fw fa-download"></i></a>' : '';
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 
-    // if(qosData) {
-        cell = row.insertCell(12);
-        cell.innerHTML = '<a href="#" data-method="showQos" data-param="'+ data.id +'"><i class="fa fa-fw fa-info"></i></a>';
-    // }
+    cell = row.insertCell(10);
+    cell.innerHTML = '<a href="#" data-method="getQos" data-param="'+ data.id +'"><i class="fa fa-fw fa-info"></i></a>';
 }
 
 function getRecParams(e){
@@ -8387,7 +9357,6 @@ function getRecParams(e){
         elmode = document.querySelectorAll('.init-mode'),
         number = document.getElementById('searchnum'),
         trunk = document.getElementById('searchtrunk'),
-        qosEl = document.querySelector('input[name="qos"]'),
         order, mode, i;
 
     for(i=0; i<elorder.length; i++){
@@ -8418,8 +9387,7 @@ function getRecParams(e){
 
     var params = {
         begin: PbxObject.recPicker.date.start,
-        end: PbxObject.recPicker.date.end,
-        qos: qosEl.checked
+        end: PbxObject.recPicker.date.end
     };
 
     if(number.value) params.number = number.value;
@@ -8473,24 +9441,63 @@ function showRecords(result){
     PbxObject.Pagination.selectPage(1);
 }
 
-function showQos(id, targ) {
-    console.log('showQos: ', id, targ);
-    if(!id) return;
+function getQos(recid, targ) {
+    console.log('getQos: ', recid, targ);
+    if(!recid) return;
     // var targInitHtml = targ.innerHTML;
     var targInitHtml = targ.innerHTML;
     var targMethod = targ.getAttribute('data-method');
+
     targ.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
     targ.setAttribute('data-method', '');
+
     getRecords({
         begin: PbxObject.recPicker.date.start,
         end: PbxObject.recPicker.date.end,
         qos: true,
-        id: id
+        id: recid
     }, function(result) {
-        console.log('showQos result: ', result);
+        console.log('getQos result: ', result);
         targ.innerHTML = targInitHtml;
-        targ.setAttribute('data-method', targMethod);
+        targ.setAttribute('data-method', 'toggleRecQoS');
+        showRecQoS(recid, result);
     });
+}
+
+function toggleRecQoS(recid) {
+    console.log('toggleRecQoS: ', recid);
+    $('#'+recid+'-qos').collapse('toggle');
+}
+
+function showRecQoS(recid, data) {
+
+    var row = document.createElement('tr');
+    var cell = document.createElement('td');
+    var contEl = document.createElement('div');
+
+    contEl.id = recid + '-qos';
+    contEl.className = "collapse";
+    cell.colSpan = '11';
+    cell.style.padding = '0';
+    cell.style.borderTop = 'none';
+    cell.appendChild(contEl);
+    row.appendChild(cell);
+
+    $(row).insertAfter('#'+recid);
+
+
+    ReactDOM.render(
+        RecQosTable({
+            frases: PbxObject.frases,
+            data: data[0],
+            utils: {
+                formatTimeString: formatTimeString
+            }
+        }),
+        contEl
+    );
+
+    $(contEl).collapse();
 }
 
 function playRecord(src, targ){
@@ -8780,6 +9787,8 @@ function Reports(){
 
     this.init();
 }
+
+
 function load_routes(result){
     // console.log(result);
     
@@ -8913,7 +9922,7 @@ function build_routes_table(routes){
     var result, fragment,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
-    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
+    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
         if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
         else {
             sortByKey(routes, 'number');
@@ -8928,7 +9937,7 @@ function build_routes_table(routes){
 }
 
 function editRow(row, route) {
-    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
+    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
         var newroute = build_route_row(route, result);
         row.parentNode.insertBefore(newroute, row);
         row.style.display = 'none';
@@ -8939,7 +9948,7 @@ function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
+    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
         var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
         tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
     }, true);
@@ -8964,7 +9973,7 @@ function add_route_row(route, objects){
             obj = objects[i];
             cell.setAttribute('data-gid', route.target.oid);
             cell.setAttribute('data-gname', obj.name);
-            cell.innerHTML = '<a href="#'+obj.kind+'?'+obj.oid+'">'+obj.name+'</a>';
+            cell.innerHTML = '<a href="#'+obj.kind+'/'+obj.oid+'">'+obj.name+'</a>';
         }
     }
 
@@ -9504,32 +10513,97 @@ function AppStorage(id, type) {
 function load_storages(){
 	var storeTable,
 		availableStorages,
-		storeInfoTable = document.querySelector('#store-info tbody');
+		fileStorage,
+		storageInfo,
+		totalStorage,
+		modalCont = document.getElementById('storage-settings-cont');
+
 
 	if(PbxObject.options.mode === 1 || !PbxObject.options.prefix) {
-		storeTable = document.querySelector('#storages tbody');
 		getStorages(function (result){
-			fillTable(storeTable, result, createStorageRow, function (){
-				show_content();
-			});
+			fileStorage = result;
+			init();
 		});
 	} else {
-		availableStorages = document.getElementById('storages-cont');
-		availableStorages.parentNode.removeChild(availableStorages);
-		show_content();
+		fileStorage = null;
 	}
 
-	getStoreInfo(function (result){
-		fillTable(storeInfoTable, result, createStoreInfoRow);
+	getStorageInfo(function (result){
+		storageInfo = result;
+		init();
 	});
 
-	getTotalStore(function (result){
-		setTotalStore(result);
-	});
+	function openStorageSettings(data) {
+		if(modalCont) // TODO: find a solution
+			modalCont.parentNode.removeChild(modalCont);
 
-	TableSortable.sortables_init();
-	close_options();
-    set_page();
+		// if(!modalCont) {
+			modalCont = document.createElement('div');
+			modalCont.id = "storage-settings-cont";
+			document.body.appendChild(modalCont);
+		// }
+
+		if(data.maxsize)
+			data.maxsize = convertBytes(data.maxsize, 'Byte', 'GB');
+
+		ReactDOM.render(StorageComponent({
+		    frases: PbxObject.frases,
+		    data: data,
+		    onSubmit: saveStorage
+		}), modalCont);
+
+		$('#storage-settings').modal();
+	}
+
+	function saveStorage(data){
+		console.log('saveStorage: ', data);
+		if(!data.path) return;
+		if(!data.id) delete data.id;
+		if(data.maxsize !== undefined) data.maxsize = convertBytes(data.maxsize, 'GB', 'Byte');
+		data.state = parseInt(data.state, 10);
+
+	    json_rpc_async('setFileStore', data, function(result){
+			if(result){
+				getStorages(function (result){
+					fileStorage = result;
+
+					getTotalStorage(function (result){
+						PbxObject.options = result;
+	
+						renderUI();
+						$('#storage-settings').modal('hide');
+					});
+				});
+			}
+		});
+	}
+
+    function init() {
+		show_content();
+
+    	if(fileStorage === undefined || storageInfo == undefined) return;
+
+		renderUI();    	
+		TableSortable.sortables_init();
+		close_options();
+	    set_page();
+    }
+
+    function renderUI(){
+    	ReactDOM.render(UsageComponent({
+    	    options: PbxObject.options,
+    	    frases: PbxObject.frases,
+    	    storageInfo: storageInfo,
+    	    fileStorage: fileStorage,
+    	    getTotalStorage: getTotalStorage,
+    	    utils: {
+    	    	convertBytes: convertBytes,
+    	    	formatDateString: formatDateString,
+    	    	getFriendlyStorageState: getFriendlyStorageState
+    	    },
+    	    openStorageSettings: openStorageSettings
+    	}), document.getElementById('el-loaded-content'));
+    }
 }
 
 function getStorages(callback){
@@ -9538,188 +10612,108 @@ function getStorages(callback){
 	});
 }
 
-function getStoreInfo(callback){
+function getStorageInfo(callback){
 	json_rpc_async('getStoreInfo', null, function (result){
 		sortByKey(result, 'user');
 		if(callback) callback(result);
 	});
 }
 
-function getTotalStore(callback){
+function getTotalStorage(callback){
 	json_rpc_async('getPbxOptions', null, function (result){
 		if(callback) callback(result);
 	});
 }
 
-function setTotalStore(result){
-	var storesize = result.storesize,
-		storelimit = result.storelimit,
-		elStoresize = document.querySelector('.store-size'),
-		elStorefree = document.querySelector('.store-free'),
-		elStorelimit = document.querySelector('.store-limit');
+// function createStorageRow(params){
+// 	var row = document.createElement('tr'),
+// 		cell, a, button;
+
+// 	cell = row.insertCell(0);
+// 	cell.classList.add((params.state === 1 || params.state === 2) ? 'success' : 'danger');
 	
-	if(storesize !== undefined) elStoresize.textContent = convertBytes(storesize, 'Byte', 'GB').toFixed(2);
-	if(storelimit !== undefined) elStorelimit.textContent = convertBytes(storelimit, 'Byte', 'GB').toFixed(2);
-	if(storesize !== undefined && storelimit !== undefined) elStorefree.textContent = convertBytes((storelimit - storesize), 'Byte', 'GB').toFixed(2);
-}
+// 	cell = row.insertCell(1);
+// 	cell.textContent = getFriendlyStorageState(params.state);
 
-function createStorageRow(params){
-	var row = document.createElement('tr'),
-		cell, a, button;
+// 	cell = row.insertCell(2);
+// 	cell.textContent = params.path;
 
-	cell = row.insertCell(0);
-	cell.classList.add((params.state === 1 || params.state === 2) ? 'success' : 'danger');
+// 	cell = row.insertCell(3);
+// 	cell.textContent = convertBytes(params.freespace, 'Byte', 'GB').toFixed(2);
+
+// 	cell = row.insertCell(4);
+// 	cell.textContent = convertBytes(params.usedsize, 'Byte', 'GB').toFixed(2);
+
+// 	cell = row.insertCell(5);
+// 	cell.textContent = convertBytes(params.maxsize, 'Byte', 'GB').toFixed(2);
+
+// 	cell = row.insertCell(6);
+// 	if(params.created) cell.textContent = formatDateString(params.created);
+
+// 	cell = row.insertCell(7);
+// 	if(params.updated) cell.textContent = formatDateString(params.updated);
 	
-	cell = row.insertCell(1);
-	cell.textContent = getFriendlyStorageState(params.state);
+// 	cell = row.insertCell(8);
+//     button = document.createElement('button');
+//     button.className = 'btn btn-default btn-sm';
+//     button.innerHTML = '<i class="fa fa-edit"></i>';
+//     addEvent(button, 'click', function(){
+//         editStorage(params);
+//     });
+//     cell.appendChild(button);
 
-	cell = row.insertCell(2);
-	cell.textContent = params.path;
+// 	row.setAttribute('data-id', params.id);
 
-	cell = row.insertCell(3);
-	cell.textContent = convertBytes(params.freespace, 'Byte', 'GB').toFixed(2);
+// 	return row;
+// }
 
-	cell = row.insertCell(4);
-	cell.textContent = convertBytes(params.usedsize, 'Byte', 'GB').toFixed(2);
 
-	cell = row.insertCell(5);
-	cell.textContent = convertBytes(params.maxsize, 'Byte', 'GB').toFixed(2);
 
-	cell = row.insertCell(6);
-	if(params.created) cell.textContent = formatDateString(params.created);
+// function saveStorage(){
+// 	var form = document.getElementById('storageForm');
+// 	var formData = retrieveFormData(form);
 
-	cell = row.insertCell(7);
-	if(params.updated) cell.textContent = formatDateString(params.updated);
-	
-	cell = row.insertCell(8);
-    button = document.createElement('button');
-    button.className = 'btn btn-default btn-sm';
-    button.innerHTML = '<i class="fa fa-edit"></i>';
-    addEvent(button, 'click', function(){
-        editStorage(params);
-    });
-    cell.appendChild(button);
+// 	if(formData && Object.keys(formData).length !== 0){
+// 		if(formData.maxsize > 0) formData.maxsize = convertBytes(formData.maxsize, 'GB', 'Byte');
+// 		if(!formData.id) delete formData.id;
+// 	    json_rpc_async('setFileStore', formData, function(result){
+// 			if(result){
+// 				getStorages(function (result){
+// 					var table = document.querySelector('#storages tbody');
+// 					clearTable(table);
+// 					fillTable(table, result, createStorageRow);
+// 				});
+// 				getTotalStore(function (result){
+// 					setTotalStore(result);
+// 				});
+// 				$('#storageModal').modal('hide');
+// 			}
+// 		});
+// 	}
+// }
 
-	row.setAttribute('data-id', params.id);
+// function editStorage(params){
 
-	return row;
-}
+// 	openModal({
+// 		tempName: 'storage_settings',
+// 		modalId: 'storageModal',
+// 		data : params
+// 	}, function (){
+// 		if(params) {
+// 			var maxsize = document.querySelector('#storageForm input[name="maxsize"]'),
+// 				states = document.querySelector('#storageForm select[name="state"]'),
+// 				state = params.state.toString();
 
-function createStoreInfoRow(params){
+// 			if(maxsize.value > 0) maxsize.value = convertBytes(maxsize.value, 'Byte', 'GB').toFixed(2);
 
-	function setInputValue(value, input){
-		if(value < 0) return;
-		input.value = value.toFixed(2);
-		setUserLimitValue();
-	}
-
-	var row = document.createElement('tr'),
-		cell, button, input, div, limit;
-
-	cell = row.insertCell(0);
-	cell.textContent = params.user;
-
-	cell = row.insertCell(1);
-	cell.textContent = params.size ? convertBytes(params.size, 'Byte', 'GB').toFixed(2) : parseFloat(0).toFixed(2);
-
-	cell = row.insertCell(2);
-	var inputGroup = document.createElement('div');
-	inputGroup.className = 'input-group';
-
-	input = document.createElement('input');
-	input.value = params.limit ? convertBytes(params.limit, 'Byte', 'GB').toFixed(2) : parseFloat(0.00).toFixed(2);
-	input.className = 'form-control';
-	// input.type = 'number';
-	input.setAttribute('step', '0.10');
-	input.setAttribute('min', '0');
-	addEvent(input, 'change', function (e){
-		setInputValue(parseFloat(input.value), input);
-	});
-	inputGroup.appendChild(input);
-
-	div = document.createElement('div');
-	div.className = 'input-group-btn';
-
-	button = document.createElement('button');
-	button.className = 'btn btn-default';
-	button.innerHTML = '<i class="fa fa-minus"></i>';
-	addEvent(button, 'click', function (e){
-		setInputValue(parseFloat(input.value) - 0.10, input);
-	});
-	div.appendChild(button);
-
-	button = document.createElement('button');
-	button.className = 'btn btn-default';
-	button.innerHTML = '<i class="fa fa-plus"></i>';
-	addEvent(button, 'click', function (e){
-		setInputValue(parseFloat(input.value) + 0.10, input);
-	});
-	div.appendChild(button);
-
-	inputGroup.appendChild(div);
-	cell.appendChild(inputGroup);
-
-	row.setAttribute('data-id', params.oid);
-
-	var setUserLimitValue = debounce(function (){
-		setUserStoreLimit(params.oid, parseFloat(input.value), input);
-	}, 2000);
-
-	return row;
-}
-
-function createStorage(){
-	openModal({
-		tempName: 'storage_settings',
-		modalId: 'storageModal'
-	});
-}
-
-function saveStorage(){
-	var form = document.getElementById('storageForm');
-	var formData = retrieveFormData(form);
-
-	if(formData && Object.keys(formData).length !== 0){
-		if(formData.maxsize > 0) formData.maxsize = convertBytes(formData.maxsize, 'GB', 'Byte');
-		if(!formData.id) delete formData.id;
-	    json_rpc_async('setFileStore', formData, function(result){
-			if(result){
-				getStorages(function (result){
-					var table = document.querySelector('#storages tbody');
-					clearTable(table);
-					fillTable(table, result, createStorageRow);
-				});
-				getTotalStore(function (result){
-					setTotalStore(result);
-				});
-				$('#storageModal').modal('hide');
-			}
-		});
-	}
-}
-
-function editStorage(params){
-
-	openModal({
-		tempName: 'storage_settings',
-		modalId: 'storageModal',
-		data : params
-	}, function (){
-		if(params) {
-			var maxsize = document.querySelector('#storageForm input[name="maxsize"]'),
-				states = document.querySelector('#storageForm select[name="state"]'),
-				state = params.state.toString();
-
-			if(maxsize.value > 0) maxsize.value = convertBytes(maxsize.value, 'Byte', 'GB').toFixed(2);
-
-			[].slice.call(states.options).forEach(function (option, index){
-				if(option.value === state) {
-					states.selectedIndex = index;
-				}
-			});
-		}
-	});
-}
+// 			[].slice.call(states.options).forEach(function (option, index){
+// 				if(option.value === state) {
+// 					states.selectedIndex = index;
+// 				}
+// 			});
+// 		}
+// 	});
+// }
 
 function setUserStoreLimit(oid, limit, input){
 	json_rpc_async('setStoreLimit', { oid: oid, limit: convertBytes(parseFloat(limit), 'GB', 'Byte') }, function (result){
@@ -10021,28 +11015,29 @@ function check_days(e){
 function MyTour(name, options) {
 
 	if(!name) return console.error('tour name is undefined');
+	if(!options) return console.error('options is undefined');
 
-	PbxObject.tours = PbxObject.tours || [];
+	// PbxObject.tours = PbxObject.tours || [];
 
 	var tour = {};
 	var defaults = {
-		name: "get-started",
+		name: name,
         backdrop: true,
         backdropContainer: "#pagecontent",
         storage: false,
         template: ["<div class='popover tour'>",
-        			"<div class='arrow'></div>",
-        			"<h3 class='popover-title'></h3>",
-					"<div class='popover-content'></div>",
-					"<div class='popover-navigation'>",
-    					"<button class='btn btn-default' data-role='prev'><i class='fa fa-angle-left'></i></button>",
-    					"<span data-role='separator'> </span>",
-    					"<button class='btn btn-default' data-role='next'><i class='fa fa-angle-right'></i></button>",
-    					"<button class='btn btn-link' data-role='end'>", 
-    						PbxObject.frases.TOURS.END_TOUR,
-    					"</button>",
-						// "<button class='btn btn-default' data-role='end'>End tour</button>",
-					"</div>",
+	        			"<div class='arrow'></div>",
+	        			"<h3 class='popover-title'></h3>",
+						"<div class='popover-content'></div>",
+						"<div class='popover-navigation'>",
+	    					"<button class='btn btn-default' data-role='prev'><i class='fa fa-angle-left'></i></button>",
+	    					"<span data-role='separator'> </span>",
+	    					"<button class='btn btn-default' data-role='next'><i class='fa fa-angle-right'></i></button>",
+	    					"<button class='btn btn-link' data-role='end'>", 
+	    						PbxObject.frases.TOURS.END_TOUR,
+	    					"</button>",
+							// "<button class='btn btn-default' data-role='end'>End tour</button>",
+						"</div>",
 					"</div>"].join(''),
         steps: []
 	};
@@ -10052,7 +11047,7 @@ function MyTour(name, options) {
 	tour = new Tour(defaults);
 	tour.init();
 
-	PbxObject.tours[name] = tour;
+	// PbxObject.tours[name] = tour;
 
 	return tour;
 }
@@ -10472,34 +11467,283 @@ function set_trunk(){
         // }
     });
 };
-function load_wizard() {
-	console.log('load wizard!');
+var Utils = {
+	validateElement: function(element, stateElement) {
+	    var valid = !!element.value;
+	    if(!valid) {
+	        stateElement ? stateElement.classList.add('has-error') : element.classList.add('has-error');
+	        valid = false;
+	    } else {
+	        stateElement ? stateElement.classList.remove('has-error') : element.classList.remove('has-error');
+	    }
 
-	var activeTab = 'extensions';
+	    return valid;
+	}
+};
+PbxObject.tours = PbxObject.tours || [];
 
-	$('a[href="#wizard-tab-'+activeTab+'"]').tab('show');
+PbxObject.tours.attendant = function(){
 
-	$('#wizard-tablist a[data-toggle="tab"]').on('show.bs.tab', function(e) {
-		activeTab = e.target.getAttribute('data-tab');
-		loadTab(activeTab, '#wizard-tab-'+activeTab);
-		console.log('show.bs.tab: ', activeTab);
-	});
+    var frases = PbxObject.frases;
 
-	loadTab(activeTab, '#wizard-tab-'+activeTab);
-
-	show_content();
+    return {
+        storage: window.localStorage,
+        backdrop: false,
+        steps: [
+            {
+                placement: 'bottom',
+                element: "#objname",
+                title: frases.TOURS.ATTENDANT.A.TITLE,
+                content: frases.TOURS.ATTENDANT.A.BODY
+            }, {
+                placement: 'bottom',
+                element: "#object-route-cont",
+                title: frases.TOURS.ATTENDANT.B.TITLE,
+                content: frases.TOURS.ATTENDANT.B.BODY
+            }, {
+                placement: 'left',
+                element: "#enabled-cont",
+                title: frases.TOURS.ATTENDANT.C.TITLE,
+                content: frases.TOURS.ATTENDANT.C.BODY
+            }, {
+                placement: 'right',
+                element: "#attGreetings",
+                title: frases.TOURS.ATTENDANT.D.TITLE,
+                content: frases.TOURS.ATTENDANT.D.BODY
+            }, {
+                placement: 'right',
+                element: "#att-email-setts",
+                title: frases.TOURS.ATTENDANT.E.TITLE,
+                content: frases.TOURS.ATTENDANT.E.BODY
+            }, {
+                placement: 'right',
+                element: "#attconnectors",
+                title: frases.TOURS.ATTENDANT.F.TITLE,
+                content: frases.TOURS.ATTENDANT.F.BODY
+            }, {
+                reflex: true,
+                placement: 'bottom',
+                element: "#att-obj-types",
+                title: frases.TOURS.ATTENDANT.G.TITLE,
+                content: frases.TOURS.ATTENDANT.G.BODY,
+                onShow: function() {
+                    $('#att-container .att-init-button').removeClass('open');
+                },
+                onHidden: function() {
+                    $('#att-container .att-init-button').addClass('open');
+                }
+            }, {
+                reflex: true,
+                backdrop: true,
+                placement: 'bottom',
+                element: "#att-obj-types + .dropdown-menu",
+                title: frases.TOURS.ATTENDANT.H.TITLE,
+                content: frases.TOURS.ATTENDANT.H.BODY,
+                onHidden: function() {
+                    $('#att-container .att-init-button').removeClass('open');
+                }
+            }
+        ]
+    }
 }
+PbxObject.tours = PbxObject.tours || [];
 
-function loadTab(activeTab, container, params){
-	getPartial('wizards/'+activeTab, function(template) {
-		var data = {};
-		var rendered;
+PbxObject.tours.dashboard = function() {
+    return {
+        steps: [
+            {
+                // orphan: true,
+                backdropPadding: { top: 10 },
+                placement: 'top',
+                element: "#dash-tour-cont",
+                title: PbxObject.frases.TOURS.DASHBOARD.A.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.A.BODY
+            }, {
+                backdropPadding: { top: 10 },
+                element: "#dash-graph-cont",
+                title: PbxObject.frases.TOURS.DASHBOARD.B.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.B.BODY,
+                placement: "bottom"
+            }, {
+                backdropPadding: { top: 10 },
+                element: "#dash-monitor-cont",
+                title: PbxObject.frases.TOURS.DASHBOARD.C.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.C.BODY,
+                placement: "top"
+            }, {
+                element: "#dash-trstate-cont",
+                title: PbxObject.frases.TOURS.DASHBOARD.D.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.D.BODY,
+                placement: "top"
+            }, {
+                element: "#dash-callmonitor-cont",
+                title: PbxObject.frases.TOURS.DASHBOARD.E.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.E.BODY,
+                placement: "top"
+            }, {
+                element: "#home-btn",
+                content: PbxObject.frases.TOURS.DASHBOARD.F.BODY,
+                placement: "bottom"
+            }, {
+                element: "#pbxmenu",
+                title: PbxObject.frases.TOURS.DASHBOARD.G.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.G.BODY,
+                placement: "right"
+            }, {
+                element: "#history-dropdown-cont .dropdown-menu",
+                title: PbxObject.frases.TOURS.DASHBOARD.H.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.H.BODY,
+                placement: "left",
+                onShow: function() {
+                	$('#history-dropdown-cont').addClass('open');
+                },
+                onShown: function() {
+                	$('#history-dropdown-cont .tour-step-backdrop').css('position', 'absolute');
+                },
+                onHide: function() {
+                	$('#history-dropdown-cont').removeClass('open');
+                }
+            }, {
+                reflex: true,
+                element: "#open-opts-btn",
+                content: PbxObject.frases.TOURS.DASHBOARD.I.BODY,
+                placement: "left"
+            }, {
+                element: "#pbxoptions",
+                title: PbxObject.frases.TOURS.DASHBOARD.J.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.J.BODY,
+                placement: "left",
+                onShow: function() {
+                    if(!isOptionsOpened()) open_options();
+                },
+                onHide: function() {
+                	if(isOptionsOpened()) close_options();
+                }
+            }, {
+                element: "#get-started-cont",
+                title: PbxObject.frases.TOURS.DASHBOARD.K.TITLE,
+                content: PbxObject.frases.TOURS.DASHBOARD.K.BODY,
+                placement: "bottom"
+            }
+        ]
+    }
+}
+PbxObject.tours = PbxObject.tours || [];
 
-		data.frases = PbxObject.frases;
-		if(params) data.data = params;
+PbxObject.tours.equipment = function(params){
 
-		rendered = Mustache.render(template, data);
+    var frases = params.frases;
 
-		$(container).html(rendered);
-	});
+    return {
+        storage: window.localStorage,
+        backdrop: false,
+        steps: [
+            {
+                placement: 'bottom',
+                element: "#objname",
+                title: 'Group name',
+                content: 'Enter a group name'
+            }, {
+                backdrop: true,
+                backdropPadding: { bottom: 10 },
+                placement: 'top',
+                element: "#equipment-group-setts",
+                title: 'Group settings',
+                content: 'Select the signaling <b>protocol</b> for devices to connect with. <b>Device type</b> is basicaly the type of devices that would be connected to the server.'
+            }, {
+                reflex: true,
+                placement: 'top',
+                element: "#add-newuser-btn",
+                title: 'Creating new extensions',
+                content: 'Click this button to open the <b>Create extensions</b> form',
+                onHidden: function() {
+                    $('#new-user-form').collapse('show');
+                }
+            }, {
+                backdrop: true,
+                backdropPadding: { bottom: 10 },
+                reflex: 'users.create',
+                placement: 'top',
+                element: "#new-user-form",
+                title: 'Creating new extensions',
+                content: 'To create a new extension, fill in the form with the extension\'s data and then click <b>Create</b> button. After creating a first extension, the equipment group will be created also (<br/> Make sure to fill in the <b>Group name</b> field above). <br/> Click <b>Clear</b> button to clear the form.'
+            }, {
+                backdrop: true,
+                backdropPadding: { bottom: 10 },
+                placement: 'top',
+                element: "#group-extensions",
+                title: 'Extensions list',
+                content: 'All extensions that were added to the group are listed here with the real-time updates of the extensions statuses'
+            }, {
+                placement: 'top',
+                element: "#ext-features-panel",
+                title: 'Extension features',
+                content: 'Select which of the features of IP PBX would be available to the extensions of current group',
+                onShow: function() {
+                    $('#ext-features-panel').removeClass('minimized');
+                }
+            }, {
+                placement: 'bottom',
+                element: "#el-set-object",
+                title: 'Saving changes',
+                content: 'Click <b>Save</b> button to save changes'
+            }
+        ]
+    }
+}
+PbxObject.tours = PbxObject.tours || [];
+
+PbxObject.tours.users = function(params){
+
+    var frases = params.frases;
+
+    return {
+        storage: window.localStorage,
+        backdrop: false,
+        steps: [
+            {
+                placement: 'bottom',
+                element: "#objname",
+                title: 'Group name',
+                content: 'Enter a group name'
+            }, {
+                reflex: true,
+                placement: 'top',
+                element: "#add-newuser-btn",
+                title: 'Creating new users',
+                content: 'Click this button to open the <b>Create users</b> form',
+                onHidden: function() {
+                    $('#new-user-form').collapse('show');
+                }
+            }, {
+                backdrop: true,
+                backdropPadding: { bottom: 10 },
+                reflex: 'users.create',
+                placement: 'top',
+                element: "#new-user-form",
+                title: 'Creating new users',
+                content: 'To create a new user, fill in the form with the user\'s data and then click <b>Create</b> button. After creating a first user, the users group will be created also (<br/> Make sure to fill in the <b>Group name</b> field above). <br/> Click <b>Clear</b> button to clear the form.'
+            }, {
+                backdrop: true,
+                backdropPadding: { bottom: 10 },
+                placement: 'top',
+                element: "#group-extensions",
+                title: 'Users list',
+                content: 'All users that were added to the group are listed here with the real-time updates of the users statuses'
+            }, {
+                placement: 'top',
+                element: "#ext-features-panel",
+                title: 'Extension features',
+                content: 'Select which of the features of IP PBX would be available to the extensions of current group',
+                onShow: function() {
+                    $('#ext-features-panel').removeClass('minimized');
+                }
+            }, {
+                placement: 'bottom',
+                element: "#el-set-object",
+                title: 'Saving changes',
+                content: 'Click <b>Save</b> button to save changes'
+            }
+        ]
+    }
 }

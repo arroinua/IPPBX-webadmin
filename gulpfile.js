@@ -45,7 +45,8 @@ gulp.task('styles2', function() {
 });
 
 gulp.task('scripts', function() {
-  return gulp.src(['badmin/src/*.js', '!badmin/src/helper.js'])
+  // return gulp.src(['badmin/src/*.js'])
+  return gulp.src(['badmin/src/*.js', '!badmin/src/vendors/**', 'badmin/src/**/*.js'])
     // .pipe(jshint('.jshintrc'))
     // .pipe(jshint.reporter('default'))
     .pipe(concat('main.js'))
@@ -103,6 +104,9 @@ gulp.task('views', function() {
 
   gulp.src('init.js')
   .pipe(gulp.dest('badmin/dist/'));
+
+  gulp.src('public/*')
+  .pipe(gulp.dest('badmin/dist/public/'));
 
   gulp.src('badmin/views/**/*')
   .pipe(gulp.dest('badmin/dist/badmin/views/'));

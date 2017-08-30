@@ -1,0 +1,38 @@
+
+.rec-qos-cont {
+	background-color: #f3f8f9;
+	overflow-x: scroll;
+
+	.rec-qos-head {
+		position: relative;
+		max-width: 500px;
+		margin:auto;
+		margin-bottom: 15px;
+		padding: 20px 0;
+		text-align: center;
+		z-index: 100;
+
+		.fa {
+			font-size: 26px;
+		}
+
+		div.pull-left, div.pull-right, span.fa-server {
+			position: relative;
+			width: 70px;
+			height: 30px;
+			// padding: 0 15px;
+			background-color: #f3f8f9;
+			z-index: 100;
+		}
+
+		.direction-arrows {
+			position: absolute;
+			top: 26px;
+			height: 15px;
+			width: 100%;
+			padding: 0;
+			border-bottom: 3px dashed #3c763d;
+			border-top: 3px dashed #337ab7;
+		}
+	}
+}

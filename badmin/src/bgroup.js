@@ -19,6 +19,13 @@ function load_bgroup(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
 
+    getObjects(null, function(objs) {
+        // if(!filterObject(objs, kind).length) {
+            updateTempParams({ tour: true });
+            initTour({ kind: kind });
+        // }
+    });
+
     if(result.name) {
         d.getElementById('objname').value = result.name;
     }
@@ -44,8 +51,12 @@ function load_bgroup(result){
         
         if(kind == 'equipment'){
             var prots = result.options.protocols || result.options.protocol;
-            var storelimitCont = document.getElementById('storelimit-cont');
-            if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
+            // var storelimitCont = document.getElementById('storelimit-cont');
+            // var userEmailCont = document.getElementById('user-email-cont');
+            
+            // if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
+            // if(userEmailCont) userEmailCont.parentNode.removeChild(userEmailCont);
+
             if(typeof prots === 'object'){
                 prots.forEach(function(item){
                     protocol.innerHTML += '<option value="'+item+'">'+item+'</option>';
@@ -136,10 +147,14 @@ function load_bgroup(result){
     if(result.options){
         if(kind == 'equipment'){
             var devselect = document.getElementById('devtype');
+            var protoselect = document.getElementById('group-protocol');
             var eqtype = result.options.kind || 'ipphones';
             var register = document.getElementById('tr-register');
             var proxy = document.getElementById('tr-proxy');
             devselect.value = eqtype;
+            if(!result.options.protocol) 
+                protoselect.value = 'sip';
+            
             switch_options_tab('tab-'+eqtype);
             devselect.onchange = function(){
                 eqtype = this.options[this.selectedIndex].value;
@@ -488,6 +503,7 @@ function load_bgroup(result){
             getExternalUsers(qparams.service_id, parseInt(qparams.service_type, 10));
             window.sessionStorage.removeItem('lastURL');
         }
+
     }
 }
 
@@ -923,6 +939,7 @@ function set_bgroup(param, callback){
         jprms += '"initmode":'+initmode+',';
     }
     jprms += '}';
+    
     json_rpc_async('setObject', jprms, function(result){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
@@ -962,7 +979,7 @@ function renderObjRoute(params) {
 
 function setCurrObjRoute(route) {
     console.log('setCurrObjRoute: ', route);
-    setTempParams(route);
+    updateTempParams(route);
 }
 
 // function clearCurrObjRoute() {
@@ -1019,30 +1036,39 @@ function addMembersRow(data){
 }
 
 function addUser(type){
-    var e = e || window.event;
-    var table = document.getElementById('group-extensions').querySelector('tbody'),
+    var e = e || window.event,
+        table = document.getElementById('group-extensions').querySelector('tbody'),
         available = document.getElementById('available-users'),
         exts = available.options,
-        name = document.getElementById('user-name'),
-        alias = document.getElementById('user-alias'),
-        // followme = document.getElementById('user-followme'),
-        // login = document.getElementById('user-login'),
-        pass = document.getElementById('user-pass');
-        storelimit = document.getElementById('storelimit');
+        nameEl = document.getElementById('user-name'),
+        loginEl = document.getElementById('user-login'),
+        emailEl = document.getElementById('user-email'),
+        aliasEl = document.getElementById('user-alias'),
+        passEl = document.getElementById('user-pass'),
+        storelimit = document.getElementById('storelimit'),
+        ext, name, alias;
 
     if(!exts.length) return;
     if(!PbxObject.name) {
         set_bgroup(type, addUser);
         return;
     }
-    var ext = available.options[available.selectedIndex].value;
+    
+    ext = available.options[available.selectedIndex].value;
+    name = nameEl.value || (PbxObject.frases.KINDS[type] + " " + ext);
+    login = loginEl.value;
+    email = emailEl.value;
+    alias = aliasEl ? aliasEl.value : name;
+    // alias = aliasEl ? aliasEl.value : (PbxObject.frases.KINDS[type] + " " + ext);
 
     var jprms = '"kind":"'+type+'",';
     jprms += '"groupid":"'+PbxObject.oid+'",';
+    if(login) jprms += '"login":"'+login+'",';
+    if(email) jprms += '"info": { "email": "'+email+'" },';
     jprms += '"number":"'+ext+'",';
-    jprms += '"name":"'+name.value+'",';
-    jprms += '"display":"'+alias.value+'",';
-    jprms += '"password":"'+pass.value+'",';
+    jprms += '"name":"'+name+'",';
+    jprms += '"display":"'+alias+'",';
+    jprms += '"password":"'+passEl.value+'",';
     if(storelimit) {
         storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
         if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
@@ -1052,9 +1078,9 @@ function addUser(type){
         kind: type,
         groupid: PbxObject.oid,
         number: ext,
-        name: name.value,
-        display: alias.value,
-        password: pass.value
+        name: name,
+        display: alias,
+        password: passEl.value
     };
     // if(type == 'user') {
     //     jprms += '"followme":"'+followme.value+'",';
@@ -1106,6 +1132,9 @@ function addUser(type){
                 var add = document.getElementById('add-user');
                 add.setAttribute('disabled', 'disabled');
             }
+
+            // emmit event to trigger tour next step
+            $('#new-user-form').trigger("users.create");
 
             cleanForm('new-user-form');
         }

@@ -17,7 +17,7 @@ var ObjectRoute = React.createClass({
 		};
 	},
 
-	componentDidMount: function() {
+	componentWillMount: function() {
 		var options = [],
 			route = this.props.routes.length ? this.props.routes[0] : null;
 
@@ -33,9 +33,14 @@ var ObjectRoute = React.createClass({
 
 		    // select route and set current route oid
 		    if(route && route.id) {
-		    	this.setState({ routeId: route.id });
+		    	this.setState({
+		    		routeId: route.id,
+		    		value: route.ext,
+		    		label: route.ext
+		    	});
 		    	this._onChange({ value: route.ext, label: route.ext });
 		    } else {
+		    	this.setState({ route: options[0] });
 		    	this._onChange(options[0]);
 		    }
 
@@ -73,19 +78,20 @@ var ObjectRoute = React.createClass({
 	},
 
 	render: function() {
-
+		console.log('ObjectRoute value: ', this.state.route);
 		return (
-			// <PanelComponent>
-            	// <label htmlFor="form-field-name">Route</label>
-            	<Select
-            	    name="form-field-name"
-            	    className="obj-route-select"
-            	    clearable={false}
-            	    value={this.state.route}
-            	    options={this.state.options}
-            	    onChange={this._onChange}
-            	/>
-	        // </PanelComponent>
+			<Select3 value={this.state.route} options={this.state.options} onChange={this._onChange} />
+			
+            	//<Select
+            	//    name="form-field-name"
+            	//    className="obj-route-select"
+            	//    clearable={false}
+            	//    value={this.state.route}
+            	//    options={this.state.options}
+            	//    onChange={this._onChange}
+            	//    arrowRenderer={function() { return false; }}
+            	///>
+	        
 		);
 	}
 });

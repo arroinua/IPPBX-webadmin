@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title></title>
+        <title>Ringotel | Administrator Panel</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -40,14 +40,21 @@
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode mode-groups">
+                        <li class="branch-mode">
+                            <a href="#" data-kind="chatchannel" title="{{KINDS.chantchannel}}">
+                                <i class="fa fa-comments-o fa-fw"></i>
+                                <span>{{KINDS.chatchannel}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode">
                             <a href="#" data-kind="hunting" title="{{KINDS.hunting}}">
                                 <i class="icon-find_replace"></i>
                                 <span>{{KINDS.hunting}}</span>
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode mode-groups">
+                        <li class="branch-mode">
                             <a href="#" data-kind="icd" title="{{KINDS.icd}}">
                                 <i class="icon-headset_mic"></i>
                                 <span>{{KINDS.icd}}</span>
@@ -75,6 +82,13 @@
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
+                        <li class="branch-mode mode-trunks">
+                            <a href="#" data-kind="chattrunk" title="{{KINDS.chattrunk}}">
+                                <i class="fa fa-whatsapp fa-fw"></i>
+                                <span>Chat Trunks</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
                         <li class="branch-mode mode-equipment">
                             <a href="#" data-kind="timer" title="{{KINDS.timer}}">
                                 <i class="fa fa-calendar fa-fw"></i>
@@ -89,7 +103,7 @@
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="nav-divider">
+                        <li class="nav-divider branch-mode mode-groups">
                             <a href="#">
                                 <i class="fa fa-plus fa-fw"></i>
                                 <span>{{MORE}}</span>
@@ -109,35 +123,35 @@
                                         <i class="fa fa-angle-right fa-fw"></i>
                                     </a>
                                 </li>
-                                <li class="branch-mode mode-groups">
+                                <!-- <li class="branch-mode mode-groups">
                                     <a href="#" data-kind="application" title="{{KINDS.application}}">
                                         <i class="fa fa-puzzle-piece fa-fw"></i>
                                         <span>{{KINDS.application}}</span>
                                         <i class="fa fa-angle-right fa-fw"></i>
                                     </a>
-                                </li>
-                                <li class="branch-mode mode-groups">
+                                </li> -->
+                                <li>
                                     <a href="#" data-kind="conference" title="{{KINDS.conference}}">
                                         <i class="icon-call_split"></i>
                                         <span>{{KINDS.conference}}</span>
                                         <i class="fa fa-angle-right fa-fw"></i>
                                     </a>
                                 </li>
-                                <li class="branch-mode mode-groups">
+                                <li>
                                     <a href="#" data-kind="pickup" title="{{KINDS.pickup}}">
                                         <i class="icon-phone_missed"></i>
                                         <span>{{KINDS.pickup}}</span>
                                         <i class="fa fa-angle-right fa-fw"></i>
                                     </a>
                                 </li>
-                                <li class="branch-mode mode-groups">
+                                <li>
                                     <a href="#" data-kind="unit" title="{{KINDS.unit}}">
                                         <i class="fa fa-building fa-fw"></i>
                                         <span>{{KINDS.unit}}</span>
                                         <i class="fa fa-angle-right fa-fw"></i>
                                     </a>
                                 </li>
-                                <li class="branch-mode mode-groups">
+                                <li>
                                     <a href="#" data-kind="cli" title="{{KINDS.cli}}">
                                         <i class="icon-fingerprint"></i>
                                         <span>{{KINDS.cli}}</span>
@@ -225,6 +239,11 @@
                         </ul>
                         <ul class="nav nav-bar-nav pull-right">
                             <li>
+                                <a href="#" id="logout-btn" title="{{LOGOUT}}">
+                                    <i class="fa fa-sign-out fa-fw"></i>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="#" class="options-close">
                                     <i class="fa fa-cog fa-fw"></i>
                                 </a>
@@ -281,6 +300,12 @@
                                         <a href="#storages" title="{{SETTINGS.STORAGE_SETTINGS}}">
                                             <i class="fa fa-database fa-fw"></i>
                                             <span>{{SETTINGS.STORAGE_SETTINGS}}</span>
+                                        </a>
+                                    </li>
+                                    <li id="billing-tab">
+                                        <a title="{{SETTINGS.BILLING}}">
+                                            <i class="fa fa-credit-card fa-fw"></i>
+                                            <span>{{SETTINGS.BILLING}}</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -743,7 +768,7 @@
                         </div>
                         <div class="col-xs-6">
                             <label for="smdr-port">{{frases.PORT}}</label>
-                            <input type="text" id="smdr-port" class="form-control" value="{{data.system.smdr.port}}">
+                            <input type="text" id="smdr-port" class="form-control" value="{{data.smdr.port}}">
                         </div>
                     </div>
                 </div>

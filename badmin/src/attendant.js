@@ -5,9 +5,17 @@ function load_attendant(result){
 
     var enabled = document.getElementById('enabled');
     var name = document.getElementById('objname');
+    var attTour = {};
 
     if(result.name){
         name.value = result.name;
+    } else {
+        getObjects(null, function(objs) {
+            if(!filterObject(objs, 'attendant').length) {
+                attTour = MyTour('attendant', PbxObject.tours.attendant()).start();
+                updateTempParams({ tour: true });
+            }
+        });
     }
 
     if(enabled) {
@@ -73,6 +81,26 @@ function setInitAttParams(){
         }
     };
 }
+
+// function initAttObjTour(type) {
+//     console.log('initAttObjTour: ', type);
+//     var tour = {};
+//     if(type === PbxObject.attendant.types.menu && getTempParams().menuTour) {
+//         tour = MyTour('attendantMenu', PbxObject.tours.attendantMenu());
+//         console.log('initAttObjTour menu tour: ', tour);
+
+//         tour.start();
+
+//         updateTempParams({ menuTour: false });
+//     } else if(type === PbxObject.attendant.types.mail && getTempParams().emailTour) {
+//         tour = MyTour('attendantEmail', PbxObject.tours.attendantEmail());
+//         console.log('initAttObjTour email tour: ', tour);
+
+//         tour.start();
+
+//         updateTempParams({ emailTour: false });
+//     }
+// }
 
 function changeAvailableButtons(buttons, canvas){
     var canv = canvas || document.querySelector('.att-canvas.active'),
@@ -594,11 +622,18 @@ function showAttObjectSetts(params, object){
     //     params.dataUnchanged = true;
     // }
 
-    var data = formAttParams(params);
-    console.log('showAttObjectSetts data: ', data);
+    function setAttObjectOnKeypress(e) {
+        if(e.keyCode == 10 || e.keyCode == 13) {
+            setAttObject(params, object);
+        }
+    }
+
+    var renderParams = formAttParams(params);
+
+    console.log('showAttObjectSetts data: ', renderParams);
     getAttTemplate('attendant_modal', function(temp){
 
-        var rendered = Mustache.render(temp, data);
+        var rendered = Mustache.render(temp, renderParams);
         if(!cont){
             cont = document.createElement('div');
             cont.id = 'att-setts-cont';
@@ -607,6 +642,7 @@ function showAttObjectSetts(params, object){
         $(cont).html(rendered);
 
         var cont = document.getElementById('att-setts-cont'),
+        dataEl = document.getElementById('att-setts-data'),
         connEl = document.querySelector('#att-setts-form select[name="data"]'),
         btnEl = document.querySelector('#att-setts-form select[name="button"]');
 
@@ -615,13 +651,8 @@ function showAttObjectSetts(params, object){
         if(params.type === PbxObject.attendant.types.menu)
             customize_upload('audioFile', (params.data || ''));
 
-        $('#set-att-object').on('click', function(){
+        $('#set-att-object').on('click', function(e){
             setAttObject(params, object);
-        });
-        $(document).on('keypress', function(e) {
-            if(e.keyCode == 10 || e.keyCode == 13) {
-                setAttObject(params, object);
-            }
         });
 
         $('#att-setts-modal [data-toggle="popover"]').popover({
@@ -629,11 +660,31 @@ function showAttObjectSetts(params, object){
             trigger: 'focus'
         });
 
-        $("#att-setts-modal .select2").select2();
-        $('#att-setts-modal').modal();
+        // render 'data' element
+        if(dataEl) {
+            ReactDOM.render(Select3({
+                name: "data",
+                placeholder: PbxObject.frases.ATTENDANT.DATA_PLACEHOLDER,
+                frases: PbxObject.frases,
+                value: { value: renderParams.data.data, label: renderParams.data.data },
+                options: renderParams.connectors
+            }), dataEl);
+        }
+
+        // trigger modal events
+        // $("#att-setts-modal .select2").select2();
+        $('#att-setts-modal').on('shown.bs.modal', function(){
+            document.querySelector('#att-setts-modal input[name="name"]').focus();
+        });
         $('#att-setts-modal').on('hide.bs.modal', function() {
             $('#att-setts-modal [data-toggle="popover"]').popover('destroy');
+            $('#set-att-object').off('click', function(e){
+                setAttObject(params, object);
+            });
         });
+
+        $('#att-setts-modal').modal();
+
     });
 }
 
@@ -655,6 +706,7 @@ function collectAttParams(instParams){
         objType = instParams.type,
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
         // data = cont.querySelector(el+'[name="data"]').value,
+        connectorName,
         data = '',
         params = {};
 
@@ -666,7 +718,7 @@ function collectAttParams(instParams){
 
     if(objType === PbxObject.attendant.types.menu){
         var fileEl = cont.querySelector('input[type="file"]'),
-            digits = cont.querySelector(el+'[name="digits"]');
+            digits = cont.querySelector('[name="digits"]');
 
         if(fileEl){
             if(fileEl.files.length){
@@ -693,8 +745,8 @@ function collectAttParams(instParams){
         params.digits = digits.checked ? '14' : '1';
 
     } else{
-        params.data = cont.querySelector(el+'[name="data"]').value;
-        var connectorName = cont.querySelector(el+'[name="data"]').value;
+        connectorName = cont.querySelector('[name="data"]').value;
+        params.data = connectorName;
         params.connector = connectorName;
         // params.data = getConnectorNumber(data);
     }
@@ -737,16 +789,24 @@ function formAttParams(data){
     };
     params.data.name = params.data.name || generateAttObjName(params.data.type, params.pid);
     params.connectors = (data.type === PbxObject.attendant.types.commutator) ? PbxObject.attendant.connectors.concat(PbxObject.attendant.routes) : PbxObject.attendant.connectors;
+    params.connectors = params.connectors.map(formatConnectors);
     sortByKey(params.connectors, 'ext');
 
     return params;
+}
+
+function formatConnectors(object) {
+    return {
+        value: object.ext,
+        label: (object.name ? (object.ext + ' - ' + object.name) : object.ext)
+    };
 }
 
 function generateAttObjName(type, button, objName){
     // if(!button && button !== null) return;
     var value = "";
     if(!PbxObject.attendant.currentPid && !objName){
-        value = PbxObject.frases.ATTENDANT.MAIN_MENU;
+        value = type === PbxObject.attendant.types.menu ? PbxObject.frases.ATTENDANT.MAIN_MENU : PbxObject.frases.ATTENDANT.MAIL;
     } else {
         value = objName || PbxObject.frases.ATTENDANT[type.toUpperCase()];
     }
@@ -807,9 +867,16 @@ function addConnector(e) {
         tbody = table.querySelector('tbody'),
         name = table.querySelector('input[name="connName"]'),
         val = table.querySelector('input[name="connVal"]'),
-        data = {name: name.value, ext: val.value},
-        connectors = PbxObject.attendant.connectors;
-    
+        connectors = PbxObject.attendant.connectors,
+        valid = true,
+        data = {};
+
+    Utils.validateElement(name, name.parentNode);
+    Utils.validateElement(val, val.parentNode);
+
+    if(!val.value || !name.value) return false;
+
+    data = {name: name.value, ext: val.value};
     tbody.appendChild(createConnectorRow(data));
     
     //clear fields
@@ -820,18 +887,18 @@ function addConnector(e) {
     
 }
 
-function getConnectorNumber(connName){
-    var val;
-    PbxObject.attendant.connectors.forEach(function(conn){
-        if(conn.name === connName)
-            val = conn.ext;
-    });
+// function getConnectorNumber(connName){
+//     var val;
+//     PbxObject.attendant.connectors.forEach(function(conn){
+//         if(conn.name === connName)
+//             val = conn.ext;
+//     });
 
-    if(!val)
-        console.error('Connector not found!');
-    else
-        return val;
-}
+//     if(!val)
+//         console.error('Connector not found!');
+//     else
+//         return val;
+// }
 
 function removeConnector(object){
     var conns = PbxObject.attendant.connectors;

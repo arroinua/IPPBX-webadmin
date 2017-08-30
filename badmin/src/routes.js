@@ -131,7 +131,7 @@ function build_routes_table(routes){
     var result, fragment,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
-    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
+    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
         if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
         else {
             sortByKey(routes, 'number');
@@ -146,7 +146,7 @@ function build_routes_table(routes){
 }
 
 function editRow(row, route) {
-    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
+    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
         var newroute = build_route_row(route, result);
         row.parentNode.insertBefore(newroute, row);
         row.style.display = 'none';
@@ -157,7 +157,7 @@ function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    getObjects('equipment|users|cli|timer|routes|pickup', function(result) {
+    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
         var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
         tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
     }, true);
@@ -182,7 +182,7 @@ function add_route_row(route, objects){
             obj = objects[i];
             cell.setAttribute('data-gid', route.target.oid);
             cell.setAttribute('data-gname', obj.name);
-            cell.innerHTML = '<a href="#'+obj.kind+'?'+obj.oid+'">'+obj.name+'</a>';
+            cell.innerHTML = '<a href="#'+obj.kind+'/'+obj.oid+'">'+obj.name+'</a>';
         }
     }
 

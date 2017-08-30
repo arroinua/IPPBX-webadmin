@@ -55,6 +55,18 @@ input[readonly].readonly-custom{
     border-radius: 4px;
 }
 
+.popover .popover-title {
+    color: #777;
+    background-color: #fff;
+    border-bottom: none;
+    border-radius-top-left: 4px;
+    border-radius-top-right: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 15px;
+    font-size: 12px;
+}
+
 .popover-trigger {
     color: #aaa;
     
@@ -80,26 +92,20 @@ input[readonly].readonly-custom{
     Tourjs custom styles
 */
 
-.popover.tour-get-started {
+.popover.tour {
     font-size: 16px;
 }
 
-.popover.tour-get-started .popover-title {
-    background-color: #fff;
-    border-bottom: 1px solid #eee;
-    border-radius-top-left: 4px;
-    border-radius-top-right: 4px;
-    text-transform: uppercase;
-    padding: 15px;
-    font-size: 16px;
-}
-
-.popover.tour-get-started .popover-content {
+.popover.tour .popover-content {
     padding: 15px;
 }
 
 .tour-step-background {
     border-radius: 4px;
+}
+
+.dropdown-menu.tour {
+    display: block;
 }
 
 /*
@@ -251,20 +257,21 @@ input[readonly].readonly-custom{
     border: none;
 }
 
-.Select.obj-route-select {
-    min-width: 150px;
-    text-align: left;
-}
-
-@media only screen and (max-width: $handheld) {
-    .Select.obj-route-select {
-        min-width: 115px;
-    }    
-}
-
 .select2-dropdown{
     border: 1px solid #ebebeb;
     border-radius: 2px;
+}
+
+.Select3 > input {
+    webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.Select3 > input:focus {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
 
 .btn.noradius-padding-lg {

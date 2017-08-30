@@ -102,7 +102,7 @@ function Dashboard(){
                     cell.innerText = trunks[i].name;
                 } else {
                     a = document.createElement('a');
-                    a.href = '#trunk?'+trunks[i].oid;
+                    a.href = '#trunk/'+trunks[i].oid;
                     a.textContent = trunks[i].name;
                     cell.appendChild(a);
                 }

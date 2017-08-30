@@ -8,8 +8,8 @@
 		"DISMISS_TOUR": "No, dismiss",
 		"STEPS": {
 			"A": {
-				"TITLE": "Add extensiosn",
-				"BODY": "Add extensions for company eployees",
+				"TITLE": "Add extension",
+				"BODY": "Add extensions for company employees",
 				"MODAL": {
 					"OPTION_1": {
 						"TITLE": "Add user group",
@@ -27,21 +27,21 @@
 				"MODAL": {
 					"OPTION_1": {
 						"TITLE": "Create hunting group",
-						"DESC": "Within a hunting group calls would be allocated to the available extensions, either circular, or simultaneous"
+						"DESC": "Within a hunting group calls would be allocated to the available extensions, either circular, or simultaneously"
 					},
 					"OPTION_2": {
 						"TITLE": "Create hotline",
-						"DESC": "Define how incoming calls would be serverd and allocated with queue settings, routing methods, greeting prompt, etc."
+						"DESC": "Define how incoming calls would be serverd and allocated by setting up queue settings, routing methods, greeting prompt, etc."
 					}
 				}
 			},
 			"C": {
 				"TITLE": "Create Auto-attendant",
-				"BODY": "Greeting your callers and route them to the appropriate department, extension, phone number or voicemail"
+				"BODY": "Greet your callers and route them to the appropriate department, extension, phone number or voicemail"
 			},
 			"D": {
 				"TITLE": "Create trunk",
-				"BODY": "Connect SIP trunk to make and recieve calls from the outside world"
+				"BODY": "Connect SIP trunk to make and recieve calls from the external numbers"
 			}
 		}
 	},
@@ -61,7 +61,7 @@
 		"CLI" : "CLI Group"
 	},
 	"SELECT_GROUP": "Select group",
-	"SELECT_ROUTE": "Select route",
+	"SELECT_ROUTE": "Add route",
 	"TRUNKS" : "Trunks",
 	"TRUNK_TYPE" : "Trunk type",
 	"APPS" : "Applications",
@@ -78,6 +78,7 @@
 		"NOANSWERTOUT" : "No answer timeout"
 	},
 	"EXTFUNCTIONS" : "Extension functions",
+	"EXT_FEATURES" : "Extension features",
 	"ICD" : {
 		"AUTOLOGIN_SETTINGS" : "Autologin settings"
 	},
@@ -104,7 +105,7 @@
 		"CALLPARK" : "Call park"
 	},
 	"STATES" : {
-		"0":"Unregistered",
+		"0":"Not registered",
 		"1":"Idle",
 		"2":"Forwarding", 
 		"3":"DND", 
@@ -167,6 +168,8 @@
 		"FUNCSETTINGS" : "PBX Features",
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
+		"USAGE_SETTINGS" : "License usage",
+		"BILLING" : "Billing",
 		"REC_MODE" : {
 			"REC_MODE" : "Recording mode",
 			"EXCEPTION_LIST" : "Exception list",
@@ -192,6 +195,7 @@
 		"TIMEZONE": "Time zone"
 	},
 	"OPTIONS" : "Options",
+	"LOGOUT": "Logout",
 	"GENERAL" : "General",
 	"TYPE" : "Type",
 	"STATE" : "State",
@@ -243,8 +247,13 @@
 	"ALIAS" : "Alias",
 	"SCHEMA" : "Schema",
 	"ADD_USER" : "Add user",
+	"ADD_USERS" : "Add users",
+	"IMPORT_USER" : "Import user",
+	"IMPORT_USERS" : "Import users",
 	"CREATE_USER" : "Create user",
+	"CREATE_USERS" : "Create users",
 	"CREATE_EXTENSION" : "Create extension",
+	"CREATE_EXTENSIONS" : "Create extensions",
 	"ADD_FROM_DIRECTORY" : "Add from directory",
 	"ADD_EQUIPMENT" : "Add equipment",
 	"USERTYPE" : "User type",
@@ -475,6 +484,7 @@
         "hunting": "Call Hunting Groups",
         "channel": "Channels",
         "channels": "Channel Monitoring",
+        "chatchannel": "Chat channels",
         "calls": "Dashboard",
         "dashboard": "Dashboard",
         "records": "Call Records",
@@ -485,6 +495,7 @@
         "attendant": "Auto-attendant",
         "certificates": "Certificates",
         "storages": "Storages",
+        "Usage": "License usage",
         "channel_records": "Channel Records"
     },
     "CODES": {
@@ -612,6 +623,14 @@
     	"ADVANCED_SETTINGS_BTN": "Advanced settings",
     	"ADD_RULE": "Add rule"
     },
+    "CHAT_CHANNEL": {
+    	"DEFAULT_NAME": "Chat channel",
+    	"NO_MEMBERS": "No members in the channel",
+    	"ADD_MEMBERS": "Add members",
+    	"MEMBERS": "Members",
+    	"AVAILABLE_USERS": "Available users",
+    	"SELECT_ALL": "Select all"
+    },
     "ATTENDANT" : {
     	"MENU" : "Menu",
     	"MAIL" : "Send Email",
@@ -641,7 +660,8 @@
     	"AUDIO_FILE" : "Audio File",
     	"ALLOW_MULT_DIGITS" : "Allow multiple digits",
     	"REMOVE_ELEMENT" : "Remove element",
-    	"REMOVE_ELEMENTS_TREE" : "Remove element's tree"
+    	"REMOVE_ELEMENTS_TREE" : "Remove element's tree",
+    	"DATA_PLACEHOLDER" : "Select a connector or enter a value"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Storage settings",
@@ -660,6 +680,23 @@
     		"2" : "Reserve",
     		"3" : "Error",
     		"4" : "Full"
+    	}
+    },
+    "USAGE": {
+    	"PANEL_TITLE": "CURRENT USAGE",
+    	"USERS": {
+    		"CREATED": "Created",
+    		"FROM": "from",
+    		"USAGE_ITEM": "Users"
+    	},
+    	"STORAGE": {
+    		"USED": "Used",
+    		"FROM": "from",
+    		"USAGE_ITEM": "Total Storage (GB)"
+    	},
+    	"LINES": {
+    		"AVAILABLE": "Available",
+    		"USAGE_ITEM": "Lines"
     	}
     },
     "TOURS": {
@@ -711,6 +748,40 @@
     			"TITLE": "Get Started",
     			"BODY": "Use Get Started guide to setup your instance"
     		}
+    	},
+    	"ATTENDANT": {
+    		"A": {
+    			"TITLE": "Attendant's name",
+    			"BODY": "Enter the name of the attendant"
+    		},
+    		"B": {
+    			"TITLE": "Extension number",
+    			"BODY": "Set attendant extension number, which would be used to route calls to the attendant"
+    		},
+    		"C": {
+    			"TITLE": "Attendant's state",
+    			"BODY": "Attendant state shows whether the attendant is enabled and ready to handle calls or disabled and can't handle calls."
+    		},
+    		"D": {
+    			"TITLE": "Greetings",
+    			"BODY": "Add greeting audio file that will be played after connection with the attendant"
+    		},
+    		"E": {
+    			"TITLE": "SMTP settings",
+    			"BODY": "For the attendant to send voice mail, specify SMTP settings"
+    		},
+    		"F": {
+    			"TITLE": "Connectors",
+    			"BODY": "Think of Connectors as variables that could be used throughout the attendant elements. Connectors value can be either a telephone number (for \"Commutator\" element) or an email address (for \"Send Email\" element)."
+    		},
+    		"G": {
+    			"TITLE": "Add new element",
+    			"BODY": "By clicking a \"+\" button, choose a main element that would be executed after grettings (if selected)"
+    		},
+    		"H": {
+    			"TITLE": "Select element's type",
+    			"BODY": "Select the main element. <br/> The <b>Menu</b> element plays audio file that usualy offers to press a button on the dialpad or enter a number extension. <br/> The <b>Send email</b> element records audio message and send it to the specified email"
+    		}
     	}
     },
     "LDAP" : {
@@ -753,7 +824,7 @@
     "ATT__BTN_MISSED" : "Button is not selected",
     "ATT__CONN_MISSED" : "Connector is not selected",
     "ATT__AUDIO_FILE_MISSED" : "Audio file is not selected",
-    "ATT__DEBUG" : "Enable application log",
+    "ATT__DEBUG" : "Enable log",
     "ATT__GREETINGS" : "Audio file that is played after the connection with auto-attendant. The file format must be .wav/8khz/16bit.",
     "ATT__MSG_TOUT" : "Maximum duration of the voice message",
     "ATT__BACK_BTN" : "Button to move to the previous menu",
@@ -774,7 +845,7 @@
     "ATT__EMAIL_TO" : "Send an email to a specified address",
     "ATT__EMAIL_SUBJECT" : "Email subject",
     "ATT__EMAIL_BODY" : "The message that is sent to the email address of the recipient",
-    "ATT__CONNECTOR" : "Connector's name",
+    "ATT__CONNECTOR" : "Select a connector or enter a value",
     "ATT__BUTTON" : "The button to move to this element",
     "ATT__ENTER_MENU" : "Enter Menu",
     "ATT__EDIT_ELEMENT" : "Edit Element",
