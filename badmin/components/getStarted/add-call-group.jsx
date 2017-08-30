@@ -2,7 +2,8 @@
 var AddCallGroup = React.createClass({
 
 	propTypes: {
-		step: React.PropTypes.object
+		step: React.PropTypes.object,
+		frases: React.PropTypes.object
 	},
 
 	getDefaultProps: function() {
@@ -22,24 +23,24 @@ var AddCallGroup = React.createClass({
 	},
 
 	render: function() {
+		var frases = this.props.frases;
+
 		return (
 			<div>
 				<div className="row">
-					<div className="col-xs-12 text-center">
-						<h3>Call groups, like hunting groups and hotlines, defines how incomming calls would be handled and by whom. In order to create call group, extensions should be created.</h3>
-						<br/><br/>
-					</div>
-				</div>
-				<div className="row">
 					<div className="col-sm-6 text-center">
-						<button onClick={this._chooseGroup.bind(this, 'hunting')} className="btn btn-primary btn-xl"><i className="icon-find_replace"></i> Create Hunting group</button>
-						<br/><br/>
-						<p>Within a Hunting group call would be allocated to the available extension, either circular, or simultaneous.</p>
+						<div className="gs-item" onClick={this._chooseGroup.bind(this, 'hunting')}>
+							<h3><i className="icon-find_replace"></i></h3>
+							<h3>{ frases.GET_STARTED.STEPS.B.MODAL.OPTION_1.TITLE }</h3>
+							<p>{ frases.GET_STARTED.STEPS.B.MODAL.OPTION_1.DESC }</p>
+						</div>
 					</div>
 					<div className="col-sm-6 text-center">
-						<button onClick={this._chooseGroup.bind(this, 'icd')} className="btn btn-primary btn-xl"><i className="icon-headset_mic"></i> Create Hotline</button>
-						<br/><br/>
-						<p></p>
+						<div className="gs-item" onClick={this._chooseGroup.bind(this, 'icd')}>
+							<h3><i className="icon-headset_mic"></i></h3>
+							<h3>{ frases.GET_STARTED.STEPS.B.MODAL.OPTION_2.TITLE }</h3>
+							<p>{ frases.GET_STARTED.STEPS.B.MODAL.OPTION_2.DESC }</p>
+						</div>
 					</div>
 				</div>
 			</div>

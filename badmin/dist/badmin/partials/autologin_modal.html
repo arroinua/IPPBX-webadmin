@@ -10,11 +10,17 @@
             <div class="modal-body">
                 <form role="form" id="autologin-options">
                     <div class="form-group">
-                        <label for="network" data-toggle="tooltip" title="{{ICD__NETWORK_TT}}">{{frases.NETWORK}}</label>
+                        <label>
+                            {{frases.NETWORK}}
+                            <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ICD__NETWORK_TT}}"></a> -->
+                        </label>
                         <input type="text" class="form-control" name="network" value="{{network}}">
                     </div>
                     <div class="form-group">
-                        <label for="netmask" data-toggle="tooltip" title="{{ICD__NETMASK_TT}}">{{frases.NETMASK}}</label>
+                        <label>
+                            {{frases.NETMASK}}
+                            <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ICD__NETMASK_TT}}"></a> -->
+                        </label>
                         <input type="text" class="form-control" name="netmask" value="{{netmask}}">
                     </div>
                 </form>

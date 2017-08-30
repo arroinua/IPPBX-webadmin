@@ -25,8 +25,7 @@ var AddTrunk = React.createClass({
 			<div>
 				<div className="row">
 					<div className="col-xs-12 text-center">
-						<h3>In order to make and receive calls from the outside world, connect an external telephone number from your SIP trunking provider.</h3>
-						<br/><br/>
+						<h4>{this.props.step.title}</h4>
 					</div>
 				</div>
 				<div className="row">

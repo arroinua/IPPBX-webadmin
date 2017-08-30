@@ -1,5 +1,50 @@
 ﻿{
 	"PBXADMIN" : "Administrator",
+	"GET_STARTED": {
+		"GET_STARTED": "Get started",
+		"WELCOME_MSG": "Welcome to the administrative panel",
+		"TOUR_OFFER": "Would you like to have a short tour of how to get started?",
+		"START_TOUR": "Start tour",
+		"DISMISS_TOUR": "No, dismiss",
+		"STEPS": {
+			"A": {
+				"TITLE": "Add extension",
+				"BODY": "Add extensions for company employees",
+				"MODAL": {
+					"OPTION_1": {
+						"TITLE": "Add user group",
+						"DESC": "Users are extensions that can be registered with Ringotel messaging apps"
+					},
+					"OPTION_2": {
+						"TITLE": "Add equipment group",
+						"DESC": "Equipment are extensions that can be registered with third-party SIP softphones, IP phones, etc."
+					}
+				}
+			},
+			"B": {
+				"TITLE": "Create call group",
+				"BODY": "Call groups define how incomming calls would be handled and by whom",
+				"MODAL": {
+					"OPTION_1": {
+						"TITLE": "Create hunting group",
+						"DESC": "Within a hunting group calls would be allocated to the available extensions, either circular, or simultaneously"
+					},
+					"OPTION_2": {
+						"TITLE": "Create hotline",
+						"DESC": "Define how incoming calls would be serverd and allocated by setting up queue settings, routing methods, greeting prompt, etc."
+					}
+				}
+			},
+			"C": {
+				"TITLE": "Create Auto-attendant",
+				"BODY": "Greet your callers and route them to the appropriate department, extension, phone number or voicemail"
+			},
+			"D": {
+				"TITLE": "Create trunk",
+				"BODY": "Connect SIP trunk to make and recieve calls from the external numbers"
+			}
+		}
+	},
 	"OBJECT" : "Object",
 	"EXTENSIONS" : "Extensions",
 	"EXTENSION" : "Extension",
@@ -16,7 +61,7 @@
 		"CLI" : "CLI Group"
 	},
 	"SELECT_GROUP": "Select group",
-	"SELECT_ROUTE": "Select route",
+	"SELECT_ROUTE": "Add route",
 	"TRUNKS" : "Trunks",
 	"TRUNK_TYPE" : "Trunk type",
 	"APPS" : "Applications",
@@ -33,6 +78,7 @@
 		"NOANSWERTOUT" : "No answer timeout"
 	},
 	"EXTFUNCTIONS" : "Extension functions",
+	"EXT_FEATURES" : "Extension features",
 	"ICD" : {
 		"AUTOLOGIN_SETTINGS" : "Autologin settings"
 	},
@@ -59,7 +105,7 @@
 		"CALLPARK" : "Call park"
 	},
 	"STATES" : {
-		"0":"Unregistered",
+		"0":"Not registered",
 		"1":"Idle",
 		"2":"Forwarding", 
 		"3":"DND", 
@@ -104,8 +150,10 @@
 		},
 		"SECURITY": {
 			"SECURITY_SETTS": "Security",
-			"IPCHECK_ENABLE": "Allow registration only from these networks",
-			"IPCHECK_DISABLE": "Allow registration from any network",
+			"IPCHECK_ENABLE": "Allow registration of extensions only from these networks",
+			"IPCHECK_DISABLE": "Allow registration of extensions from any network",
+			"ADMIN_IPCHECK_ENABLE": "Allow access to administrative panel only from these networks",
+			"ADMIN_IPCHECK_DISABLE": "Allow access to administrative panel from any network",
 			"NETWORK": "Network",
 			"NETMASK": "Netmask",
 			"ADD_RULE": "Add rule"
@@ -120,6 +168,8 @@
 		"FUNCSETTINGS" : "PBX Features",
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
+		"USAGE_SETTINGS" : "License usage",
+		"BILLING" : "Billing",
 		"REC_MODE" : {
 			"REC_MODE" : "Recording mode",
 			"EXCEPTION_LIST" : "Exception list",
@@ -145,6 +195,7 @@
 		"TIMEZONE": "Time zone"
 	},
 	"OPTIONS" : "Options",
+	"LOGOUT": "Logout",
 	"GENERAL" : "General",
 	"TYPE" : "Type",
 	"STATE" : "State",
@@ -196,8 +247,13 @@
 	"ALIAS" : "Alias",
 	"SCHEMA" : "Schema",
 	"ADD_USER" : "Add user",
+	"ADD_USERS" : "Add users",
+	"IMPORT_USER" : "Import user",
+	"IMPORT_USERS" : "Import users",
 	"CREATE_USER" : "Create user",
+	"CREATE_USERS" : "Create users",
 	"CREATE_EXTENSION" : "Create extension",
+	"CREATE_EXTENSIONS" : "Create extensions",
 	"ADD_FROM_DIRECTORY" : "Add from directory",
 	"ADD_EQUIPMENT" : "Add equipment",
 	"USERTYPE" : "User type",
@@ -428,6 +484,7 @@
         "hunting": "Call Hunting Groups",
         "channel": "Channels",
         "channels": "Channel Monitoring",
+        "chatchannel": "Chat channels",
         "calls": "Dashboard",
         "dashboard": "Dashboard",
         "records": "Call Records",
@@ -438,6 +495,7 @@
         "attendant": "Auto-attendant",
         "certificates": "Certificates",
         "storages": "Storages",
+        "Usage": "License usage",
         "channel_records": "Channel Records"
     },
     "CODES": {
@@ -527,7 +585,24 @@
 	    "EXT_STATS" : "Extensions Statistics",
 	    "NO_DATA" : "No data for the selected period",
 	    "LINES_PAYLOAD" : "Lines payload",
-	    "LOST_AND_SERVED" : "Lost and Connected"
+	    "LOST_AND_SERVED" : "Lost and Connected",
+	    "INCOMING_CALLS": "Incoming",
+	    "OUTGOING_CALLS": "Outgoing",
+	    "TRNUK_QOS": {
+	    	"TC": "Total calls",
+	    	"CC": "Connected calls",
+	    	"ACD": "Average call duration",
+	    	"ASR": "Percentage of successful outgoing calls",
+	    	"JFE": "Jitter (trunk)",
+	    	"JNE": "Jitter (server)",
+	    	"LAT": "Average latency",
+	    	"LFE": "Percentage of packet loss (trnuk)",
+	    	"LNE": "Percentage of packet loss (server)",
+	    	"MFE": "MOS (trnuk)",
+	    	"MNE": "MOS (server)",
+	    	"RFE": "R-factor (trnuk)",
+	    	"RNE": "R-factor (server)"
+	    }
     },
     "DATE_PICKER" : {
     	"TODAY" : "Today",
@@ -547,6 +622,14 @@
     	"OUT_ROUTE": "Route calls",
     	"ADVANCED_SETTINGS_BTN": "Advanced settings",
     	"ADD_RULE": "Add rule"
+    },
+    "CHAT_CHANNEL": {
+    	"DEFAULT_NAME": "Chat channel",
+    	"NO_MEMBERS": "No members in the channel",
+    	"ADD_MEMBERS": "Add members",
+    	"MEMBERS": "Members",
+    	"AVAILABLE_USERS": "Available users",
+    	"SELECT_ALL": "Select all"
     },
     "ATTENDANT" : {
     	"MENU" : "Menu",
@@ -577,7 +660,8 @@
     	"AUDIO_FILE" : "Audio File",
     	"ALLOW_MULT_DIGITS" : "Allow multiple digits",
     	"REMOVE_ELEMENT" : "Remove element",
-    	"REMOVE_ELEMENTS_TREE" : "Remove element's tree"
+    	"REMOVE_ELEMENTS_TREE" : "Remove element's tree",
+    	"DATA_PLACEHOLDER" : "Select a connector or enter a value"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Storage settings",
@@ -596,6 +680,108 @@
     		"2" : "Reserve",
     		"3" : "Error",
     		"4" : "Full"
+    	}
+    },
+    "USAGE": {
+    	"PANEL_TITLE": "CURRENT USAGE",
+    	"USERS": {
+    		"CREATED": "Created",
+    		"FROM": "from",
+    		"USAGE_ITEM": "Users"
+    	},
+    	"STORAGE": {
+    		"USED": "Used",
+    		"FROM": "from",
+    		"USAGE_ITEM": "Total Storage (GB)"
+    	},
+    	"LINES": {
+    		"AVAILABLE": "Available",
+    		"USAGE_ITEM": "Lines"
+    	}
+    },
+    "TOURS": {
+    	"NEXT_STEP": "Next",
+    	"PREV_STEP": "Prev",
+    	"END_TOUR": "Close",
+    	"DASHBOARD": {
+    		"A": {
+    			"TITLE": "Dashboard",
+    			"BODY": "Dashboard is where you can in real time monitor calls and instance payload, trunks state and missed calls."
+    		},
+    		"B": {
+    			"TITLE": "REAL-TIME REPORTS",
+    			"BODY": "Shows the amount of calls and lines payload for the last several hours."
+    		},
+    		"C": {
+    			"TITLE": "REAL-TIME MONITORING",
+    			"BODY": "Shows current amount of calls and lines payload."
+    		},
+    		"D": {
+    			"TITLE": "TRUNKS STATE MONITORING",
+    			"BODY": "Shows registration state of all created trunks."
+    		},
+    		"E": {
+    			"TITLE": "CALLS MONITORING",
+    			"BODY": "Shows the list of current calls."
+    		},
+    		"F": {
+    			"TITLE": "",
+    			"BODY": "You can open the dashboard, by clicking the home button"
+    		},
+    		"G": {
+    			"TITLE": "Navigation",
+    			"BODY": "Create and manage instance objects using navigation menu."
+    		},
+    		"H": {
+    			"TITLE": "Reports and statistics",
+    			"BODY": "Build reports, export calls and trunks statistics, and listen call records"
+    		},
+    		"I": {
+    			"TITLE": "",
+    			"BODY": "Click the icon to open options panel"
+    		},
+    		"J": {
+    			"TITLE": "Options panel",
+    			"BODY": "Here you can set instance options, manage integrations, set security settings, monitor cloud storage and more"
+    		},
+    		"K": {
+    			"TITLE": "Get Started",
+    			"BODY": "Use Get Started guide to setup your instance"
+    		}
+    	},
+    	"ATTENDANT": {
+    		"A": {
+    			"TITLE": "Attendant's name",
+    			"BODY": "Enter the name of the attendant"
+    		},
+    		"B": {
+    			"TITLE": "Extension number",
+    			"BODY": "Set attendant extension number, which would be used to route calls to the attendant"
+    		},
+    		"C": {
+    			"TITLE": "Attendant's state",
+    			"BODY": "Attendant state shows whether the attendant is enabled and ready to handle calls or disabled and can't handle calls."
+    		},
+    		"D": {
+    			"TITLE": "Greetings",
+    			"BODY": "Add greeting audio file that will be played after connection with the attendant"
+    		},
+    		"E": {
+    			"TITLE": "SMTP settings",
+    			"BODY": "For the attendant to send voice mail, specify SMTP settings"
+    		},
+    		"F": {
+    			"TITLE": "Connectors",
+    			"BODY": "Think of Connectors as variables that could be used throughout the attendant elements. Connectors value can be either a telephone number (for \"Commutator\" element) or an email address (for \"Send Email\" element)."
+    		},
+    		"G": {
+    			"TITLE": "Add new element",
+    			"BODY": "By clicking a \"+\" button, choose a main element that would be executed after grettings (if selected)"
+    		},
+    		"H": {
+    			"TITLE": "Select element's type",
+    			"BODY": "Select the main element. <br/> The <b>Menu</b> element plays audio file that usualy offers to press a button on the dialpad or enter a number extension. <br/> The <b>Send email</b> element records audio message and send it to the specified email"
+    		}
     	}
     },
     "LDAP" : {
@@ -637,7 +823,8 @@
     "ATT__GEN_EMAIL_SETTINGS" : "General Email Settings",
     "ATT__BTN_MISSED" : "Button is not selected",
     "ATT__CONN_MISSED" : "Connector is not selected",
-    "ATT__DEBUG" : "Enable application log",
+    "ATT__AUDIO_FILE_MISSED" : "Audio file is not selected",
+    "ATT__DEBUG" : "Enable log",
     "ATT__GREETINGS" : "Audio file that is played after the connection with auto-attendant. The file format must be .wav/8khz/16bit.",
     "ATT__MSG_TOUT" : "Maximum duration of the voice message",
     "ATT__BACK_BTN" : "Button to move to the previous menu",
@@ -658,7 +845,7 @@
     "ATT__EMAIL_TO" : "Send an email to a specified address",
     "ATT__EMAIL_SUBJECT" : "Email subject",
     "ATT__EMAIL_BODY" : "The message that is sent to the email address of the recipient",
-    "ATT__CONNECTOR" : "Connector's name",
+    "ATT__CONNECTOR" : "Select a connector or enter a value",
     "ATT__BUTTON" : "The button to move to this element",
     "ATT__ENTER_MENU" : "Enter Menu",
     "ATT__EDIT_ELEMENT" : "Edit Element",

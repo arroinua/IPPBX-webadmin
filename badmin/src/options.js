@@ -72,9 +72,9 @@ function loadDeviceSettings(result){
         document.getElementById('http-log').value = result.http.log || 0;
     if(result.system){
         document.getElementById('rec-format').value = result.system.recformat || 'PCM 8 Khz 16 bit';
-        if(result.system.smdr){
-            document.getElementById('smdr-host').value = result.system.smdr.host;
-        }
+    }
+    if(result.system.smdr){
+        document.getElementById('smdr-host').value = result.system.smdr.host;
     }
 
     setAccordion('#device-options-cont');
@@ -165,7 +165,11 @@ function load_pbx_options(result) {
     so.onclick = set_pbx_options;
 
     // toggle_presentation();
-    if(result.mode === 1 || !result.prefix){
+    if(!window.localStorage['ringo_tid']) {
+        var billingTab = document.getElementById('billing-tab');
+        if(billingTab) billingTab.parentNode.removeChild(billingTab);
+    }
+    else if(result.mode === 1 || !result.prefix){
         getDeviceSettings();
     }
     else {
@@ -186,7 +190,12 @@ function load_pbx_options(result) {
     if(result.services) setServices(result.services);
     else PbxObject.options.services = [];
 
-    loadSecuritySettings({ ipcheck: result.ipcheck || false, iptable: result.iptable || [] }, setSecuritySettings);
+    loadSecuritySettings({
+        ipcheck: result.ipcheck || false,
+        iptable: result.iptable || [],
+        adminipcheck: result.adminipcheck || false,
+        adminiptable: result.adminiptable || [] 
+    }, setSecuritySettings);
 }
 
 function loadSecuritySettings(params, cb) {
@@ -197,9 +206,14 @@ function loadSecuritySettings(params, cb) {
 }
 
 function setSecuritySettings(params) {
-    console.log('setSecuritySettings: ', params);
+    function _filterEmptyRules(rule) {
+        return rule.net && rule.mask;
+    }
+
     PbxObject.options.ipcheck = params.ipcheck;
-    PbxObject.options.iptable = params.iptable;
+    PbxObject.options.iptable = params.iptable.filter(_filterEmptyRules);
+    PbxObject.options.adminipcheck = params.adminipcheck;
+    PbxObject.options.adminiptable = params.adminiptable.filter(_filterEmptyRules);
 }
 
 // function loadLdapOptions(opts){
@@ -255,7 +269,9 @@ function set_pbx_options(e) {
         setDeviceSettings();
 
     var jprms = '',
+        passChanged = false,
         handler,
+        login = document.getElementById('adminname').value,
         pass = document.getElementById('adminpass').value,
         confpass = document.getElementById('confirmpass').value,
         select = document.getElementById('interfacelang'),
@@ -273,13 +289,16 @@ function set_pbx_options(e) {
         return;
     }
 
-    if (pass && pass !== confpass) {
-        if(!confpass){
-            alert(PbxObject.frases.OPTS__PWD_CONF_EMPTY);
-            return false;
-        } else if(confpass && confpass !== pass){
+    if (pass) {
+        if(pass !== confpass) {
+        // if(!confpass){
+        //     alert(PbxObject.frases.OPTS__PWD_CONF_EMPTY);
+        //     return false;
+        // } else if(confpass && confpass !== pass){
             alert(PbxObject.frases.OPTS__PWD_UNMATCH);
             return false;
+        } else {
+            passChanged = true;
         }
     }
     else{
@@ -296,6 +315,10 @@ function set_pbx_options(e) {
     jprms += '"ipcheck":' + (PbxObject.options.ipcheck || false) + ', ';
     if(PbxObject.options.iptable) 
         jprms += '"iptable":' + JSON.stringify(PbxObject.options.iptable) + ', ';
+
+    jprms += '"adminipcheck":' + (PbxObject.options.adminipcheck || false) + ', ';
+    if(PbxObject.options.adminiptable) 
+        jprms += '"adminiptable":' + JSON.stringify(PbxObject.options.adminiptable) + ', ';
 
     if(ldapOptions) jprms += '\"ldap\":' + JSON.stringify(ldapOptions) + ', ';
     if(PbxObject.options.services) {
@@ -344,7 +367,19 @@ function set_pbx_options(e) {
         PbxObject.options.ldap = ldapOptions;
     }
 
-    json_rpc_async('setPbxOptions', jprms, handler);
+    json_rpc_async('setPbxOptions', jprms, function() {
+        if(!passChanged) {
+            handler();
+        } else {
+            if(window.localStorage['ringo_tid'] && (PbxObject.options.mode !== 1 || PbxObject.options.prefix)) {
+                billingRequest('changePassword', { login: login, password: pass }, function(err, result) {
+                    if(!err) handler();
+                });
+            } else {
+                handler();
+            }
+        }
+    });
 }
 
 function setDeviceSettings(){
@@ -397,6 +432,7 @@ function setDeviceSettings(){
     if(document.getElementById('backup-path')) jprms += '"backup":"' + ( document.getElementById('backup-path').value || "" ) + '", ';
     if(document.getElementById('rec-path')) jprms += '"store":"' + ( document.getElementById('rec-path').value || "" ) + '", ';
     if(document.getElementById('rec-format')) jprms += '"recformat":"' + ( document.getElementById('rec-format').value || "" ) + '", ';
+    jprms += '},';
     jprms += '\"smtp\":{';
     if(document.getElementById('smtp-host').value) jprms += '"host":"' + ( document.getElementById('smtp-host').value || "" ) + '", ';
     if(document.getElementById('smtp-port').value) jprms += '"port":"' + ( document.getElementById('smtp-port').value || "" ) + '", ';
@@ -408,7 +444,6 @@ function setDeviceSettings(){
     if(document.getElementById('smdr-port') && document.getElementById('smdr-port').value) jprms += '"port":' + document.getElementById('smdr-port').value + ', ';
     if(document.getElementById('smdr-host') && document.getElementById('smdr-host').value) jprms += '"host":"' + document.getElementById('smdr-host').value + '", ';
     if(document.getElementById('smdr-enabled') && document.getElementById('smdr-enabled').value) jprms += '"state":' + document.getElementById('smdr-enabled').checked + ', ';
-    jprms += '},';
     jprms += '},';
 
     // console.log(jprms);

@@ -3,7 +3,8 @@ var WelcomeModal = React.createClass({
 
 	propTypes: {
 		startTour: React.PropTypes.func,
-		modalId: React.PropTypes.string
+		modalId: React.PropTypes.string,
+		frases: React.PropTypes.object,
 	},
 
 	getDefaultProps: function() {
@@ -36,13 +37,13 @@ var WelcomeModal = React.createClass({
 						    <i className="fa fa-check fa-stack-1x text-white"></i>
 						</span>
 					</h1>
-					<h1>Welcome to the Ringotel administrative panel</h1>
-					<h4>Here you can setup your Ringotel instance in lots of different ways. Would you like to have a starting tour of how to get started?</h4>
+					<h1>{this.props.frases.GET_STARTED.WELCOME_MSG}</h1>
+					<h4>{this.props.frases.GET_STARTED.TOUR_OFFER}</h4>
 					<hr/>
 					<div>
-						<button className="btn btn-primary" onClick={this._startTour}>Start a tour</button>
+						<button className="btn btn-primary" onClick={this._startTour}>{this.props.frases.GET_STARTED.START_TOUR}</button>
 						<span> </span>
-						<button className="btn btn-default" onClick={this._dismissModal}>No, dismiss</button>
+						<button className="btn btn-default" onClick={this._dismissModal}>{this.props.frases.GET_STARTED.DISMISS_TOUR}</button>
 					</div>
 				</div>
 			</div>
@@ -53,7 +54,7 @@ var WelcomeModal = React.createClass({
 		var body = this._getModalBody();
 
 		return (
-			<ModalComponent id={this.props.modalId} body={body} />
+			<ModalComponent id={this.props.modalId} size="lg" body={body} />
 		);
 	}
 });

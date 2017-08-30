@@ -31,6 +31,9 @@ $handheld: 767px;
 @import 'panels';
 @import 'attendant';
 @import 'get-started';
+@import 'record-qos';
+@import 'object-route';
+@import 'Select3';
 
 html,body{
     overflow-x: hidden;
@@ -154,7 +157,7 @@ input[type="checkbox"]:checked + .help-block {
 /*.object-name {
     margin-bottom: 15px;
 }*/
-.object-name .form-control{
+.object-name #objname{
     font-size: 2.5em;
     border: none;
     border-radius: 0;
@@ -162,11 +165,11 @@ input[type="checkbox"]:checked + .help-block {
     outline: none;
     height: auto;
 }
-.object-name input:focus{
+.object-name #objname:focus{
     outline: 0;
     border: none;
 }
-.object-name input[readonly="readonly"]{
+.object-name #objname[readonly="readonly"]{
     background-color: #fff;
 }
 
@@ -218,10 +221,14 @@ input[type="checkbox"]:checked + .help-block {
 
 .el-loading-panel{
     position: absolute;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
     top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(243,248,249,.7);
     z-index: 1000;
 }
@@ -229,18 +236,19 @@ input[type="checkbox"]:checked + .help-block {
 .loader {
     width: 32px;
     height: 32px;
-    top: 50%;
-    left: 50%;
-    margin-top: -16px;
-    margin-left: -16px;
-    position: absolute;
-    -webkit-transform-origin: 50% 47%;
-    transform-origin:50% 47%;
-    -ms-transform-origin:50% 47%; /* IE 9 */
-    animation: spinner 1s infinite linear;
-    -webkit-animation: spinner 1s infinite linear;
-    -moz-animation: spinner 1s infinite linear;
-    -o-animation: spinner 1s infinite linear;
+    margin: auto;
+    // top: 50%;
+    // left: 50%;
+    // margin-top: -16px;
+    // margin-left: -16px;
+    // position: absolute;
+    // -webkit-transform-origin: 50% 47%;
+    // transform-origin:50% 47%;
+    // -ms-transform-origin:50% 47%; /* IE 9 */
+    // animation: spinner 1s infinite linear;
+    // -webkit-animation: spinner 1s infinite linear;
+    // -moz-animation: spinner 1s infinite linear;
+    // -o-animation: spinner 1s infinite linear;
 }
 
 /*Loading Panel Styles End*/

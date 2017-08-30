@@ -353,8 +353,11 @@ function load_extension(result){
         var storageUsage = document.querySelector('#el-extension .user-storage-usage');
         if(storageUsage) storageUsage.classList.add('hidden');
 
-        var storelimitCont = document.querySelector('#storelimit-cont');
+        var storelimitCont = document.getElementById('storelimit-cont');
         if(storelimitCont) storelimitCont.classList.add('hidden');
+    } else {
+        var pinCont = document.getElementById('pin-cont');
+        if(pinCont) pinCont.classList.add('hidden');
     }
 
     // getAvatar(result.userid, function(binary){
@@ -411,7 +414,7 @@ function load_extension(result){
             d.getElementById('ext-plock').setAttribute('disabled','');
         }
     }
-    d.getElementById('extpassword').value = result.password || '';
+    // d.getElementById('extpassword').value = result.password || '';
     d.getElementById('el-set-extension').onclick = function(){
         set_extension(kind);
     };
@@ -421,12 +424,19 @@ function load_extension(result){
     };
 
     show_content();
+    $('#el-extension [data-toggle="popover"]').popover({
+        placement: 'top',
+        trigger: 'focus'
+    });
     $('#el-extension [data-toggle="tooltip"]').tooltip();
     $('#el-extension').modal();
 
     $('#el-extension').on('hidden.bs.modal', function (e) {
+        $('#el-extension [data-toggle="popover"]').popover('destroy');
         PbxObject.vars.infoShown = false;
     });
+
+
 }
 
 function set_extension(kind){
@@ -438,7 +448,7 @@ function set_extension(kind){
 
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
-    var login = d.getElementById("extlogin").textContent;
+    // var login = d.getElementById("extlogin").textContent;
     var storelimit = d.getElementById('extstorelimit');
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
@@ -452,7 +462,7 @@ function set_extension(kind){
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
-    if(login) jprms += '\"login\":\"'+login+'\",';
+    // if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {

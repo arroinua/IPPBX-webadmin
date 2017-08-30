@@ -18,14 +18,18 @@ var ModalComponent = React.createClass({
 						<div className="modal-header">
 							<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 							<h4 className="modal-title">{this.props.title}</h4>
+						</div> : 
+						<div className="modal-header standalone">
+							<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						</div>
-						: null }
+						}
 						<div className="modal-body">
 							{ this.props.body || this.props.children }
 						</div>
 						{ this.props.submit ? 
 						<div className="modal-footer">
-							<button className="btn btn-primary" onClick={this.submitModal}>Submit & Close</button>
+							<button className="btn btn-default" data-dismiss="modal">{this.props.cancelText}</button>
+							<button className="btn btn-primary" onClick={this.props.submit}>{this.props.submitText}</button>
 						</div>
 						: null }
 					</div>

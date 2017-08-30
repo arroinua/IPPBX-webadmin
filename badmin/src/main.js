@@ -53,20 +53,31 @@ function init(){
     }
 }
 
+function logout() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/logout', true);
+    xhr.onload = function (e) {
+        console.log('logout: ', e);
+        window.location = '/';
+    };
+    xhr.send();
+}
+
 function createWebsocket(){
 
     var protocol = (location.protocol === 'https:') ? 'wss:' : 'ws:';
     PbxObject.websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
     PbxObject.websocket.onopen = function(e){
-        console.log('WebSocket opened');
+        console.log('WebSocket opened: ', e);
         PbxObject.websocketTry = 1;
     };
     PbxObject.websocket.onmessage = function(e){
         // console.log(e);
         handleMessage(e.data);
     };
-    PbxObject.websocket.onclose = function(){
-        console.log('WebSocket closed');
+    PbxObject.websocket.onclose = function(e){
+        console.log('WebSocket closed', e);
+        if(e.code === 1001) return window.location = '/';
         var time = generateInterval(PbxObject.websocketTry);
         setTimeout(function(){
             PbxObject.websocketTry++;
@@ -87,6 +98,26 @@ function generateInterval (k) {
     return Math.random() * maxInterval;
 }
 
+function billingRequest(path, params, cb) {
+    var access_token = window.localStorage.getItem('ringo_tid');
+    if(!access_token) return cb('MISSING_TOKEN');
+    request(
+        'POST',
+        'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        (params || null),
+        null,
+        function(err, result) {
+            console.log('billing response: ', err, result);
+            if(err) return notify_about('error' , err);
+            if(!result.success) {
+                notify_about('error' , result.message);
+                return cb(result.message);
+            }
+            if(cb) cb(null, result);
+        }
+    );
+}
+
 function json_rpc(method, params){
     var jsonrpc;
     if(params == null){
@@ -99,6 +130,9 @@ function json_rpc(method, params){
     xmlhttp.open("POST", "/", false);
     xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xmlhttp.send(jsonrpc);
+    
+    if(xmlhttp.status === 403) return window.location = '/';
+
     var parsedJSON = JSON.parse(xmlhttp.responseText);
     if(parsedJSON.error != undefined){
         notify_about('error' , parsedJSON.error.message);
@@ -131,6 +165,8 @@ function json_rpc_async(method, params, handler, id){
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
             if(xhr.status != 200) {
+                if(xhr.status === 403) return window.location = '/';
+
                 console.error(method, xhr.statusText);
                 notify_about('error', PbxObject.frases.ERROR);
                 if(handler) handler(null, xhr.statusText);
@@ -159,17 +195,83 @@ function json_rpc_async(method, params, handler, id){
     xhr.send(jsonrpc);
 }
 
+/**
+ * Send request to the server via XMLHttpRequest
+ */
+function request(method, url, data, options, callback){
+    var xhr, response, requestTimer, dataStr;
+
+    xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    if(options && options.headers) {
+        options.headers.forEach(function(header) {
+            xhr.setRequestHeader(header.name, header.value);
+        });
+    }
+
+    requestTimer = setTimeout(function(){
+        xhr.abort();
+    }, 60000);
+    
+    xhr.onload = function(e) {
+        
+        clearTimeout(requestTimer);
+
+        console.log('request" ', e);
+
+        var redirect = e.target.getAllResponseHeaders();
+        console.log('request redirect', redirect);
+        var status = e.target.status;
+        var response = e.target.responseText;
+        if(response) {
+            try {
+                response = JSON.parse(response);
+            } catch(err) {
+                console.log('response in not JSON');
+            }
+        }
+            
+        if(status) {
+            if(status === 403) {
+                logout();
+            } else if(status === 200) {
+                if(callback) callback(null, response);
+            } else if(status >= 500) {
+                if(callback) return callback('The service is under maintenance. Please, try again later.');
+            } else {
+                if(callback) callback(response.error, response);
+            }
+
+        }
+
+    };
+
+    if(data) {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        dataStr = JSON.stringify(data);
+        xhr.send(dataStr);
+    } else {
+        xhr.send();
+    }
+    
+}
+
 function getTranslations(language){
     var xhr = new XMLHttpRequest();
     var file = 'translations_'+language+'.json';
     xhr.open('GET', '/badmin/translations/'+file, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4 && xhr.status == "200") {
+    xhr.onload = function (e) {
+        if(e.target.status === 403) {
+            logout();
+        } else if(e.target.status === 200) {
+
             // console.log(xhr.responseText);
             var data = JSON.parse(xhr.responseText);
             loadTranslations(data);
 
-          }
+        } else {
+            notify_about('error' , 'ERROR_OCCURED');
+        }
     };
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send();
@@ -267,6 +369,7 @@ function subscribeToEvents() {
         console.log('onmessage.object.update: ', PbxObject.oid, params);
         // if object's state change and object oid === params.oid
         if(PbxObject.oid === params.oid) objectStateUpdated(params);
+        updateObjectCache(params);
     });
     $(document).on('onmessage.object.add', newObjectAdded);
     $(document).on('onmessage.object.delete', onObjectDelete);
@@ -329,6 +432,17 @@ function init_page(){
     // var wizzard = Wizzard({frases: PbxObject.frases});
 }
 
+// init tour
+function initTour(params) {
+    console.log('initTour: ', params, PbxObject.tours[params.kind]);
+    var kind = params.kind || '';
+    var tourOptions = params.tourOptions || {};
+    tourOptions.frases = PbxObject.frases;
+
+    if(PbxObject.tours[kind]) 
+        MyTour(kind, PbxObject.tours[kind](tourOptions)).start();
+}
+
 function set_listeners(){
 
     addEvent(window, 'hashchange', get_object);
@@ -336,6 +450,7 @@ function set_listeners(){
     $('.options-open', '#pagecontent').click(open_options);
     $('.options-close', '#pbxoptions').click(close_options);
     $('#pbxmenu li a').click(showGroups);
+    $('#logout-btn').click(logout);
     
     // var attachFastClick = Origami.fastclick;
     // attachFastClick(document.body);
@@ -384,9 +499,13 @@ function showGroups(e){
                         document.getElementById('uploadapp').click();
                         if(e) e.preventDefault;
                     });
-                }
+                } 
+                // else if(kind === 'trunk') {
+                //     a.href = '#new_trunk';
+                // } 
                 else{
-                    a.href = '#'+kind+'?'+kind;
+                    a.href = '#'+kind+'/'+kind;
+                    // a.href = '#'+kind+'?'+kind;
                 }
                 a.innerHTML ='<i class="fa fa-plus"></i><span>'+(isGroup(kind) ? PbxObject.frases.ADD_GROUP : PbxObject.frases.ADD)+'</span>';
                 li.appendChild(a);
@@ -401,8 +520,10 @@ function showGroups(e){
                         gid = objects[i].oid;
                         name = objects[i].name;
                         li = document.createElement('li');
+                        li.setAttribute('data-oid', gid);
                         a = document.createElement('a');
-                        a.href = '#'+kind+'?'+gid;
+                        a.href = '#'+kind+'/'+gid;
+                        // a.href = '#'+kind+'?'+gid;
                         a.innerHTML = name;
                         li.appendChild(a);
                         ul.appendChild(li);
@@ -438,16 +559,18 @@ function showGroups(e){
 function get_object(e){
 
     var query = location.hash.substring(1),
-        kind = query.indexOf('?') != -1 ? query.substring(0, query.indexOf('?')) : query.substring(0),
-        oid = query.indexOf('?') != -1 ? query.substring(query.indexOf('?')+1) : null,
+        search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null,
+        kind = query.indexOf('/') != -1 ? query.substring(0, query.indexOf('/')) : query.substring(0),
+        oid = query.indexOf('/') != -1 ? query.substring(query.indexOf('/')+1, (search ? query.indexOf('?') : query.length)) : null,
         lang = PbxObject.language,
         callback = null,
         fn = null;
         
     if(query === PbxObject.query) return;
-    if(query != ''){
+    if(query){
 
         PbxObject.query = query;
+        PbxObject.search = search;
         PbxObject.kind = kind;
         PbxObject.oid = oid;
 
@@ -470,10 +593,14 @@ function get_object(e){
             load_template(PbxObject.templates[kind], kind);
         } else {
             // $("#dcontainer").load('/badmin/views/'+kind+'.html', function(template){
-            $.get('/badmin/views/'+kind+'.html', function(template){
+            request('GET', '/badmin/views/'+kind+'.html', null, null, function(err, template) {
                 PbxObject.templates[kind] = template;
                 load_template(template, kind);
             });
+            // $.get('/badmin/views/'+kind+'.html', function(template){
+            //     PbxObject.templates[kind] = template;
+            //     load_template(template, kind);
+            // });
         }
     }
 
@@ -510,10 +637,14 @@ function getPartial(partialName, cb){
     if(template){
         cb(template);
     } else{
-        $.get('/badmin/partials/'+partialName+'.html', function(template){
+        request('GET', '/badmin/partials/'+partialName+'.html', null, null, function(err, template) {
             PbxObject.partials[partialName] = template;
             cb(template);
         });
+        // $.get('/badmin/partials/'+partialName+'.html', function(template){
+        //     PbxObject.partials[partialName] = template;
+        //     cb(template);
+        // });
     }
 }
 
@@ -521,10 +652,14 @@ function getTemplate(tempName, cb){
     PbxObject.templates = PbxObject.templates || {};
     var template = PbxObject.templates[tempName];
     if(!template){
-        $.get('/badmin/views/'+tempName+'.html', function(temp){
+        request('GET', '/badmin/views/'+tempName+'.html', null, null, function(err, template) {
             PbxObject.templates[tempName] = temp;
             cb(temp);
         });
+        // $.get('/badmin/views/'+tempName+'.html', function(temp){
+        //     PbxObject.templates[tempName] = temp;
+        //     cb(temp);
+        // });
     } else {
         cb(template);
     }
@@ -536,7 +671,7 @@ function getTempParams() {
 
 function updateTempParams(obj) {
     console.log('updateTempParams: ', obj);
-    extend(PbxObject.currentObj, obj);
+    PbxObject.currentObj = extend(PbxObject.currentObj || {}, obj);
 }
 
 function setTempParams(obj) {
@@ -635,6 +770,10 @@ function set_page(){
     });
 
     $('#dcontainer div.panel-header:not(.panel-static)').click(toggle_panel);
+    $('#dcontainer [data-toggle="popover"]').popover({
+        placement: 'top',
+        trigger: 'focus'
+    });
     $('#dcontainer [data-toggle="tooltip"]').tooltip({
         delay: {"show": 1000, "hide": 100}
     });
@@ -651,7 +790,7 @@ function setBreadcrumbs(){
     var bc1, bc2;
     
     bc1 = document.createElement('li');
-    bc1.innerHTML = '<a href="#'+PbxObject.kind+'?'+PbxObject.kind+'">'+PbxObject.frases.KINDS[PbxObject.kind]+'</a>';
+    bc1.innerHTML = '<a href="#'+PbxObject.kind+'/'+PbxObject.kind+'">'+PbxObject.frases.KINDS[PbxObject.kind]+'</a>';
 
     bc2 = document.createElement('li');
     bc2.className = 'active';
@@ -690,12 +829,14 @@ function toggle_menu(){
 }
 
 function open_options(e){
+    if(e) e.preventDefault();
     $('#el-slidemenu').addClass('hide-menu');
     $('#pagecontent').addClass('pushed-left');
     $('#pbxoptions').addClass('pushed-left');
     isOptionsOpened(true);
 }
 function close_options(e){
+    if(e) e.preventDefault();
     $('#pagecontent').removeClass('pushed-left');
     $('#pbxoptions').removeClass('pushed-left');
     $('#el-slidemenu').removeClass('hide-menu');
@@ -787,9 +928,11 @@ function show_loading_panel(container){
     var back = document.createElement('div');
     back.id = 'el-loading';
     back.className = 'el-loading-panel ';
-    var load = document.createElement('img');
-    load.src = '/badmin/images/sprites_white.png';
+    // var load = document.createElement('img');
+    var load = document.createElement('div');
+    // load.src = '/badmin/images/sprites_white.png';
     load.className = 'loader';
+    load.innerHTML = '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>'
     back.appendChild(load);
 
     var cont = container || document.getElementById('pagecontainer');
@@ -951,19 +1094,38 @@ function arrayToPattern(prev, next) {
     return prev+'|'+next;
 }
 
-function filterObject(object, kind, reverse) {
-    var array = [],
-        pattern = kind ? 
-            (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
-            '';
-            
-    console.log('filterObject: ', kind, pattern);
+function filterObject(array, kind, reverse) {
+    var newArray = [],
+        match = false,
+        kinds = !kind ? [] : (Array.isArray(kind) ? kind : [kind]);
+        // pattern = kind ? 
+        //     (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
+        //     '';
 
-    array = object.filter(function(item) {
-        return reverse ? !(new RegExp(pattern).test(item.kind)) : new RegExp(pattern).test(item.kind);
+    console.log('filterObject: ', array, kinds);
+
+    // pattern = new RegExp(pattern);
+    
+    if(!kinds.length) return array;
+
+    newArray = array.filter(function(item) {
+        match = kinds.indexOf(item.kind) !== -1;
+        console.log('match: ', match, item.kind);
+        return reverse ? !match : match;
+
+        // console.log('filterObject match: ', kind, match);
+
+        // match = reverse ? !(item.kind.match(pattern)) : item.kind.match(pattern); 
+
+        // if(!kind) {
+        //     return true;
+        // } else {
+        //     return Array.isArray(kind) ? (kind.indexOf(match[0]) !== -1) : (kind === match[0]);
+        // }
+        // return reverse ? !(pattern.test(item.kind)) : pattern.test(item.kind);
     });
 
-    return array;
+    return newArray;
 }
 
 function getObjects(kind, callback, reverse) {
@@ -1218,6 +1380,20 @@ function remove_row(e){
     el.removeChild(row);
 }
 
+// Updates object params in cached object
+function updateObjectCache(params) {
+    var objectsCache = PbxObject.objects || [];
+    var obj = objectsCache.filter(function(item) {
+        return item.oid === params.oid;
+    })[0];
+
+    if(obj) {
+        obj.enabled = params.enabled;
+        obj.name = params.name;
+    }
+
+}
+
 function objectStateUpdated(params) {
     var enabled = document.getElementById('enabled');
     if(enabled) {
@@ -1237,12 +1413,16 @@ function newObjectAdded(event, data){
         kind = data.kind,
         name = data.name,
         enabled = data.enabled,
+        nameEl = document.getElementById('objname'),
         setobj = document.getElementById('el-set-object'),
         delobj = document.getElementById('el-delete-object'),
         ul = document.getElementById('ul-'+data.kind);
 
     remove_loading_panel();
     notify_about('success', name+' '+PbxObject.frases.CREATED);
+
+    console.log('newObjectAdded: ', nameEl, name);
+    if(nameEl && name) nameEl.value = name;
 
     if(data.ext) 
         addObjects(PbxObject.extensions, data, 'ext');
@@ -1252,8 +1432,9 @@ function newObjectAdded(event, data){
     if(ul){
         var li = document.createElement('li'),
             a = document.createElement('a');
-        a.href = '#'+kind+'?'+oid;
+        a.href = '#'+kind+'/'+oid;
         a.innerHTML = name;
+        li.setAttribute('data-oid', oid);
         li.appendChild(a);
         ul.appendChild(li);
     }
@@ -1266,11 +1447,12 @@ function newObjectAdded(event, data){
     }
 
     if(kind !== 'application'){
-        PbxObject.query = kind+'?'+oid;
+        PbxObject.query = kind+'/'+oid;
         window.location.href = '#'+PbxObject.query;
     }
 
-    if(setobj) setobj.innerHTML = PbxObject.frases.SAVE;
+    if(setobj) 
+        setobj.innerHTML = "<i class=\"fa fa-check fa-fw\"></i> " + PbxObject.frases.SAVE;
     
     if(typeof PbxObject.objects === 'object') {
         PbxObject.objects.push(data);
@@ -1293,22 +1475,34 @@ function updateMenu(event, data) {
 }
 
 function objectDeleted(data){
-    var ul = document.getElementById('ul-'+data.kind);
-    if(ul){
-        var li, a, href;
-        for(var i=0;i<ul.children.length;i++){
-            li = ul.children[i];
-            a = li.querySelector('a');
-            if(a && a.href) {
-                href = a.href;
-                if(href && href.substring(href.indexOf('?')+1) == data.oid){
-                    ul.removeChild(li);
-                }
-            } else {
-                continue;
-            }
-        }
-    }
+    // var ul = document.getElementById('ul-'+data.kind);
+    // if(ul){
+    //     var li, a, href;
+    //     for(var i=0;i<ul.children.length;i++){
+    //         li = ul.children[i];
+    //         a = li.querySelector('a');
+    //         if(a && a.href) {
+    //             href = a.href;
+    //             if(href && href.substring(href.indexOf('/')+1) == data.oid){
+    //                 ul.removeChild(li);
+    //             }
+    //         } else {
+    //             continue;
+    //         }
+    //     }
+    // }
+
+    var ulEl = data.kind ? document.getElementById('ul-'+data.kind) : document.querySelector('#pbxmenu .nav-list');
+    var items = ulEl ? [].slice.call(ulEl.querySelectorAll('li ul li')) : [];
+    var itemOid;
+
+    console.log('objectDeleted: ', data.kind, ulEl, items);
+
+    items.forEach(function(item) {
+        itemOid = item.getAttribute('data-oid');
+        if(itemOid && itemOid === data.oid) item.parentNode.removeChild(item);
+    });
+
     if(typeof PbxObject.objects === 'object') {
         PbxObject.objects = PbxObject.objects.filter(function(obj){
             return obj.oid !== data.oid;
@@ -1335,12 +1529,12 @@ function set_options_success() {
     window.location.href = newURL;
 }
 
-function delete_object(name, kind, oid){
-    var c = confirm(PbxObject.frases.DODELETE+' '+name+'?');
+function delete_object(name, kind, oid, noConfirm){
+    var c = noConfirm ? true : confirm(PbxObject.frases.DODELETE+' '+name+'?');
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
-            window.location.hash = kind+'?'+kind;
+            window.location.hash = kind+'/'+kind;
         });
 
     } else{
@@ -1392,7 +1586,7 @@ function delete_extension(e){
 }
 
 function onObjectDelete(event, params) {
-    if(PbxObject.kind === 'extensions') {
+    if(params.ext && (/extensions|users|equipment/.test(PbxObject.kind)) ) {
         delete_extension_row(params);
         PbxObject.extensions = deleteObjects(PbxObject.extensions, params, 'ext');
     } else {
@@ -1562,7 +1756,7 @@ function b64EncodeUnicode(str) {
 
 function get_object_link(oid){
     var result = json_rpc('getObject', '\"oid\":\"'+oid+'\"');
-    location.hash = result.kind+'?'+oid;
+    location.hash = result.kind+'/'+oid;
 }
 
 function setObjectState(oid, state, callback) {
@@ -2211,7 +2405,7 @@ function getInfoFromState(state, group){
     } else if(state == 2 || state == 5) {
         className = 'warning';
     } else if(state == 0 || (state == -1 && group)) {
-        state = '';
+        // state = '';
         className = 'default';
     } else if(state == 3) {
         className = 'danger';
@@ -2295,6 +2489,11 @@ function change_protocol(){
 
     initGlobals(window);
     createWebsocket();
+
+    window.onbeforeunload = function() {
+        PbxObject.websocket.onclose = function () {}; // disable onclose handler first
+        PbxObject.websocket.close()
+    };
 
     if(window.localStorage.getItem('pbxOptions')) {
         var data = window.localStorage.getItem('pbxOptions');

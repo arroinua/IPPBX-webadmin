@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ringotel | Administrator Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <style type="text/css">
+            body{margin:0;background-color:#f3f8f9;font-family:"Trebuchet MS",Helvetica,sans-serif}.container{display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex;min-height:100vh}.logo-cont{width:100%;text-align:center}.logo{width:230px}.auth-panel{position:relative;width:300px;height:300px;margin:auto}.container form{padding:20px}.container input:focus{position:relative;outline:0;border:1px solid #00c5f8;z-index:100}.container form input{-webkit-appearance:none;box-sizing:border-box;width:100%;padding:5px 10px;font-size:18px;line-height:32px;box-shadow:none;border:1px solid #eee}.container input[name=login]{border-top-right-radius:4px;border-top-left-radius:4px}.container input[name=password]{margin-top:-1px;border-bottom-right-radius:4px;border-bottom-left-radius:4px}.container input[name=submit]{margin-top:10px;border-radius:4px;color:#fff;background-color:#00c5f8;cursor:pointer}#errs-cont{color:#dc8d25}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="auth-panel">
+                <div class="logo-cont">
+                    <img src="/public/logo_dual.png" class="logo"/>
+                </div>
+                <form id="auth-form">
+                    <input type="text" name="login" placeholder="Login">
+                    <input type="password" name="password" placeholder="Password">
+                    <p id="errs-cont"> </p>
+                    <input type="submit" name="submit" value="Login">
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript" src="/public/login.js"></script>
+    </body>
+</html>

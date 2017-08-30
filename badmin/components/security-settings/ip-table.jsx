@@ -18,7 +18,9 @@ var IpTable = React.createClass({
 				validIp = false;
 			} else if(str.length > 3) {
 				if(array.length === 4) validIp = false;
-				else str = str.substring(0, 3) + '.' + str.substring(3);
+				else {
+					str = str.substring(0, 3) + '.' + str.substring(3);
+				}
 			}
 			
 			return str;
@@ -28,6 +30,30 @@ var IpTable = React.createClass({
 		if(!validIp) return false;
 
 		return value;
+	},
+
+	_handleOnBlur: function(ruleIndex, event) {
+		var target = event.target;
+		var name = target.name;
+		var	value = target.value;
+		var iptable = this.props.iptable;
+		var rule = iptable[ruleIndex];
+		var bytes = value ? value.split('.') : [];
+		var emptyBytes = 4 - bytes.length;
+
+		if(emptyBytes) {
+			for (var i = 0; i < emptyBytes; i++) {
+				bytes.push('0');
+			}
+		}
+
+		rule[name] = bytes.join('.');
+		this.props.updateRules(iptable);
+
+	},
+
+	_addRule: function() {
+		this.props.addRuleHandler(this.props.iptable);
 	},
 
 	_handleRuleChange: function(ruleIndex, event) {
@@ -46,7 +72,7 @@ var IpTable = React.createClass({
 	},
 
 	_deleteRule: function(index) {
-		this.props.deleteRuleHandler(index);
+		this.props.deleteRuleHandler(this.props.iptable, index);
 	},
 
 	render: function() {
@@ -63,12 +89,12 @@ var IpTable = React.createClass({
 					</thead>
 					<tbody>
 						{ this.props.iptable.map(function(rule, index) {
-							return <IpTableRowComponent key={index} rule={rule} onClick={this._deleteRule.bind(this, index)} onChange={this._handleRuleChange.bind(this, index)} />
+							return <IpTableRowComponent key={index} rule={rule} onBlur={this._handleOnBlur.bind(this, index)} onClick={this._deleteRule.bind(this, index)} onChange={this._handleRuleChange.bind(this, index)} />
 						
 						}.bind(this)) }
 					</tbody>
 				</table>
-				<button type="button" className="btn btn-default btn-block" onClick={this.props.addRuleHandler}>{this.props.frases.SETTINGS.SECURITY.ADD_RULE}</button>
+				<button type="button" className="btn btn-default btn-block" onClick={this._addRule}>{this.props.frases.SETTINGS.SECURITY.ADD_RULE}</button>
 			</div>
 		);
 	}

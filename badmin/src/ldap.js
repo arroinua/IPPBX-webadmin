@@ -19,19 +19,46 @@ function Ldap(options){
     function getExternalUsers(authData, cb){
         var params = {
             url: '/services/'+options.service_id+'/Users'
+            // method: 'GET'
         };
         if(authData) {
             params.method = 'POST';
+            // params.data = {username: authData.username, password: authData.password};
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
+
+        console.log('getExternalUsers params: ', params);
+        
+        // request(params.method, params.url, params.data, null, function(err, data) {
+        //     if(err) {
+        //         console.log('getExternalUsers error: ', err);
+        //         if(err && err.code === 401) {
+        //             options.external = true;
+        //             openAuthModal();
+        //         } else {
+        //             var loc = window.location,
+        //             newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
+        //             window.sessionStorage.setItem('lastURL', newhref);
+        //             window.location = loc.origin + '/services/'+options.service_id+'/Users';
+        //         }
+        //     } else {
+        //         console.log('getExternalUsers: ', data);
+        //         if(cb) cb(data.result);
+        //         else showUsers(data.result);
+        //     }
+        // })
+
         $.ajax(params).then(function(data){
             console.log('getExternalUsers: ', data);
             if(cb) cb(data.result);
             else showUsers(data.result);
 
         }, function(err){
-            console.log('getExternalUsers error: ', err);
-            if(err.responseJSON && err.responseJSON.error.code === 401) {
+            var error = err.responseJSON.error;
+            console.log('getExternalUsers error: ', error);
+            if(error && error.redirection) {
+                window.location = error.redirection;
+            } else if(error && error.code === 401) {
                 options.external = true;
                 openAuthModal();
             } else {
