@@ -2482,8 +2482,11 @@ function change_protocol(){
 };
 
 (function(){
-    var language, lastURL = window.sessionStorage.getItem('lastURL');
+    var language, 
+    lastURL = window.sessionStorage.getItem('lastURL');
+
     if(lastURL) {
+        window.sessionStorage.removeItem('lastURL');
         window.location = lastURL;
     }
 
