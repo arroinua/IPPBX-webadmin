@@ -400,1343 +400,6 @@ function PanelComponent(props) {
 		)
 	);
 }
-var AvailableUsersComponent = React.createClass({
-	displayName: 'AvailableUsersComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		data: React.PropTypes.array,
-		onSubmit: React.PropTypes.func,
-		modalId: React.PropTypes.string
-	},
-
-	getInitialState: function () {
-		return {
-			data: []
-		};
-	},
-
-	componentDidMount: function () {
-		this.setState({ data: this.props.data || [] });
-	},
-
-	componentWillReceiveProps: function (props) {
-		console.log('componentWillReceiveProps: ', props);
-		this.setState({ data: props.data || [] });
-	},
-
-	_saveChanges: function () {
-		console.log('_saveChanges: ', this.state.data);
-		var selectedMembers = this.state.data.filter(function (item) {
-			return item.selected;
-		});
-
-		this.props.onSubmit(selectedMembers);
-	},
-
-	_selectMember: function (item) {
-		var data = this.state.data;
-		data[item].selected = !data[item].selected;
-		this.setState({ data: data });
-	},
-
-	_selectAllMembers: function (e) {
-		e.preventDefault();
-		var data = this.state.data;
-		data.map(function (item) {
-			item.selected = !item.selected;
-			return item;
-		});
-		this.setState({ data: data });
-	},
-
-	_getModalBody: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			'div',
-			{ className: 'row' },
-			React.createElement(
-				'div',
-				{ className: 'col-xs-12' },
-				React.createElement(
-					'ul',
-					{ style: { minHeight: "200px", maxHeight: "400px", overflowY: "auto", listStyle: 'none', margin: 0, padding: 0 } },
-					React.createElement(
-						'li',
-						null,
-						React.createElement(
-							'a',
-							{ href: '#', style: { display: "block", padding: "8px 10px" }, onClick: this._selectAllMembers },
-							frases.CHAT_CHANNEL.SELECT_ALL
-						)
-					),
-					this.state.data.map(function (item, index) {
-						console.log('_getModalBody: ', item);
-
-						return React.createElement(
-							'li',
-							{ key: item.ext, style: { padding: "8px 10px", color: "#333", cursor: "pointer", background: item.selected ? '#c2f0ff' : 'none' }, onClick: this._selectMember.bind(this, index) },
-							React.createElement(
-								'span',
-								null,
-								item.ext
-							),
-							React.createElement(
-								'span',
-								null,
-								' - '
-							),
-							React.createElement(
-								'span',
-								null,
-								item.name
-							)
-						);
-					}.bind(this))
-				)
-			)
-		);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var body = this._getModalBody();
-
-		return React.createElement(ModalComponent, {
-			id: this.props.modalId,
-			size: 'sm',
-			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
-			submitText: frases.ADD,
-			cancelText: frases.CANCEL,
-			submit: this._saveChanges,
-			body: body
-		});
-	}
-
-});
-
-AvailableUsersComponent = React.createFactory(AvailableUsersComponent);
-var ChatchannelComponent = React.createClass({
-	displayName: 'ChatchannelComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		onNameChange: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
-		setObject: React.PropTypes.func,
-		removeObject: React.PropTypes.func,
-		onStateChange: React.PropTypes.func,
-		getInfoFromState: React.PropTypes.func,
-		getExtension: React.PropTypes.func,
-		deleteMember: React.PropTypes.func
-	},
-
-	// getDefaultProps: function() {
-	// 	return {
-	// 		sub: {}
-	// 	};
-	// },
-
-	getInitialState: function () {
-		return {
-			params: {},
-			filteredMembers: []
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			params: this.props.params || {},
-			removeObject: this.props.removeObject,
-			filteredMembers: this.props.params.members
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			params: props.params,
-			removeObject: props.removeObject,
-			filteredMembers: props.params.members
-		});
-	},
-
-	_setObject: function () {
-		var params = this.state.params;
-		this.props.setObject(params);
-	},
-
-	_onStateChange: function (state) {
-		var params = this.state.params;
-		params.enabled = state;
-		this.setState({ params: params });
-		this.props.onStateChange(state);
-	},
-
-	_onNameChange: function (value) {
-		var params = this.state.params;
-		params.name = value;
-		this.setState({ params: params });
-		this.props.onNameChange(value);
-	},
-
-	_onFilter: function (items) {
-		console.log('_onFilter: ', items);
-		this.setState({
-			filteredMembers: items
-		});
-	},
-
-	_getAvailableUsers: function () {
-		this.props.getAvailableUsers();
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var params = this.state.params;
-		var members = params.members || [];
-		var filteredMembers = this.state.filteredMembers || [];
-		var itemState = {};
-
-		console.log('remder: ', params.name);
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(ObjectName, {
-				name: params.name,
-				frases: frases,
-				enabled: params.enabled || false,
-				onStateChange: this._onStateChange,
-				onChange: this._onNameChange,
-				onSubmit: this._setObject,
-				onCancel: this.state.removeObject
-			}),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(
-						'button',
-						{ type: 'button', role: 'button', className: 'btn btn-default padding-lg', onClick: this._getAvailableUsers },
-						React.createElement('i', { className: 'fa fa-user-plus' }),
-						' ',
-						frases.CHAT_CHANNEL.ADD_MEMBERS
-					),
-					React.createElement(FilterInputComponent, { items: members, onChange: this._onFilter })
-				)
-			),
-			React.createElement(
-				PanelComponent,
-				{ header: filteredMembers.length + " " + frases.CHAT_CHANNEL.MEMBERS },
-				React.createElement(
-					'div',
-					{ className: 'table-responsive' },
-					React.createElement(
-						'table',
-						{ className: 'table table-hover sortable', id: 'group-extensions' },
-						React.createElement(
-							'tbody',
-							null,
-							members.length ? filteredMembers.map(function (item) {
-
-								itemState = this.props.getInfoFromState(item.state);
-								console.log('itemState: ', itemState);
-
-								return React.createElement(
-									'tr',
-									{ id: item.oid, className: itemState.rclass, key: item.number || item.ext },
-									React.createElement(
-										'td',
-										null,
-										React.createElement(
-											'a',
-											{ href: '', onClick: this.props.getExtension },
-											item.number || item.ext
-										)
-									),
-									React.createElement(
-										'td',
-										{ 'data-cell': 'name' },
-										item.name
-									),
-									React.createElement(
-										'td',
-										{ 'data-cell': 'reg' },
-										item.reg
-									),
-									React.createElement(
-										'td',
-										{ 'data-cell': 'status', style: { "textAlign": "right" } },
-										itemState.rstatus
-									),
-									React.createElement(
-										'td',
-										{ style: { "textAlign": "right" } },
-										React.createElement(
-											'button',
-											{ className: 'btn btn-danger btn-sm', onClick: this.props.deleteMember.bind(this, item.oid) },
-											React.createElement('i', { className: 'fa fa-trash' })
-										)
-									)
-								);
-							}.bind(this)) : React.createElement(
-								'tr',
-								null,
-								React.createElement(
-									'td',
-									{ colSpan: '3' },
-									frases.CHAT_CHANNEL.NO_MEMBERS,
-									'. ',
-									React.createElement(
-										'a',
-										{ href: '#', onClick: this._getAvailableUsers },
-										frases.CHAT_CHANNEL.ADD_MEMBERS
-									)
-								)
-							)
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-ChatchannelComponent = React.createFactory(ChatchannelComponent);
-var Select3 = React.createClass({
-  displayName: 'Select3',
-
-
-  propTypes: {
-    name: React.PropTypes.string,
-    placeholder: React.PropTypes.string,
-    value: React.PropTypes.object,
-    options: React.PropTypes.array,
-    onChange: React.PropTypes.func
-  },
-
-  getDefaultProps: function () {
-    return {
-      value: {},
-      options: []
-    };
-  },
-
-  getInitialState: function () {
-    return {
-      menuOpened: false,
-      value: {},
-      highlightedIndex: 0,
-      selectedIndex: 0,
-      options: []
-    };
-  },
-
-  componentWillMount: function () {
-    this.setState({
-      value: this.props.value,
-      options: this.props.options
-    });
-  },
-
-  componentWillReceiveProps: function (newProps) {
-    console.log('componentWillReceiveProps: ', newProps);
-    this.setState({
-      value: newProps.value
-    });
-  },
-
-  openMenu: function () {
-    this.setState({
-      menuOpened: true,
-      options: this.props.options,
-      highlightedIndex: this.state.selectedIndex
-    });
-
-    window.setTimeout(function () {
-      this.focusOnSelected(this.state.selectedIndex);
-    }.bind(this), 10);
-  },
-
-  closeMenu: function () {
-    window.setTimeout(function () {
-      this.setState({
-        menuOpened: false
-      });
-    }.bind(this), 10);
-  },
-
-  onKeyDown: function (e) {
-    var code = e.key;
-
-    if (code === 'Enter') {
-      this.selectValue(this.state.options[this.state.highlightedIndex], this.state.highlightedIndex);
-      this.closeMenu();
-    } else if (code === 'Escape') {
-      this.closeMenu();
-    } else if (code === 'Tab') {
-      return false;
-    } else {
-      if (!this.state.menuOpened && this.state.options.length) {
-        this.openMenu();
-        this.selectIndex(this.state.highlightedIndex);
-      } else {
-        if (code === 'ArrowDown') this.selectIndex(this.state.highlightedIndex + 1);else if (code === 'ArrowUp') this.selectIndex(this.state.highlightedIndex - 1);
-      }
-    }
-  },
-
-  onSelected: function (el) {
-    if (el) {
-      this.selectedOptionEl = el;
-    }
-  },
-
-  getMenuRef: function (el) {
-    if (el) {
-      this.menuEl = el;
-    }
-  },
-
-  focusOnSelected: function (index) {
-
-    var menuDOM = ReactDOM.findDOMNode(this.menuEl);
-    var focusedDOM = menuDOM.firstChild;
-    var offset;
-
-    if (!focusedDOM) return;
-
-    offset = focusedDOM.clientHeight * (index + 1);
-
-    if (offset > menuDOM.offsetHeight) {
-      menuDOM.scrollTop = offset + focusedDOM.clientHeight - menuDOM.offsetHeight;
-    } else {
-      menuDOM.scrollTop = 0;
-    }
-  },
-
-  filterList: function (value) {
-    if (value === '') return this.setState({ options: this.props.options });
-
-    var list = this.props.options;
-    var filtered = list.filter(function (item) {
-      return item.label.toLowerCase().indexOf(value.toLowerCase()) > -1;
-    });
-
-    return this.setState({ options: filtered });
-  },
-
-  selectIndex: function (index) {
-    if (index < 0) index = this.state.options.length - 1;else if (index > this.state.options.length - 1) index = 0;
-
-    this.setState({ highlightedIndex: index });
-    this.focusOnSelected(index);
-  },
-
-  setValue: function (value) {
-    console.log('the value is: ', value);
-    this.setState({ value: value });
-    if (this.props.onChange) this.props.onChange(value);
-  },
-
-  selectValue: function (item, index) {
-    var item = item || { value: this.state.value.value, label: this.state.value.label };
-    this.setValue(item);
-    this.setState({
-      selectedIndex: item ? index : 0,
-      menuOpened: false
-    });
-  },
-
-  changeValue: function (e) {
-    var tvalue = e.target.value;
-
-    this.filterList(tvalue);
-    this.setValue({ value: tvalue, label: tvalue });
-  },
-
-  render: function () {
-    var className = "Select3 Select3-cont";
-    className += this.state.menuOpened ? " is-opened" : "";
-    className += this.props.className ? " " + this.props.className : "";
-
-    // console.log('Select3 render: ', this.props, this.state);
-
-    return React.createElement(
-      'div',
-      { className: className },
-      React.createElement('input', {
-        type: 'text',
-        name: this.props.name ? this.props.name : '',
-        placeholder: this.props.placeholder ? this.props.placeholder : '',
-        className: 'Select3-input',
-        value: this.state.value.label,
-        onFocus: this.openMenu,
-        onBlur: this.closeMenu,
-        onChange: this.changeValue,
-        onKeyDown: this.onKeyDown
-      }),
-      this.state.menuOpened ? React.createElement(
-        'div',
-        { className: 'Select3-menu-list' },
-        React.createElement(Select3Menu, {
-          getMenuRef: this.getMenuRef,
-          onClick: this.selectValue,
-          onSelected: this.onSelected,
-          selectedIndex: this.state.highlightedIndex,
-          options: this.state.options
-        })
-      ) : null
-    );
-  }
-});
-
-Select3 = React.createFactory(Select3);
-var Select3Menu = React.createClass({
-	displayName: "Select3Menu",
-
-
-	render: function () {
-		return React.createElement(
-			"ul",
-			{ ref: this.props.getMenuRef },
-			this.props.options.map(function (item, index) {
-				return React.createElement(Select3MenuOption, {
-					key: "option-" + index + "-" + item.value,
-					onClick: this.props.onClick,
-					value: item.value,
-					label: item.label,
-					index: index,
-					selected: this.props.selectedIndex === index
-				});
-			}.bind(this))
-		);
-	}
-});
-
-Select3Menu = React.createFactory(Select3Menu);
-var Select3MenuOption = React.createClass({
-  displayName: 'Select3MenuOption',
-
-
-  selectValue: function (e) {
-    e.preventDefault();
-    this.props.onClick({ value: this.props.value, label: this.props.label }, this.props.index);
-  },
-
-  render: function () {
-    return React.createElement(
-      'li',
-      null,
-      React.createElement(
-        'a',
-        {
-          href: '#',
-          className: this.props.selected ? 'is-selected' : '',
-          onClick: this.selectValue },
-        this.props.label
-      )
-    );
-  }
-
-});
-
-Select3MenuOption = React.createFactory(Select3MenuOption);
-var AddLicensesComponent = React.createClass({
-	displayName: 'AddLicensesComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		sub: React.PropTypes.object,
-		addLicenses: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			users: '',
-			lines: '',
-			storage: '',
-			amount: 0
-		};
-	},
-
-	_currState: {
-		users: 0,
-		lines: 0,
-		storage: 0
-	},
-
-	_addLicenses: function () {
-		this.props.addLicenses(this._currState);
-	},
-
-	_setAmount: function () {},
-
-	_setTo: function (event) {
-		var targ = event.target;
-		var value = parseFloat(targ.value);
-		if (!targ.value || targ.value < 0) value = 0;
-		this._currState[targ.name] = value;
-		this.setAmount();
-		this.setState(this._currState);
-	},
-
-	_addTo: function (item, step) {
-		this._currState[item] += parseInt(step, 10);
-		this.setState(this._currState);
-	},
-
-	_removeFrom: function (item, step) {
-		if (this._currState[item] <= 0) return;
-		this._currState[item] -= parseInt(step, 10);
-		this.setState(this._currState);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			'div',
-			{ style: { padding: '20px 0' } },
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button' },
-								React.createElement('i', { className: 'fa fa-minus', onClick: this._removeFrom.bind(this, 'users', 1) })
-							)
-						),
-						React.createElement('input', { type: 'number', className: 'form-control', name: 'users', value: this.state.users, onChange: this._setTo, placeholder: 'Number of users to add' }),
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'users', 1) },
-								React.createElement('i', { className: 'fa fa-plus' })
-							)
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._removeFrom.bind(this, 'storage', 5) },
-								React.createElement('i', { className: 'fa fa-minus' })
-							)
-						),
-						React.createElement('input', { type: 'number', className: 'form-control', name: 'storage', value: this.state.storage, onChange: this._setTo, placeholder: 'Storage size to add' }),
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'storage', 5) },
-								React.createElement('i', { className: 'fa fa-plus' })
-							)
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._removeFrom.bind(this, 'lines', 2) },
-								React.createElement('i', { className: 'fa fa-minus' })
-							)
-						),
-						React.createElement('input', { type: 'number', className: 'form-control', name: 'lines', value: this.state.lines, onChange: this._setTo, placeholder: 'Number of lines to add' }),
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'lines', 2) },
-								React.createElement('i', { className: 'fa fa-plus' })
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement('hr', { className: 'col-xs-12' }),
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 text-center' },
-					React.createElement(
-						'button',
-						{ className: 'btn btn-primary btn-lg', onClick: this._addLicenses },
-						'Buy licenses'
-					)
-				)
-			)
-		);
-	}
-});
-
-AddLicensesComponent = React.createFactory(AddLicensesComponent);
-
-var BillingComponent = React.createClass({
-	displayName: 'BillingComponent',
-
-
-	propTypes: {
-		options: React.PropTypes.object,
-		profile: React.PropTypes.object,
-		sub: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		plans: React.PropTypes.array,
-		addCard: React.PropTypes.func,
-		editCard: React.PropTypes.func,
-		onPlanSelect: React.PropTypes.func,
-		updateLicenses: React.PropTypes.func
-	},
-
-	// getDefaultProps: function() {
-	// 	return {
-	// 		sub: {}
-	// 	};
-	// },
-
-	getInitialState: function () {
-		return {
-			changePlanOpened: false,
-			addLicenseOpened: false,
-			licenseEdit: false,
-			currentPlan: {},
-			addOns: {},
-			maxusers: '',
-			storelimit: '',
-			maxlines: '',
-			diff: {},
-			monthlyTotal: ''
-		};
-	},
-
-	componentDidMount: function () {
-		var options = this.props.options;
-		var sub = this.props.sub;
-		var addOns = {};
-
-		// Convert subscription addOns from array to object
-		if (sub.addOns.length) {
-			addOns = sub.addOns.reduce(function (result, item) {
-				result[item.name] = item;
-				return result;
-			}, {});
-		}
-
-		this.setState({
-			addOns: addOns,
-			minUsers: options.users > 5 ? options.users : 5,
-			minStorage: options.storesize,
-			maxusers: options.maxusers,
-			maxlines: addOns.lines.quantity,
-			storelimit: addOns.storage.quantity,
-			monthlyTotal: sub.amount
-		});
-	},
-
-	_convertBytes: function (value, fromUnits, toUnits) {
-		var coefficients = {
-			'Byte': 1,
-			'KB': 1000,
-			'MB': 1000000,
-			'GB': 1000000000
-		};
-		return value * coefficients[fromUnits] / coefficients[toUnits];
-	},
-
-	_setUpdate: function (item) {
-		console.log('_setUpdate:', item);
-		var params = this.state;
-		if (item.min !== undefined && item.value < item.min) return;
-		if (item.max !== undefined && item.value > item.max) return;
-		params[item.key] = item.value;
-		this._checkUpdate(params);
-	},
-
-	_checkUpdate: function (state) {
-		var sub = this.props.sub;
-		var options = this.props.options;
-		var addOns = this.state.addOns;
-		var amount = parseFloat(sub.amount);
-		var diff = {
-			maxusers: state.maxusers - options.maxusers,
-			storelimit: state.storelimit - addOns.storage.quantity,
-			maxlines: state.maxlines - addOns.lines.quantity
-		};
-
-		if (options.maxusers !== state.maxusers || addOns.storage.quantity !== state.storelimit || addOns.lines.quantity !== state.maxlines) {
-			state.licenseEdit = true;
-		} else {
-			return this._cancelEditLicenses();
-		}
-
-		amount += diff.maxusers * parseFloat(sub.price);
-		if (addOns.storage && diff.storelimit) amount += this._convertBytes(diff.storelimit, 'Byte', 'GB') * parseFloat(addOns.storage.price);
-		if (addOns.lines && diff.maxlines) amount += diff.maxlines * parseFloat(addOns.lines.price);
-
-		state.diff = diff;
-		state.monthlyTotal = amount;
-
-		console.log('_checkUpdate: ', state);
-
-		this.setState(state);
-	},
-
-	_addCard: function (e) {
-		e.preventDefault();
-		this.props.addCard();
-	},
-
-	_editCard: function (e) {
-		e.preventDefault();
-		this.props.editCard();
-	},
-
-	_openPlans: function () {
-		this.setState({ changePlanOpened: !this.state.changePlanOpened });
-
-		// this.props.getPlans(this.props.sub.currency, function(result) {
-		// 	console.log('BillingComponent getPlans: ', result);
-		// 	this.setState({ plans: result });
-		// }.bind(this));
-	},
-
-	_openLicenses: function () {
-		this.setState({ addLicenseOpened: !this.state.addLicenseOpened });
-	},
-
-	_onPlanSelect: function (plan) {
-		console.log('_onPlanSelect: ', plan);
-		this.props.onPlanSelect(plan);
-	},
-
-	_updateLicenses: function () {
-		this.props.updateLicenses();
-	},
-
-	_cancelEditLicenses: function () {
-		var options = this.props.options;
-		var addOns = this.state.addOns;
-		this.setState({
-			licenseEdit: false,
-			maxusers: options.maxusers,
-			maxlines: addOns.lines.quantity,
-			storelimit: addOns.storage.quantity,
-			monthlyTotal: this.props.sub.amount
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var profile = this.props.profile;
-		var sub = this.props.sub;
-		var options = this.props.options;
-		var plans = this.props.plans;
-		var column = plans.length ? 12 / plans.length : 12;
-		var onPlanSelect = profile.billingDetails && profile.billingDetails.card ? this._onPlanSelect : this._addCard;
-		var trial = sub.planId === 'trial' ? true : false;
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(
-						'h2',
-						{ className: 'pull-left' },
-						React.createElement(
-							'small',
-							null,
-							'Current plan '
-						),
-						React.createElement(
-							'span',
-							null,
-							sub.planId,
-							' '
-						),
-						React.createElement(
-							'small',
-							{ className: "label " + (sub.state === 'active' ? 'label-success' : 'label-warning'), style: { fontSize: "14px" } },
-							sub.state
-						)
-					),
-					React.createElement(
-						'h2',
-						{ className: 'pull-right' },
-						React.createElement(
-							'a',
-							{ href: '#', className: 'text-uppercase', style: { fontSize: "14px" }, onClick: this._openPlans },
-							'Upgrade plan'
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					profile.billingDetails && profile.billingDetails.card ? React.createElement(
-						'p',
-						{ className: 'text-muted', style: { userSelect: 'none' } },
-						'\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ',
-						profile.billingDetails.card.last4,
-						React.createElement(
-							'span',
-							null,
-							' '
-						),
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._editCard, className: 'text-uppercase' },
-							'Edit'
-						),
-						React.createElement('br', null),
-						profile.billingDetails.card.exp_month,
-						'/',
-						profile.billingDetails.card.exp_year
-					) : React.createElement(
-						'div',
-						{ className: 'alert alert-info', role: 'alert' },
-						'To upgrade plan and add licenses, please ',
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._addCard, className: 'alert-link' },
-							'add credit card'
-						),
-						' to your account'
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 col-custom' },
-					React.createElement(
-						'div',
-						{ className: "panel " + (this.state.changePlanOpened ? "" : " minimized") },
-						React.createElement(
-							'div',
-							{ className: 'panel-body' },
-							React.createElement(
-								'div',
-								{ className: 'row' },
-								plans.map(function (plan, index) {
-
-									return React.createElement(
-										'div',
-										{ className: "col-xs-12 col-sm-" + column, key: plan.planId },
-										React.createElement(PlanComponent, { plan: plan, onSelect: onPlanSelect, currentPlan: sub.planId, maxusers: options.maxusers })
-									);
-								})
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(
-						'div',
-						{ className: 'panel' },
-						React.createElement(
-							'div',
-							{ className: 'panel-header' },
-							React.createElement(
-								'span',
-								null,
-								'Available licenses'
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'panel-body' },
-							React.createElement(
-								'div',
-								{ className: 'row', style: { textAlign: "center" } },
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement(
-										'div',
-										{ className: 'input-group' },
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxusers", value: this.state.maxusers - 1, min: this.state.minUsers }) },
-												React.createElement('i', { className: 'fa fa-minus' })
-											)
-										),
-										React.createElement(
-											'h3',
-											{ className: 'data-model' },
-											this.state.maxusers
-										),
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxusers", value: this.state.maxusers + 1 }) },
-												React.createElement('i', { className: 'fa fa-plus' })
-											)
-										)
-									),
-									React.createElement(
-										'p',
-										null,
-										'Users'
-									)
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement(
-										'div',
-										{ className: 'input-group' },
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "storelimit", value: this.state.storelimit - 5000000000, min: this.state.minStorage }) },
-												React.createElement('i', { className: 'fa fa-minus' })
-											)
-										),
-										React.createElement(
-											'h3',
-											{ className: 'data-model' },
-											this._convertBytes(this.state.storelimit, 'Byte', 'GB')
-										),
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "storelimit", value: this.state.storelimit + 5000000000 }) },
-												React.createElement('i', { className: 'fa fa-plus' })
-											)
-										)
-									),
-									React.createElement(
-										'p',
-										null,
-										'Extra Storage (GB)'
-									)
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement(
-										'div',
-										{ className: 'input-group' },
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxlines", value: this.state.maxlines - 2, min: 0 }) },
-												React.createElement('i', { className: 'fa fa-minus' })
-											)
-										),
-										React.createElement(
-											'h3',
-											{ className: 'data-model' },
-											this.state.maxlines
-										),
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxlines", value: this.state.maxlines + 2 }) },
-												React.createElement('i', { className: 'fa fa-plus' })
-											)
-										)
-									),
-									React.createElement(
-										'p',
-										null,
-										'Extra Lines'
-									)
-								)
-							),
-							React.createElement('hr', null),
-							React.createElement(
-								'div',
-								{ className: 'row' },
-								React.createElement(
-									'div',
-									{ className: 'col-xs-12' },
-									React.createElement(
-										'div',
-										{ className: 'alert alert-info', role: 'alert' },
-										'To add more licenses, please ',
-										React.createElement(
-											'a',
-											{ href: '#', onClick: this._openPlans, className: 'alert-link' },
-											'upgrade your plan'
-										)
-									),
-									React.createElement(
-										'div',
-										{ className: "text-center " + (this.state.licenseEdit ? '' : 'hidden') },
-										React.createElement(
-											'button',
-											{ className: 'btn btn-default btn-lg', style: { marginRight: "5px" }, onClick: this._cancelEditLicenses },
-											'Cancel'
-										),
-										React.createElement(
-											'span',
-											null,
-											'  '
-										),
-										React.createElement(
-											'button',
-											{ className: 'btn btn-primary btn-lg', onClick: this._updateLicenses },
-											'Update licenses '
-										)
-									)
-								)
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(
-						'h2',
-						null,
-						React.createElement(
-							'small',
-							null,
-							'Monthly total'
-						),
-						' ',
-						this.state.monthlyTotal,
-						' ',
-						sub.currency
-					)
-				)
-			)
-		);
-	}
-});
-
-BillingComponent = React.createFactory(BillingComponent);
-
-var PlanComponent = React.createClass({
-	displayName: 'PlanComponent',
-
-
-	propTypes: {
-		plan: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		maxusers: React.PropTypes.number,
-		currentPlan: React.PropTypes.string,
-		onSelect: React.PropTypes.func
-	},
-
-	getDefaultProps: function () {
-		return {
-			plan: {}
-		};
-	},
-
-	_convertBytes: function (value, fromUnits, toUnits) {
-		var coefficients = {
-			'Byte': 1,
-			'KB': 1000,
-			'MB': 1000000,
-			'GB': 1000000000
-		};
-		return value * coefficients[fromUnits] / coefficients[toUnits];
-	},
-
-	_selectPlan: function () {
-		this.props.onSelect(this.props.plan);
-	},
-
-	_convertBytes: function (value, fromUnits, toUnits) {
-		var coefficients = {
-			'Byte': 1,
-			'KB': 1000,
-			'MB': 1000000,
-			'GB': 1000000000
-		};
-		return value * coefficients[fromUnits] / coefficients[toUnits];
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var plan = this.props.plan;
-
-		return React.createElement(
-			'div',
-			{ className: 'panel', style: { border: 'none', boxShadow: 'none', textAlign: 'center' } },
-			React.createElement(
-				'div',
-				{ className: 'panel-header' },
-				plan.name
-			),
-			React.createElement(
-				'div',
-				{ className: 'panel-body' },
-				React.createElement(
-					'ul',
-					{ style: { padding: '0', listStyle: 'none' } },
-					React.createElement(
-						'li',
-						null,
-						this._convertBytes(plan.customData.storageperuser, 'Byte', 'GB'),
-						'GB Storage per user'
-					),
-					React.createElement(
-						'li',
-						null,
-						'\u2022'
-					),
-					React.createElement(
-						'li',
-						null,
-						plan.maxlines ? plan.maxlines : 'Unlimited',
-						' number of lines'
-					),
-					React.createElement(
-						'li',
-						null,
-						'\u2022'
-					),
-					React.createElement(
-						'li',
-						null,
-						plan.price,
-						plan.currency,
-						' per user'
-					),
-					React.createElement(
-						'li',
-						null,
-						'\u2022'
-					),
-					React.createElement(
-						'li',
-						null,
-						plan.price * this.props.maxusers,
-						plan.currency,
-						' per ',
-						this.props.maxusers,
-						' users/month'
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'panel-footer' },
-				this.props.currentPlan === plan.planId ? "Your plan" : React.createElement(
-					'button',
-					{ className: 'btn btn-link text-uppercase', onClick: this._selectPlan },
-					'Select'
-				)
-			)
-		);
-	}
-});
-
-PlanComponent = React.createFactory(PlanComponent);
-
-var PlansComponent = React.createClass({
-	displayName: "PlansComponent",
-
-
-	propTypes: {
-		plans: React.PropTypes.array,
-		frases: React.PropTypes.object,
-		maxusers: React.PropTypes.number,
-		sub: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			plans: []
-		};
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var plans = this.props.plans;
-		var column = plans.length ? 12 / plans.length : 12;
-		var maxusers = this.props.maxusers;
-		var currentSub = this.props.sub;
-
-		return React.createElement(
-			"div",
-			{ className: "row" },
-			this.props.plans.map(function (plan, index) {
-
-				return React.createElement(
-					"div",
-					{ className: "col-xs-" + column },
-					React.createElement(PlanComponent, { plan: plan, planIndex: index, currentPlan: currentSub.planId, maxusers: maxusers, key: plan.planId })
-				);
-			})
-		);
-	}
-});
-
-PlansComponent = React.createFactory(PlansComponent);
 
 var AddCallGroup = React.createClass({
 	displayName: 'AddCallGroup',
@@ -2388,6 +1051,1966 @@ var GsWidget = React.createClass({
 });
 
 GsWidget = React.createFactory(GsWidget);
+var Select3 = React.createClass({
+  displayName: 'Select3',
+
+
+  propTypes: {
+    name: React.PropTypes.string,
+    placeholder: React.PropTypes.string,
+    value: React.PropTypes.object,
+    options: React.PropTypes.array,
+    onChange: React.PropTypes.func
+  },
+
+  getDefaultProps: function () {
+    return {
+      value: {},
+      options: []
+    };
+  },
+
+  getInitialState: function () {
+    return {
+      menuOpened: false,
+      value: {},
+      highlightedIndex: 0,
+      selectedIndex: 0,
+      options: []
+    };
+  },
+
+  componentWillMount: function () {
+    this.setState({
+      value: this.props.value,
+      options: this.props.options
+    });
+  },
+
+  componentWillReceiveProps: function (newProps) {
+    console.log('componentWillReceiveProps: ', newProps);
+    this.setState({
+      value: newProps.value
+    });
+  },
+
+  openMenu: function () {
+    this.setState({
+      menuOpened: true,
+      options: this.props.options,
+      highlightedIndex: this.state.selectedIndex
+    });
+
+    window.setTimeout(function () {
+      this.focusOnSelected(this.state.selectedIndex);
+    }.bind(this), 10);
+  },
+
+  closeMenu: function () {
+    window.setTimeout(function () {
+      this.setState({
+        menuOpened: false
+      });
+    }.bind(this), 10);
+  },
+
+  onKeyDown: function (e) {
+    var code = e.key;
+
+    if (code === 'Enter') {
+      this.selectValue(this.state.options[this.state.highlightedIndex], this.state.highlightedIndex);
+      this.closeMenu();
+    } else if (code === 'Escape') {
+      this.closeMenu();
+    } else if (code === 'Tab') {
+      return false;
+    } else {
+      if (!this.state.menuOpened && this.state.options.length) {
+        this.openMenu();
+        this.selectIndex(this.state.highlightedIndex);
+      } else {
+        if (code === 'ArrowDown') this.selectIndex(this.state.highlightedIndex + 1);else if (code === 'ArrowUp') this.selectIndex(this.state.highlightedIndex - 1);
+      }
+    }
+  },
+
+  onSelected: function (el) {
+    if (el) {
+      this.selectedOptionEl = el;
+    }
+  },
+
+  getMenuRef: function (el) {
+    if (el) {
+      this.menuEl = el;
+    }
+  },
+
+  focusOnSelected: function (index) {
+
+    var menuDOM = ReactDOM.findDOMNode(this.menuEl);
+    var focusedDOM = menuDOM.firstChild;
+    var offset;
+
+    if (!focusedDOM) return;
+
+    offset = focusedDOM.clientHeight * (index + 1);
+
+    if (offset > menuDOM.offsetHeight) {
+      menuDOM.scrollTop = offset + focusedDOM.clientHeight - menuDOM.offsetHeight;
+    } else {
+      menuDOM.scrollTop = 0;
+    }
+  },
+
+  filterList: function (value) {
+    if (value === '') return this.setState({ options: this.props.options });
+
+    var list = this.props.options;
+    var filtered = list.filter(function (item) {
+      return item.label.toLowerCase().indexOf(value.toLowerCase()) > -1;
+    });
+
+    return this.setState({ options: filtered });
+  },
+
+  selectIndex: function (index) {
+    if (index < 0) index = this.state.options.length - 1;else if (index > this.state.options.length - 1) index = 0;
+
+    this.setState({ highlightedIndex: index });
+    this.focusOnSelected(index);
+  },
+
+  setValue: function (value) {
+    console.log('the value is: ', value);
+    this.setState({ value: value });
+    if (this.props.onChange) this.props.onChange(value);
+  },
+
+  selectValue: function (item, index) {
+    var item = item || { value: this.state.value.value, label: this.state.value.label };
+    this.setValue(item);
+    this.setState({
+      selectedIndex: item ? index : 0,
+      menuOpened: false
+    });
+  },
+
+  changeValue: function (e) {
+    var tvalue = e.target.value;
+
+    this.filterList(tvalue);
+    this.setValue({ value: tvalue, label: tvalue });
+  },
+
+  render: function () {
+    var className = "Select3 Select3-cont";
+    className += this.state.menuOpened ? " is-opened" : "";
+    className += this.props.className ? " " + this.props.className : "";
+
+    // console.log('Select3 render: ', this.props, this.state);
+
+    return React.createElement(
+      'div',
+      { className: className },
+      React.createElement('input', {
+        type: 'text',
+        name: this.props.name ? this.props.name : '',
+        placeholder: this.props.placeholder ? this.props.placeholder : '',
+        className: 'Select3-input',
+        value: this.state.value.label,
+        onFocus: this.openMenu,
+        onBlur: this.closeMenu,
+        onChange: this.changeValue,
+        onKeyDown: this.onKeyDown
+      }),
+      this.state.menuOpened ? React.createElement(
+        'div',
+        { className: 'Select3-menu-list' },
+        React.createElement(Select3Menu, {
+          getMenuRef: this.getMenuRef,
+          onClick: this.selectValue,
+          onSelected: this.onSelected,
+          selectedIndex: this.state.highlightedIndex,
+          options: this.state.options
+        })
+      ) : null
+    );
+  }
+});
+
+Select3 = React.createFactory(Select3);
+var Select3Menu = React.createClass({
+	displayName: "Select3Menu",
+
+
+	render: function () {
+		return React.createElement(
+			"ul",
+			{ ref: this.props.getMenuRef },
+			this.props.options.map(function (item, index) {
+				return React.createElement(Select3MenuOption, {
+					key: "option-" + index + "-" + item.value,
+					onClick: this.props.onClick,
+					value: item.value,
+					label: item.label,
+					index: index,
+					selected: this.props.selectedIndex === index
+				});
+			}.bind(this))
+		);
+	}
+});
+
+Select3Menu = React.createFactory(Select3Menu);
+var Select3MenuOption = React.createClass({
+  displayName: 'Select3MenuOption',
+
+
+  selectValue: function (e) {
+    e.preventDefault();
+    this.props.onClick({ value: this.props.value, label: this.props.label }, this.props.index);
+  },
+
+  render: function () {
+    return React.createElement(
+      'li',
+      null,
+      React.createElement(
+        'a',
+        {
+          href: '#',
+          className: this.props.selected ? 'is-selected' : '',
+          onClick: this.selectValue },
+        this.props.label
+      )
+    );
+  }
+
+});
+
+Select3MenuOption = React.createFactory(Select3MenuOption);
+var AddLicensesComponent = React.createClass({
+	displayName: 'AddLicensesComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		sub: React.PropTypes.object,
+		addLicenses: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			users: '',
+			lines: '',
+			storage: '',
+			amount: 0
+		};
+	},
+
+	_currState: {
+		users: 0,
+		lines: 0,
+		storage: 0
+	},
+
+	_addLicenses: function () {
+		this.props.addLicenses(this._currState);
+	},
+
+	_setAmount: function () {},
+
+	_setTo: function (event) {
+		var targ = event.target;
+		var value = parseFloat(targ.value);
+		if (!targ.value || targ.value < 0) value = 0;
+		this._currState[targ.name] = value;
+		this.setAmount();
+		this.setState(this._currState);
+	},
+
+	_addTo: function (item, step) {
+		this._currState[item] += parseInt(step, 10);
+		this.setState(this._currState);
+	},
+
+	_removeFrom: function (item, step) {
+		if (this._currState[item] <= 0) return;
+		this._currState[item] -= parseInt(step, 10);
+		this.setState(this._currState);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		return React.createElement(
+			'div',
+			{ style: { padding: '20px 0' } },
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						'div',
+						{ className: 'input-group' },
+						React.createElement(
+							'span',
+							{ className: 'input-group-btn' },
+							React.createElement(
+								'button',
+								{ className: 'btn btn-default', type: 'button' },
+								React.createElement('i', { className: 'fa fa-minus', onClick: this._removeFrom.bind(this, 'users', 1) })
+							)
+						),
+						React.createElement('input', { type: 'number', className: 'form-control', name: 'users', value: this.state.users, onChange: this._setTo, placeholder: 'Number of users to add' }),
+						React.createElement(
+							'span',
+							{ className: 'input-group-btn' },
+							React.createElement(
+								'button',
+								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'users', 1) },
+								React.createElement('i', { className: 'fa fa-plus' })
+							)
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						'div',
+						{ className: 'input-group' },
+						React.createElement(
+							'span',
+							{ className: 'input-group-btn' },
+							React.createElement(
+								'button',
+								{ className: 'btn btn-default', type: 'button', onClick: this._removeFrom.bind(this, 'storage', 5) },
+								React.createElement('i', { className: 'fa fa-minus' })
+							)
+						),
+						React.createElement('input', { type: 'number', className: 'form-control', name: 'storage', value: this.state.storage, onChange: this._setTo, placeholder: 'Storage size to add' }),
+						React.createElement(
+							'span',
+							{ className: 'input-group-btn' },
+							React.createElement(
+								'button',
+								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'storage', 5) },
+								React.createElement('i', { className: 'fa fa-plus' })
+							)
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						'div',
+						{ className: 'input-group' },
+						React.createElement(
+							'span',
+							{ className: 'input-group-btn' },
+							React.createElement(
+								'button',
+								{ className: 'btn btn-default', type: 'button', onClick: this._removeFrom.bind(this, 'lines', 2) },
+								React.createElement('i', { className: 'fa fa-minus' })
+							)
+						),
+						React.createElement('input', { type: 'number', className: 'form-control', name: 'lines', value: this.state.lines, onChange: this._setTo, placeholder: 'Number of lines to add' }),
+						React.createElement(
+							'span',
+							{ className: 'input-group-btn' },
+							React.createElement(
+								'button',
+								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'lines', 2) },
+								React.createElement('i', { className: 'fa fa-plus' })
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement('hr', { className: 'col-xs-12' }),
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 text-center' },
+					React.createElement(
+						'button',
+						{ className: 'btn btn-primary btn-lg', onClick: this._addLicenses },
+						'Buy licenses'
+					)
+				)
+			)
+		);
+	}
+});
+
+AddLicensesComponent = React.createFactory(AddLicensesComponent);
+
+var BillingComponent = React.createClass({
+	displayName: 'BillingComponent',
+
+
+	propTypes: {
+		options: React.PropTypes.object,
+		profile: React.PropTypes.object,
+		sub: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		plans: React.PropTypes.array,
+		addCard: React.PropTypes.func,
+		editCard: React.PropTypes.func,
+		onPlanSelect: React.PropTypes.func,
+		updateLicenses: React.PropTypes.func
+	},
+
+	// getDefaultProps: function() {
+	// 	return {
+	// 		sub: {}
+	// 	};
+	// },
+
+	getInitialState: function () {
+		return {
+			changePlanOpened: false,
+			addLicenseOpened: false,
+			licenseEdit: false,
+			currentPlan: {},
+			addOns: {},
+			maxusers: '',
+			storelimit: '',
+			maxlines: '',
+			diff: {},
+			monthlyTotal: ''
+		};
+	},
+
+	componentDidMount: function () {
+		var options = this.props.options;
+		var sub = this.props.sub;
+		var addOns = {};
+
+		// Convert subscription addOns from array to object
+		if (sub.addOns.length) {
+			addOns = sub.addOns.reduce(function (result, item) {
+				result[item.name] = item;
+				return result;
+			}, {});
+		}
+
+		this.setState({
+			addOns: addOns,
+			minUsers: options.users > 5 ? options.users : 5,
+			minStorage: options.storesize,
+			maxusers: options.maxusers,
+			maxlines: addOns.lines.quantity,
+			storelimit: addOns.storage.quantity,
+			monthlyTotal: sub.amount
+		});
+	},
+
+	_convertBytes: function (value, fromUnits, toUnits) {
+		var coefficients = {
+			'Byte': 1,
+			'KB': 1000,
+			'MB': 1000000,
+			'GB': 1000000000
+		};
+		return value * coefficients[fromUnits] / coefficients[toUnits];
+	},
+
+	_setUpdate: function (item) {
+		console.log('_setUpdate:', item);
+		var params = this.state;
+		if (item.min !== undefined && item.value < item.min) return;
+		if (item.max !== undefined && item.value > item.max) return;
+		params[item.key] = item.value;
+		this._checkUpdate(params);
+	},
+
+	_checkUpdate: function (state) {
+		var sub = this.props.sub;
+		var options = this.props.options;
+		var addOns = this.state.addOns;
+		var amount = parseFloat(sub.amount);
+		var diff = {
+			maxusers: state.maxusers - options.maxusers,
+			storelimit: state.storelimit - addOns.storage.quantity,
+			maxlines: state.maxlines - addOns.lines.quantity
+		};
+
+		if (options.maxusers !== state.maxusers || addOns.storage.quantity !== state.storelimit || addOns.lines.quantity !== state.maxlines) {
+			state.licenseEdit = true;
+		} else {
+			return this._cancelEditLicenses();
+		}
+
+		amount += diff.maxusers * parseFloat(sub.price);
+		if (addOns.storage && diff.storelimit) amount += this._convertBytes(diff.storelimit, 'Byte', 'GB') * parseFloat(addOns.storage.price);
+		if (addOns.lines && diff.maxlines) amount += diff.maxlines * parseFloat(addOns.lines.price);
+
+		state.diff = diff;
+		state.monthlyTotal = amount;
+
+		console.log('_checkUpdate: ', state);
+
+		this.setState(state);
+	},
+
+	_addCard: function (e) {
+		e.preventDefault();
+		this.props.addCard();
+	},
+
+	_editCard: function (e) {
+		e.preventDefault();
+		this.props.editCard();
+	},
+
+	_getPaymentMethod: function (billingDetails) {
+		if (!billingDetails || !billingDetails.length) return null;
+		return billingDetails.reduce(function (prev, next) {
+			if (next.default) return prev = next;
+		}, null);
+	},
+
+	_openPlans: function () {
+		this.setState({ changePlanOpened: !this.state.changePlanOpened });
+
+		// this.props.getPlans(this.props.sub.currency, function(result) {
+		// 	console.log('BillingComponent getPlans: ', result);
+		// 	this.setState({ plans: result });
+		// }.bind(this));
+	},
+
+	_openLicenses: function () {
+		this.setState({ addLicenseOpened: !this.state.addLicenseOpened });
+	},
+
+	_onPlanSelect: function (plan) {
+		console.log('_onPlanSelect: ', plan);
+		this.props.onPlanSelect(plan);
+	},
+
+	_updateLicenses: function () {
+		this.props.updateLicenses();
+	},
+
+	_cancelEditLicenses: function () {
+		var options = this.props.options;
+		var addOns = this.state.addOns;
+		this.setState({
+			licenseEdit: false,
+			maxusers: options.maxusers,
+			maxlines: addOns.lines.quantity,
+			storelimit: addOns.storage.quantity,
+			monthlyTotal: this.props.sub.amount
+		});
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var profile = this.props.profile;
+		var paymentMethod = this._getPaymentMethod(profile.billingDetails);
+		var sub = this.props.sub;
+		var options = this.props.options;
+		var plans = this.props.plans;
+		var column = plans.length ? 12 / plans.length : 12;
+		var onPlanSelect = paymentMethod ? this._onPlanSelect : this._addCard;
+		var trial = sub.planId === 'trial' ? true : false;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(
+						'h2',
+						{ className: 'pull-left' },
+						React.createElement(
+							'small',
+							null,
+							'Current plan '
+						),
+						React.createElement(
+							'span',
+							null,
+							sub.planId,
+							' '
+						),
+						React.createElement(
+							'small',
+							{ className: "label " + (sub.state === 'active' ? 'label-success' : 'label-warning'), style: { fontSize: "14px" } },
+							sub.state
+						)
+					),
+					React.createElement(
+						'h2',
+						{ className: 'pull-right' },
+						React.createElement(
+							'a',
+							{ href: '#', className: 'text-uppercase', style: { fontSize: "14px" }, onClick: this._openPlans },
+							'Upgrade plan'
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					paymentMethod ? React.createElement(
+						'p',
+						{ className: 'text-muted', style: { userSelect: 'none' } },
+						'\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ',
+						paymentMethod.params.last4,
+						React.createElement(
+							'span',
+							null,
+							' '
+						),
+						React.createElement(
+							'a',
+							{ href: '#', onClick: this._editCard, className: 'text-uppercase' },
+							'Edit'
+						),
+						React.createElement('br', null),
+						paymentMethod.params.exp_month,
+						'/',
+						paymentMethod.params.exp_year
+					) : React.createElement(
+						'div',
+						{ className: 'alert alert-info', role: 'alert' },
+						'To upgrade plan and add licenses, please ',
+						React.createElement(
+							'a',
+							{ href: '#', onClick: this._addCard, className: 'alert-link' },
+							'add credit card'
+						),
+						' to your account'
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 col-custom' },
+					React.createElement(
+						'div',
+						{ className: "panel " + (this.state.changePlanOpened ? "" : " minimized") },
+						React.createElement(
+							'div',
+							{ className: 'panel-body' },
+							React.createElement(
+								'div',
+								{ className: 'row' },
+								plans.map(function (plan, index) {
+
+									return React.createElement(
+										'div',
+										{ className: "col-xs-12 col-sm-" + column, key: plan.planId },
+										React.createElement(PlanComponent, { plan: plan, onSelect: onPlanSelect, currentPlan: sub.planId, maxusers: options.maxusers })
+									);
+								})
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(
+						'div',
+						{ className: 'panel' },
+						React.createElement(
+							'div',
+							{ className: 'panel-header' },
+							React.createElement(
+								'span',
+								null,
+								'Available licenses'
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'panel-body' },
+							React.createElement(
+								'div',
+								{ className: 'row', style: { textAlign: "center" } },
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement(
+										'div',
+										{ className: 'input-group' },
+										React.createElement(
+											'span',
+											{ className: 'input-group-btn' },
+											React.createElement(
+												'button',
+												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxusers", value: this.state.maxusers - 1, min: this.state.minUsers }) },
+												React.createElement('i', { className: 'fa fa-minus' })
+											)
+										),
+										React.createElement(
+											'h3',
+											{ className: 'data-model' },
+											this.state.maxusers
+										),
+										React.createElement(
+											'span',
+											{ className: 'input-group-btn' },
+											React.createElement(
+												'button',
+												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxusers", value: this.state.maxusers + 1 }) },
+												React.createElement('i', { className: 'fa fa-plus' })
+											)
+										)
+									),
+									React.createElement(
+										'p',
+										null,
+										'Users'
+									)
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement(
+										'div',
+										{ className: 'input-group' },
+										React.createElement(
+											'span',
+											{ className: 'input-group-btn' },
+											React.createElement(
+												'button',
+												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "storelimit", value: this.state.storelimit - 5000000000, min: this.state.minStorage }) },
+												React.createElement('i', { className: 'fa fa-minus' })
+											)
+										),
+										React.createElement(
+											'h3',
+											{ className: 'data-model' },
+											this._convertBytes(this.state.storelimit, 'Byte', 'GB')
+										),
+										React.createElement(
+											'span',
+											{ className: 'input-group-btn' },
+											React.createElement(
+												'button',
+												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "storelimit", value: this.state.storelimit + 5000000000 }) },
+												React.createElement('i', { className: 'fa fa-plus' })
+											)
+										)
+									),
+									React.createElement(
+										'p',
+										null,
+										'Extra Storage (GB)'
+									)
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement(
+										'div',
+										{ className: 'input-group' },
+										React.createElement(
+											'span',
+											{ className: 'input-group-btn' },
+											React.createElement(
+												'button',
+												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxlines", value: this.state.maxlines - 2, min: 0 }) },
+												React.createElement('i', { className: 'fa fa-minus' })
+											)
+										),
+										React.createElement(
+											'h3',
+											{ className: 'data-model' },
+											this.state.maxlines
+										),
+										React.createElement(
+											'span',
+											{ className: 'input-group-btn' },
+											React.createElement(
+												'button',
+												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUpdate.bind(this, { key: "maxlines", value: this.state.maxlines + 2 }) },
+												React.createElement('i', { className: 'fa fa-plus' })
+											)
+										)
+									),
+									React.createElement(
+										'p',
+										null,
+										'Extra Lines'
+									)
+								)
+							),
+							React.createElement('hr', null),
+							React.createElement(
+								'div',
+								{ className: 'row' },
+								React.createElement(
+									'div',
+									{ className: 'col-xs-12' },
+									React.createElement(
+										'div',
+										{ className: 'alert alert-info', role: 'alert' },
+										'To add more licenses, please ',
+										React.createElement(
+											'a',
+											{ href: '#', onClick: this._openPlans, className: 'alert-link' },
+											'upgrade your plan'
+										)
+									),
+									React.createElement(
+										'div',
+										{ className: "text-center " + (this.state.licenseEdit ? '' : 'hidden') },
+										React.createElement(
+											'button',
+											{ className: 'btn btn-default btn-lg', style: { marginRight: "5px" }, onClick: this._cancelEditLicenses },
+											'Cancel'
+										),
+										React.createElement(
+											'span',
+											null,
+											'  '
+										),
+										React.createElement(
+											'button',
+											{ className: 'btn btn-primary btn-lg', onClick: this._updateLicenses },
+											'Update licenses '
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(
+						'h2',
+						null,
+						React.createElement(
+							'small',
+							null,
+							'Monthly total'
+						),
+						' ',
+						this.state.monthlyTotal,
+						' ',
+						sub.currency
+					)
+				)
+			)
+		);
+	}
+});
+
+BillingComponent = React.createFactory(BillingComponent);
+
+var PlanComponent = React.createClass({
+	displayName: 'PlanComponent',
+
+
+	propTypes: {
+		plan: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		maxusers: React.PropTypes.number,
+		currentPlan: React.PropTypes.string,
+		onSelect: React.PropTypes.func
+	},
+
+	getDefaultProps: function () {
+		return {
+			plan: {}
+		};
+	},
+
+	_convertBytes: function (value, fromUnits, toUnits) {
+		var coefficients = {
+			'Byte': 1,
+			'KB': 1000,
+			'MB': 1000000,
+			'GB': 1000000000
+		};
+		return value * coefficients[fromUnits] / coefficients[toUnits];
+	},
+
+	_selectPlan: function () {
+		this.props.onSelect(this.props.plan);
+	},
+
+	_convertBytes: function (value, fromUnits, toUnits) {
+		var coefficients = {
+			'Byte': 1,
+			'KB': 1000,
+			'MB': 1000000,
+			'GB': 1000000000
+		};
+		return value * coefficients[fromUnits] / coefficients[toUnits];
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var plan = this.props.plan;
+
+		return React.createElement(
+			'div',
+			{ className: 'panel', style: { border: 'none', boxShadow: 'none', textAlign: 'center' } },
+			React.createElement(
+				'div',
+				{ className: 'panel-header' },
+				plan.name
+			),
+			React.createElement(
+				'div',
+				{ className: 'panel-body' },
+				React.createElement(
+					'ul',
+					{ style: { padding: '0', listStyle: 'none' } },
+					React.createElement(
+						'li',
+						null,
+						this._convertBytes(plan.customData.storageperuser, 'Byte', 'GB'),
+						'GB Storage per user'
+					),
+					React.createElement(
+						'li',
+						null,
+						'\u2022'
+					),
+					React.createElement(
+						'li',
+						null,
+						plan.maxlines ? plan.maxlines : 'Unlimited',
+						' number of lines'
+					),
+					React.createElement(
+						'li',
+						null,
+						'\u2022'
+					),
+					React.createElement(
+						'li',
+						null,
+						plan.price,
+						plan.currency,
+						' per user'
+					),
+					React.createElement(
+						'li',
+						null,
+						'\u2022'
+					),
+					React.createElement(
+						'li',
+						null,
+						plan.price * this.props.maxusers,
+						plan.currency,
+						' per ',
+						this.props.maxusers,
+						' users/month'
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'panel-footer' },
+				this.props.currentPlan === plan.planId ? "Your plan" : React.createElement(
+					'button',
+					{ className: 'btn btn-link text-uppercase', onClick: this._selectPlan },
+					'Select'
+				)
+			)
+		);
+	}
+});
+
+PlanComponent = React.createFactory(PlanComponent);
+
+var PlansComponent = React.createClass({
+	displayName: "PlansComponent",
+
+
+	propTypes: {
+		plans: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		maxusers: React.PropTypes.number,
+		sub: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			plans: []
+		};
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var plans = this.props.plans;
+		var column = plans.length ? 12 / plans.length : 12;
+		var maxusers = this.props.maxusers;
+		var currentSub = this.props.sub;
+
+		return React.createElement(
+			"div",
+			{ className: "row" },
+			this.props.plans.map(function (plan, index) {
+
+				return React.createElement(
+					"div",
+					{ className: "col-xs-" + column },
+					React.createElement(PlanComponent, { plan: plan, planIndex: index, currentPlan: currentSub.planId, maxusers: maxusers, key: plan.planId })
+				);
+			})
+		);
+	}
+});
+
+PlansComponent = React.createFactory(PlansComponent);
+var AvailableUsersComponent = React.createClass({
+	displayName: 'AvailableUsersComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		data: React.PropTypes.array,
+		onSubmit: React.PropTypes.func,
+		modalId: React.PropTypes.string
+	},
+
+	getInitialState: function () {
+		return {
+			data: []
+		};
+	},
+
+	componentDidMount: function () {
+		this.setState({ data: this.props.data || [] });
+	},
+
+	componentWillReceiveProps: function (props) {
+		console.log('componentWillReceiveProps: ', props);
+		this.setState({ data: props.data || [] });
+	},
+
+	_saveChanges: function () {
+		console.log('_saveChanges: ', this.state.data);
+		var selectedMembers = this.state.data.filter(function (item) {
+			return item.selected;
+		});
+
+		this.props.onSubmit(selectedMembers);
+	},
+
+	_selectMember: function (item) {
+		var data = this.state.data;
+		data[item].selected = !data[item].selected;
+		this.setState({ data: data });
+	},
+
+	_selectAllMembers: function (e) {
+		e.preventDefault();
+		var data = this.state.data;
+		data.map(function (item) {
+			item.selected = !item.selected;
+			return item;
+		});
+		this.setState({ data: data });
+	},
+
+	_getModalBody: function () {
+		var frases = this.props.frases;
+
+		return React.createElement(
+			'div',
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'col-xs-12' },
+				React.createElement(
+					'ul',
+					{ style: { minHeight: "200px", maxHeight: "400px", overflowY: "auto", listStyle: 'none', margin: 0, padding: 0 } },
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'a',
+							{ href: '#', style: { display: "block", padding: "8px 10px" }, onClick: this._selectAllMembers },
+							frases.CHAT_CHANNEL.SELECT_ALL
+						)
+					),
+					this.state.data.map(function (item, index) {
+						console.log('_getModalBody: ', item);
+
+						return React.createElement(
+							'li',
+							{ key: item.ext, style: { padding: "8px 10px", color: "#333", cursor: "pointer", background: item.selected ? '#c2f0ff' : 'none' }, onClick: this._selectMember.bind(this, index) },
+							React.createElement(
+								'span',
+								null,
+								item.ext
+							),
+							React.createElement(
+								'span',
+								null,
+								' - '
+							),
+							React.createElement(
+								'span',
+								null,
+								item.name
+							)
+						);
+					}.bind(this))
+				)
+			)
+		);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var body = this._getModalBody();
+
+		return React.createElement(ModalComponent, {
+			id: this.props.modalId,
+			size: 'sm',
+			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
+			submitText: frases.ADD,
+			cancelText: frases.CANCEL,
+			submit: this._saveChanges,
+			body: body
+		});
+	}
+
+});
+
+AvailableUsersComponent = React.createFactory(AvailableUsersComponent);
+var ChatchannelComponent = React.createClass({
+	displayName: 'ChatchannelComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		params: React.PropTypes.object,
+		onNameChange: React.PropTypes.func,
+		getAvailableUsers: React.PropTypes.func,
+		setObject: React.PropTypes.func,
+		removeObject: React.PropTypes.func,
+		onStateChange: React.PropTypes.func,
+		getInfoFromState: React.PropTypes.func,
+		getExtension: React.PropTypes.func,
+		deleteMember: React.PropTypes.func
+	},
+
+	// getDefaultProps: function() {
+	// 	return {
+	// 		sub: {}
+	// 	};
+	// },
+
+	getInitialState: function () {
+		return {
+			params: {},
+			filteredMembers: []
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			params: this.props.params || {},
+			removeObject: this.props.removeObject,
+			filteredMembers: this.props.params.members
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			params: props.params,
+			removeObject: props.removeObject,
+			filteredMembers: props.params.members
+		});
+	},
+
+	_setObject: function () {
+		var params = this.state.params;
+		this.props.setObject(params);
+	},
+
+	_onStateChange: function (state) {
+		var params = this.state.params;
+		params.enabled = state;
+		this.setState({ params: params });
+		this.props.onStateChange(state);
+	},
+
+	_onNameChange: function (value) {
+		var params = this.state.params;
+		params.name = value;
+		this.setState({ params: params });
+		this.props.onNameChange(value);
+	},
+
+	_onFilter: function (items) {
+		console.log('_onFilter: ', items);
+		this.setState({
+			filteredMembers: items
+		});
+	},
+
+	_getAvailableUsers: function () {
+		this.props.getAvailableUsers();
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var params = this.state.params;
+		var members = params.members || [];
+		var filteredMembers = this.state.filteredMembers || [];
+		var itemState = {};
+
+		console.log('remder: ', params.name);
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(ObjectName, {
+				name: params.name,
+				frases: frases,
+				enabled: params.enabled || false,
+				onStateChange: this._onStateChange,
+				onChange: this._onNameChange,
+				onSubmit: this._setObject,
+				onCancel: this.state.removeObject
+			}),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(
+						'button',
+						{ type: 'button', role: 'button', className: 'btn btn-default padding-lg', onClick: this._getAvailableUsers },
+						React.createElement('i', { className: 'fa fa-user-plus' }),
+						' ',
+						frases.CHAT_CHANNEL.ADD_MEMBERS
+					),
+					React.createElement(FilterInputComponent, { items: members, onChange: this._onFilter })
+				)
+			),
+			React.createElement(
+				PanelComponent,
+				{ header: filteredMembers.length + " " + frases.CHAT_CHANNEL.MEMBERS },
+				React.createElement(
+					'div',
+					{ className: 'table-responsive' },
+					React.createElement(
+						'table',
+						{ className: 'table table-hover sortable', id: 'group-extensions' },
+						React.createElement(
+							'tbody',
+							null,
+							members.length ? filteredMembers.map(function (item) {
+
+								itemState = this.props.getInfoFromState(item.state);
+								console.log('itemState: ', itemState);
+
+								return React.createElement(
+									'tr',
+									{ id: item.oid, className: itemState.rclass, key: item.number || item.ext },
+									React.createElement(
+										'td',
+										null,
+										React.createElement(
+											'a',
+											{ href: '', onClick: this.props.getExtension },
+											item.number || item.ext
+										)
+									),
+									React.createElement(
+										'td',
+										{ 'data-cell': 'name' },
+										item.name
+									),
+									React.createElement(
+										'td',
+										{ 'data-cell': 'reg' },
+										item.reg
+									),
+									React.createElement(
+										'td',
+										{ 'data-cell': 'status', style: { "textAlign": "right" } },
+										itemState.rstatus
+									),
+									React.createElement(
+										'td',
+										{ style: { "textAlign": "right" } },
+										React.createElement(
+											'button',
+											{ className: 'btn btn-danger btn-sm', onClick: this.props.deleteMember.bind(this, item.oid) },
+											React.createElement('i', { className: 'fa fa-trash' })
+										)
+									)
+								);
+							}.bind(this)) : React.createElement(
+								'tr',
+								null,
+								React.createElement(
+									'td',
+									{ colSpan: '3' },
+									frases.CHAT_CHANNEL.NO_MEMBERS,
+									'. ',
+									React.createElement(
+										'a',
+										{ href: '#', onClick: this._getAvailableUsers },
+										frases.CHAT_CHANNEL.ADD_MEMBERS
+									)
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+ChatchannelComponent = React.createFactory(ChatchannelComponent);
+
+var UsageComponent = React.createClass({
+	displayName: 'UsageComponent',
+
+
+	propTypes: {
+		options: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		storageInfo: React.PropTypes.array,
+		fileStorage: React.PropTypes.array,
+		getTotalStorage: React.PropTypes.func,
+		utils: React.PropTypes.object,
+		openStorageSettings: React.PropTypes.func
+	},
+
+	_convertBytes: function (value, fromUnits, toUnits) {
+		var coefficients = {
+			'Byte': 1,
+			'KB': 1000,
+			'MB': 1000000,
+			'GB': 1000000000
+		};
+		return value * coefficients[fromUnits] / coefficients[toUnits];
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var options = this.props.options;
+
+		console.log('storages component: ', this.props.storageInfo, this.props.fileStorage);
+
+		return React.createElement(
+			'div',
+			null,
+			this.props.fileStorage ? React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(StoragesComponent, { openSettings: this.props.openStorageSettings, frases: this.props.frases, storages: this.props.fileStorage, utils: this.props.utils })
+				)
+			) : '',
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(StorageUsageComponent, { frases: this.props.frases, data: this.props.options, utils: this.props.utils })
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(UsersStorageComponent, { frases: frases, data: this.props.storageInfo })
+				)
+			)
+		);
+	}
+});
+
+UsageComponent = React.createFactory(UsageComponent);
+var StorageComponent = React.createClass({
+	displayName: 'StorageComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		data: React.PropTypes.object,
+		onSubmit: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			data: {},
+			modalId: 'storage-settings'
+		};
+	},
+
+	componentDidMount: function () {
+		this.setState({ data: this.props.data || {} });
+	},
+
+	componentWillReceiveProps: function (nextProps) {
+		this.setState({ data: nextProps.data || {} });
+	},
+
+	_onChange: function (e) {
+		var target = e.target;
+		var data = this.state.data;
+		data[target.name] = target.type === 'number' ? parseFloat(target.value) : target.value;
+		this.setState(data);
+	},
+
+	_saveChanges: function () {
+		var data = this.state.data;
+		this.props.onSubmit({
+			id: data.id,
+			path: data.path,
+			maxsize: data.maxsize,
+			state: data.state
+		});
+	},
+
+	_getModalBody: function () {
+
+		return React.createElement(
+			'div',
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'col-xs-12' },
+				React.createElement(
+					'form',
+					{ role: 'form' },
+					React.createElement('input', { type: 'text', name: 'id', value: this.state.data.id, className: 'hidden' }),
+					React.createElement(
+						'div',
+						{ className: 'form-group col-xs-12' },
+						React.createElement(
+							'label',
+							{ htmlFor: 'storage-path' },
+							this.props.frases.PATH
+						),
+						React.createElement('input', { type: 'text', name: 'path', value: this.state.data.path, onChange: this._onChange, className: 'form-control' })
+					),
+					React.createElement(
+						'div',
+						{ className: 'form-group col-xs-12 col-sm-6' },
+						React.createElement(
+							'label',
+							{ htmlFor: 'storage-maxsize' },
+							this.props.frases.STORAGE.MAXSIZE
+						),
+						React.createElement(
+							'div',
+							{ className: 'input-group' },
+							React.createElement('input', { type: 'number', name: 'maxsize', min: '0', value: this.state.data.maxsize, onChange: this._onChange, className: 'form-control' }),
+							React.createElement(
+								'span',
+								{ className: 'input-group-addon' },
+								'GB'
+							)
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'form-group col-xs-12 col-sm-6' },
+						React.createElement(
+							'label',
+							{ htmlFor: 'storage-state' },
+							this.props.frases.STATE
+						),
+						React.createElement(
+							'select',
+							{ name: 'state', value: this.state.data.state, onChange: this._onChange, className: 'form-control' },
+							React.createElement(
+								'option',
+								{ value: '1' },
+								this.props.frases.STORAGE.STATES["1"]
+							),
+							React.createElement(
+								'option',
+								{ value: '0' },
+								this.props.frases.STORAGE.STATES["0"]
+							),
+							React.createElement(
+								'option',
+								{ value: '2' },
+								this.props.frases.STORAGE.STATES["2"]
+							)
+						)
+					)
+				)
+			)
+		);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var body = this._getModalBody();
+
+		return React.createElement(ModalComponent, {
+			id: this.state.modalId,
+			title: frases.STORAGE.STORAGE_SETTINGS,
+			submitText: frases.SAVE,
+			cancelText: frases.CANCEL,
+			submit: this._saveChanges,
+			body: body
+		});
+	}
+
+});
+
+StorageComponent = React.createFactory(StorageComponent);
+
+var StoragesComponent = React.createClass({
+	displayName: "StoragesComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		storages: React.PropTypes.array,
+		utils: React.PropTypes.object,
+		openSettings: React.PropTypes.func
+	},
+
+	// getDefaultProps: function() {
+	// 	return {
+	// 		sub: {}
+	// 	};
+	// },
+
+	// getInitialState: function() {
+	// 	return {
+	// 		storageData: {},
+	// 		storageOpened: false
+	// 	};
+	// },
+
+	// componentDidMount: function() {
+
+	// },
+
+	_openStorageSettings: function (index) {
+		var storageOpts = this.props.storages[index] || {};
+		this.props.openSettings(storageOpts);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var storages = this.props.storages;
+		var utils = this.props.utils;
+
+		return React.createElement(
+			"div",
+			{ className: "panel" },
+			React.createElement(
+				"div",
+				{ className: "panel-header" },
+				frases.STORAGE.AVAILABLE_STORAGES
+			),
+			React.createElement(
+				"div",
+				{ className: "panel-body" },
+				React.createElement(
+					"div",
+					{ className: "row" },
+					React.createElement(
+						"div",
+						{ className: "col-xs-12 col-custom" },
+						React.createElement(
+							"div",
+							{ className: "table-responsive" },
+							React.createElement(
+								"table",
+								{ className: "table table-condensed" },
+								React.createElement(
+									"thead",
+									null,
+									React.createElement(
+										"tr",
+										null,
+										React.createElement("th", { style: { width: "2px" } }),
+										React.createElement(
+											"th",
+											null,
+											frases.STATE
+										),
+										React.createElement(
+											"th",
+											null,
+											frases.PATH
+										),
+										React.createElement(
+											"th",
+											null,
+											frases.STORAGE.FREE_SPACE,
+											" (GB)"
+										),
+										React.createElement(
+											"th",
+											null,
+											frases.STORAGE.USED_SPACE,
+											" (GB)"
+										),
+										React.createElement(
+											"th",
+											null,
+											frases.STORAGE.TOTAL_SPACE,
+											" (GB)"
+										),
+										React.createElement(
+											"th",
+											null,
+											frases.STORAGE.CREATED
+										),
+										React.createElement(
+											"th",
+											null,
+											frases.STORAGE.UPDATED
+										),
+										React.createElement(
+											"th",
+											{ className: "unsortable" },
+											React.createElement(
+												"button",
+												{ type: "button", onClick: this._openStorageSettings.bind(this, null), className: "btn btn-primary" },
+												React.createElement("i", { className: "fa fa-plus" })
+											)
+										)
+									)
+								),
+								React.createElement(
+									"tbody",
+									null,
+									storages.map(function (item, index) {
+
+										return React.createElement(
+											"tr",
+											{ key: index.toString() },
+											React.createElement("td", { className: item.state === 1 || item.state === 2 ? 'success' : 'danger' }),
+											React.createElement(
+												"td",
+												null,
+												utils.getFriendlyStorageState(item.state)
+											),
+											React.createElement(
+												"td",
+												null,
+												item.path
+											),
+											React.createElement(
+												"td",
+												null,
+												utils.convertBytes(item.freespace, 'Byte', 'GB').toFixed(2)
+											),
+											React.createElement(
+												"td",
+												null,
+												utils.convertBytes(item.usedsize, 'Byte', 'GB').toFixed(2)
+											),
+											React.createElement(
+												"td",
+												null,
+												utils.convertBytes(item.maxsize, 'Byte', 'GB').toFixed(2)
+											),
+											React.createElement(
+												"td",
+												null,
+												utils.formatDateString(item.created)
+											),
+											React.createElement(
+												"td",
+												null,
+												utils.formatDateString(item.updated)
+											),
+											React.createElement(
+												"td",
+												null,
+												React.createElement(
+													"button",
+													{ className: "btn btn-default btn-sm", onClick: this._openStorageSettings.bind(this, index) },
+													React.createElement("i", { className: "fa fa-edit" })
+												)
+											)
+										);
+									}.bind(this))
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+StoragesComponent = React.createFactory(StoragesComponent);
+function StorageUsageComponent(props) {
+
+	var frases = props.frases;
+	var data = props.data;
+	var storesize = props.utils.convertBytes(props.data.storesize, 'Byte', 'GB');
+	var storelimit = props.utils.convertBytes(props.data.storelimit, 'Byte', 'GB');
+
+	return React.createElement(
+		'div',
+		{ className: 'panel' },
+		React.createElement(
+			'div',
+			{ className: 'panel-header' },
+			React.createElement(
+				'span',
+				null,
+				frases.USAGE.PANEL_TITLE
+			)
+		),
+		React.createElement(
+			'div',
+			{ className: 'panel-body' },
+			React.createElement(
+				'div',
+				{ className: 'row', style: { textAlign: "center" } },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 col-sm-4', style: { marginBottom: "20px" } },
+					React.createElement(
+						'h3',
+						null,
+						React.createElement(
+							'small',
+							null,
+							frases.USAGE.USERS.CREATED
+						),
+						' ',
+						data.users,
+						' ',
+						React.createElement(
+							'small',
+							null,
+							frases.USAGE.USERS.FROM
+						)
+					),
+					React.createElement(
+						'h3',
+						null,
+						data.maxusers
+					),
+					React.createElement(
+						'p',
+						null,
+						frases.USAGE.USERS.USAGE_ITEM
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 col-sm-4', style: { marginBottom: "20px" } },
+					React.createElement(
+						'h3',
+						null,
+						React.createElement(
+							'small',
+							null,
+							frases.USAGE.STORAGE.USED
+						),
+						' ',
+						parseFloat(storesize).toFixed(2),
+						' ',
+						React.createElement(
+							'small',
+							null,
+							frases.USAGE.STORAGE.FROM
+						)
+					),
+					React.createElement(
+						'h3',
+						null,
+						parseFloat(storelimit).toFixed(2)
+					),
+					React.createElement(
+						'p',
+						null,
+						frases.USAGE.STORAGE.USAGE_ITEM
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 col-sm-4', style: { marginBottom: "20px" } },
+					React.createElement(
+						'h3',
+						null,
+						React.createElement(
+							'small',
+							null,
+							frases.USAGE.LINES.AVAILABLE
+						)
+					),
+					React.createElement(
+						'h3',
+						null,
+						data.maxlines
+					),
+					React.createElement(
+						'p',
+						null,
+						frases.USAGE.LINES.USAGE_ITEM
+					)
+				)
+			)
+		)
+	);
+}
+function UserStorageComponent(props) {
+
+	return React.createElement(
+		"tr",
+		null,
+		React.createElement(
+			"td",
+			null,
+			props.user
+		),
+		React.createElement(
+			"td",
+			null,
+			props.size
+		),
+		React.createElement(
+			"td",
+			null,
+			props.limit
+		)
+	);
+}
+
+var UsersStorageComponent = React.createClass({
+    displayName: 'UsersStorageComponent',
+
+
+    propTypes: {
+        data: React.PropTypes.array,
+        frases: React.PropTypes.object
+    },
+
+    _convertBytes: function (value, fromUnits, toUnits) {
+        var coefficients = {
+            'Byte': 1,
+            'KB': 1000,
+            'MB': 1000000,
+            'GB': 1000000000
+        };
+        return value * coefficients[fromUnits] / coefficients[toUnits];
+    },
+
+    render: function () {
+        var frases = this.props.frases;
+        var data = this.props.data;
+        var size;
+        var limit;
+
+        return React.createElement(
+            'div',
+            { className: 'panel' },
+            React.createElement(
+                'div',
+                { className: 'panel-header' },
+                frases.STORAGE.STORAGE_ALLOCATION
+            ),
+            React.createElement(
+                'div',
+                { className: 'panel-body' },
+                React.createElement(
+                    'div',
+                    { className: 'col-xs-12 col-custom' },
+                    React.createElement(
+                        'div',
+                        { className: 'table-responsive' },
+                        React.createElement(
+                            'table',
+                            { className: 'table table-condensed sortable' },
+                            React.createElement(
+                                'thead',
+                                null,
+                                React.createElement(
+                                    'tr',
+                                    null,
+                                    React.createElement(
+                                        'th',
+                                        null,
+                                        frases.NUMBER
+                                    ),
+                                    React.createElement(
+                                        'th',
+                                        null,
+                                        frases.STORAGE.USED_SPACE,
+                                        ' (GB)'
+                                    ),
+                                    React.createElement(
+                                        'th',
+                                        { style: { width: "180px" }, className: 'unsortable' },
+                                        frases.STORAGE.TOTAL_SPACE,
+                                        ' (GB)'
+                                    )
+                                )
+                            ),
+                            React.createElement(
+                                'tbody',
+                                null,
+                                data.map(function (item, index) {
+
+                                    size = item.size ? this._convertBytes(item.size, 'Byte', 'GB') : '0.00';
+                                    limit = this._convertBytes(item.limit, 'Byte', 'GB');
+
+                                    return React.createElement(UserStorageComponent, {
+                                        key: index.toString(),
+                                        user: item.user,
+                                        size: item.size ? size.toFixed(2) : "0.00",
+                                        limit: limit.toFixed(2)
+                                    });
+                                }.bind(this))
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+});
+
+UsersStorageComponent = React.createFactory(UsersStorageComponent);
 
 var RecQosTable = React.createClass({
 	displayName: "RecQosTable",
@@ -3147,621 +3770,6 @@ var SecuritySettings = React.createClass({
 
 SecuritySettings = React.createFactory(SecuritySettings);
 
-var UsageComponent = React.createClass({
-	displayName: 'UsageComponent',
-
-
-	propTypes: {
-		options: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		storageInfo: React.PropTypes.array,
-		fileStorage: React.PropTypes.array,
-		getTotalStorage: React.PropTypes.func,
-		utils: React.PropTypes.object,
-		openStorageSettings: React.PropTypes.func
-	},
-
-	_convertBytes: function (value, fromUnits, toUnits) {
-		var coefficients = {
-			'Byte': 1,
-			'KB': 1000,
-			'MB': 1000000,
-			'GB': 1000000000
-		};
-		return value * coefficients[fromUnits] / coefficients[toUnits];
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var options = this.props.options;
-
-		console.log('storages component: ', this.props.storageInfo, this.props.fileStorage);
-
-		return React.createElement(
-			'div',
-			null,
-			this.props.fileStorage ? React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(StoragesComponent, { openSettings: this.props.openStorageSettings, frases: this.props.frases, storages: this.props.fileStorage, utils: this.props.utils })
-				)
-			) : '',
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(StorageUsageComponent, { frases: this.props.frases, data: this.props.options, utils: this.props.utils })
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(UsersStorageComponent, { frases: frases, data: this.props.storageInfo })
-				)
-			)
-		);
-	}
-});
-
-UsageComponent = React.createFactory(UsageComponent);
-var StorageComponent = React.createClass({
-	displayName: 'StorageComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		data: React.PropTypes.object,
-		onSubmit: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			data: {},
-			modalId: 'storage-settings'
-		};
-	},
-
-	componentDidMount: function () {
-		this.setState({ data: this.props.data || {} });
-	},
-
-	componentWillReceiveProps: function (nextProps) {
-		this.setState({ data: nextProps.data || {} });
-	},
-
-	_onChange: function (e) {
-		var target = e.target;
-		var data = this.state.data;
-		data[target.name] = target.type === 'number' ? parseFloat(target.value) : target.value;
-		this.setState(data);
-	},
-
-	_saveChanges: function () {
-		var data = this.state.data;
-		this.props.onSubmit({
-			id: data.id,
-			path: data.path,
-			maxsize: data.maxsize,
-			state: data.state
-		});
-	},
-
-	_getModalBody: function () {
-
-		return React.createElement(
-			'div',
-			{ className: 'row' },
-			React.createElement(
-				'div',
-				{ className: 'col-xs-12' },
-				React.createElement(
-					'form',
-					{ role: 'form' },
-					React.createElement('input', { type: 'text', name: 'id', value: this.state.data.id, className: 'hidden' }),
-					React.createElement(
-						'div',
-						{ className: 'form-group col-xs-12' },
-						React.createElement(
-							'label',
-							{ htmlFor: 'storage-path' },
-							this.props.frases.PATH
-						),
-						React.createElement('input', { type: 'text', name: 'path', value: this.state.data.path, onChange: this._onChange, className: 'form-control' })
-					),
-					React.createElement(
-						'div',
-						{ className: 'form-group col-xs-12 col-sm-6' },
-						React.createElement(
-							'label',
-							{ htmlFor: 'storage-maxsize' },
-							this.props.frases.STORAGE.MAXSIZE
-						),
-						React.createElement(
-							'div',
-							{ className: 'input-group' },
-							React.createElement('input', { type: 'number', name: 'maxsize', min: '0', value: this.state.data.maxsize, onChange: this._onChange, className: 'form-control' }),
-							React.createElement(
-								'span',
-								{ className: 'input-group-addon' },
-								'GB'
-							)
-						)
-					),
-					React.createElement(
-						'div',
-						{ className: 'form-group col-xs-12 col-sm-6' },
-						React.createElement(
-							'label',
-							{ htmlFor: 'storage-state' },
-							this.props.frases.STATE
-						),
-						React.createElement(
-							'select',
-							{ name: 'state', value: this.state.data.state, onChange: this._onChange, className: 'form-control' },
-							React.createElement(
-								'option',
-								{ value: '1' },
-								this.props.frases.STORAGE.STATES["1"]
-							),
-							React.createElement(
-								'option',
-								{ value: '0' },
-								this.props.frases.STORAGE.STATES["0"]
-							),
-							React.createElement(
-								'option',
-								{ value: '2' },
-								this.props.frases.STORAGE.STATES["2"]
-							)
-						)
-					)
-				)
-			)
-		);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var body = this._getModalBody();
-
-		return React.createElement(ModalComponent, {
-			id: this.state.modalId,
-			title: frases.STORAGE.STORAGE_SETTINGS,
-			submitText: frases.SAVE,
-			cancelText: frases.CANCEL,
-			submit: this._saveChanges,
-			body: body
-		});
-	}
-
-});
-
-StorageComponent = React.createFactory(StorageComponent);
-
-var StoragesComponent = React.createClass({
-	displayName: "StoragesComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		storages: React.PropTypes.array,
-		utils: React.PropTypes.object,
-		openSettings: React.PropTypes.func
-	},
-
-	// getDefaultProps: function() {
-	// 	return {
-	// 		sub: {}
-	// 	};
-	// },
-
-	// getInitialState: function() {
-	// 	return {
-	// 		storageData: {},
-	// 		storageOpened: false
-	// 	};
-	// },
-
-	// componentDidMount: function() {
-
-	// },
-
-	_openStorageSettings: function (index) {
-		var storageOpts = this.props.storages[index] || {};
-		this.props.openSettings(storageOpts);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var storages = this.props.storages;
-		var utils = this.props.utils;
-
-		return React.createElement(
-			"div",
-			{ className: "panel" },
-			React.createElement(
-				"div",
-				{ className: "panel-header" },
-				frases.STORAGE.AVAILABLE_STORAGES
-			),
-			React.createElement(
-				"div",
-				{ className: "panel-body" },
-				React.createElement(
-					"div",
-					{ className: "row" },
-					React.createElement(
-						"div",
-						{ className: "col-xs-12 col-custom" },
-						React.createElement(
-							"div",
-							{ className: "table-responsive" },
-							React.createElement(
-								"table",
-								{ className: "table table-condensed" },
-								React.createElement(
-									"thead",
-									null,
-									React.createElement(
-										"tr",
-										null,
-										React.createElement("th", { style: { width: "2px" } }),
-										React.createElement(
-											"th",
-											null,
-											frases.STATE
-										),
-										React.createElement(
-											"th",
-											null,
-											frases.PATH
-										),
-										React.createElement(
-											"th",
-											null,
-											frases.STORAGE.FREE_SPACE,
-											" (GB)"
-										),
-										React.createElement(
-											"th",
-											null,
-											frases.STORAGE.USED_SPACE,
-											" (GB)"
-										),
-										React.createElement(
-											"th",
-											null,
-											frases.STORAGE.TOTAL_SPACE,
-											" (GB)"
-										),
-										React.createElement(
-											"th",
-											null,
-											frases.STORAGE.CREATED
-										),
-										React.createElement(
-											"th",
-											null,
-											frases.STORAGE.UPDATED
-										),
-										React.createElement(
-											"th",
-											{ className: "unsortable" },
-											React.createElement(
-												"button",
-												{ type: "button", onClick: this._openStorageSettings.bind(this, null), className: "btn btn-primary" },
-												React.createElement("i", { className: "fa fa-plus" })
-											)
-										)
-									)
-								),
-								React.createElement(
-									"tbody",
-									null,
-									storages.map(function (item, index) {
-
-										return React.createElement(
-											"tr",
-											{ key: index.toString() },
-											React.createElement("td", { className: item.state === 1 || item.state === 2 ? 'success' : 'danger' }),
-											React.createElement(
-												"td",
-												null,
-												utils.getFriendlyStorageState(item.state)
-											),
-											React.createElement(
-												"td",
-												null,
-												item.path
-											),
-											React.createElement(
-												"td",
-												null,
-												utils.convertBytes(item.freespace, 'Byte', 'GB').toFixed(2)
-											),
-											React.createElement(
-												"td",
-												null,
-												utils.convertBytes(item.usedsize, 'Byte', 'GB').toFixed(2)
-											),
-											React.createElement(
-												"td",
-												null,
-												utils.convertBytes(item.maxsize, 'Byte', 'GB').toFixed(2)
-											),
-											React.createElement(
-												"td",
-												null,
-												utils.formatDateString(item.created)
-											),
-											React.createElement(
-												"td",
-												null,
-												utils.formatDateString(item.updated)
-											),
-											React.createElement(
-												"td",
-												null,
-												React.createElement(
-													"button",
-													{ className: "btn btn-default btn-sm", onClick: this._openStorageSettings.bind(this, index) },
-													React.createElement("i", { className: "fa fa-edit" })
-												)
-											)
-										);
-									}.bind(this))
-								)
-							)
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-StoragesComponent = React.createFactory(StoragesComponent);
-function StorageUsageComponent(props) {
-
-	var frases = props.frases;
-	var data = props.data;
-	var storesize = props.utils.convertBytes(props.data.storesize, 'Byte', 'GB');
-	var storelimit = props.utils.convertBytes(props.data.storelimit, 'Byte', 'GB');
-
-	return React.createElement(
-		'div',
-		{ className: 'panel' },
-		React.createElement(
-			'div',
-			{ className: 'panel-header' },
-			React.createElement(
-				'span',
-				null,
-				frases.USAGE.PANEL_TITLE
-			)
-		),
-		React.createElement(
-			'div',
-			{ className: 'panel-body' },
-			React.createElement(
-				'div',
-				{ className: 'row', style: { textAlign: "center" } },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 col-sm-4', style: { marginBottom: "20px" } },
-					React.createElement(
-						'h3',
-						null,
-						React.createElement(
-							'small',
-							null,
-							frases.USAGE.USERS.CREATED
-						),
-						' ',
-						data.users,
-						' ',
-						React.createElement(
-							'small',
-							null,
-							frases.USAGE.USERS.FROM
-						)
-					),
-					React.createElement(
-						'h3',
-						null,
-						data.maxusers
-					),
-					React.createElement(
-						'p',
-						null,
-						frases.USAGE.USERS.USAGE_ITEM
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 col-sm-4', style: { marginBottom: "20px" } },
-					React.createElement(
-						'h3',
-						null,
-						React.createElement(
-							'small',
-							null,
-							frases.USAGE.STORAGE.USED
-						),
-						' ',
-						parseFloat(storesize).toFixed(2),
-						' ',
-						React.createElement(
-							'small',
-							null,
-							frases.USAGE.STORAGE.FROM
-						)
-					),
-					React.createElement(
-						'h3',
-						null,
-						parseFloat(storelimit).toFixed(2)
-					),
-					React.createElement(
-						'p',
-						null,
-						frases.USAGE.STORAGE.USAGE_ITEM
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 col-sm-4', style: { marginBottom: "20px" } },
-					React.createElement(
-						'h3',
-						null,
-						React.createElement(
-							'small',
-							null,
-							frases.USAGE.LINES.AVAILABLE
-						)
-					),
-					React.createElement(
-						'h3',
-						null,
-						data.maxlines
-					),
-					React.createElement(
-						'p',
-						null,
-						frases.USAGE.LINES.USAGE_ITEM
-					)
-				)
-			)
-		)
-	);
-}
-function UserStorageComponent(props) {
-
-	return React.createElement(
-		"tr",
-		null,
-		React.createElement(
-			"td",
-			null,
-			props.user
-		),
-		React.createElement(
-			"td",
-			null,
-			props.size
-		),
-		React.createElement(
-			"td",
-			null,
-			props.limit
-		)
-	);
-}
-
-var UsersStorageComponent = React.createClass({
-    displayName: 'UsersStorageComponent',
-
-
-    propTypes: {
-        data: React.PropTypes.array,
-        frases: React.PropTypes.object
-    },
-
-    _convertBytes: function (value, fromUnits, toUnits) {
-        var coefficients = {
-            'Byte': 1,
-            'KB': 1000,
-            'MB': 1000000,
-            'GB': 1000000000
-        };
-        return value * coefficients[fromUnits] / coefficients[toUnits];
-    },
-
-    render: function () {
-        var frases = this.props.frases;
-        var data = this.props.data;
-        var size;
-        var limit;
-
-        return React.createElement(
-            'div',
-            { className: 'panel' },
-            React.createElement(
-                'div',
-                { className: 'panel-header' },
-                frases.STORAGE.STORAGE_ALLOCATION
-            ),
-            React.createElement(
-                'div',
-                { className: 'panel-body' },
-                React.createElement(
-                    'div',
-                    { className: 'col-xs-12 col-custom' },
-                    React.createElement(
-                        'div',
-                        { className: 'table-responsive' },
-                        React.createElement(
-                            'table',
-                            { className: 'table table-condensed sortable' },
-                            React.createElement(
-                                'thead',
-                                null,
-                                React.createElement(
-                                    'tr',
-                                    null,
-                                    React.createElement(
-                                        'th',
-                                        null,
-                                        frases.NUMBER
-                                    ),
-                                    React.createElement(
-                                        'th',
-                                        null,
-                                        frases.STORAGE.USED_SPACE,
-                                        ' (GB)'
-                                    ),
-                                    React.createElement(
-                                        'th',
-                                        { style: { width: "180px" }, className: 'unsortable' },
-                                        frases.STORAGE.TOTAL_SPACE,
-                                        ' (GB)'
-                                    )
-                                )
-                            ),
-                            React.createElement(
-                                'tbody',
-                                null,
-                                data.map(function (item, index) {
-
-                                    size = item.size ? this._convertBytes(item.size, 'Byte', 'GB') : '0.00';
-                                    limit = this._convertBytes(item.limit, 'Byte', 'GB');
-
-                                    return React.createElement(UserStorageComponent, {
-                                        key: index.toString(),
-                                        user: item.user,
-                                        size: item.size ? size.toFixed(2) : "0.00",
-                                        limit: limit.toFixed(2)
-                                    });
-                                }.bind(this))
-                            )
-                        )
-                    )
-                )
-            )
-        );
-    }
-});
-
-UsersStorageComponent = React.createFactory(UsersStorageComponent);
-
 var TrunksQosTable = React.createClass({
 	displayName: "TrunksQosTable",
 
@@ -4334,15 +4342,15 @@ function TrunkServiceItemComponent(props) {
 	}
 
 	return React.createElement(
-		"div",
-		{ className: props.className, onClick: selectItem },
+		'div',
+		{ className: props.className, style: { cursor: 'pointer' }, onClick: selectItem },
 		React.createElement(
-			"p",
+			'p',
 			null,
-			React.createElement("i", { className: props.params.icon })
+			React.createElement('i', { className: props.params.icon })
 		),
 		React.createElement(
-			"h5",
+			'h5',
 			null,
 			props.params.name
 		)

@@ -621,7 +621,8 @@
     	"INC_ROUTE_DEFAULT_OPTION": "Select extension",
     	"OUT_ROUTE": "Route calls",
     	"ADVANCED_SETTINGS_BTN": "Advanced settings",
-    	"ADD_RULE": "Add rule"
+    	"ADD_RULE": "Add rule",
+    	"PASSANUMBER": "Pass Caller ID in the From header"
     },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Chat channel",

@@ -622,7 +622,8 @@
     	"INC_ROUTE_DEFAULT_OPTION": "Выберите внутренний номер",
     	"OUT_ROUTE": "Разрешить вызовы",
     	"ADVANCED_SETTINGS_BTN": "Расширенные настройки",
-    	"ADD_RULE": "Добавить правило"
+    	"ADD_RULE": "Добавить правило",
+    	"PASSANUMBER": "Отправлять Caller ID в заголовке From"
     },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Чат канал",

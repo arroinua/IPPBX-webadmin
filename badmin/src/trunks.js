@@ -1,6 +1,8 @@
 function load_trunk(result){
     // console.log(result);
-    var type = result.type, types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
+    var type = result.type,
+        types = [].slice.call(document.querySelectorAll('[name="trunkType"]')),
+        passanumberEl = document.getElementById('passanumber');
 
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
@@ -147,6 +149,7 @@ function load_trunk(result){
             }
         }
     }
+    if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
 
     var transforms = result.inboundanumbertransforms;
     if(transforms.length) {
@@ -281,6 +284,7 @@ function setTrunkOutRoute(route) {
 function set_trunk(){
     var name = document.getElementById('objname').value,
         enabled = document.getElementById('enabled'),
+        passanumberEl = document.getElementById('passanumber'),
         protoOpts,
         jprms,
         handler,
@@ -362,9 +366,12 @@ function set_trunk(){
 
 
     jprms += '"parameters":{';
-        protoOpts = JSON.stringify(PbxObject.protocolOpts);
-        protoOpts = protoOpts.substr(1, protoOpts.length-2);
-        jprms += protoOpts;
+
+    if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+
+    protoOpts = JSON.stringify(PbxObject.protocolOpts);
+    protoOpts = protoOpts.substr(1, protoOpts.length-2);
+    jprms += protoOpts;
 
     incATrasf = transformsToArray('transforms1');
     incBTrasf = transformsToArray('transforms2');
