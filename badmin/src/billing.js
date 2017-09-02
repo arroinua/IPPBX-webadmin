@@ -5,6 +5,7 @@ function load_billing() {
 	var cont = document.getElementById('el-loaded-content');
 	var profile = {};
 	var sub = {};
+	var branchId = null;
 	var plans = [];
 	var stripeToken;
 	var stripeHandler;
@@ -13,6 +14,7 @@ function load_billing() {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err);
 		sub = response.result._subscription;
+		branchId = response.result._id;
 
 		billingRequest('getProfile', null, function(err, response) {
 			console.log('getProfile: ', err, response);
@@ -148,34 +150,66 @@ function load_billing() {
 
 	function onPlanSelect(plan) {
 		plan.amount = plan.price * sub.quantity;
-		checkout(plan);
+		changePlan(plan);
 	}
 
-	function checkout(params) {
-		console.log('checkout: ', params);
-		// var amount = plan.price * sub.quantity;
-		var reqParams = {
-			// resultUrl: window.location.href,
-			// paymentMethod: 1,
-			// paymentService: 'stripe',
-			payment: {
-				method: 'card',
-				service: 'stripe'
-			},
-			amount: params.amount,
-			currency: params.currency,
+	function changePlan(plan) {
+		console.log('changePlan: ', plan);
+		var checkoutParams = {
+			amount: (plan.price*sub.quantity),
+			currency: plan.currency,
 			order: [{
 				action: 'changePlan',
-				description: 'Subscription for plan "'+params.planId+'"',
-				amount: params.amount,
-				data: { planId: params.planId }
+				description: 'Subscription for plan "'+plan.planId+'"',
+				amount: plan.amount,
+				data: { subId: sub._id, planId: plan.planId }
 			}]
 		};
 
+		checkout(checkoutParams, function(err, response) {
+			if(err) return notify_about('error', err.message);
+			console.log('changePlan response: ', response);
+			notify_about('success', 'Plan changed successfully');
+		});
+	}
+
+	function updateLicenses(params){
+		console.log('updateLicenses: ', params);
+
+	}
+
+	function checkout(params, callback) {
+		console.log('checkout: ', params);
+		// var amount = plan.price * sub.quantity;
+		// var reqParams = {
+			// resultUrl: window.location.href,
+			// paymentMethod: 1,
+			// paymentService: 'stripe',
+			// payment: {
+			// 	method: 'card',
+			// 	service: 'stripe'
+			// },
+			// amount: params.amount,
+			// currency: params.currency,
+			// order: [{
+			// 	action: 'changePlan',
+			// 	description: 'Subscription for plan "'+params.planId+'"',
+			// 	amount: params.amount,
+			// 	data: { planId: params.planId }
+			// }]
+		// };
+
+		params.payment = {
+			method: 'card',
+			service: 'stripe'
+		};
+
 		if(confirm('Pay '+params.amount+''+params.currency+'?')) {
-			billingRequest('checkout', reqParams, function(err, response) {
-				console.log('checkout response: ', err, params, response);
+			billingRequest('checkout', params, function(err, response) {
+				console.log('checkout response: ', err, response, params);
 				if(response.locations) window.location = response.location;
+				if(err) return callback(err);
+				callback(null, response);
 				// if(err) return callback();
 				// if(callback) callback(response.result || [])
 			});
@@ -186,33 +220,6 @@ function load_billing() {
 		// 	// if(err) return callback();
 		// 	// if(callback) callback(response.result || [])
 		// });	
-	}
-
-	function updateLicenses(params){
-		console.log('updateLicenses: ', params);
-
-		var amount = plan.price * sub.quantity;
-		var reqParams = {
-			resultUrl: window.location.href,
-			payment: {
-				method: 'card',
-				service: 'stripe'
-			},
-			amount: amount,
-			currency: sub.currency,
-			order: [{
-				action: 'changePlan',
-				description: 'Subscription for plan "'+plan.planId+'"',
-				amount: amount,
-				data: { planId: plan.planId }
-			}]
-		};
-		billingRequest('checkout', reqParams, function(err, response) {
-			console.log('checkout response: ', err, plan, response);
-			if(response.locations) window.location = response.location;
-			// if(err) return callback();
-			// if(callback) callback(response.result || [])
-		});
 	}
 
 	function getPlans(currency, callback) {

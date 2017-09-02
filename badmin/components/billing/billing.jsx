@@ -118,6 +118,13 @@ var BillingComponent = React.createClass({
 		this.props.editCard();
 	},
 
+	_getPaymentMethod: function(billingDetails) {
+		if(!billingDetails || !billingDetails.length) return null;
+		return billingDetails.reduce(function(prev, next) {
+			if(next.default) return prev = next;
+		}, null);
+	},
+
 	_openPlans: function() {
 		this.setState({ changePlanOpened: !this.state.changePlanOpened });
 
@@ -155,11 +162,12 @@ var BillingComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var profile = this.props.profile;
+		var paymentMethod = this._getPaymentMethod(profile.billingDetails);
 		var sub = this.props.sub;
 		var options = this.props.options;
 		var plans = this.props.plans;
 		var column = plans.length ? (12/plans.length) : 12;
-		var onPlanSelect = (profile.billingDetails && profile.billingDetails.card) ? this._onPlanSelect : this._addCard;
+		var onPlanSelect = paymentMethod ? this._onPlanSelect : this._addCard;
 		var trial = sub.planId === 'trial' ? true : false;
 
 		return (
@@ -177,13 +185,13 @@ var BillingComponent = React.createClass({
 					</div>
 					<div className="col-xs-12">
 						{
-							(profile.billingDetails && profile.billingDetails.card) ? (
+							paymentMethod ? (
 								<p className="text-muted" style={{ userSelect: 'none' }}>
-									•••• •••• •••• {profile.billingDetails.card.last4}
+									•••• •••• •••• {paymentMethod.params.last4}
 									<span> </span>
 									<a href="#" onClick={this._editCard} className="text-uppercase">Edit</a>
 									<br/>
-									{profile.billingDetails.card.exp_month}/{profile.billingDetails.card.exp_year}
+									{paymentMethod.params.exp_month}/{paymentMethod.params.exp_year}
 								</p>
 							) : (
 								<div className="alert alert-info" role="alert">
