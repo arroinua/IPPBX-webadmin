@@ -2435,13 +2435,13 @@ function checkHuntMode(e){
         document.getElementById('huntmodesetts').classList.remove('hidden');
 }
 function load_billing() {
+	
 	console.log('load_billing');
 	close_options();
 
 	var cont = document.getElementById('el-loaded-content');
 	var profile = {};
 	var sub = {};
-	var branchId = null;
 	var plans = [];
 	var stripeToken;
 	var stripeHandler;
@@ -2449,15 +2449,14 @@ function load_billing() {
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err);
-		sub = response.result._subscription;
-		branchId = response.result._id;
+		sub = response.result;
 
 		billingRequest('getProfile', null, function(err, response) {
 			console.log('getProfile: ', err, response);
 			if(err) return notify_about('error' , err);
 			profile = response.result;
 
-			getPlans(sub.currency, function(err, result) {
+			getPlans(profile.currency, function(err, result) {
 				if(err) return notify_about('error' , err);
 				plans = result;
 
@@ -2503,7 +2502,8 @@ function load_billing() {
 		    addCard: addCard,
 		    editCard: editCard,
 		    onPlanSelect: onPlanSelect,
-		    updateLicenses: updateLicenses
+		    updateLicenses: updateLicenses,
+		    extend: deepExtend
 		}), cont);
 
 		// set_page();
@@ -2520,12 +2520,17 @@ function load_billing() {
 			// currency: 'eur',
 			// amount: plan.amount*100,
 			closed: function(result) {
-				console.log('onPlanSelect closed: ', result);
+				console.log('addCard closed: ', result);
 				saveCard(stripeToken, function(err, response) {
 					if(err || !response.success) return;
 
+					console.log('editCard token: ', stripeToken);
+
 					profile.billingDetails = profile.billingDetails || {};
-					profile.billingDetails.card = stripeToken.card;
+					profile.billingDetails.push(stripeToken.card);
+					profile.defaultBillingMethod = {
+						params: stripeToken.card
+					};
 					init();
 				});
 			}
@@ -2542,12 +2547,17 @@ function load_billing() {
 			// currency: 'eur',
 			// amount: plan.amount*100,
 			closed: function(result) {
-				console.log('onPlanSelect closed: ', result);
+				console.log('editCard closed: ', result);
 				updateCard(stripeToken, function(err, response) {
 					if(err || !response.success) return;
 
+					console.log('editCard token: ', stripeToken);
+
 					profile.billingDetails = profile.billingDetails || {};
-					profile.billingDetails.card = stripeToken.card;
+					profile.billingDetails.push(stripeToken.card);
+					profile.defaultBillingMethod = {
+						params: stripeToken.card
+					};
 					init();
 				});
 			}
@@ -2584,78 +2594,35 @@ function load_billing() {
 		});
 	}
 
+	// function onPlanSelect(plan) {
+	// 	changePlan(plan);
+	// }
+
 	function onPlanSelect(plan) {
-		plan.amount = plan.price * sub.quantity;
-		changePlan(plan);
-	}
-
-	function changePlan(plan) {
 		console.log('changePlan: ', plan);
-		var checkoutParams = {
-			amount: (plan.price*sub.quantity),
-			currency: plan.currency,
-			order: [{
-				action: 'changePlan',
-				description: 'Subscription for plan "'+plan.planId+'"',
-				amount: plan.amount,
-				data: { subId: sub._id, planId: plan.planId }
-			}]
-		};
-
-		checkout(checkoutParams, function(err, response) {
+		billingRequest('changePlan', {
+			subId: sub._id,
+			planId: plan.planId
+		}, function(err, response) {
 			if(err) return notify_about('error', err.message);
-			console.log('changePlan response: ', response);
-			notify_about('success', 'Plan changed successfully');
+			console.log('changePlan: ', err, response);
+			sub = response.result;
+			init();
 		});
 	}
 
 	function updateLicenses(params){
 		console.log('updateLicenses: ', params);
-
-	}
-
-	function checkout(params, callback) {
-		console.log('checkout: ', params);
-		// var amount = plan.price * sub.quantity;
-		// var reqParams = {
-			// resultUrl: window.location.href,
-			// paymentMethod: 1,
-			// paymentService: 'stripe',
-			// payment: {
-			// 	method: 'card',
-			// 	service: 'stripe'
-			// },
-			// amount: params.amount,
-			// currency: params.currency,
-			// order: [{
-			// 	action: 'changePlan',
-			// 	description: 'Subscription for plan "'+params.planId+'"',
-			// 	amount: params.amount,
-			// 	data: { planId: params.planId }
-			// }]
-		// };
-
-		params.payment = {
-			method: 'card',
-			service: 'stripe'
-		};
-
-		if(confirm('Pay '+params.amount+''+params.currency+'?')) {
-			billingRequest('checkout', params, function(err, response) {
-				console.log('checkout response: ', err, response, params);
-				if(response.locations) window.location = response.location;
-				if(err) return callback(err);
-				callback(null, response);
-				// if(err) return callback();
-				// if(callback) callback(response.result || [])
-			});
-		}
-
-		// billingRequest('changePlan', { planId: planId }, function(err, response) {
-		// 	console.log('changePlan response: ', err, planId, response);
-		// 	// if(err) return callback();
-		// 	// if(callback) callback(response.result || [])
-		// });	
+		billingRequest('updateSubscription', {
+			subId: sub._id,
+			addOns: params.addOns,
+			quantity: params.quantity
+		}, function(err, response) {
+			if(err) return notify_about('error', err.message);
+			console.log('updateLicenses: ', err, response);
+			sub = response.result;
+			init();
+		});
 	}
 
 	function getPlans(currency, callback) {
@@ -2665,6 +2632,7 @@ function load_billing() {
 			if(callback) callback(null, response.result || [])
 		});
 	}
+
 }
 function load_certificates(){
 	if(PbxObject.options.mode && PbxObject.options.mode !== 0)
@@ -5692,10 +5660,7 @@ function request(method, url, data, options, callback){
         
         clearTimeout(requestTimer);
 
-        console.log('request" ', e);
-
         var redirect = e.target.getAllResponseHeaders();
-        console.log('request redirect', redirect);
         var status = e.target.status;
         var response = e.target.responseText;
         if(response) {
@@ -7565,6 +7530,18 @@ function extend( a, b ) {
         }
     }
     return a;
+}
+
+function deepExtend(destination, source) {
+    for (var property in source) {
+        if (source[property] && source[property].constructor && source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            arguments.callee(destination[property], source[property]);
+        } else {
+            destination[property] = source[property];
+        }
+    }
+    return destination;
 }
 
 function addEvent(obj, evType, fn) {

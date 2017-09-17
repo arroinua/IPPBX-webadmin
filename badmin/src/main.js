@@ -217,10 +217,7 @@ function request(method, url, data, options, callback){
         
         clearTimeout(requestTimer);
 
-        console.log('request" ', e);
-
         var redirect = e.target.getAllResponseHeaders();
-        console.log('request redirect', redirect);
         var status = e.target.status;
         var response = e.target.responseText;
         if(response) {
@@ -2090,6 +2087,18 @@ function extend( a, b ) {
         }
     }
     return a;
+}
+
+function deepExtend(destination, source) {
+    for (var property in source) {
+        if (source[property] && source[property].constructor && source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            arguments.callee(destination[property], source[property]);
+        } else {
+            destination[property] = source[property];
+        }
+    }
+    return destination;
 }
 
 function addEvent(obj, evType, fn) {

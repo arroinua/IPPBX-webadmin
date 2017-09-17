@@ -15,28 +15,8 @@ var PlanComponent = React.createClass({
 		};
 	},
 
-	_convertBytes: function(value, fromUnits, toUnits){
-	    var coefficients = {
-	        'Byte': 1,
-	        'KB': 1000,
-	        'MB': 1000000,
-	        'GB': 1000000000
-	    }
-	    return value * coefficients[fromUnits] / coefficients[toUnits];
-	},
-
 	_selectPlan: function() {
 		this.props.onSelect(this.props.plan);
-	},
-
-	_convertBytes: function(value, fromUnits, toUnits){
-	    var coefficients = {
-	        'Byte': 1,
-	        'KB': 1000,
-	        'MB': 1000000,
-	        'GB': 1000000000
-	    }
-	    return value * coefficients[fromUnits] / coefficients[toUnits];
 	},
 
 	render: function() {
@@ -48,7 +28,7 @@ var PlanComponent = React.createClass({
 				<div className="panel-header">{ plan.name }</div>
 				<div className="panel-body">
 					<ul style={{ padding: '0', listStyle: 'none' }}>
-						<li>{this._convertBytes(plan.customData.storageperuser, 'Byte', 'GB')}GB Storage per user</li>
+						<li>{plan.customData.storageperuser}GB Storage per user</li>
 						<li>•</li>
 						<li>{plan.maxlines ? plan.maxlines : 'Unlimited'} number of lines</li>
 						<li>•</li>
