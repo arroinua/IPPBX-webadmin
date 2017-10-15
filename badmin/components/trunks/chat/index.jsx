@@ -5,7 +5,6 @@
 		services: React.PropTypes.array,
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
-		serviceParams: React.PropTypes.object,
 		routes: React.PropTypes.array,
 		onStateChange: React.PropTypes.func,
 		setObject: React.PropTypes.func,
@@ -14,64 +13,29 @@
 
 	getDefaultProps: function() {
 		return {
-			routes: [],
-			serviceParams: {}
+			routes: []
 		};
 	},
 
-	// getInitialState: function() {
-	// 	return {
-	// 		params: {},
-	// 		properties: {},
-	// 		selectedRoute: {}
-	// 	};
-	// },
+	getInitialState: function() {
+		return {
+			serivceInited: true
+		};
+	},
 
 	componentWillMount: function() {
 		var params = this.props.params;
 		this.setState({
 			type: this.props.type,
 			params: params || {},
-			serviceParams: this.props.serviceParams || null,
-			submitDisabled: this._isSubmitDisabled(this.props),
-			serivceInited: this._isServiceInited(this.props),
 			selectedRoute: params.routes.length ? params.routes[0].target : (this.props.routes.length ? this.props.routes[0] : null)
 		});
 	},
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
-			type: props.type,
-			serviceParams: props.serviceParams || null,
-			submitDisabled: this._isSubmitDisabled(props),
-			serivceInited: this._isServiceInited(props),
+			type: props.type
 		});		
-	},
-
-	_isServiceInited: function(props) {
-		var inited = false;
-		var type = props.type;
-		var serviceParams = props.serviceParams;
-		
-		if(type === 'FacebookMessenger' || type === 'Facebook') {
-			if(serviceParams.pages && serviceParams.pages.length) inited = true;
-		}
-
-		console.log('_isServiceInited: ', type, inited);
-
-		return inited;
-	},
-
-	_isSubmitDisabled: function(props) {
-		var disabled = false;
-		var type = props.type;
-		var serviceParams = props.serviceParams;
-		
-		if(type === 'FacebookMessenger' || type === 'Facebook') {
-			if(!serviceParams.pages || !serviceParams.pages.length) disabled = true;
-		}
-
-		return disabled;
 	},
 
 	_onStateChange: function(state) {
@@ -98,8 +62,9 @@
 		// if(!pages || !pages.length) return console.error('page is not selected');;
 		if(!selectedRoute) return console.error('route is not selected');
 
+		params.type = this.state.type;
 		params.pageid = properties.id;
-		params.pagename = properties.name;
+		params.pagename = properties.name || '';
 		params.properties = properties;
 		params.routes = [];
 		params.routes.push({
@@ -146,7 +111,9 @@
 	},
 
 	_setService: function(type) {
-		this.setState({ type: type });
+		this.setState({ 
+			type: type
+		});
 	},
 
 	_getComponentName: function(type) {
@@ -155,15 +122,26 @@
 			component = FacebookTrunkComponent;
 		} else if(type === 'Twitter') {
 			component = TwitterTrunkComponent;
+		} else if(type === 'Viber') {
+			component = ViberTrunkComponent;
 		}
 
 		return component;		
 	},
 
+	_getServiceParams: function(type) {
+		return this.props.services.reduce(function(prev, next) {
+			if(next.id === type) prev = next;
+			return prev;
+		}, {});
+	},
+
 	render: function() {
 		var params = this.state.params;
 		var frases = this.props.frases;
-		var ServiceComponent = this._getComponentName(this.state.type);
+		var type = this.state.type;
+		var ServiceComponent = this._getComponentName(type);
+		var serviceParams = this._getServiceParams(type);
 		
 		console.log('ChatTrunkComponent: ', params, ServiceComponent);
 
@@ -179,32 +157,47 @@
 					onSubmit={this._setObject}
 					onCancel={this.state.params.pageid ? this._removeObject : null}
 				/>
-				<div className="row">
-					<div className="col-xs-12">
-						{
-							this.props.services.map(function(item, index, array) {
-								return (
-									<TrunkServiceItemComponent key={item.id} params={item} className="col-sm-2 col-xs-4 text-center" onClick={this._setService} />
-								)
-							}.bind(this))
-						}
-					</div>
-				</div>
-				<PanelComponent header="Trunk settings">
-					<div className="row">
-						<div className="col-xs-12">
-							{
-								!this.props.routes.length ? (
-									<p>You need to<a href="#chatchannel/chatchannel">Create a Chat channel</a> before connecting a Chat trnuk</p>
-								) : (
+				<PanelComponent>
+					{
+						!this.props.routes.length ? (
 
+							<h4>{frases.CHAT_TRUNK.NO_CHANNELS_MSG_1}<a href="#chatchannel/chatchannel"> {frases.CHAT_TRUNK.CREATE_CHANNEL}</a> {frases.CHAT_TRUNK.NO_CHANNELS_MSG_2}</h4>
+						
+						) : (
+
+							<div className="row">
+								<div className="col-xs-12">
+									<form className="form-horizontal">
+										<div className="form-group">
+											<label className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_SERVICE}</label>
+											<div className="col-sm-8">
+												{
+													this.props.services.map(function(item) {
+														return (
+															<div className="text-center col-sm-2 col-xs-3" style={{ padding: "20px 0" }}>
+																<TrunkServiceItemComponent 
+																	key={item.id} 
+																	selected={item.id === type} 
+																	item={item} 
+																	onClick={this._setService} 
+																	disabled={params.pageid && item.id !== type}
+																/>
+															</div>
+														)
+													}.bind(this))
+												}
+											</div>
+										</div>
+									</form>
+									<hr/>
+								</div>
+								<div className="col-xs-12">
 									<div>
 
 										<ServiceComponent
 											frases={frases}
 											properties={this.props.params.properties}
-											serviceParams={this.state.serviceParams}
-											loginHandler={this.props.serviceParams.loginHandler}
+											serviceParams={serviceParams}
 											onChange={this._onPropsChange}
 											disabled={!!this.state.params.pageid}
 										/>
@@ -215,7 +208,7 @@
 												<form className="form-horizontal">
 													<hr/>
 													<div className="form-group">
-														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Select Chat Channel</label>
+														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
 														<div className="col-sm-4">
 															<select className="form-control" id="ctc-select-2" value={this.state.selectedRoute.oid} onChange={this._selectRoute}>
 																{
@@ -233,13 +226,13 @@
 														</div>
 													</div>
 													<div className="form-group">
-														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Session timeout (min)</label>
+														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SESSION_TIMEOUT}</label>
 														<div className="col-sm-4">
 															<input type="number" className="form-control" name="sessiontimeout" value={params.sessiontimeout} onChange={this._onParamsChange} />
 														</div>
 													</div>
 													<div className="form-group">
-														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Reply timeout (min)</label>
+														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
 														<div className="col-sm-4">
 															<input type="number" className="form-control" name="replytimeout" value={params.replytimeout} onChange={this._onParamsChange} />
 														</div>
@@ -249,13 +242,13 @@
 											)
 										}
 
-										
 									</div>
+								</div>
+							</div>
 
-								)
-							}
-						</div>
-					</div>
+						)
+					}
+							
 				</PanelComponent>
 			</div>
 		);

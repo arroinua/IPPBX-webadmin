@@ -1,12 +1,7 @@
  var TwitterTrunkComponent = React.createClass({
 
 	propTypes: {
-		frases: React.PropTypes.object,
-		properties: React.PropTypes.object,
-		serviceParams: React.PropTypes.object,
-		loginHandler: React.PropTypes.func,
-		onChange: React.PropTypes.func,
-		disabled: React.PropTypes.bool
+		frases: React.PropTypes.object
 	},
 
 	// getInitialState: function() {
@@ -15,11 +10,11 @@
 	// 	};
 	// },
 
-	// componentWillMount: function() {
-	// 	this.setState({
-	// 		selectedPage: this.props.properties || {}
-	// 	});		
-	// },
+	componentWillMount: function() {
+		this.setState({
+			logedIn: false
+		});		
+	},
 
 	// componentWillReceiveProps: function(props) {
 	// 	this.setState({
@@ -27,22 +22,21 @@
 	// 	});		
 	// },
 
-	_setToken: function() {
-
+	_login: function() {
+		console.log('Login');
 	},
 
 	render: function() {
-		var logedIn = this.props.serviceParams.pages;
 		var frases = this.props.frases;
 		
-		console.log('TwitterTrunkComponent: ', logedIn);
+		console.log('TwitterTrunkComponent: ');
 
 		return (
 			<div>
 				{
-					!logedIn ? (
+					!this.state.logedIn ? (
 						<div className="text-center">
-							<button className="btn btn-lg btn-primary" onClick={this.props.loginHandler}><i className="fa fa-fw fa-twitter"></i> Login with Twitter</button>
+							<button className="btn btn-lg btn-primary" onClick={this._login}><i className="fa fa-fw fa-twitter"></i> Login with Twitter</button>
 						</div>
 					) :
 					(

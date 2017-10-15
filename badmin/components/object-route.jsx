@@ -2,7 +2,7 @@
 var ObjectRoute = React.createClass({
 
 	propTypes: {
-		getOptions: React.PropTypes.func,
+		// getOptions: React.PropTypes.func,
 		routes: React.PropTypes.array,
 		frases: React.PropTypes.object,
 		// clearCurrObjRoute: React.PropTypes.func,
@@ -13,7 +13,7 @@ var ObjectRoute = React.createClass({
 		return {
 			route: {},
 			routeId: "",
-			options: []
+			options: null
 		};
 	},
 
@@ -21,7 +21,7 @@ var ObjectRoute = React.createClass({
 		var options = [],
 			route = this.props.routes.length ? this.props.routes[0] : null;
 
-		this.props.getOptions(function(result) {
+		this._getAvailablePool(function(result) {
 		    options = result
 		    .sort()
 		    .map(function(item) { return { value: item, label: item } });
@@ -40,8 +40,8 @@ var ObjectRoute = React.createClass({
 		    	});
 		    	this._onChange({ value: route.ext, label: route.ext });
 		    } else {
-		    	this.setState({ route: options[0] });
-		    	this._onChange(options[0]);
+		    	this.setState({ route: options[options.length-1] });
+		    	this._onChange(options[options.length-1]);
 		    }
 
 		}.bind(this));
@@ -50,6 +50,13 @@ var ObjectRoute = React.createClass({
 	// componentWillUnmount: function() {
 	// 	this.props.clearCurrObjRoute();
 	// },
+
+	_getAvailablePool: function(cb) {
+	    window.json_rpc_async('getObject', { oid: 'user' }, function(result) {
+	        console.log('getAvailablePool: ', result);
+	        cb(result.available.sort());
+	    });
+	},
 
 	_getRouteObj: function(ext) {
 		var currRouteObj = {
@@ -80,17 +87,11 @@ var ObjectRoute = React.createClass({
 	render: function() {
 		console.log('ObjectRoute value: ', this.state.route);
 		return (
-			<Select3 value={this.state.route} options={this.state.options} onChange={this._onChange} />
-			
-            	//<Select
-            	//    name="form-field-name"
-            	//    className="obj-route-select"
-            	//    clearable={false}
-            	//    value={this.state.route}
-            	//    options={this.state.options}
-            	//    onChange={this._onChange}
-            	//    arrowRenderer={function() { return false; }}
-            	///>
+			this.state.options ? (
+				<Select3 value={this.state.route} options={this.state.options} onChange={this._onChange} />
+			) : (
+				<h4 className="fa fa-fw fa-spinner fa-spin"></h4>
+			)
 	        
 		);
 	}

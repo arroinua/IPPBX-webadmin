@@ -306,28 +306,35 @@ function set_extension_update(e){
 function load_extension(result){
     // console.log(result);
 
-    var d = document,
-    groupid = result.groupid,
-    kind = result.kind == 'user' ? 'users':'unit';
-
-    if(kind === 'users') {
-        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
-        if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
-        if(result.storelimit) result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
-    }
-
-    data = {
-        data: result,
-        frases: PbxObject.frases
-    };
-
     PbxObject.extOid = result.oid;
     PbxObject.userid = result.userid;
     PbxObject.vars = PbxObject.vars || {};
     PbxObject.vars.infoShown = false;
-    
-    var rendered = Mustache.render(PbxObject.templates.extension, data);
+
+    var d = document;
     var cont = document.getElementById('ext-cont');
+    var groupid = result.groupid;
+    var kind = result.kind == 'user' ? 'users':'unit';
+    var rendered;
+
+    if(kind === 'users') {
+
+        result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
+        result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        // if(result.storelimit) {
+        //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
+        // } else {
+        //     storelimitCont.style.display = 'none';
+        // }
+    }
+
+    rendered = Mustache.render(PbxObject.templates.extension, {
+        data: result,
+        frases: PbxObject.frases
+    });
+
     if(!cont){
         cont = document.createElement('div');
         cont.id = 'ext-cont';
@@ -339,25 +346,36 @@ function load_extension(result){
     // $("#ext-cont").html(rendered);
     $(cont).html(rendered);
 
+    var storelimitCont = document.getElementById('ext-storelimit-cont');
+    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
+    var state = document.querySelector('#el-extension .user-state-ind');
     var img = document.getElementById('user-avatar');
     var src = "/$AVATAR$?userid="+result.userid;
+
     img.onerror = function(){
         this.src = 'images/avatar.png';
     }
     img.src = src;
 
-    var state = document.querySelector('#el-extension .user-state-ind');
     state.classList.add(getInfoFromState(result.state).rclass);
+
+    if(storeLimitTrigger) {
+        addEvent(storeLimitTrigger, 'change', function(){
+            storelimitCont.style.display = this.checked ? 'block' : 'none';
+        });
+    }
 
     if(kind !== 'users') {
         var storageUsage = document.querySelector('#el-extension .user-storage-usage');
         if(storageUsage) storageUsage.classList.add('hidden');
 
-        var storelimitCont = document.getElementById('storelimit-cont');
         if(storelimitCont) storelimitCont.classList.add('hidden');
     } else {
         var pinCont = document.getElementById('pin-cont');
         if(pinCont) pinCont.classList.add('hidden');
+
+        storeLimitTrigger.checked = !!result.storelimit;
+        storelimitCont.style.display = result.storelimit ? 'block' : 'none';
     }
 
     // getAvatar(result.userid, function(binary){
@@ -449,7 +467,11 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     // var login = d.getElementById("extlogin").textContent;
+    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
+
+    if(!storeLimitTrigger.checked) storelimit.value = 0;
+
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
     if(groupv){

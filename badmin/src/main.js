@@ -106,15 +106,16 @@ function billingRequest(path, params, cb) {
         'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
-        function(err, result) {
-            console.log('billing response: ', err, result);
-            if(err) return notify_about('error' , err);
-            if(!result.success) {
-                notify_about('error' , result.message);
-                return cb(result.message);
-            }
-            if(cb) cb(null, result);
-        }
+        cb
+        // function(err, result) {
+            // console.log('billing response: ', err, result);
+            // if(err) return notify_about('error' , err);
+            // if(!result.success) {
+            //     notify_about('error' , result.error.message);
+            //     return cb(result.message);
+            // }
+            // if(cb) cb(null, result);
+        // }
     );
 }
 
@@ -578,7 +579,8 @@ function get_object(e){
         var modal = document.getElementById('el-extension');
         if(modal) modal.parentNode.removeChild(modal);
 
-        var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+        // var groupKinds = ['equipment', 'unit', 'users', 'hunting', 'icd', 'conference', 'selector', 'channel', 'pickup'];
+        var groupKinds = ['equipment', 'unit', 'users', 'conference', 'selector', 'channel', 'pickup'];
         if(groupKinds.indexOf(kind) != -1){
             kind = 'bgroup';
         }
@@ -682,7 +684,8 @@ function clearTempParams() {
 
 function set_page(){
     var kind = PbxObject.kind;
-    var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+    // var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+    var groupKinds = ['equipment', 'unit', 'users', 'conference', 'selector', 'channel', 'pickup'];
     if(groupKinds.indexOf(kind) != -1){
         kind = 'bgroup';
     }
@@ -774,6 +777,7 @@ function set_page(){
     $('#dcontainer [data-toggle="tooltip"]').tooltip({
         delay: {"show": 1000, "hide": 100}
     });
+
 }
 
 function setBreadcrumbs(){
@@ -860,7 +864,7 @@ function showModal(modalId, data, onsubmit, onopen, onclose){
         data.frases = PbxObject.frases;
         modal = Mustache.render(template, data);
         cont.insertAdjacentHTML('afterbegin', modal);
-        $('#'+modalId).modal();
+        $('#'+modalId).modal(); 
         $('#'+modalId).on('shown.bs.modal', function(e) {
             if(onsubmit) setModal(this, onsubmit);
             if(onopen) onopen(this);
@@ -877,10 +881,14 @@ function setModal(modalObject, onsubmit){
     var submitBtn = modalObject.querySelector('[data-type="submit"]'),
         form = modalObject.querySelector('form');
 
-    addEvent(submitBtn, 'click', function(e) {
-        onsubmit(form ? retrieveFormData(form) : null, modalObject);
-        // $(modalObject).modal('hide');
-    });
+    if(submitBtn) {
+        addEvent(submitBtn, 'click', function(e) {
+            e.target.disabled = true;
+            onsubmit(form ? retrieveFormData(form) : null, modalObject);
+            // $(modalObject).modal('hide');
+        });
+    }
+        
 }
 
 function openModal(params, callback){
@@ -1720,6 +1728,34 @@ function upload(inputid, urlString){
     // xmlhttp.setRequestHeader("X-File-Size", file.size);
     xmlhttp.send(file);
     console.log('upload', file, url);
+}
+
+function uploadFile(file, urlString){
+    var upload;
+
+    if(!file){
+        return false;
+    }
+
+    // var file = files[0];
+    var url = urlString ? urlString : '/'+file.name;
+    var xmlhttp = new XMLHttpRequest();
+    var requestTimer = setTimeout(function(){
+        xmlhttp.abort();
+        notify_about('info', PbxObject.frases.TIMEOUT);
+    }, 30000);
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState==4){
+            clearTimeout(requestTimer);
+            if(xmlhttp.status != 200) {
+                notify_about('error', PbxObject.frases.ERROR);
+            }
+        }
+    };
+    xmlhttp.open("PUT", url, true);
+    xmlhttp.send(file);
+
 }
 
 function deleteFile(url){

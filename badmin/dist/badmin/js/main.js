@@ -443,23 +443,39 @@ function fillBtnsSelectList(array, selectEl, selectedValue){
     selectEl.appendChild(fragment);
 }
 
+function strToJson(str) {
+    var pattern1 = new RegExp(/([\d\w]+)(=+)(?!\{)([\d\w@\-_.\s,?!*%$^&#+]*)(?=\,|\})/, 'g');
+    var pattern2 = new RegExp(/([\d\w#*]+)(=+)(?=\{)/, 'g');
+    return str
+    .replace(pattern1, function(full, key, equal, value) {
+        if(value !== 'null') value = JSON.stringify(value);
+        return '"'+key+'":'+value;
+    })
+    .replace(pattern2, function(full, key, equal) {
+        return '"'+key+'":';
+    });
+}
+
 function setAttSettings(params, temp){
     var objects, settsForm = document.getElementById('attvariables'),
         greetsFile = '',
         ringbackMusic = '',
         connFailedFile = '',
         leaveMsg = '',
-        moveBtns = {};
+        moveBtns = {},
+        value = null;
 
     if(params && settsForm)
         setFormData(settsForm, params);
 
     params.forEach(function(obj){
         if(obj.key === 'jsonString'){
-            objects = JSON.parse(obj.value);
+            value = strToJson(obj.value);
+            objects = JSON.parse(value);
             PbxObject.attendant.objects = objects;
         } else if(obj.key === 'connectors'){
-            addConnectors(JSON.parse(obj.value));
+            value = strToJson(obj.value);
+            addConnectors(JSON.parse(value));
         } else if(obj.key === 'greetings'){
             greetsFile = obj.value;
         } else if(obj.key === 'ringbackMusic'){
@@ -542,7 +558,7 @@ function createSchemaBranch(oid, params){
                         '<ul data-oid="'+oid+'"></ul>';
     } else{
         li.innerHTML = params.name;
-        if(params.button) 
+        if(params.button && params.button !== 'null') 
             li.innerHTML += ' <small class="nowrap text-muted"> '+generateAttObjPath(oid)+'</small>';
     }
 
@@ -938,7 +954,7 @@ function formAttParams(data){
     var params = {
         data: data,
         pid: PbxObject.attendant.currentPid,
-        // connectors: PbxObject.attendant.connectors,
+        connectors: [],
         buttons: PbxObject.attendant.availableButtons,
         frases: PbxObject.frases,
         typeMenu: function(){
@@ -958,7 +974,20 @@ function formAttParams(data){
         }
     };
     params.data.name = params.data.name || generateAttObjName(params.data.type, params.pid);
-    params.connectors = (data.type === PbxObject.attendant.types.commutator) ? PbxObject.attendant.connectors.concat(PbxObject.attendant.routes) : PbxObject.attendant.connectors;
+    if(data.type === PbxObject.attendant.types.commutator) {
+        // filter out emails and concat routes
+        params.connectors = PbxObject.attendant.connectors.filter(function(item) {
+            return item.ext.indexOf('@') === -1;
+        });
+        params.connectors = params.connectors.concat(PbxObject.attendant.routes);
+
+    } else if(data.type === PbxObject.attendant.types.mail) {
+        // filter only emails
+        params.connectors = PbxObject.attendant.connectors.filter(function(item) {
+            console.log('fliter: ', item);
+            return item.ext.indexOf('@') !== -1;
+        });
+    }
     params.connectors = params.connectors.map(formatConnectors);
     sortByKey(params.connectors, 'ext');
 
@@ -1244,8 +1273,11 @@ function load_bgroup(result){
         kind = result.kind,
         members = result.members,
         cont = d.getElementById('dcontainer'),
-        options = d.getElementById('options'),
+        // options = d.getElementById('options'),
         enabled = document.getElementById('enabled'),
+        storeLimitTrigger = document.getElementById('trigger-storelimit'),
+        storelimitCont = document.getElementById('storelimit-cont'),
+        addUserForm = document.getElementById('new-user-form'),
         $enabledCont = $('.object-name .switch'),
         availableUsers = result.available;
 
@@ -1273,6 +1305,12 @@ function load_bgroup(result){
             setObjectState(result.oid, this.checked, function(result) {
                 if(!result) enabled.checked = !enabled.checked;
             });
+        });
+    }
+
+    if(storeLimitTrigger) {
+        addEvent(storeLimitTrigger, 'change', function(){
+            storelimitCont.style.display = this.checked ? 'block' : 'none';
         });
     }
     
@@ -1337,10 +1375,19 @@ function load_bgroup(result){
             add.setAttribute('disabled', 'disabled'); // disable "add user" button
         }
         
-        addEvent(add, 'click', function(){
-            addUser(utype);
+        addEvent(addUserForm, 'submit', function(e){
+            e.preventDefault();
+            var storeLimitChecked = storeLimitTrigger.checked;
+            addUser(utype, function() {
+                cleanForm('new-user-form');
+                storeLimitTrigger.checked = storeLimitChecked;
+            });
             // cleanForm();
         });
+        // addEvent(add, 'click', function(){
+        //     addUser(utype);
+        //     // cleanForm();
+        // });
         // addEvent(clear, 'click', function(e){
         //     cleanForm(e);
         // });
@@ -1460,62 +1507,62 @@ function load_bgroup(result){
             customize_upload('unit-greeting', unitGreeting);
             customize_upload('unit-waitmusic', unitWaitMusic);
 
-        } else if(kind == 'hunting'){
-            if(result.options.timeout !== undefined)
-                d.getElementById("timeout2").value = result.options.timeout;
-            if(result.options.huntmode  !== undefined)
-                d.getElementById("huntmode2").value = result.options.huntmode || 1;
-            if(result.options.huntfwd  !== undefined)
-                d.getElementById("huntfwd2").checked = result.options.huntfwd;
+        // } else if(kind == 'hunting'){
+        //     if(result.options.timeout !== undefined)
+        //         d.getElementById("timeout2").value = result.options.timeout;
+        //     if(result.options.huntmode  !== undefined)
+        //         d.getElementById("huntmode2").value = result.options.huntmode || 1;
+        //     if(result.options.huntfwd  !== undefined)
+        //         d.getElementById("huntfwd2").checked = result.options.huntfwd;
 
-            var huntGreeting = result.options.greeting || '';
-            var huntWaitMusic = result.options.waitmusic || '';
-            customize_upload('hunt-greeting', huntGreeting);
-            customize_upload('hunt-waitmusic', huntWaitMusic);
+        //     var huntGreeting = result.options.greeting || '';
+        //     var huntWaitMusic = result.options.waitmusic || '';
+        //     customize_upload('hunt-greeting', huntGreeting);
+        //     customize_upload('hunt-waitmusic', huntWaitMusic);
 
         } else if(kind == 'pickup'){
             d.getElementById("groupno2").value = result.options.groupno || '';
-        } else if(kind == 'icd'){
-            d.getElementById("icd-app").value = result.options.application || '';
-            d.getElementById("groupno").value = result.options.groupno || '';
-            d.getElementById("maxlines").value = result.options.maxlines || '';
-            d.getElementById("priority").value = result.options.priority || '';
-            d.getElementById("canpickup").checked = result.options.canpickup;
-            d.getElementById("autologin").checked = result.options.autologin;
-            d.getElementById("method").selectedIndex = result.options.method;
-            d.getElementById("natimeout").value = result.options.natimeout || '';
-            d.getElementById("resumetime").value = result.options.resumetime || '';
-            d.getElementById("queuelen").value = result.options.queuelen || '';
-            d.getElementById("maxqwait").value = result.options.maxqwait || '';
-            d.getElementById("overflowredirect").value = result.options.overflowredirect || '';
-            d.getElementById("overtimeredirect").value = result.options.overtimeredirect || '';
-            d.getElementById("indicationmode").value = result.options.indicationmode || '';
-            d.getElementById("indicationtime").value = result.options.indicationtime || '';
+        // } else if(kind == 'icd'){
+        //     d.getElementById("icd-app").value = result.options.application || '';
+        //     d.getElementById("groupno").value = result.options.groupno || '';
+        //     d.getElementById("maxlines").value = result.options.maxlines || '';
+        //     d.getElementById("priority").value = result.options.priority || '';
+        //     d.getElementById("canpickup").checked = result.options.canpickup;
+        //     d.getElementById("autologin").checked = result.options.autologin;
+        //     d.getElementById("method").selectedIndex = result.options.method;
+        //     d.getElementById("natimeout").value = result.options.natimeout || '';
+        //     d.getElementById("resumetime").value = result.options.resumetime || '';
+        //     d.getElementById("queuelen").value = result.options.queuelen || '';
+        //     d.getElementById("maxqwait").value = result.options.maxqwait || '';
+        //     d.getElementById("overflowredirect").value = result.options.overflowredirect || '';
+        //     d.getElementById("overtimeredirect").value = result.options.overtimeredirect || '';
+        //     d.getElementById("indicationmode").value = result.options.indicationmode || '';
+        //     d.getElementById("indicationtime").value = result.options.indicationtime || '';
             
-            $('#autologin').on('change', function(e){
-                switchVisibility('#open-autologin-options', this.checked);
-            });
-            switchVisibility('#open-autologin-options', result.options.autologin);
+        //     $('#autologin').on('change', function(e){
+        //         switchVisibility('#open-autologin-options', this.checked);
+        //     });
+        //     switchVisibility('#open-autologin-options', result.options.autologin);
 
-            PbxObject.autologinOptions = {
-                network: result.options.network,
-                netmask: result.options.netmask
-            };
+        //     PbxObject.autologinOptions = {
+        //         network: result.options.network,
+        //         netmask: result.options.netmask
+        //     };
 
-            $('#open-autologin-options').on('click', function(e){
-                showModal('autologin_modal', PbxObject.autologinOptions, function(data, modalObject) {
-                    if(data) PbxObject.autologinOptions = data;
-                    $(modalObject).modal('hide');
-                });
-            });
+        //     $('#open-autologin-options').on('click', function(e){
+        //         showModal('autologin_modal', PbxObject.autologinOptions, function(data, modalObject) {
+        //             if(data) PbxObject.autologinOptions = data;
+        //             $(modalObject).modal('hide');
+        //         });
+        //     });
 
-            //customizing upload element
-            var greetFile = result.options.greeting || '';
-            var queuemusic = result.options.queuemusic || '';
-            var queueprompt = result.options.queueprompt || '';
-            customize_upload('greeting', greetFile);
-            customize_upload('queuemusic', queuemusic);
-            customize_upload('queueprompt', queueprompt);
+        //     //customizing upload element
+        //     var greetFile = result.options.greeting || '';
+        //     var queuemusic = result.options.queuemusic || '';
+        //     var queueprompt = result.options.queueprompt || '';
+        //     customize_upload('greeting', greetFile);
+        //     customize_upload('queuemusic', queuemusic);
+        //     customize_upload('queueprompt', queueprompt);
 
         } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
 
@@ -2053,67 +2100,67 @@ function set_bgroup(param, callback){
             upload('unit-waitmusic');
         }
 
-    } else if(kind == 'hunting'){
-        jprms += '"timeout":'+d.getElementById("timeout2").value+',';
-        jprms += '"huntmode":'+d.getElementById("huntmode2").value+',';
-        jprms += '"huntfwd":'+d.getElementById("huntfwd2").checked+',';
+    // } else if(kind == 'hunting'){
+    //     jprms += '"timeout":'+d.getElementById("timeout2").value+',';
+    //     jprms += '"huntmode":'+d.getElementById("huntmode2").value+',';
+    //     jprms += '"huntfwd":'+d.getElementById("huntfwd2").checked+',';
 
-        var huntGreeting = document.getElementById("hunt-greeting");
-        var huntWaitMusic = document.getElementById("hunt-waitmusic");
+    //     var huntGreeting = document.getElementById("hunt-greeting");
+    //     var huntWaitMusic = document.getElementById("hunt-waitmusic");
 
-        if(huntGreeting.value){
-            if(huntGreeting.files[0]) jprms += '"greeting":"'+huntGreeting.files[0].name+'",';
-            upload('hunt-greeting');
-        }
+    //     if(huntGreeting.value){
+    //         if(huntGreeting.files[0]) jprms += '"greeting":"'+huntGreeting.files[0].name+'",';
+    //         upload('hunt-greeting');
+    //     }
 
-        if(huntWaitMusic.value){
-            if(huntWaitMusic.files[0]) jprms += '"waitmusic":"'+huntWaitMusic.files[0].name+'",';
-            upload('hunt-waitmusic');
-        }
+    //     if(huntWaitMusic.value){
+    //         if(huntWaitMusic.files[0]) jprms += '"waitmusic":"'+huntWaitMusic.files[0].name+'",';
+    //         upload('hunt-waitmusic');
+    //     }
 
     } else if(kind == 'pickup'){
         jprms += '"groupno":"'+d.getElementById("groupno2").value+'",';
-    } else if(kind == 'icd'){
-        if(d.getElementById("icd-app"))
-            jprms += '"application":"'+escapeValue(d.getElementById("icd-app").value)+'",';
-        jprms += '"groupno":"'+d.getElementById("groupno").value+'",';
-        jprms += '"maxlines":'+d.getElementById("maxlines").value+',';
-        jprms += '"priority":'+d.getElementById("priority").value+',';
-        jprms += '"canpickup":'+d.getElementById("canpickup").checked+',';
-        jprms += '"autologin":'+d.getElementById("autologin").checked+',';
-        jprms += '"method":'+d.getElementById("method").value+',';
-        jprms += '"natimeout":'+d.getElementById("natimeout").value+',';
-        jprms += '"resumetime":'+d.getElementById("resumetime").value+',';
-        jprms += '"queuelen":'+d.getElementById("queuelen").value+',';
-        jprms += '"overflowredirect":"'+d.getElementById("overflowredirect").value+'",';
-        jprms += '"maxqwait":'+d.getElementById("maxqwait").value+',';
-        jprms += '"overtimeredirect":"'+d.getElementById("overtimeredirect").value+'",';
-        jprms += '"indicationmode":'+d.getElementById("indicationmode").value+',';
-        jprms += '"indicationtime":'+d.getElementById("indicationtime").value+',';
+    // } else if(kind == 'icd'){
+    //     if(d.getElementById("icd-app"))
+    //         jprms += '"application":"'+escapeValue(d.getElementById("icd-app").value)+'",';
+    //     jprms += '"groupno":"'+d.getElementById("groupno").value+'",';
+    //     jprms += '"maxlines":'+d.getElementById("maxlines").value+',';
+    //     jprms += '"priority":'+d.getElementById("priority").value+',';
+    //     jprms += '"canpickup":'+d.getElementById("canpickup").checked+',';
+    //     jprms += '"autologin":'+d.getElementById("autologin").checked+',';
+    //     jprms += '"method":'+d.getElementById("method").value+',';
+    //     jprms += '"natimeout":'+d.getElementById("natimeout").value+',';
+    //     jprms += '"resumetime":'+d.getElementById("resumetime").value+',';
+    //     jprms += '"queuelen":'+d.getElementById("queuelen").value+',';
+    //     jprms += '"overflowredirect":"'+d.getElementById("overflowredirect").value+'",';
+    //     jprms += '"maxqwait":'+d.getElementById("maxqwait").value+',';
+    //     jprms += '"overtimeredirect":"'+d.getElementById("overtimeredirect").value+'",';
+    //     jprms += '"indicationmode":'+d.getElementById("indicationmode").value+',';
+    //     jprms += '"indicationtime":'+d.getElementById("indicationtime").value+',';
         
-        var file1 = document.getElementById("greeting");
-        var queuemusic = document.getElementById("queuemusic");
-        var queueprompt = document.getElementById("queueprompt");
+    //     var file1 = document.getElementById("greeting");
+    //     var queuemusic = document.getElementById("queuemusic");
+    //     var queueprompt = document.getElementById("queueprompt");
         
-        if(file1.value){
-            if(file1.files[0]) jprms += '"greeting":"'+file1.files[0].name+'",';
-            upload('greeting');
-        }
+    //     if(file1.value){
+    //         if(file1.files[0]) jprms += '"greeting":"'+file1.files[0].name+'",';
+    //         upload('greeting');
+    //     }
 
-        if(queuemusic.value){
-            if(queuemusic.files[0]) jprms += '"queuemusic":"'+queuemusic.files[0].name+'",';
-            upload('queuemusic');
-        }
+    //     if(queuemusic.value){
+    //         if(queuemusic.files[0]) jprms += '"queuemusic":"'+queuemusic.files[0].name+'",';
+    //         upload('queuemusic');
+    //     }
 
-        if(queueprompt.value){
-            if(queueprompt.files[0]) jprms += '"queueprompt":"'+queueprompt.files[0].name+'",';
-            upload('queueprompt');
-        }
+    //     if(queueprompt.value){
+    //         if(queueprompt.files[0]) jprms += '"queueprompt":"'+queueprompt.files[0].name+'",';
+    //         upload('queueprompt');
+    //     }
 
-        if(PbxObject.autologinOptions) {
-            jprms += '"network":"'+PbxObject.autologinOptions.network+'",';
-            jprms += '"netmask":"'+PbxObject.autologinOptions.netmask+'",';
-        }
+    //     if(PbxObject.autologinOptions) {
+    //         jprms += '"network":"'+PbxObject.autologinOptions.network+'",';
+    //         jprms += '"netmask":"'+PbxObject.autologinOptions.netmask+'",';
+    //     }
     } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
         var initmodes = document.getElementById('initmode');
         var initmode = initmodes.options[initmodes.selectedIndex].value;
@@ -2204,7 +2251,7 @@ function setObjRoute(params) {
 function renderObjRoute(params) {
     ReactDOM.render(
         ObjectRoute({
-            getOptions: getAvailablePool,
+            // getOptions: getAvailablePool,
             routes: params.routes,
             frases: params.frases,
             // clearCurrObjRoute: clearCurrObjRoute,
@@ -2272,7 +2319,7 @@ function addMembersRow(data){
     return row;
 }
 
-function addUser(type){
+function addUser(type, cb){
     var e = e || window.event,
         table = document.getElementById('group-extensions').querySelector('tbody'),
         available = document.getElementById('available-users'),
@@ -2282,6 +2329,7 @@ function addUser(type){
         emailEl = document.getElementById('user-email'),
         aliasEl = document.getElementById('user-alias'),
         passEl = document.getElementById('user-pass'),
+        storeLimitTrigger = document.getElementById('trigger-storelimit'),
         storelimit = document.getElementById('storelimit'),
         ext, name, alias;
 
@@ -2306,9 +2354,11 @@ function addUser(type){
     jprms += '"name":"'+name+'",';
     jprms += '"display":"'+alias+'",';
     jprms += '"password":"'+passEl.value+'",';
-    if(storelimit) {
+    if(storeLimitTrigger.checked) {
         storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
         if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
+    } else {
+        jprms += '"storelimit": 0,';
     }
 
     var data = {
@@ -2373,7 +2423,7 @@ function addUser(type){
             // emmit event to trigger tour next step
             $('#new-user-form').trigger("users.create");
 
-            cleanForm('new-user-form');
+            if(cb) cb();
         }
     });
 }
@@ -2407,14 +2457,15 @@ function refreshUsersTable(cb){
 function cleanForm(formId){
     var form = document.getElementById(formId);
     form.reset();
+    
     // var name = document.getElementById('user-name'),
     //     alias = document.getElementById('user-alias'),
     //     // followme = document.getElementById('user-num'),
     //     pass = document.getElementById('user-pass');
+    
     // var inputs = [].slice.call(form.querySelectorAll('input'));
     // inputs.forEach(function(inp){
-    //     if(inp.value)
-    //         inp.value = '';
+    //     inp.value = '';
     // });
 
     // if(name) name.value = "";
@@ -2434,6 +2485,7 @@ function checkHuntMode(e){
     else
         document.getElementById('huntmodesetts').classList.remove('hidden');
 }
+
 function load_billing() {
 	
 	console.log('load_billing');
@@ -2443,8 +2495,12 @@ function load_billing() {
 	var profile = {};
 	var sub = {};
 	var plans = [];
+	var invoices = [];
+	var discounts = [];
 	var stripeToken;
 	var stripeHandler;
+
+	loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
@@ -2460,8 +2516,26 @@ function load_billing() {
 				if(err) return notify_about('error' , err);
 				plans = result;
 
-				// init();
-				loadStripeJs();
+				init();
+
+				getDiscounts(function(err, response) {
+					if(err) return notify_about('error' , err);
+					discounts = response;
+
+					// init();
+
+					getInvoices(function(err, response) {
+						if(err) return notify_about('error' , err);
+						invoices = response;
+						console.log('invoices: ', invoices);
+						init();
+					});
+				});
+
+					
+
+				// set_page();
+				show_content();
 			});
 
 		});
@@ -2469,13 +2543,15 @@ function load_billing() {
 	});
 
 	function loadStripeJs() {
-		if(window.StripeCheckout) return init();
+		if(window.StripeCheckout) return;
 
 		$.ajaxSetup({ cache: true });
 		$.getScript('https://checkout.stripe.com/checkout.js', function(){
 			stripeHandler = StripeCheckout.configure({
+				// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
 				key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-				image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+				// image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+				image: '/badmin/images/Ringotel_emblem_new.png',
 				locale: 'auto',
 				token: function(token) {
 					console.log('stripe token: ', token);
@@ -2488,7 +2564,7 @@ function load_billing() {
 			  stripeHandler.close();
 			});
 
-			init();
+			// init();
 		});
 	}
 
@@ -2499,15 +2575,15 @@ function load_billing() {
 		    sub: sub,
 		    frases: PbxObject.frases,
 		    plans: plans,
+		    invoices: invoices,
+		    discounts: discounts,
 		    addCard: addCard,
 		    editCard: editCard,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: updateLicenses,
-		    extend: deepExtend
+		    extend: deepExtend,
+		    addCoupon: addCoupon
 		}), cont);
-
-		// set_page();
-		show_content();
 	}
 
 	function addCard() {
@@ -2521,8 +2597,13 @@ function load_billing() {
 			// amount: plan.amount*100,
 			closed: function(result) {
 				console.log('addCard closed: ', result);
+				
+				show_loading_panel();
+
 				saveCard(stripeToken, function(err, response) {
-					if(err || !response.success) return;
+					show_content();
+
+					if(err || !response || !response.success) return;
 
 					console.log('editCard token: ', stripeToken);
 
@@ -2531,7 +2612,11 @@ function load_billing() {
 					profile.defaultBillingMethod = {
 						params: stripeToken.card
 					};
+
+					stripeToken = null;
+					
 					init();
+					
 				});
 			}
 		});
@@ -2548,8 +2633,13 @@ function load_billing() {
 			// amount: plan.amount*100,
 			closed: function(result) {
 				console.log('editCard closed: ', result);
+
+				show_loading_panel();
+
 				updateCard(stripeToken, function(err, response) {
-					if(err || !response.success) return;
+					show_content();
+
+					if(err || !response || !response.success) return;
 
 					console.log('editCard token: ', stripeToken);
 
@@ -2558,6 +2648,9 @@ function load_billing() {
 					profile.defaultBillingMethod = {
 						params: stripeToken.card
 					};
+
+					stripeToken = null;
+
 					init();
 				});
 			}
@@ -2566,7 +2659,7 @@ function load_billing() {
 
 	function saveCard(params, callback) {
 		console.log('saveCard: ', params);
-		if(!params) return;
+		if(!params) return callback();;
 		var reqParams = {
 			service: 'stripe',
 			token: params.id,
@@ -2581,7 +2674,7 @@ function load_billing() {
 
 	function updateCard(params, callback) {
 		console.log('updateCard: ', params);
-		if(!params) return;
+		if(!params) return callback();
 		var reqParams = {
 			service: 'stripe',
 			token: params.id,
@@ -2594,34 +2687,67 @@ function load_billing() {
 		});
 	}
 
-	// function onPlanSelect(plan) {
-	// 	changePlan(plan);
-	// }
-
-	function onPlanSelect(plan) {
-		console.log('changePlan: ', plan);
-		billingRequest('changePlan', {
-			subId: sub._id,
-			planId: plan.planId
-		}, function(err, response) {
+	function addCoupon(string) {
+		billingRequest('addCoupon', { coupon: string }, function(err, response) {
+			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
-			console.log('changePlan: ', err, response);
-			sub = response.result;
+			if(!response.success) return notify_about('error', response.error.message);
+			discounts.push(response);
 			init();
 		});
 	}
 
+	function onPlanSelect(params) {
+		console.log('changePlan: ', params);
+
+		showModal('confirm_payment_modal', params, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			show_loading_panel();
+
+			billingRequest('changePlan', {
+				subId: sub._id,
+				planId: params.plan.planId
+			}, function(err, response) {
+				if(err) return notify_about('error', err.message);
+				console.log('changePlan: ', err, response);
+				
+				$(modal).modal('toggle');
+				
+				sub = response.result;
+
+				show_content();
+				init();
+			});
+
+		});
+
+	}
+
 	function updateLicenses(params){
 		console.log('updateLicenses: ', params);
-		billingRequest('updateSubscription', {
-			subId: sub._id,
-			addOns: params.addOns,
-			quantity: params.quantity
-		}, function(err, response) {
-			if(err) return notify_about('error', err.message);
-			console.log('updateLicenses: ', err, response);
-			sub = response.result;
-			init();
+
+		showModal('confirm_payment_modal', params, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			show_loading_panel();
+
+			billingRequest('updateSubscription', {
+				subId: sub._id,
+				addOns: params.addOns,
+				quantity: params.quantity
+			}, function(err, response) {
+				if(err) return notify_about('error', err.message);
+				console.log('updateLicenses: ', err, response);
+
+				$(modal).modal('toggle');
+
+				sub = response.result;
+				
+				show_content();
+				init();
+			});
+
 		});
 	}
 
@@ -2631,6 +2757,22 @@ function load_billing() {
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});
+	}
+
+	function getInvoices(callback) {
+		billingRequest('getInvoices', null, function(err, response) {
+			console.log('getInvoices response: ', err, response);
+			if(err) return callback(err);
+			if(callback) callback(null, response.result || [])
+		});	
+	}
+
+	function getDiscounts(callback) {
+		billingRequest('getDiscounts', null, function(err, response) {
+			console.log('getDiscounts response: ', err, response);
+			if(err) return callback(err);
+			if(callback) callback(null, response.result || [])
+		});	
 	}
 
 }
@@ -3549,7 +3691,7 @@ function load_chatchannel(params) {
 			kind: PbxObject.kind,
 			oid: params.oid,
 			name: objName,
-			enabled: params.enabled || true,
+			enabled: params.enabled,
 			members: (params.members.length ? params.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
 		}, function(result) {
 			PbxObject.name = objParams.name = objName;
@@ -3589,34 +3731,41 @@ function load_chatchannel(params) {
 }
 function load_chattrunk(params) {
 
-	console.log('load_chat_trunk: ', params);
+	console.log('load_chat_trunk: ', PbxObject.kind, params);
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
 	var routes = [];
-	var serviceParams = {
-		loginHandler: null,
-		pages: null, // Facebook & Messenger
-		userAccessToken: null // Facebook & Messenger
-	};
-	var servicesOptions = {
-		facebook: {
-			appId: '1920629758202993'
-		},
-		twitter: {
-			oauth_consumer_key: 'RBk2sDm5bYowCA7mLttioe4BC',
-			oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
-		}
-	};
 	var services = [{
-		id: 'Facebook',
-		name: "Facebook",
-		icon: 'fa fa-fw fa-facebook'
-	},{
-		id: 'Twitter',
-		name: "Twitter",
-		icon: 'fa fa-fw fa-twitter'
-	}];
+		id: 'FacebookMessenger',
+		name: "Messenger",
+		icon: '/badmin/images/facebook_messenger.png',
+		params: {
+			appId: '1920629758202993'
+		}
+	}
+	// {
+	// 	id: 'Facebook',
+	// 	name: "Facebook",
+	// 	icon: '/badmin/images/facebook.png',
+	// 	params: {
+	// 		appId: '1920629758202993'
+	// 	}
+		
+	// },{
+	// 	id: 'Twitter',
+	// 	name: "Twitter",
+	// 	icon: '/badmin/images/twitter.png',
+	// 	params: {
+	// 		oauth_consumer_key: 'RBk2sDm5bYowCA7mLttioe4BC',
+	// 		oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
+	// 	}
+	// },{
+	// 	id: 'Viber',
+	// 	name: "Viber",
+	// 	icon: '/badmin/images/viber.ico'
+	// }
+	];
 
 	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
 	params.replytimeout = (params.replytimeout || 86400)/60;
@@ -3632,95 +3781,10 @@ function load_chattrunk(params) {
 			console.log('getObjects: ', result);
 			routes = result || [];
 
-			initServices(type);
+			render();
+			// initServices(type);
 
 		});
-	}
-
-	function initServices(type) {
-		if(type === 'FacebookMessenger' || type === 'Facebook') {
-			console.log('initServices '+ type);
-			serviceParams.loginHandler = fbLogin;
-			initFB();
-		} else if(type === 'Twitter') {
-			console.log('initServices '+ type);
-			serviceParams.loginHandler = fbLogin;
-			initTwitter();
-		}
-	}
-
-	function initTwitter() {
-		console.log('initTwitter');
-	}
-
-	function initFB() {
-		if(window.FB === undefined) {
-			getFbSDK(function() {
-				FB.init({
-					appId: servicesOptions.facebook.appId,
-					autoLogAppEvents: true,
-					status: true,
-					version: 'v2.9'
-				});     
-				FB.getLoginStatus(updateStatusCallback);
-			});
-		} else {
-			FB.getLoginStatus(updateStatusCallback);
-		}
-	}
-
-	function updateStatusCallback(result) {
-		console.log('updateStatusCallback: ', result);
-		if(result.status === 'connected') {
-			
-			serviceParams.userAccessToken = result.authResponse.accessToken;
-
-			getFbPages(function(pages) {
-				serviceParams.pages = pages;
-				if(!params.properties.id) {
-					params.properties = pages[0];
-					params.properties.access_token = serviceParams.userAccessToken;
-				}
-				render(serviceParams);
-			});
-		} else {
-			render(serviceParams);
-		}
-	}
-
-	function getFbPages(cb) {
-		FB.api('/me/accounts', function(response) {
-			console.log('getFbPages: ', response);
-			if(cb) cb(response.data || null); 
-		});
-	}
-
-	// function subToFbPage(params, cb) {
-	// 	FB.api('/'+params.id+'/subscribed_apps', 'post', { access_token: params.access_token }, function(response) {
-	// 		console.log('subscribeToApp response: ', response);
-	// 		if(cb) cb(response.error, response);
-	// 	});
-	// }
-
-	// function getPageProps(pages, id) {
-	// 	var props = {};
-	// 	pages.forEach(function(item) {
-	// 		if(item.id === id) { props = item; }
-	// 	});
-	// 	return props;
-	// }
-
-	function fbLogin() {
-		FB.login(function(response) {
-			console.log('FB.login: ', response);
-			updateStatusCallback(response);
-		}, {scope: 'email, manage_pages, read_page_mailboxes, pages_messaging'});
-	}
-
-	function getFbSDK(cb) {
-		$.ajaxSetup({ cache: true });
-		$.getScript('//connect.facebook.net/en_US/sdk.js', cb);
-
 	}
 
 	function onStateChange(state) {
@@ -3730,35 +3794,18 @@ function load_chattrunk(params) {
 		});
 	}
 
-	// function setService(params, cb) {
-
-	// 	console.log('setService params', params);
-	// 	if(PbxObject.name) return cb();
-
-	//     if(type === 'FacebookMessenger' || type === 'Facebook') {
-	// 	    subToFbPage(params, function(err, response) {
-	// 			if(err || !response.success) return cb(err || ("Page wasn't subscribed. Status: "+response.status));
-	// 			cb(null, response);
-	//     	});
-	//     } else {
-	//     	cb();
-	//     }
-		
-	// }
-	
-	function onServiceChange(serviceType) {
-		initServices(serviceType);
-	}
-
 	function setObject(params, cb) {
 
 	    if(!params.pageid) return console.error('pageid is not defined');
+
+	    show_loading_panel();
+
 	    var props = {
 	    	kind: PbxObject.kind,
 	    	oid: params.oid,
 	    	name: params.name,
 	    	enabled: params.enabled || true,
-	    	type: type,
+	    	type: params.type,
 	    	pageid: params.pageid,
 	    	pagename: params.pagename,
 	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
@@ -3773,57 +3820,34 @@ function load_chattrunk(params) {
 	    	props.properties = params.properties;
 	    }
 
-	    // setService(params.properties, function(err, response) {
-	    // 	if(err) return notify_about('error', err);
-	    	
-	    	json_rpc_async('setObject', props, function(result) {
-	    		if(handler) handler();
-	    		if(cb) cb(null, result);
-	    	});
-	    // });		
+    	json_rpc_async('setObject', props, function(result) {
+    		PbxObject.name = params.name;
+    		if(handler) handler();
+    		if(cb) cb(null, result);
+    		show_content();
+    	});
 	}
-
-	// function removeService(params, cb) {
-	// 	console.log('removeService: ', params);
-	// 	if(type === 'FacebookMessenger' || type === 'Facebook') {
-	// 		var access_token = getPageProps(serviceParams.pages, params.id).access_token;
-
-	// 		FB.api('/'+params.id+'/subscribed_apps', 'delete', { access_token: access_token }, function(response) {
-	// 			console.log('Unsubscribe app response: ', response);
-	// 			if(response.error || !response.success) {
-	// 				return cb(response.error || { message: ('Unsubscribe failed. Reason: '+response.status) });
-	// 			}
-	// 			cb(null, response);
-	// 		});
-	// 	}
-	// }
 
 	function removeObject(params) {
-		// if(params.pageid) {
-		// 	if (confirm(PbxObject.frases.DODELETE+' '+params.name+'?')){
-		// 		removeService(params.properties, function(err, response) {
-		// 			if(err) return notify_about('error', err.message);
-		// 			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
-		// 		});
-		// 	}
-		// } else {
-			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
-		// }
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
 	}
 
-	function render(serviceParams) {
+	// function render(serviceParams) {
+	function render() {
 		var componentParams = {
 			type: type,
 			services: services,
-			onServiceChange: onServiceChange,
+			// onServiceChange: onServiceChange,
 			frases: PbxObject.frases,
 		    params: params,
-		    serviceParams: serviceParams,
+		    // serviceParams: serviceParams,
 		    routes: routes,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
 		    removeObject: removeObject
 		};
+
+		console.log('render: ', componentParams);
 
 		ReactDOM.render(ChatTrunkComponent(componentParams), document.getElementById('el-loaded-content'));
 
@@ -4629,28 +4653,35 @@ function set_extension_update(e){
 function load_extension(result){
     // console.log(result);
 
-    var d = document,
-    groupid = result.groupid,
-    kind = result.kind == 'user' ? 'users':'unit';
-
-    if(kind === 'users') {
-        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
-        if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
-        if(result.storelimit) result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
-    }
-
-    data = {
-        data: result,
-        frases: PbxObject.frases
-    };
-
     PbxObject.extOid = result.oid;
     PbxObject.userid = result.userid;
     PbxObject.vars = PbxObject.vars || {};
     PbxObject.vars.infoShown = false;
-    
-    var rendered = Mustache.render(PbxObject.templates.extension, data);
+
+    var d = document;
     var cont = document.getElementById('ext-cont');
+    var groupid = result.groupid;
+    var kind = result.kind == 'user' ? 'users':'unit';
+    var rendered;
+
+    if(kind === 'users') {
+
+        result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
+        result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        // if(result.storelimit) {
+        //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
+        // } else {
+        //     storelimitCont.style.display = 'none';
+        // }
+    }
+
+    rendered = Mustache.render(PbxObject.templates.extension, {
+        data: result,
+        frases: PbxObject.frases
+    });
+
     if(!cont){
         cont = document.createElement('div');
         cont.id = 'ext-cont';
@@ -4662,25 +4693,36 @@ function load_extension(result){
     // $("#ext-cont").html(rendered);
     $(cont).html(rendered);
 
+    var storelimitCont = document.getElementById('ext-storelimit-cont');
+    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
+    var state = document.querySelector('#el-extension .user-state-ind');
     var img = document.getElementById('user-avatar');
     var src = "/$AVATAR$?userid="+result.userid;
+
     img.onerror = function(){
         this.src = 'images/avatar.png';
     }
     img.src = src;
 
-    var state = document.querySelector('#el-extension .user-state-ind');
     state.classList.add(getInfoFromState(result.state).rclass);
+
+    if(storeLimitTrigger) {
+        addEvent(storeLimitTrigger, 'change', function(){
+            storelimitCont.style.display = this.checked ? 'block' : 'none';
+        });
+    }
 
     if(kind !== 'users') {
         var storageUsage = document.querySelector('#el-extension .user-storage-usage');
         if(storageUsage) storageUsage.classList.add('hidden');
 
-        var storelimitCont = document.getElementById('storelimit-cont');
         if(storelimitCont) storelimitCont.classList.add('hidden');
     } else {
         var pinCont = document.getElementById('pin-cont');
         if(pinCont) pinCont.classList.add('hidden');
+
+        storeLimitTrigger.checked = !!result.storelimit;
+        storelimitCont.style.display = result.storelimit ? 'block' : 'none';
     }
 
     // getAvatar(result.userid, function(binary){
@@ -4772,7 +4814,11 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     // var login = d.getElementById("extlogin").textContent;
+    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
+
+    if(!storeLimitTrigger.checked) storelimit.value = 0;
+
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
     if(groupv){
@@ -5159,6 +5205,308 @@ function GetStarted(container) {
 	}
 		
 }
+function load_hunting(params) {
+
+	console.log('load_hunting: ', params);
+	var objParams = params;
+	var handler = null;
+	var defaultName = getDefaultName();
+	var modalId = 'available-users-modal';
+	var modalCont = document.getElementById('available-users-cont');
+
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+	}
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	function getDefaultName() {
+		var name = PbxObject.frases.HUNTING_GROUP.DEFAULT_NAME + ' ';
+		name += PbxObject.objects ? filterObject(PbxObject.objects, PbxObject.kind).length+1 : 1;
+		return name;
+	}
+
+	function onNameChange(name) {
+		objParams.name = name;
+	}
+
+	function onStateChange(state) {
+		objParams.enabled = state;
+		if(!PbxObject.name) return;
+		setObjectState(PbxObject.oid, state, function(result) {
+		    console.log('onStateChange: ', state, result);
+		});
+	}
+
+	function getAvailableUsers() {
+		var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
+
+	    json_rpc_async('getAvailableUsers', params, function(result){
+			console.log('getAvailableUsers: ', result);
+			showAvailableUsers(result);
+		});
+	}
+
+	function showAvailableUsers(data) {
+		console.log('showAvailableUsers: ', data);
+
+		ReactDOM.render(AvailableUsersComponent({
+			modalId: modalId,
+		    frases: PbxObject.frases,
+		    data: data,
+		    onSubmit: addMembers
+		}), modalCont);
+
+		$('#'+modalId).modal();
+	}
+
+	function addMembers(array) {
+		objParams.members = objParams.members.concat(array);
+		console.log('addMembers: ', array, objParams);
+
+		setObject(objParams, function(result) {
+			init(objParams);
+		});
+		$('#available-users-modal').modal('hide');
+	}
+
+	function deleteMember(oid) {
+		console.log('deleteMember: ', oid);
+		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+		setObject(objParams, function(result) {
+			init(objParams);
+		});
+	}
+
+	function setObject(props, callback) {
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    }
+
+	    var objName = props.name || defaultName;
+
+	    console.log('setObject: ', props);
+
+		json_rpc_async('setObject', {
+			kind: PbxObject.kind,
+			oid: props.oid,
+			name: objName,
+			enabled: props.enabled,
+			options: props.options,
+			members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
+		}, function(result) {
+			PbxObject.name = objParams.name = objName;
+
+			// Upload audio files
+			if(props.files && props.files.length) {
+				console.log('upload Files: ', props.files);
+				props.files.forEach(function(item) {
+					uploadFile(item);
+				})
+			}
+
+			// Add new route to the routing table
+			if(props.route && props.route.ext) {
+			    console.log('set route props: ', props.route);
+			    var routeProps = {
+			    	number: props.route.ext,
+			    	target: { oid: PbxObject.oid, name: PbxObject.name }
+			    };
+			    if(params.routes.length) routeProps.oid = params.routes[0].id;
+			    
+			    setObjRoute(routeProps);
+			    
+			}
+
+			if(handler) handler();
+			if(callback) callback(result);
+		});
+	}
+
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	}
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    getAvailableUsers: getAvailableUsers,
+		    setObject: setObject,
+		    onNameChange: onNameChange,
+		    onStateChange: onStateChange,
+		    getInfoFromState: getInfoFromState,
+		    getExtension: get_extension,
+		    deleteMember: deleteMember
+		};
+
+		if(params.name) {
+			componentParams.removeObject = removeObject;
+		}
+
+		ReactDOM.render(HuntingGroupComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+	init(objParams);
+	show_content();
+    set_page();
+
+}
+function load_icd(params) {
+
+	console.log('load_icd: ', params);
+	var objParams = params;
+	var handler = null;
+	var defaultName = getDefaultName();
+	var modalId = 'available-users-modal';
+	var modalCont = document.getElementById('available-users-cont');
+
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+	}
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	function getDefaultName() {
+		var name = PbxObject.frases.ICD_GROUP.DEFAULT_NAME + ' ';
+		name += PbxObject.objects ? filterObject(PbxObject.objects, PbxObject.kind).length+1 : 1;
+		return name;
+	}
+
+	function onNameChange(name) {
+		objParams.name = name;
+	}
+
+	function onStateChange(state) {
+		objParams.enabled = state;
+		if(!PbxObject.name) return;
+		setObjectState(PbxObject.oid, state, function(result) {
+		    console.log('onStateChange: ', state, result);
+		});
+	}
+
+	function getAvailableUsers() {
+		var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
+
+	    json_rpc_async('getAvailableUsers', params, function(result){
+			console.log('getAvailableUsers: ', result);
+			showAvailableUsers(result);
+		});
+	}
+
+	function showAvailableUsers(data) {
+		console.log('showAvailableUsers: ', data);
+
+		data = sortByKey(data, 'ext');
+
+		ReactDOM.render(AvailableUsersComponent({
+			modalId: modalId,
+		    frases: PbxObject.frases,
+		    data: data,
+		    onSubmit: addMembers
+		}), modalCont);
+
+		$('#'+modalId).modal();
+	}
+
+	function addMembers(array) {
+		objParams.members = objParams.members.concat(array);
+		console.log('addMembers: ', array, objParams);
+
+		setObject(objParams, function(result) {
+			init(objParams);
+		});
+		$('#available-users-modal').modal('hide');
+	}
+
+	function deleteMember(oid) {
+		console.log('deleteMember: ', oid);
+		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+		setObject(objParams, function(result) {
+			init(objParams);
+		});
+	}
+
+	function setObject(props, callback) {
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    }
+
+	    var objName = props.name || defaultName;
+
+	    console.log('setObject: ', props);
+
+		json_rpc_async('setObject', {
+			kind: PbxObject.kind,
+			oid: props.oid,
+			name: objName,
+			enabled: props.enabled,
+			options: props.options,
+			members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
+		}, function(result) {
+			PbxObject.name = objParams.name = objName;
+
+			// Upload audio files
+			if(props.files && props.files.length) {
+				console.log('upload Files: ', props.files);
+				props.files.forEach(function(item) {
+					uploadFile(item);
+				})
+			}
+
+			// Add new route to the routing table
+			if(props.route && props.route.ext) {
+			    console.log('set route props: ', props.route);
+			    var routeProps = {
+			    	number: props.route.ext,
+			    	target: { oid: PbxObject.oid, name: PbxObject.name }
+			    };
+			    if(params.routes.length) routeProps.oid = params.routes[0].id;
+			    
+			    setObjRoute(routeProps);
+			    
+			}
+
+			if(handler) handler();
+			if(callback) callback(result);
+		});
+	}
+
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	}
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    getAvailableUsers: getAvailableUsers,
+		    setObject: setObject,
+		    onNameChange: onNameChange,
+		    onStateChange: onStateChange,
+		    getInfoFromState: getInfoFromState,
+		    getExtension: get_extension,
+		    deleteMember: deleteMember
+		};
+
+		if(params.name) {
+			componentParams.removeObject = removeObject;
+		}
+
+		ReactDOM.render(IcdGroupComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+	init(objParams);
+	show_content();
+    set_page();
+
+}
 function Ldap(options){
     var options = options || {},
     available = [],
@@ -5329,6 +5677,7 @@ function Ldap(options){
         modal = modalObject;
 
         options.onaddusers(selectedUsers.filter(hasExt));
+
     }
 
     function onLdapModalOpen(modalObject){
@@ -5549,15 +5898,16 @@ function billingRequest(path, params, cb) {
         'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
-        function(err, result) {
-            console.log('billing response: ', err, result);
-            if(err) return notify_about('error' , err);
-            if(!result.success) {
-                notify_about('error' , result.message);
-                return cb(result.message);
-            }
-            if(cb) cb(null, result);
-        }
+        cb
+        // function(err, result) {
+            // console.log('billing response: ', err, result);
+            // if(err) return notify_about('error' , err);
+            // if(!result.success) {
+            //     notify_about('error' , result.error.message);
+            //     return cb(result.message);
+            // }
+            // if(cb) cb(null, result);
+        // }
     );
 }
 
@@ -6021,7 +6371,8 @@ function get_object(e){
         var modal = document.getElementById('el-extension');
         if(modal) modal.parentNode.removeChild(modal);
 
-        var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+        // var groupKinds = ['equipment', 'unit', 'users', 'hunting', 'icd', 'conference', 'selector', 'channel', 'pickup'];
+        var groupKinds = ['equipment', 'unit', 'users', 'conference', 'selector', 'channel', 'pickup'];
         if(groupKinds.indexOf(kind) != -1){
             kind = 'bgroup';
         }
@@ -6125,7 +6476,8 @@ function clearTempParams() {
 
 function set_page(){
     var kind = PbxObject.kind;
-    var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+    // var groupKinds = ['equipment', 'unit', 'users', 'icd', 'hunting', 'conference', 'selector', 'channel', 'pickup'];
+    var groupKinds = ['equipment', 'unit', 'users', 'conference', 'selector', 'channel', 'pickup'];
     if(groupKinds.indexOf(kind) != -1){
         kind = 'bgroup';
     }
@@ -6217,6 +6569,7 @@ function set_page(){
     $('#dcontainer [data-toggle="tooltip"]').tooltip({
         delay: {"show": 1000, "hide": 100}
     });
+
 }
 
 function setBreadcrumbs(){
@@ -6303,7 +6656,7 @@ function showModal(modalId, data, onsubmit, onopen, onclose){
         data.frases = PbxObject.frases;
         modal = Mustache.render(template, data);
         cont.insertAdjacentHTML('afterbegin', modal);
-        $('#'+modalId).modal();
+        $('#'+modalId).modal(); 
         $('#'+modalId).on('shown.bs.modal', function(e) {
             if(onsubmit) setModal(this, onsubmit);
             if(onopen) onopen(this);
@@ -6320,10 +6673,14 @@ function setModal(modalObject, onsubmit){
     var submitBtn = modalObject.querySelector('[data-type="submit"]'),
         form = modalObject.querySelector('form');
 
-    addEvent(submitBtn, 'click', function(e) {
-        onsubmit(form ? retrieveFormData(form) : null, modalObject);
-        // $(modalObject).modal('hide');
-    });
+    if(submitBtn) {
+        addEvent(submitBtn, 'click', function(e) {
+            e.target.disabled = true;
+            onsubmit(form ? retrieveFormData(form) : null, modalObject);
+            // $(modalObject).modal('hide');
+        });
+    }
+        
 }
 
 function openModal(params, callback){
@@ -7163,6 +7520,34 @@ function upload(inputid, urlString){
     // xmlhttp.setRequestHeader("X-File-Size", file.size);
     xmlhttp.send(file);
     console.log('upload', file, url);
+}
+
+function uploadFile(file, urlString){
+    var upload;
+
+    if(!file){
+        return false;
+    }
+
+    // var file = files[0];
+    var url = urlString ? urlString : '/'+file.name;
+    var xmlhttp = new XMLHttpRequest();
+    var requestTimer = setTimeout(function(){
+        xmlhttp.abort();
+        notify_about('info', PbxObject.frases.TIMEOUT);
+    }, 30000);
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState==4){
+            clearTimeout(requestTimer);
+            if(xmlhttp.status != 200) {
+                notify_about('error', PbxObject.frases.ERROR);
+            }
+        }
+    };
+    xmlhttp.open("PUT", url, true);
+    xmlhttp.send(file);
+
 }
 
 function deleteFile(url){
@@ -9782,8 +10167,6 @@ function Reports(){
 
     this.init();
 }
-
-
 function load_routes(result){
     // console.log(result);
     
@@ -11456,7 +11839,7 @@ function set_trunk(){
     jprms += ', "outboundbnumbertransforms":';
     jprms += JSON.stringify(outBTrasf);
 
-    // console.log(jprms);
+    console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result) {
             if(handler) handler();

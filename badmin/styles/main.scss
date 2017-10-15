@@ -374,10 +374,10 @@ Helpers
 }
 
 @media only screen and (max-width: $handheld) {
-    .col-custom{
-        padding-left: 5px;
-        padding-right: 5px;
-    }
+    // .col-custom{
+    //     padding-left: 5px;
+    //     padding-right: 5px;
+    // }
     .calls-stat{
         display: none;
     }

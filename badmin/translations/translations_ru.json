@@ -486,6 +486,7 @@
         "channel": "Каналы",
         "channels": "Мониторинг каналов",
         "chatchannel": "Чат каналы",
+        "chattrunk": "Чат транки",
         "calls": "Панель мониторинга",
         "dashboard": "Панель мониторинга",
         "records": "Журнал вызовов",
@@ -496,6 +497,7 @@
         "attendant": "Авто-секретарь",
         "certificates": "Сертификаты",
         "storages": "Хранилища",
+        "billing": "Биллинг",
         "usage": "Использование лицензий",
         "channel_records": "Записи Канала"
     },
@@ -625,6 +627,14 @@
     	"ADD_RULE": "Добавить правило",
     	"PASSANUMBER": "Отправлять Caller ID в заголовке From"
     },
+    "HUNTING_GROUP": {
+    	"DEFAULT_NAME": "Группа поиска свободного номера"
+    },
+    "ICD_GROUP": {
+    	"DEFAULT_NAME": "Горячая линия",
+    	"GENERAL_SETTINGS_TAB": "Общие",
+    	"QUEUE_SETTINGS_TAB": "Очередь"
+    },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Чат канал",
     	"NO_MEMBERS": "Нет участников в канале",
@@ -633,7 +643,26 @@
     	"AVAILABLE_USERS": "Доступные пользователи",
     	"SELECT_ALL": "Выбрать всех"
     },
+    "CHAT_TRUNK": {
+    	"SELECT_SERVICE": "Выберите сервис",
+    	"NO_CHANNELS_MSG_1": "Вам необходимо",
+    	"NO_CHANNELS_MSG_2": "перед тем как подключить Чат транк",
+    	"CREATE_CHANNEL": "создать Чат канал",
+    	"SELECT_CHANNEL": "Выберите Чат канал",
+    	"SESSION_TIMEOUT": "Таймаут сессии (мин)",
+    	"REPLY_TIMEOUT": "Таймаут ответа (мин)",
+    	"FACEBOOK": {
+    		"LOGIN_MSG": "Подключите ваш Facebook аккаунт. Вам нужен аккаунт Facebook с разрешениями для управления опубликованной страницей Facebook.",
+    		"NO_PAGES_MSG": "Похоже, вы еще не создали и / или не управляете ни одной страницей Facebook",
+    		"LEARN_MORE_LINK": "Узнайте, как создать страницу в Facebook",
+    		"SELECT_PAGE": "Выбрать Facebook страницу"
+    	}
+    },
     "ATTENDANT" : {
+    	"GENERAL_SETTINGS_TAB": "Общие",
+    	"MENU_SETTINGS_TAB": "Меню",
+    	"EMAIL_SETTINGS_TAB": "Email",
+    	"CONNECTORS_SETTINGS_TAB": "Коннекторы",
     	"MENU" : "Меню",
     	"MAIL" : "Отправить Email",
     	"COMMUTATOR" : "Набор номера",
@@ -670,6 +699,7 @@
     	"AVAILABLE_STORAGES" : "Доступные хранилища",
     	"STORAGE_ALLOCATION" : "Распределение памяти",
     	"ADD_STORAGE" : "Добавить хранилище",
+    	"LIMIT_STORAGE_TRIGGER": "Ограничить размер хранилища",
     	"MAXSIZE" : "Размер хранилища",
     	"FREE_SPACE" : "Доступно",
     	"USED_SPACE" : "Занято",
@@ -700,6 +730,49 @@
     		"AVAILABLE": "Доступно",
     		"USAGE_ITEM": "Линий"
     	}
+    },
+    "BILLING" : {
+    	"BILLING": "Биллинг",
+    	"CURRENT_PLAN": "Текущий план",
+    	"UPGRADE_PLAN": "Изменить",
+    	"MONTHLY_TOTAL": "Сумма в месяц",
+    	"NEXT_CHARGE": "Следующий платеж",
+    	"TRIAL_EXPIRES": "Пробный период заканчивается",
+    	"EDIT_PAYMENT_METHOD": "Изменить",
+    	"PAYMENT_METHOD_WARNING_P1": "Чтобы изменить план и добавить лицензии, пожалуйста",
+    	"PAYMENT_METHOD_WARNING_P2": "к вашему аккаунту",
+    	"ADD_CREDIT_CARD": "добавить карту",
+    	"AVAILABLE_LICENSES": {
+    		"AVAILABLE_LICENSES": "Доступные лицензии",
+    		"USERS": "Пользователи",
+    		"STORAGE": "Хранилище (GB)",
+    		"LINES": "Линии"
+    	},
+    	"CANCEL_LICENSE_UPDATE": "Отмена",
+    	"UPDATE_LICENSES": "Обновить лицензии",
+    	"PLANS": {
+    		"PER_USER": "за пользователя",
+    		"SHOW_ALL_FEATURES": "Все возможности",
+    		"CURRENT_PLAN": "Ваш план",
+    		"SELECT_PLAN": "Выберите план"
+    	},
+    	"INVOICES": {
+    		"INVOICES": "Платежи",
+    		"NO_INVOICES": "Платежей пока нет"
+    	},
+    	"DISCOUNTS": {
+    		"DISCOUNTS": "Купоны",
+    		"ACTIVE_DISCOUNTS": "Активированые купоны",
+    		"ACTIVATE_BTN": "Активировать"
+    	},
+    	"CONFIRM_PAYMENT": {
+    		"HEADER": "Обновление биллинга",
+    		"NEW_MONTHLY_RATE_MSG": "Ваш новый ежемесячный платеж будет",
+    		"TODAY_CHARGE_MSG": "Сегодня сумма к оплате будет",
+    		"CONFIRM_PAYMENT": "Оплатить сейчас",
+    		"CANCEL_PAYMENT": "Отменить"
+    	}
+
     },
     "TOURS": {
     	"NEXT_STEP": "Далее",

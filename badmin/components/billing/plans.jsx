@@ -28,7 +28,7 @@ var PlansComponent = React.createClass({
 
 						return (
 							<div className={"col-xs-"+column}>
-								<PlanComponent plan={plan} planIndex={index} currentPlan={currentSub.planId} maxusers={maxusers} key={plan.planId} />
+								<PlanComponent plan={plan} planIndex={index} frases={frases} currentPlan={currentSub.planId} maxusers={maxusers} key={plan.planId} />
 							</div>
 						);
 

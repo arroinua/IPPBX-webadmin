@@ -169,7 +169,7 @@
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
 		"USAGE_SETTINGS" : "License usage",
-		"BILLING" : "Billing",
+		"BILLING": "Billing",
 		"REC_MODE" : {
 			"REC_MODE" : "Recording mode",
 			"EXCEPTION_LIST" : "Exception list",
@@ -485,6 +485,7 @@
         "channel": "Channels",
         "channels": "Channel Monitoring",
         "chatchannel": "Chat channels",
+        "chattrunk": "Chat trunks",
         "calls": "Dashboard",
         "dashboard": "Dashboard",
         "records": "Call Records",
@@ -495,7 +496,8 @@
         "attendant": "Auto-attendant",
         "certificates": "Certificates",
         "storages": "Storages",
-        "Usage": "License usage",
+        "billing": "Billing",
+        "usage": "License usage",
         "channel_records": "Channel Records"
     },
     "CODES": {
@@ -624,6 +626,14 @@
     	"ADD_RULE": "Add rule",
     	"PASSANUMBER": "Pass Caller ID in the From header"
     },
+    "HUNTING_GROUP": {
+    	"DEFAULT_NAME": "Hunting group"
+    },
+    "ICD_GROUP": {
+    	"DEFAULT_NAME": "Hotline",
+    	"GENERAL_SETTINGS_TAB": "General",
+    	"QUEUE_SETTINGS_TAB": "Queue"
+    },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Chat channel",
     	"NO_MEMBERS": "No members in the channel",
@@ -632,7 +642,26 @@
     	"AVAILABLE_USERS": "Available users",
     	"SELECT_ALL": "Select all"
     },
+    "CHAT_TRUNK": {
+    	"SELECT_SERVICE": "Select service",
+    	"NO_CHANNELS_MSG_1": "You need to",
+    	"NO_CHANNELS_MSG_2": "before connecting a Chat trnuk",
+    	"CREATE_CHANNEL": "create a Chat channel",
+    	"SELECT_CHANNEL": "Select Chat Channel",
+    	"SESSION_TIMEOUT": "Session timeout (min)",
+    	"REPLY_TIMEOUT": "Reply timeout (min)",
+    	"FACEBOOK": {
+    		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
+    		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
+    		"LEARN_MORE_LINK": "Learn how to create one",
+    		"SELECT_PAGE": "Select Facebook Page"
+    	}
+    },
     "ATTENDANT" : {
+    	"GENERAL_SETTINGS_TAB": "General",
+    	"MENU_SETTINGS_TAB": "Menu",
+    	"EMAIL_SETTINGS_TAB": "Email",
+    	"CONNECTORS_SETTINGS_TAB": "Connectors",
     	"MENU" : "Menu",
     	"MAIL" : "Send Email",
     	"COMMUTATOR" : "Commutator",
@@ -669,6 +698,7 @@
     	"AVAILABLE_STORAGES" : "Available storages",
     	"STORAGE_ALLOCATION" : "Storage allocation",
     	"ADD_STORAGE" : "Add storage",
+    	"LIMIT_STORAGE_TRIGGER": "Limit storage",
     	"MAXSIZE" : "Storage size",
     	"FREE_SPACE" : "Available",
     	"USED_SPACE" : "Used",
@@ -699,6 +729,49 @@
     		"AVAILABLE": "Available",
     		"USAGE_ITEM": "Lines"
     	}
+    },
+    "BILLING" : {
+    	"BILLING": "Billing",
+    	"CURRENT_PLAN": "Current plan",
+    	"UPGRADE_PLAN": "Change",
+    	"MONTHLY_TOTAL": "Monthly total",
+    	"NEXT_CHARGE": "Next charge",
+    	"TRIAL_EXPIRES": "Trial expires",
+    	"EDIT_PAYMENT_METHOD": "Edit",
+    	"PAYMENT_METHOD_WARNING_P1": "To change plan and add licenses please",
+    	"PAYMENT_METHOD_WARNING_P2": "to your account",
+    	"ADD_CREDIT_CARD": "add credit card",
+    	"AVAILABLE_LICENSES": {
+    		"AVAILABLE_LICENSES": "Available licenses",
+    		"USERS": "Users",
+    		"STORAGE": "Storage (GB)",
+    		"LINES": "Lines"
+    	},
+    	"CANCEL_LICENSE_UPDATE": "Cancel",
+    	"UPDATE_LICENSES": "Update licenses",
+    	"PLANS": {
+    		"PER_USER": "per user",
+    		"SHOW_ALL_FEATURES": "Show all features",
+    		"CURRENT_PLAN": "Your plan",
+    		"SELECT_PLAN": "Select plan"
+    	},
+    	"INVOICES": {
+    		"INVOICES": "Payments",
+    		"NO_INVOICES": "No payments yet"
+    	},
+    	"DISCOUNTS": {
+    		"DISCOUNTS": "Discounts",
+    		"ACTIVE_DISCOUNTS": "Active discounts",
+    		"ACTIVATE_BTN": "Activate"
+    	},
+    	"CONFIRM_PAYMENT": {
+    		"HEADER": "Billing update",
+    		"NEW_MONTHLY_RATE_MSG": "Your new monthly rate would be",
+    		"TODAY_CHARGE_MSG": "Today you will be charged",
+    		"CONFIRM_PAYMENT": "Pay now",
+    		"CANCEL_PAYMENT": "Cancel"
+    	}
+
     },
     "TOURS": {
     	"NEXT_STEP": "Next",

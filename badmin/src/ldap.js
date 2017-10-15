@@ -168,6 +168,7 @@ function Ldap(options){
         modal = modalObject;
 
         options.onaddusers(selectedUsers.filter(hasExt));
+
     }
 
     function onLdapModalOpen(modalObject){

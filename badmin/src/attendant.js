@@ -273,23 +273,39 @@ function fillBtnsSelectList(array, selectEl, selectedValue){
     selectEl.appendChild(fragment);
 }
 
+function strToJson(str) {
+    var pattern1 = new RegExp(/([\d\w]+)(=+)(?!\{)([\d\w@\-_.\s,?!*%$^&#+]*)(?=\,|\})/, 'g');
+    var pattern2 = new RegExp(/([\d\w#*]+)(=+)(?=\{)/, 'g');
+    return str
+    .replace(pattern1, function(full, key, equal, value) {
+        if(value !== 'null') value = JSON.stringify(value);
+        return '"'+key+'":'+value;
+    })
+    .replace(pattern2, function(full, key, equal) {
+        return '"'+key+'":';
+    });
+}
+
 function setAttSettings(params, temp){
     var objects, settsForm = document.getElementById('attvariables'),
         greetsFile = '',
         ringbackMusic = '',
         connFailedFile = '',
         leaveMsg = '',
-        moveBtns = {};
+        moveBtns = {},
+        value = null;
 
     if(params && settsForm)
         setFormData(settsForm, params);
 
     params.forEach(function(obj){
         if(obj.key === 'jsonString'){
-            objects = JSON.parse(obj.value);
+            value = strToJson(obj.value);
+            objects = JSON.parse(value);
             PbxObject.attendant.objects = objects;
         } else if(obj.key === 'connectors'){
-            addConnectors(JSON.parse(obj.value));
+            value = strToJson(obj.value);
+            addConnectors(JSON.parse(value));
         } else if(obj.key === 'greetings'){
             greetsFile = obj.value;
         } else if(obj.key === 'ringbackMusic'){
@@ -372,7 +388,7 @@ function createSchemaBranch(oid, params){
                         '<ul data-oid="'+oid+'"></ul>';
     } else{
         li.innerHTML = params.name;
-        if(params.button) 
+        if(params.button && params.button !== 'null') 
             li.innerHTML += ' <small class="nowrap text-muted"> '+generateAttObjPath(oid)+'</small>';
     }
 
@@ -768,7 +784,7 @@ function formAttParams(data){
     var params = {
         data: data,
         pid: PbxObject.attendant.currentPid,
-        // connectors: PbxObject.attendant.connectors,
+        connectors: [],
         buttons: PbxObject.attendant.availableButtons,
         frases: PbxObject.frases,
         typeMenu: function(){
@@ -788,7 +804,20 @@ function formAttParams(data){
         }
     };
     params.data.name = params.data.name || generateAttObjName(params.data.type, params.pid);
-    params.connectors = (data.type === PbxObject.attendant.types.commutator) ? PbxObject.attendant.connectors.concat(PbxObject.attendant.routes) : PbxObject.attendant.connectors;
+    if(data.type === PbxObject.attendant.types.commutator) {
+        // filter out emails and concat routes
+        params.connectors = PbxObject.attendant.connectors.filter(function(item) {
+            return item.ext.indexOf('@') === -1;
+        });
+        params.connectors = params.connectors.concat(PbxObject.attendant.routes);
+
+    } else if(data.type === PbxObject.attendant.types.mail) {
+        // filter only emails
+        params.connectors = PbxObject.attendant.connectors.filter(function(item) {
+            console.log('fliter: ', item);
+            return item.ext.indexOf('@') !== -1;
+        });
+    }
     params.connectors = params.connectors.map(formatConnectors);
     sortByKey(params.connectors, 'ext');
 

@@ -85,7 +85,7 @@ function load_chatchannel(params) {
 			kind: PbxObject.kind,
 			oid: params.oid,
 			name: objName,
-			enabled: params.enabled || true,
+			enabled: params.enabled,
 			members: (params.members.length ? params.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
 		}, function(result) {
 			PbxObject.name = objParams.name = objName;

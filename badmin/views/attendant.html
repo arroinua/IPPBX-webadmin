@@ -5,7 +5,6 @@
                 <div class="panel-body">
                     <div class="input-group object-name" id="obj-name-cont">
                         <input type="text" id="objname" class="form-control" placeholder="{{APPNAME}}" autofocus>
-                        <span class="input-group-addon object-route view-1" id="object-route-cont"></span>
                         <span class="input-group-addon">
                             <div class="switch switch-lg" id="enabled-cont">
                                 <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
@@ -32,110 +31,134 @@
                 </div>
             </div>
             <div class="panel">
-                <div class="panel-header">{{APPSETTS}}
+                <div class="panel-header">{{SETTINGS.SETTINGS}}
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal" id="attvariables">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">
-                                {{GREETNAME}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__GREETINGS}}"></a>
-                            </label>
-                            <div class="col-sm-8">
-                                <input type="file" accept=".wav" name="greetings" id="attGreetings" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">
-                                {{ATTENDANT.DEFAULT_CONNECTOR}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__DEFAULT_CONNECTOR}}"></a>
-                            </label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" name="defaultConnector" id="default-connector" value="" onkeydown='validateInput(event)' placeholder="{{ATT__DEFAULT_CONNECTOR_PH}}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">
-                                {{ATTENDANT.CONN_TOUT}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__CONN_TOUT}}"></a>
-                            </label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" name="connectionTimeout" value="60" onkeydown='validateInput(event)'>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">
-                                {{ATTENDANT.RINGBACK_MUSIC}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__RINGBACK_MUSIC}}"></a>
-                            </label>
-                            <div class="col-sm-8">
-                                <input type="file" accept=".wav" name="ringbackMusic" id="ringbackMusic" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">
-                                {{ATTENDANT.CONN_FAILED_PROMPT}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__CONN_FAILED_PROMPT}}"></a>
-                            </label>
-                            <div class="col-sm-8">
-                                <input type="file" accept=".wav" name="connectionFailed" id="connectionFailed" class="upload-custom">
-                            </div>
-                        </div>
-                        
-                        <div class="panel minimized no-shadow">
-                            <div class="panel-header custom-header-1">{{ATT__GEN_MENU_SETTINGS}}
-                                <i class="fa fa-chevron-down"></i>
-                            </div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">
-                                        {{ATTENDANT.INPUT_TRIES}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__INPUT_TRIES}}"></a>
-                                    </label>
-                                    <div class="col-sm-4">
-                                        <input type="text" class="form-control" name="globalcounter" value="1" onkeydown='validateInput(event)'>
+                    <form class="form-horizontal" id="attvariables" autocomplete="off">
+
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#tab-att-general" aria-controls="general" role="tab" data-toggle="tab">{{ATTENDANT.GENERAL_SETTINGS_TAB}}</a></li>
+                            <li role="presentation"><a href="#tab-att-menu" aria-controls="menu" role="tab" data-toggle="tab">{{ATTENDANT.MENU_SETTINGS_TAB}}</a></li>
+                            <li role="presentation"><a href="#tab-att-email" aria-controls="email" role="tab" data-toggle="tab">{{ATTENDANT.EMAIL_SETTINGS_TAB}}</a></li>
+                            <li role="presentation"><a href="#tab-att-connectors" aria-controls="connectors" role="tab" data-toggle="tab">{{ATTENDANT.CONNECTORS_SETTINGS_TAB}}</a></li>
+                        </ul>
+
+                        <div class="tab-content" style="padding: 20px 0">
+                            <div role="tabpanel" class="tab-pane fade in active" id="tab-att-general">
+                                <!-- <form class="form-horizontal"> -->
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{EXTENSION}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{EXTENSION}}"></a>
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <span class="object-route" id="object-route-cont"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">
-                                        {{ATTENDANT.MSG_TOUT}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__MSG_TOUT}}"></a>
-                                    </label>
-                                    <div class="col-sm-4">
-                                        <input type="text" class="form-control" name="mesTimeout" value="60" onkeydown='validateInput(event)'>
+                                    <hr/>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{GREETNAME}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__GREETINGS}}"></a>
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input type="file" accept=".wav" name="greetings" id="attGreetings" class="upload-custom">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">
-                                        {{ATTENDANT.BACK_BTN}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__BACK_BTN}}"></a>
-                                    </label>
-                                    <div class="col-sm-4">
-                                        <select class="form-control" name="moveBack" id="moveBack">
-                                        </select>
-                                        <!-- <input type="text" class="form-control" id="moveBack" name="moveBack" value="#" maxlength="1"> -->
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.DEFAULT_CONNECTOR}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__DEFAULT_CONNECTOR}}"></a>
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="defaultConnector" id="default-connector" value="" onkeydown='validateInput(event)' placeholder="{{ATT__DEFAULT_CONNECTOR_PH}}">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">
-                                        {{ATTENDANT.MAIN_MENU_BTN}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__MAIN_MENU_BTN}}"></a>
-                                    </label>
-                                    <div class="col-sm-4">
-                                        <select class="form-control" name="moveMmenu" id="moveMmenu">
-                                        </select>
-                                        <!-- <input type="text" class="form-control" id="moveMmenu" name="moveMmenu" value="*" maxlength="1"> -->
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.CONN_TOUT}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__CONN_TOUT}}"></a>
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" name="connectionTimeout" value="60" onkeydown='validateInput(event)'>
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.RINGBACK_MUSIC}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__RINGBACK_MUSIC}}"></a>
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input type="file" accept=".wav" name="ringbackMusic" id="ringbackMusic" class="upload-custom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.CONN_FAILED_PROMPT}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__CONN_FAILED_PROMPT}}"></a>
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input type="file" accept=".wav" name="connectionFailed" id="connectionFailed" class="upload-custom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{DEBUG}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__DEBUG}}"></a>
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" id="debug">
+                                        </div>
+                                    </div>
+                                <!-- </form> -->
                             </div>
-                        </div>
-                        <div id="att-email-setts" class="panel minimized no-shadow">
-                            <div class="panel-header custom-header-1">{{ATT__GEN_EMAIL_SETTINGS}}
-                                <i class="fa fa-chevron-down"></i>
+                            <div role="tabpanel" class="tab-pane fade" id="tab-att-menu">
+                                <!-- <form class="form-horizontal"> -->
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.INPUT_TRIES}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__INPUT_TRIES}}"></a>
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" name="globalcounter" value="1" onkeydown='validateInput(event)'>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.MSG_TOUT}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__MSG_TOUT}}"></a>
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" name="mesTimeout" value="60" onkeydown='validateInput(event)'>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.BACK_BTN}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__BACK_BTN}}"></a>
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="moveBack" id="moveBack">
+                                            </select>
+                                            <!-- <input type="text" class="form-control" id="moveBack" name="moveBack" value="#" maxlength="1"> -->
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">
+                                            {{ATTENDANT.MAIN_MENU_BTN}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__MAIN_MENU_BTN}}"></a>
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="moveMmenu" id="moveMmenu">
+                                            </select>
+                                            <!-- <input type="text" class="form-control" id="moveMmenu" name="moveMmenu" value="*" maxlength="1"> -->
+                                        </div>
+                                    </div>
+                                <!-- </form> -->
                             </div>
-                            <div class="panel-body">
-                                <div id="smtp-setts-cont">
+                            <div role="tabpanel" class="tab-pane fade" id="tab-att-email">
+                                <!-- <form class="form-horizontal"> -->
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">
                                             {{ATTENDANT.LEAVE_MSG_PROMPT}}
@@ -151,7 +174,7 @@
                                             <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__EMAIL_FROM}}"></a>
                                         </label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control" name="emailFrom" placeholder="{{ATT__EMAIL_ADDRESS}}">
+                                            <input type="text" class="form-control" name="emailFrom" placeholder="{{ATT__EMAIL_ADDRESS}}" autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -160,7 +183,7 @@
                                             <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__SMTP_SERVER}}"></a> -->
                                         </label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control" name="SMTPServ" placeholder="{{ATT__SMTP_SERVER_PH}}">
+                                            <input type="text" class="form-control" name="SMTPServ" placeholder="{{ATT__SMTP_SERVER_PH}}" autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -169,7 +192,7 @@
                                             <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__SMTP_LOGIN}}"></a> -->
                                         </label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control" name="SMTPlogin" placeholder="{{ATTENDANT.SMTP_LOGIN}}">
+                                            <input type="text" class="form-control" name="SMTPlogin" placeholder="{{ATTENDANT.SMTP_LOGIN}}" autocomplete="off" />
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -178,53 +201,40 @@
                                             <!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__SMTP_PWD}}"></a> -->
                                         </label>
                                         <div class="col-sm-8">
-                                            <input type="password" class="form-control" name="SMTPpass" placeholder="{{ATTENDANT.SMTP_PWD}}">
+                                            <input type="password" class="form-control" name="SMTPpass" placeholder="{{ATTENDANT.SMTP_PWD}}" autocomplete="off" />
                                         </div>
                                     </div>
+                                <!-- </form> -->
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" id="tab-att-connectors">
+                                <div >
+                                    <table class="table" id="attconnectors">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="form-group">
+                                                        <label for="connName">{{NAME}}</label>
+                                                        <input name="connName" class="form-control" placeholder="{{ATT__CONNECTOR_NAME_PH}}" autocomplete="off" />
+                                                    </div>
+                                                </th>
+                                                <th>
+                                                    <div class="form-group">
+                                                        <label for="connVal">{{VALUE}}</label>
+                                                        <input name="connVal" class="form-control" placeholder="{{ATT__CONNECTOR_VALUE_PH}}" autocomplete="off" />
+                                                    </div>
+                                                </th>
+                                                <th style="vertical-align: middle; padding-top: 15px;">
+                                                    <button type="button" id="addConnector" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">
-                                {{DEBUG}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{ATT__DEBUG}}"></a>
-                            </label>
-                            <div class="col-sm-8">
-                                <input type="checkbox" id="debug">
-                            </div>
-                        </div>
                     </form>
-                </div>
-            </div>
-            <div class="panel">
-                <div class="panel-header">{{ATTENDANT.CONNECTORS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <div class="table-responsive">
-                        <table class="table" id="attconnectors">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <div class="form-group">
-                                            <label for="connName">{{NAME}}</label>
-                                            <input name="connName" class="form-control" placeholder="{{ATT__CONNECTOR_NAME_PH}}" />
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div class="form-group">
-                                            <label for="connVal">{{VALUE}}</label>
-                                            <input name="connVal" class="form-control" placeholder="{{ATT__CONNECTOR_VALUE_PH}}" />
-                                        </div>
-                                    </th>
-                                    <th style="vertical-align: middle; padding-top: 15px;">
-                                        <button type="button" id="addConnector" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+
                 </div>
             </div>
         </div>

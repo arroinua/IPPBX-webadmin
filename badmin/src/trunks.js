@@ -408,7 +408,7 @@ function set_trunk(){
     jprms += ', "outboundbnumbertransforms":';
     jprms += JSON.stringify(outBTrasf);
 
-    // console.log(jprms);
+    console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result) {
             if(handler) handler();

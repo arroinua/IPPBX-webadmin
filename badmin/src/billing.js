@@ -7,8 +7,12 @@ function load_billing() {
 	var profile = {};
 	var sub = {};
 	var plans = [];
+	var invoices = [];
+	var discounts = [];
 	var stripeToken;
 	var stripeHandler;
+
+	loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
@@ -24,8 +28,26 @@ function load_billing() {
 				if(err) return notify_about('error' , err);
 				plans = result;
 
-				// init();
-				loadStripeJs();
+				init();
+
+				getDiscounts(function(err, response) {
+					if(err) return notify_about('error' , err);
+					discounts = response;
+
+					// init();
+
+					getInvoices(function(err, response) {
+						if(err) return notify_about('error' , err);
+						invoices = response;
+						console.log('invoices: ', invoices);
+						init();
+					});
+				});
+
+					
+
+				// set_page();
+				show_content();
 			});
 
 		});
@@ -33,13 +55,15 @@ function load_billing() {
 	});
 
 	function loadStripeJs() {
-		if(window.StripeCheckout) return init();
+		if(window.StripeCheckout) return;
 
 		$.ajaxSetup({ cache: true });
 		$.getScript('https://checkout.stripe.com/checkout.js', function(){
 			stripeHandler = StripeCheckout.configure({
+				// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
 				key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-				image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+				// image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+				image: '/badmin/images/Ringotel_emblem_new.png',
 				locale: 'auto',
 				token: function(token) {
 					console.log('stripe token: ', token);
@@ -52,7 +76,7 @@ function load_billing() {
 			  stripeHandler.close();
 			});
 
-			init();
+			// init();
 		});
 	}
 
@@ -63,15 +87,15 @@ function load_billing() {
 		    sub: sub,
 		    frases: PbxObject.frases,
 		    plans: plans,
+		    invoices: invoices,
+		    discounts: discounts,
 		    addCard: addCard,
 		    editCard: editCard,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: updateLicenses,
-		    extend: deepExtend
+		    extend: deepExtend,
+		    addCoupon: addCoupon
 		}), cont);
-
-		// set_page();
-		show_content();
 	}
 
 	function addCard() {
@@ -85,8 +109,13 @@ function load_billing() {
 			// amount: plan.amount*100,
 			closed: function(result) {
 				console.log('addCard closed: ', result);
+				
+				show_loading_panel();
+
 				saveCard(stripeToken, function(err, response) {
-					if(err || !response.success) return;
+					show_content();
+
+					if(err || !response || !response.success) return;
 
 					console.log('editCard token: ', stripeToken);
 
@@ -95,7 +124,11 @@ function load_billing() {
 					profile.defaultBillingMethod = {
 						params: stripeToken.card
 					};
+
+					stripeToken = null;
+					
 					init();
+					
 				});
 			}
 		});
@@ -112,8 +145,13 @@ function load_billing() {
 			// amount: plan.amount*100,
 			closed: function(result) {
 				console.log('editCard closed: ', result);
+
+				show_loading_panel();
+
 				updateCard(stripeToken, function(err, response) {
-					if(err || !response.success) return;
+					show_content();
+
+					if(err || !response || !response.success) return;
 
 					console.log('editCard token: ', stripeToken);
 
@@ -122,6 +160,9 @@ function load_billing() {
 					profile.defaultBillingMethod = {
 						params: stripeToken.card
 					};
+
+					stripeToken = null;
+
 					init();
 				});
 			}
@@ -130,7 +171,7 @@ function load_billing() {
 
 	function saveCard(params, callback) {
 		console.log('saveCard: ', params);
-		if(!params) return;
+		if(!params) return callback();;
 		var reqParams = {
 			service: 'stripe',
 			token: params.id,
@@ -145,7 +186,7 @@ function load_billing() {
 
 	function updateCard(params, callback) {
 		console.log('updateCard: ', params);
-		if(!params) return;
+		if(!params) return callback();
 		var reqParams = {
 			service: 'stripe',
 			token: params.id,
@@ -158,34 +199,67 @@ function load_billing() {
 		});
 	}
 
-	// function onPlanSelect(plan) {
-	// 	changePlan(plan);
-	// }
-
-	function onPlanSelect(plan) {
-		console.log('changePlan: ', plan);
-		billingRequest('changePlan', {
-			subId: sub._id,
-			planId: plan.planId
-		}, function(err, response) {
+	function addCoupon(string) {
+		billingRequest('addCoupon', { coupon: string }, function(err, response) {
+			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
-			console.log('changePlan: ', err, response);
-			sub = response.result;
+			if(!response.success) return notify_about('error', response.error.message);
+			discounts.push(response);
 			init();
 		});
 	}
 
+	function onPlanSelect(params) {
+		console.log('changePlan: ', params);
+
+		showModal('confirm_payment_modal', params, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			show_loading_panel();
+
+			billingRequest('changePlan', {
+				subId: sub._id,
+				planId: params.plan.planId
+			}, function(err, response) {
+				if(err) return notify_about('error', err.message);
+				console.log('changePlan: ', err, response);
+				
+				$(modal).modal('toggle');
+				
+				sub = response.result;
+
+				show_content();
+				init();
+			});
+
+		});
+
+	}
+
 	function updateLicenses(params){
 		console.log('updateLicenses: ', params);
-		billingRequest('updateSubscription', {
-			subId: sub._id,
-			addOns: params.addOns,
-			quantity: params.quantity
-		}, function(err, response) {
-			if(err) return notify_about('error', err.message);
-			console.log('updateLicenses: ', err, response);
-			sub = response.result;
-			init();
+
+		showModal('confirm_payment_modal', params, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			show_loading_panel();
+
+			billingRequest('updateSubscription', {
+				subId: sub._id,
+				addOns: params.addOns,
+				quantity: params.quantity
+			}, function(err, response) {
+				if(err) return notify_about('error', err.message);
+				console.log('updateLicenses: ', err, response);
+
+				$(modal).modal('toggle');
+
+				sub = response.result;
+				
+				show_content();
+				init();
+			});
+
 		});
 	}
 
@@ -195,6 +269,22 @@ function load_billing() {
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});
+	}
+
+	function getInvoices(callback) {
+		billingRequest('getInvoices', null, function(err, response) {
+			console.log('getInvoices response: ', err, response);
+			if(err) return callback(err);
+			if(callback) callback(null, response.result || [])
+		});	
+	}
+
+	function getDiscounts(callback) {
+		billingRequest('getDiscounts', null, function(err, response) {
+			console.log('getDiscounts response: ', err, response);
+			if(err) return callback(err);
+			if(callback) callback(null, response.result || [])
+		});	
 	}
 
 }

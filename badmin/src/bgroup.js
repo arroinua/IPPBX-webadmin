@@ -7,8 +7,11 @@ function load_bgroup(result){
         kind = result.kind,
         members = result.members,
         cont = d.getElementById('dcontainer'),
-        options = d.getElementById('options'),
+        // options = d.getElementById('options'),
         enabled = document.getElementById('enabled'),
+        storeLimitTrigger = document.getElementById('trigger-storelimit'),
+        storelimitCont = document.getElementById('storelimit-cont'),
+        addUserForm = document.getElementById('new-user-form'),
         $enabledCont = $('.object-name .switch'),
         availableUsers = result.available;
 
@@ -36,6 +39,12 @@ function load_bgroup(result){
             setObjectState(result.oid, this.checked, function(result) {
                 if(!result) enabled.checked = !enabled.checked;
             });
+        });
+    }
+
+    if(storeLimitTrigger) {
+        addEvent(storeLimitTrigger, 'change', function(){
+            storelimitCont.style.display = this.checked ? 'block' : 'none';
         });
     }
     
@@ -100,10 +109,19 @@ function load_bgroup(result){
             add.setAttribute('disabled', 'disabled'); // disable "add user" button
         }
         
-        addEvent(add, 'click', function(){
-            addUser(utype);
+        addEvent(addUserForm, 'submit', function(e){
+            e.preventDefault();
+            var storeLimitChecked = storeLimitTrigger.checked;
+            addUser(utype, function() {
+                cleanForm('new-user-form');
+                storeLimitTrigger.checked = storeLimitChecked;
+            });
             // cleanForm();
         });
+        // addEvent(add, 'click', function(){
+        //     addUser(utype);
+        //     // cleanForm();
+        // });
         // addEvent(clear, 'click', function(e){
         //     cleanForm(e);
         // });
@@ -223,62 +241,62 @@ function load_bgroup(result){
             customize_upload('unit-greeting', unitGreeting);
             customize_upload('unit-waitmusic', unitWaitMusic);
 
-        } else if(kind == 'hunting'){
-            if(result.options.timeout !== undefined)
-                d.getElementById("timeout2").value = result.options.timeout;
-            if(result.options.huntmode  !== undefined)
-                d.getElementById("huntmode2").value = result.options.huntmode || 1;
-            if(result.options.huntfwd  !== undefined)
-                d.getElementById("huntfwd2").checked = result.options.huntfwd;
+        // } else if(kind == 'hunting'){
+        //     if(result.options.timeout !== undefined)
+        //         d.getElementById("timeout2").value = result.options.timeout;
+        //     if(result.options.huntmode  !== undefined)
+        //         d.getElementById("huntmode2").value = result.options.huntmode || 1;
+        //     if(result.options.huntfwd  !== undefined)
+        //         d.getElementById("huntfwd2").checked = result.options.huntfwd;
 
-            var huntGreeting = result.options.greeting || '';
-            var huntWaitMusic = result.options.waitmusic || '';
-            customize_upload('hunt-greeting', huntGreeting);
-            customize_upload('hunt-waitmusic', huntWaitMusic);
+        //     var huntGreeting = result.options.greeting || '';
+        //     var huntWaitMusic = result.options.waitmusic || '';
+        //     customize_upload('hunt-greeting', huntGreeting);
+        //     customize_upload('hunt-waitmusic', huntWaitMusic);
 
         } else if(kind == 'pickup'){
             d.getElementById("groupno2").value = result.options.groupno || '';
-        } else if(kind == 'icd'){
-            d.getElementById("icd-app").value = result.options.application || '';
-            d.getElementById("groupno").value = result.options.groupno || '';
-            d.getElementById("maxlines").value = result.options.maxlines || '';
-            d.getElementById("priority").value = result.options.priority || '';
-            d.getElementById("canpickup").checked = result.options.canpickup;
-            d.getElementById("autologin").checked = result.options.autologin;
-            d.getElementById("method").selectedIndex = result.options.method;
-            d.getElementById("natimeout").value = result.options.natimeout || '';
-            d.getElementById("resumetime").value = result.options.resumetime || '';
-            d.getElementById("queuelen").value = result.options.queuelen || '';
-            d.getElementById("maxqwait").value = result.options.maxqwait || '';
-            d.getElementById("overflowredirect").value = result.options.overflowredirect || '';
-            d.getElementById("overtimeredirect").value = result.options.overtimeredirect || '';
-            d.getElementById("indicationmode").value = result.options.indicationmode || '';
-            d.getElementById("indicationtime").value = result.options.indicationtime || '';
+        // } else if(kind == 'icd'){
+        //     d.getElementById("icd-app").value = result.options.application || '';
+        //     d.getElementById("groupno").value = result.options.groupno || '';
+        //     d.getElementById("maxlines").value = result.options.maxlines || '';
+        //     d.getElementById("priority").value = result.options.priority || '';
+        //     d.getElementById("canpickup").checked = result.options.canpickup;
+        //     d.getElementById("autologin").checked = result.options.autologin;
+        //     d.getElementById("method").selectedIndex = result.options.method;
+        //     d.getElementById("natimeout").value = result.options.natimeout || '';
+        //     d.getElementById("resumetime").value = result.options.resumetime || '';
+        //     d.getElementById("queuelen").value = result.options.queuelen || '';
+        //     d.getElementById("maxqwait").value = result.options.maxqwait || '';
+        //     d.getElementById("overflowredirect").value = result.options.overflowredirect || '';
+        //     d.getElementById("overtimeredirect").value = result.options.overtimeredirect || '';
+        //     d.getElementById("indicationmode").value = result.options.indicationmode || '';
+        //     d.getElementById("indicationtime").value = result.options.indicationtime || '';
             
-            $('#autologin').on('change', function(e){
-                switchVisibility('#open-autologin-options', this.checked);
-            });
-            switchVisibility('#open-autologin-options', result.options.autologin);
+        //     $('#autologin').on('change', function(e){
+        //         switchVisibility('#open-autologin-options', this.checked);
+        //     });
+        //     switchVisibility('#open-autologin-options', result.options.autologin);
 
-            PbxObject.autologinOptions = {
-                network: result.options.network,
-                netmask: result.options.netmask
-            };
+        //     PbxObject.autologinOptions = {
+        //         network: result.options.network,
+        //         netmask: result.options.netmask
+        //     };
 
-            $('#open-autologin-options').on('click', function(e){
-                showModal('autologin_modal', PbxObject.autologinOptions, function(data, modalObject) {
-                    if(data) PbxObject.autologinOptions = data;
-                    $(modalObject).modal('hide');
-                });
-            });
+        //     $('#open-autologin-options').on('click', function(e){
+        //         showModal('autologin_modal', PbxObject.autologinOptions, function(data, modalObject) {
+        //             if(data) PbxObject.autologinOptions = data;
+        //             $(modalObject).modal('hide');
+        //         });
+        //     });
 
-            //customizing upload element
-            var greetFile = result.options.greeting || '';
-            var queuemusic = result.options.queuemusic || '';
-            var queueprompt = result.options.queueprompt || '';
-            customize_upload('greeting', greetFile);
-            customize_upload('queuemusic', queuemusic);
-            customize_upload('queueprompt', queueprompt);
+        //     //customizing upload element
+        //     var greetFile = result.options.greeting || '';
+        //     var queuemusic = result.options.queuemusic || '';
+        //     var queueprompt = result.options.queueprompt || '';
+        //     customize_upload('greeting', greetFile);
+        //     customize_upload('queuemusic', queuemusic);
+        //     customize_upload('queueprompt', queueprompt);
 
         } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
 
@@ -816,67 +834,67 @@ function set_bgroup(param, callback){
             upload('unit-waitmusic');
         }
 
-    } else if(kind == 'hunting'){
-        jprms += '"timeout":'+d.getElementById("timeout2").value+',';
-        jprms += '"huntmode":'+d.getElementById("huntmode2").value+',';
-        jprms += '"huntfwd":'+d.getElementById("huntfwd2").checked+',';
+    // } else if(kind == 'hunting'){
+    //     jprms += '"timeout":'+d.getElementById("timeout2").value+',';
+    //     jprms += '"huntmode":'+d.getElementById("huntmode2").value+',';
+    //     jprms += '"huntfwd":'+d.getElementById("huntfwd2").checked+',';
 
-        var huntGreeting = document.getElementById("hunt-greeting");
-        var huntWaitMusic = document.getElementById("hunt-waitmusic");
+    //     var huntGreeting = document.getElementById("hunt-greeting");
+    //     var huntWaitMusic = document.getElementById("hunt-waitmusic");
 
-        if(huntGreeting.value){
-            if(huntGreeting.files[0]) jprms += '"greeting":"'+huntGreeting.files[0].name+'",';
-            upload('hunt-greeting');
-        }
+    //     if(huntGreeting.value){
+    //         if(huntGreeting.files[0]) jprms += '"greeting":"'+huntGreeting.files[0].name+'",';
+    //         upload('hunt-greeting');
+    //     }
 
-        if(huntWaitMusic.value){
-            if(huntWaitMusic.files[0]) jprms += '"waitmusic":"'+huntWaitMusic.files[0].name+'",';
-            upload('hunt-waitmusic');
-        }
+    //     if(huntWaitMusic.value){
+    //         if(huntWaitMusic.files[0]) jprms += '"waitmusic":"'+huntWaitMusic.files[0].name+'",';
+    //         upload('hunt-waitmusic');
+    //     }
 
     } else if(kind == 'pickup'){
         jprms += '"groupno":"'+d.getElementById("groupno2").value+'",';
-    } else if(kind == 'icd'){
-        if(d.getElementById("icd-app"))
-            jprms += '"application":"'+escapeValue(d.getElementById("icd-app").value)+'",';
-        jprms += '"groupno":"'+d.getElementById("groupno").value+'",';
-        jprms += '"maxlines":'+d.getElementById("maxlines").value+',';
-        jprms += '"priority":'+d.getElementById("priority").value+',';
-        jprms += '"canpickup":'+d.getElementById("canpickup").checked+',';
-        jprms += '"autologin":'+d.getElementById("autologin").checked+',';
-        jprms += '"method":'+d.getElementById("method").value+',';
-        jprms += '"natimeout":'+d.getElementById("natimeout").value+',';
-        jprms += '"resumetime":'+d.getElementById("resumetime").value+',';
-        jprms += '"queuelen":'+d.getElementById("queuelen").value+',';
-        jprms += '"overflowredirect":"'+d.getElementById("overflowredirect").value+'",';
-        jprms += '"maxqwait":'+d.getElementById("maxqwait").value+',';
-        jprms += '"overtimeredirect":"'+d.getElementById("overtimeredirect").value+'",';
-        jprms += '"indicationmode":'+d.getElementById("indicationmode").value+',';
-        jprms += '"indicationtime":'+d.getElementById("indicationtime").value+',';
+    // } else if(kind == 'icd'){
+    //     if(d.getElementById("icd-app"))
+    //         jprms += '"application":"'+escapeValue(d.getElementById("icd-app").value)+'",';
+    //     jprms += '"groupno":"'+d.getElementById("groupno").value+'",';
+    //     jprms += '"maxlines":'+d.getElementById("maxlines").value+',';
+    //     jprms += '"priority":'+d.getElementById("priority").value+',';
+    //     jprms += '"canpickup":'+d.getElementById("canpickup").checked+',';
+    //     jprms += '"autologin":'+d.getElementById("autologin").checked+',';
+    //     jprms += '"method":'+d.getElementById("method").value+',';
+    //     jprms += '"natimeout":'+d.getElementById("natimeout").value+',';
+    //     jprms += '"resumetime":'+d.getElementById("resumetime").value+',';
+    //     jprms += '"queuelen":'+d.getElementById("queuelen").value+',';
+    //     jprms += '"overflowredirect":"'+d.getElementById("overflowredirect").value+'",';
+    //     jprms += '"maxqwait":'+d.getElementById("maxqwait").value+',';
+    //     jprms += '"overtimeredirect":"'+d.getElementById("overtimeredirect").value+'",';
+    //     jprms += '"indicationmode":'+d.getElementById("indicationmode").value+',';
+    //     jprms += '"indicationtime":'+d.getElementById("indicationtime").value+',';
         
-        var file1 = document.getElementById("greeting");
-        var queuemusic = document.getElementById("queuemusic");
-        var queueprompt = document.getElementById("queueprompt");
+    //     var file1 = document.getElementById("greeting");
+    //     var queuemusic = document.getElementById("queuemusic");
+    //     var queueprompt = document.getElementById("queueprompt");
         
-        if(file1.value){
-            if(file1.files[0]) jprms += '"greeting":"'+file1.files[0].name+'",';
-            upload('greeting');
-        }
+    //     if(file1.value){
+    //         if(file1.files[0]) jprms += '"greeting":"'+file1.files[0].name+'",';
+    //         upload('greeting');
+    //     }
 
-        if(queuemusic.value){
-            if(queuemusic.files[0]) jprms += '"queuemusic":"'+queuemusic.files[0].name+'",';
-            upload('queuemusic');
-        }
+    //     if(queuemusic.value){
+    //         if(queuemusic.files[0]) jprms += '"queuemusic":"'+queuemusic.files[0].name+'",';
+    //         upload('queuemusic');
+    //     }
 
-        if(queueprompt.value){
-            if(queueprompt.files[0]) jprms += '"queueprompt":"'+queueprompt.files[0].name+'",';
-            upload('queueprompt');
-        }
+    //     if(queueprompt.value){
+    //         if(queueprompt.files[0]) jprms += '"queueprompt":"'+queueprompt.files[0].name+'",';
+    //         upload('queueprompt');
+    //     }
 
-        if(PbxObject.autologinOptions) {
-            jprms += '"network":"'+PbxObject.autologinOptions.network+'",';
-            jprms += '"netmask":"'+PbxObject.autologinOptions.netmask+'",';
-        }
+    //     if(PbxObject.autologinOptions) {
+    //         jprms += '"network":"'+PbxObject.autologinOptions.network+'",';
+    //         jprms += '"netmask":"'+PbxObject.autologinOptions.netmask+'",';
+    //     }
     } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
         var initmodes = document.getElementById('initmode');
         var initmode = initmodes.options[initmodes.selectedIndex].value;
@@ -967,7 +985,7 @@ function setObjRoute(params) {
 function renderObjRoute(params) {
     ReactDOM.render(
         ObjectRoute({
-            getOptions: getAvailablePool,
+            // getOptions: getAvailablePool,
             routes: params.routes,
             frases: params.frases,
             // clearCurrObjRoute: clearCurrObjRoute,
@@ -1035,7 +1053,7 @@ function addMembersRow(data){
     return row;
 }
 
-function addUser(type){
+function addUser(type, cb){
     var e = e || window.event,
         table = document.getElementById('group-extensions').querySelector('tbody'),
         available = document.getElementById('available-users'),
@@ -1045,6 +1063,7 @@ function addUser(type){
         emailEl = document.getElementById('user-email'),
         aliasEl = document.getElementById('user-alias'),
         passEl = document.getElementById('user-pass'),
+        storeLimitTrigger = document.getElementById('trigger-storelimit'),
         storelimit = document.getElementById('storelimit'),
         ext, name, alias;
 
@@ -1069,9 +1088,11 @@ function addUser(type){
     jprms += '"name":"'+name+'",';
     jprms += '"display":"'+alias+'",';
     jprms += '"password":"'+passEl.value+'",';
-    if(storelimit) {
+    if(storeLimitTrigger.checked) {
         storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
         if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
+    } else {
+        jprms += '"storelimit": 0,';
     }
 
     var data = {
@@ -1136,7 +1157,7 @@ function addUser(type){
             // emmit event to trigger tour next step
             $('#new-user-form').trigger("users.create");
 
-            cleanForm('new-user-form');
+            if(cb) cb();
         }
     });
 }
@@ -1170,14 +1191,15 @@ function refreshUsersTable(cb){
 function cleanForm(formId){
     var form = document.getElementById(formId);
     form.reset();
+    
     // var name = document.getElementById('user-name'),
     //     alias = document.getElementById('user-alias'),
     //     // followme = document.getElementById('user-num'),
     //     pass = document.getElementById('user-pass');
+    
     // var inputs = [].slice.call(form.querySelectorAll('input'));
     // inputs.forEach(function(inp){
-    //     if(inp.value)
-    //         inp.value = '';
+    //     inp.value = '';
     // });
 
     // if(name) name.value = "";

@@ -303,7 +303,7 @@
                                         </a>
                                     </li>
                                     <li id="billing-tab">
-                                        <a title="{{SETTINGS.BILLING}}">
+                                        <a href="#billing" title="{{SETTINGS.BILLING}}">
                                             <i class="fa fa-credit-card fa-fw"></i>
                                             <span>{{SETTINGS.BILLING}}</span>
                                         </a>
@@ -325,7 +325,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <form class="form-horizontal">
+                        <form class="form-horizontal" autocomplete="off">
                             <div class="form-group">
                                 <label for="interfacelang" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LANGUAGE}}">{{LANGUAGE}}</label>
                                 <div class="col-sm-12">
@@ -345,13 +345,13 @@
                             <div class="form-group">
                                 <label for="firstnumber" class="col-xs-12" data-toggle="tooltip" title="{{OPTS__POOL_TOOLTIP}}">{{NUMBERING_POOL}}</label>
                                 <div class="col-xs-12">
-                                    <input type="text" class="form-control" onkeydown='validateInput(event)' id="firstnumber">
+                                    <input type="text" class="form-control" onkeydown='validateInput(event)' id="firstnumber" autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="adminname" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__LOGIN}}">{{LOGIN}}</label>
                                 <div class="col-sm-12">
-                                    <input type="text" class="form-control" id="adminname" placeholder="{{LOGIN}}" readonly>
+                                    <input type="text" class="form-control" id="adminname" placeholder="{{LOGIN}}" readonly autocomplete="off">
                                 </div>
                             </div>
                             <button type="button" class="btn btn-default btn-block" role="button" data-toggle="collapse" data-target="#change-pass-cont" aria-expanded="false" aria-controls="change-pass-cont">{{SETTINGS.CHANGE_PASSWORD}}</button>
@@ -360,13 +360,13 @@
                                 <div class="form-group">
                                     <label for="adminpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__PWD}}">{{PASSWORD}}</label>
                                     <div class="col-sm-12">
-                                        <input type="password" class="form-control" id="adminpass" placeholder="{{PASSWORD}}" autocomplete="off">
+                                        <input type="password" class="form-control" id="adminpass" placeholder="{{PASSWORD}}" autocomplete="off" />
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="confirmpass" class="col-sm-12" data-toggle="tooltip" title="{{OPTS__CONFIRM_PWD}}">{{CONFIRM}} {{PASSWORD}}</label>
                                     <div class="col-sm-12">
-                                        <input type="password" class="form-control" id="confirmpass" placeholder="{{CONFIRM}} {{PASSWORD}}" autocomplete="off">
+                                        <input type="password" class="form-control" id="confirmpass" placeholder="{{CONFIRM}} {{PASSWORD}}" autocomplete="off" />
                                     </div>
                                 </div>
                             </div>
@@ -737,11 +737,11 @@
                     </div>
                     <div class="form-group">
                         <label for="smtp-username">{{frases.USERNAME}}</label>
-                        <input type="text" id="smtp-username" class="form-control" value="{{data.smtp.username}}">
+                        <input type="text" id="smtp-username" class="form-control" value="{{data.smtp.username}}" autocomplete="off" />
                     </div>
                     <div class="form-group">
                         <label for="smtp-password">{{frases.PASSWORD}}</label>
-                        <input type="password" id="smtp-password" class="form-control" value="{{data.smtp.password}}">
+                        <input type="password" id="smtp-password" class="form-control" value="{{data.smtp.password}}" autocomplete="off" />
                     </div>
                     <div class="form-group">
                         <label for="smtp-from">{{frases.FROM3}}</label>
@@ -778,7 +778,7 @@
             <div class="acc-cont">
                 <h5 class="text-mute acc-header">Active Directory/LDAP <span class="caret pull-right"></span></h5>
                 <div class="acc-pane" id="ldap-tab">
-                    <form>
+                    <form autocomplete="off">
                         <div class="form-group">
                             <label for="directoryServer" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_SERVER}}">{{frases.LDAP.DIR_SERVER}}</label>
                             <input type="text" class="form-control" id="directoryServer" name="directoryServer" value="{{data.ldap.directoryServer}}">

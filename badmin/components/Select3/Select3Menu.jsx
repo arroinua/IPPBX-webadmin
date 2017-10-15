@@ -1,24 +1,31 @@
-var Select3Menu = React.createClass({
+function Select3Menu(props) {
 
-	render: function() {
-		return (
-		    <ul ref={this.props.getMenuRef}>
-			    { this.props.options.map(function(item, index) {
-					return ( 
-						<Select3MenuOption 
-							key={"option-"+index+"-"+item.value} 
-							onClick={this.props.onClick} 
-							value={item.value} 
-							label={item.label} 
-							index={index} 
-							selected={this.props.selectedIndex === index}
-						/>
-					);
-
-			    }.bind(this)) }
-		    </ul>
-		)
+	// function selectItem(params) {
+	function selectItem(item, index, e) {
+		e.preventDefault();
+		props.onSelect({value: item.value, label: item.label}, index);
+		// props.onClick(params);
 	}
-});
 
-Select3Menu = React.createFactory(Select3Menu);
+	return (
+	    <ul ref={props.getMenuRef}>
+		    { 
+		    	props.options.map(function(item, index) {
+					return ( 
+						<li key={"option-"+index+"-"+item.value} >
+						    <a 
+						        href="#" 
+						        className={props.selectedIndex === index ? 'is-selected' : ''} 
+						        onClick={selectItem.bind(this, item, index)}
+						    >
+						        {item.label}
+						    </a>
+						</li>
+
+						
+					);
+				})
+		    }
+	    </ul>
+	);
+};

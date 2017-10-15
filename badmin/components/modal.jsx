@@ -8,8 +8,6 @@ var ModalComponent = React.createClass({
 
 	render: function() {
 
-		console.log('ModalComponent: ', this.props.children);
-
 		return (
 			<div className="modal fade" id={this.props.id} tabIndex="-1" role="dialog" aria-labelledby={this.props.title}>
 				<div className={"modal-dialog "+(this.props.size ? "modal-"+this.props.size : "")} role="document">

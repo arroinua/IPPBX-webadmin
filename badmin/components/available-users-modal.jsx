@@ -18,12 +18,10 @@ var AvailableUsersComponent = React.createClass({
 	},
 
 	componentWillReceiveProps: function(props) {
-		console.log('componentWillReceiveProps: ', props);
 		this.setState({ data: props.data || [] });	
 	},
 
 	_saveChanges: function() {
-		console.log('_saveChanges: ', this.state.data);
 		var selectedMembers = this.state.data.filter(function(item) { return item.selected; });
 
 		this.props.onSubmit(selectedMembers);
@@ -45,6 +43,21 @@ var AvailableUsersComponent = React.createClass({
 		this.setState({ data: data });
 	},
 
+	_filterItems: function(e) {
+		var value = e.target.value;
+		var data = this.props.data;
+
+		data = data.filter(function(item) {
+			if(item.ext.indexOf(value) !== -1 || item.name.indexOf(value) !== -1) {
+				return item;
+			}
+		});
+
+		this.setState({
+			data: data
+		});
+	},
+
 	_getModalBody: function() {
 		var frases = this.props.frases;
 
@@ -52,6 +65,7 @@ var AvailableUsersComponent = React.createClass({
 			<div className="row">
 				<div className="col-xs-12">
 					<ul style={{ minHeight: "200px", maxHeight: "400px", overflowY: "auto", listStyle: 'none', margin: 0, padding: 0 }}>
+						<li><input className="form-control" onChange={this._filterItems} placeholder={frases.SEARCH} autoFocus={true} /></li>
 						<li>
 							<a href="#" style={{ display: "block", padding: "8px 10px" }} onClick={this._selectAllMembers}>{ frases.CHAT_CHANNEL.SELECT_ALL }</a>
 						</li>

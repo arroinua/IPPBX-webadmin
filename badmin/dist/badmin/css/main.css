@@ -199,10 +199,6 @@ input[readonly].readonly-custom {
   margin: 7px 0;
 }
 
-.col-custom-min {
-  padding: 0;
-}
-
 .has-feedback-custom {
   width: 200px;
   margin: 8px 10px 0 0;
@@ -1049,13 +1045,13 @@ input.cmn-toggle-round:checked + label:before {
 
 .panel-body {
   position: relative;
-  padding: 10px;
+  padding: 15px;
   background-color: #fff;
   overflow: hidden;
 }
 @media only screen and (max-width: 767px) {
   .panel-body {
-    padding: 5px;
+    padding: 15px;
   }
 }
 
@@ -1710,11 +1706,6 @@ Helpers
 }
 
 @media only screen and (max-width: 767px) {
-  .col-custom {
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
   .calls-stat {
     display: none;
   }

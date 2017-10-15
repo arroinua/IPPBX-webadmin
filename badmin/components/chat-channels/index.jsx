@@ -31,7 +31,7 @@
 			params: this.props.params || {},
 			removeObject: this.props.removeObject,
 			filteredMembers: this.props.params.members
-		});		
+		});
 	},
 
 	componentWillReceiveProps: function(props) {

@@ -28,21 +28,16 @@ var PlanComponent = React.createClass({
 				<div className="panel-header">{ plan.name }</div>
 				<div className="panel-body">
 					<ul style={{ padding: '0', listStyle: 'none' }}>
-						<li>{plan.customData.storageperuser}GB Storage per user</li>
-						<li>•</li>
-						<li>{plan.maxlines ? plan.maxlines : 'Unlimited'} number of lines</li>
-						<li>•</li>
-						<li>{plan.price}{plan.currency} per user</li>
-						<li>•</li>
-						<li>{plan.price * this.props.maxusers}{plan.currency} per {this.props.maxusers} users/month</li>
+						<li>{plan.price}{plan.currency} { frases.BILLING.PLANS.PER_USER }</li>
 					</ul>
+					<a href="">{ frases.BILLING.PLANS.SHOW_ALL_FEATURES }</a>
 				</div>
-				<div className="panel-footer">
-					{ 
-						(this.props.currentPlan === plan.planId) ? 
-							("Your plan") : 
-							(<button className="btn btn-link text-uppercase" onClick={this._selectPlan}>Select</button>)
-					}
+				<div className="panel-footer" style={{ padding: 0 }}>
+						{ 
+							(this.props.currentPlan === plan.planId) ? 
+								(<p style={{ padding: "15px 0" }}>{ frases.BILLING.PLANS.CURRENT_PLAN }</p>) : 
+								(<button className="btn btn-link text-uppercase" style={{ width: "100%", padding: "15px 0" }} onClick={this._selectPlan}>{ frases.BILLING.PLANS.SELECT_PLAN }</button>)
+						}
 				</div>
 			</div>
 		);

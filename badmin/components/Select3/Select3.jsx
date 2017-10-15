@@ -34,12 +34,11 @@ var Select3 = React.createClass({
   },
 
   componentWillReceiveProps: function(newProps) {
-    console.log('componentWillReceiveProps: ', newProps);
     this.setState({
       value: newProps.value
     });
   },
-    
+
   openMenu: function() {
     this.setState({
       menuOpened: true,
@@ -58,7 +57,7 @@ var Select3 = React.createClass({
         menuOpened: false
       });
 
-    }.bind(this), 10);
+    }.bind(this), 100);
     
   },
 
@@ -86,11 +85,11 @@ var Select3 = React.createClass({
     }
   },
 
-  onSelected: function(el) {
-    if(el) {
-      this.selectedOptionEl = el;
-    }
-  },
+  // onSelected: function(el) {
+  //   if(el) {
+  //     this.selectedOptionEl = el;
+  //   }
+  // },
 
   getMenuRef: function(el) {
     if(el) {
@@ -136,7 +135,6 @@ var Select3 = React.createClass({
   },
   
   setValue: function(value) {
-    console.log('the value is: ', value);   
     this.setState({ value: value});
     if(this.props.onChange) 
       this.props.onChange(value);
@@ -165,8 +163,6 @@ var Select3 = React.createClass({
     className += (this.state.menuOpened ? " is-opened" : "");
     className += (this.props.className ? " "+this.props.className : "");
 
-    // console.log('Select3 render: ', this.props, this.state);
-
     return (
       <div className={className}>
         <input 
@@ -185,14 +181,13 @@ var Select3 = React.createClass({
           <div className="Select3-menu-list">
               <Select3Menu 
                 getMenuRef={this.getMenuRef}
-                onClick={this.selectValue} 
-                onSelected={this.onSelected} 
+                onSelect={this.selectValue} 
                 selectedIndex={this.state.highlightedIndex} 
                 options={this.state.options} 
               />
           </div>
         : null}
-      </div>    
+      </div>
      )
   }
 });

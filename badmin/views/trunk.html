@@ -27,8 +27,8 @@
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
+                    <form class="form-horizontal" autocomplete="off">
+                        <div class="form-group" autocomplete="off">
                             <label for="t-inc-route" class="col-lg-4 control-label">{{TRUNK.INC_ROUTE}}</label>
                             <div class="col-lg-8" id="trunk-inc-route"></div>
                         </div>
@@ -106,7 +106,7 @@
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal">
+                    <form class="form-horizontal" autocomplete="off">
                         <!-- <div class="form-group">
                             <label for="t-out-route" class="col-lg-4 control-label">{{TRUNK.OUT_ROUTE}}</label>
                             <div class="col-lg-8" id="trunk-out-routes"></div>
@@ -251,7 +251,7 @@
                                 </label>
                                 <div class="col-md-4">
                                     <div class="input-group">
-                                        <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}">
+                                        <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}" autocomplete="off">
                                         <span class="input-group-btn">
                                             <button type="button" class="btn btn-default" onclick="revealPassword(this)">
                                                 <i class="fa fa-eye" data-toggle="tooltip" title="{{frases.REVEAL_PWD}}"></i>
@@ -290,7 +290,7 @@
                                         <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__USERNAME}}"></a>
                                     </label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" id="user" placeholder="{{NAME}}" class="reg-setts-el">
+                                        <input type="text" class="form-control" id="user" placeholder="{{NAME}}" class="reg-setts-el" autocomplete="off" />
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -299,7 +299,7 @@
                                         <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTHNAME}}"></a>
                                     </label>
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}" class="reg-setts-el">
+                                        <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}" class="reg-setts-el" autocomplete="off" />
                                     </div>
                                 </div>
                                 <div class="form-group">    
@@ -309,7 +309,7 @@
                                     </label>
                                     <div class="col-md-4">
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}" class="reg-setts-el">
+                                            <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}" class="reg-setts-el" autocomplete="off">
                                             <span class="input-group-btn">
                                                 <button type="button" class="btn btn-default" onclick="revealPassword(this)">
                                                     <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
@@ -364,7 +364,7 @@
                                         </label>
                                         <div class="col-md-4">
                                             <div class="input-group">
-                                                <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" disabled>
+                                                <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" autocomplete="off" disabled>
                                                 <span class="input-group-btn">
                                                     <button type="button" class="btn btn-default" onclick="revealPassword(this)">
                                                         <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
