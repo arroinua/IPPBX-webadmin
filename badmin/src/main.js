@@ -75,17 +75,20 @@ function createWebsocket(){
         // console.log(e);
         handleMessage(e.data);
     };
-    PbxObject.websocket.onclose = function(e){
-        console.log('WebSocket closed', e);
-        if(e.code === 1001) return window.location = '/';
-        var time = generateInterval(PbxObject.websocketTry);
-        setTimeout(function(){
-            PbxObject.websocketTry++;
-            createWebsocket();
-        }, time);
-    };
+    PbxObject.websocket.onclose = onWebsocketClose;
 
 }
+
+function onWebsocketClose(e) {
+    console.log('WebSocket closed', e);
+    if(e.code === 1006) return window.location = '/';
+    var time = generateInterval(PbxObject.websocketTry);
+    setTimeout(function(){
+        PbxObject.websocketTry++;
+        createWebsocket();
+    }, time);
+}
+
 //Reconnection Exponential Backoff Algorithm taken from http://blog.johnryding.com/post/78544969349/how-to-reconnect-web-sockets-in-a-realtime-web-app
 function generateInterval (k) {
     var maxInterval = (Math.pow(2, k) - 1) * 1000;
@@ -106,16 +109,11 @@ function billingRequest(path, params, cb) {
         'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
-        cb
-        // function(err, result) {
-            // console.log('billing response: ', err, result);
-            // if(err) return notify_about('error' , err);
-            // if(!result.success) {
-            //     notify_about('error' , result.error.message);
-            //     return cb(result.message);
-            // }
-            // if(cb) cb(null, result);
-        // }
+        function(err, result) {
+            console.log('billing response: ', err, result);
+            if(err || result.error) return cb(err || result.error);
+            if(cb) cb(null, result);
+        }
     );
 }
 
@@ -229,17 +227,14 @@ function request(method, url, data, options, callback){
             }
         }
             
-        if(status) {
-            if(status === 403) {
-                logout();
-            } else if(status === 200) {
-                if(callback) callback(null, response);
-            } else if(status >= 500) {
-                if(callback) return callback('The service is under maintenance. Please, try again later.');
-            } else {
-                if(callback) callback(response.error, response);
-            }
-
+        if(status === 403) {
+            logout();
+        } else if(status === 200) {
+            if(callback) callback(null, response);
+        } else if(status >= 500) {
+            if(callback) return callback('The service is under maintenance. Please, try again later.');
+        } else {
+            if(callback) callback(response.error, response);
         }
 
     };
@@ -1107,15 +1102,12 @@ function filterObject(array, kind, reverse) {
         //     (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
         //     '';
 
-    console.log('filterObject: ', array, kinds);
-
     // pattern = new RegExp(pattern);
     
     if(!kinds.length) return array;
 
     newArray = array.filter(function(item) {
         match = kinds.indexOf(item.kind) !== -1;
-        console.log('match: ', match, item.kind);
         return reverse ? !match : match;
 
         // console.log('filterObject match: ', kind, match);
@@ -2463,7 +2455,8 @@ function getInfoFromState(state, group){
 
     return {
         rstatus: status,
-        rclass: 'bg-'+className
+        rclass: 'bg-'+className,
+        className: className
     }
 
 }

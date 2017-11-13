@@ -182,8 +182,8 @@ function load_attendant(result){
     } else {
         getObjects(null, function(objs) {
             if(!filterObject(objs, 'attendant').length) {
-                attTour = MyTour('attendant', PbxObject.tours.attendant()).start();
-                updateTempParams({ tour: true });
+                // attTour = MyTour('attendant', PbxObject.tours.attendant()).start();
+                // updateTempParams({ tour: true });
             }
         });
     }
@@ -470,11 +470,13 @@ function setAttSettings(params, temp){
 
     params.forEach(function(obj){
         if(obj.key === 'jsonString'){
-            value = strToJson(obj.value);
+            // value = strToJson(obj.value);
+            value = obj.value;
             objects = JSON.parse(value);
             PbxObject.attendant.objects = objects;
         } else if(obj.key === 'connectors'){
-            value = strToJson(obj.value);
+            // value = strToJson(obj.value);
+            value = obj.value;
             addConnectors(JSON.parse(value));
         } else if(obj.key === 'greetings'){
             greetsFile = obj.value;
@@ -1275,8 +1277,8 @@ function load_bgroup(result){
         cont = d.getElementById('dcontainer'),
         // options = d.getElementById('options'),
         enabled = document.getElementById('enabled'),
-        storeLimitTrigger = document.getElementById('trigger-storelimit'),
-        storelimitCont = document.getElementById('storelimit-cont'),
+        // storeLimitTrigger = document.getElementById('trigger-storelimit'),
+        // storelimitCont = document.getElementById('storelimit-cont'),
         addUserForm = document.getElementById('new-user-form'),
         $enabledCont = $('.object-name .switch'),
         availableUsers = result.available;
@@ -1291,7 +1293,7 @@ function load_bgroup(result){
     getObjects(null, function(objs) {
         // if(!filterObject(objs, kind).length) {
             updateTempParams({ tour: true });
-            initTour({ kind: kind });
+            // initTour({ kind: kind });
         // }
     });
 
@@ -1308,11 +1310,11 @@ function load_bgroup(result){
         });
     }
 
-    if(storeLimitTrigger) {
-        addEvent(storeLimitTrigger, 'change', function(){
-            storelimitCont.style.display = this.checked ? 'block' : 'none';
-        });
-    }
+    // if(storeLimitTrigger) {
+    //     addEvent(storeLimitTrigger, 'change', function(){
+    //         storelimitCont.style.display = this.checked ? 'block' : 'none';
+    //     });
+    // }
     
     if(kind === 'users' || kind === 'equipment') {
         var table = document.getElementById('group-extensions').querySelector('tbody'),
@@ -1377,10 +1379,10 @@ function load_bgroup(result){
         
         addEvent(addUserForm, 'submit', function(e){
             e.preventDefault();
-            var storeLimitChecked = storeLimitTrigger.checked;
+            // var storeLimitChecked = storeLimitTrigger.checked;
             addUser(utype, function() {
                 cleanForm('new-user-form');
-                storeLimitTrigger.checked = storeLimitChecked;
+                // storeLimitTrigger.checked = storeLimitChecked;
             });
             // cleanForm();
         });
@@ -1507,62 +1509,8 @@ function load_bgroup(result){
             customize_upload('unit-greeting', unitGreeting);
             customize_upload('unit-waitmusic', unitWaitMusic);
 
-        // } else if(kind == 'hunting'){
-        //     if(result.options.timeout !== undefined)
-        //         d.getElementById("timeout2").value = result.options.timeout;
-        //     if(result.options.huntmode  !== undefined)
-        //         d.getElementById("huntmode2").value = result.options.huntmode || 1;
-        //     if(result.options.huntfwd  !== undefined)
-        //         d.getElementById("huntfwd2").checked = result.options.huntfwd;
-
-        //     var huntGreeting = result.options.greeting || '';
-        //     var huntWaitMusic = result.options.waitmusic || '';
-        //     customize_upload('hunt-greeting', huntGreeting);
-        //     customize_upload('hunt-waitmusic', huntWaitMusic);
-
         } else if(kind == 'pickup'){
             d.getElementById("groupno2").value = result.options.groupno || '';
-        // } else if(kind == 'icd'){
-        //     d.getElementById("icd-app").value = result.options.application || '';
-        //     d.getElementById("groupno").value = result.options.groupno || '';
-        //     d.getElementById("maxlines").value = result.options.maxlines || '';
-        //     d.getElementById("priority").value = result.options.priority || '';
-        //     d.getElementById("canpickup").checked = result.options.canpickup;
-        //     d.getElementById("autologin").checked = result.options.autologin;
-        //     d.getElementById("method").selectedIndex = result.options.method;
-        //     d.getElementById("natimeout").value = result.options.natimeout || '';
-        //     d.getElementById("resumetime").value = result.options.resumetime || '';
-        //     d.getElementById("queuelen").value = result.options.queuelen || '';
-        //     d.getElementById("maxqwait").value = result.options.maxqwait || '';
-        //     d.getElementById("overflowredirect").value = result.options.overflowredirect || '';
-        //     d.getElementById("overtimeredirect").value = result.options.overtimeredirect || '';
-        //     d.getElementById("indicationmode").value = result.options.indicationmode || '';
-        //     d.getElementById("indicationtime").value = result.options.indicationtime || '';
-            
-        //     $('#autologin').on('change', function(e){
-        //         switchVisibility('#open-autologin-options', this.checked);
-        //     });
-        //     switchVisibility('#open-autologin-options', result.options.autologin);
-
-        //     PbxObject.autologinOptions = {
-        //         network: result.options.network,
-        //         netmask: result.options.netmask
-        //     };
-
-        //     $('#open-autologin-options').on('click', function(e){
-        //         showModal('autologin_modal', PbxObject.autologinOptions, function(data, modalObject) {
-        //             if(data) PbxObject.autologinOptions = data;
-        //             $(modalObject).modal('hide');
-        //         });
-        //     });
-
-        //     //customizing upload element
-        //     var greetFile = result.options.greeting || '';
-        //     var queuemusic = result.options.queuemusic || '';
-        //     var queueprompt = result.options.queueprompt || '';
-        //     customize_upload('greeting', greetFile);
-        //     customize_upload('queuemusic', queuemusic);
-        //     customize_upload('queueprompt', queueprompt);
 
         } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
 
@@ -1825,7 +1773,7 @@ function createServiceBtn(params){
     addEvent(button, 'click', function(e){
         getExternalUsers(params.id, params.type, params.props);
     });
-    button.className = "btn btn-default padding-lg ellipsis";
+    button.className = "btn btn-link btn-default padding-lg ellipsis";
     button.innerHTML = '<span>'+params.name+'</span>';
     
     return button;
@@ -2278,7 +2226,7 @@ function addMembersRow(data){
     status = info.rstatus;
     classname = info.rclass;
     row.id = data.oid;
-    row.className = classname;
+    // row.className = classname;
 
     cell = row.insertCell(0);
     if(data.oid) {
@@ -2307,11 +2255,11 @@ function addMembersRow(data){
     // }
     cell = row.insertCell(4);
     cell.setAttribute('data-cell', 'status');
-    cell.innerHTML = status;
+    cell.innerHTML = '<span class="label label-'+info.className+'">'+status+'</span>';
 
     cell = row.insertCell(5);
     button = document.createElement('button');
-    button.className = 'btn btn-danger btn-sm';
+    button.className = 'btn btn-link btn-danger btn-md';
     button.innerHTML = '<i class="fa fa-trash"></i>';
     addEvent(button, 'click', delete_extension);
     cell.appendChild(button);
@@ -2329,7 +2277,7 @@ function addUser(type, cb){
         emailEl = document.getElementById('user-email'),
         aliasEl = document.getElementById('user-alias'),
         passEl = document.getElementById('user-pass'),
-        storeLimitTrigger = document.getElementById('trigger-storelimit'),
+        // storeLimitTrigger = document.getElementById('trigger-storelimit'),
         storelimit = document.getElementById('storelimit'),
         ext, name, alias;
 
@@ -2354,12 +2302,12 @@ function addUser(type, cb){
     jprms += '"name":"'+name+'",';
     jprms += '"display":"'+alias+'",';
     jprms += '"password":"'+passEl.value+'",';
-    if(storeLimitTrigger.checked) {
-        storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
-        if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
-    } else {
-        jprms += '"storelimit": 0,';
-    }
+    // if(storeLimitTrigger.checked) {
+    storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
+    if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
+    // } else {
+        // jprms += '"storelimit": 0,';
+    // }
 
     var data = {
         kind: type,
@@ -2504,28 +2452,28 @@ function load_billing() {
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
-		if(err) return notify_about('error' , err);
+		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
 		billingRequest('getProfile', null, function(err, response) {
 			console.log('getProfile: ', err, response);
-			if(err) return notify_about('error' , err);
+			if(err) return notify_about('error' , err.message);
 			profile = response.result;
 
 			getPlans(profile.currency, function(err, result) {
-				if(err) return notify_about('error' , err);
+				if(err) return notify_about('error', err.message);
 				plans = result;
 
 				init();
 
 				getDiscounts(function(err, response) {
-					if(err) return notify_about('error' , err);
+					if(err) return notify_about('error', err.message);
 					discounts = response;
 
 					// init();
 
 					getInvoices(function(err, response) {
-						if(err) return notify_about('error' , err);
+						if(err) return notify_about('error', err.message);
 						invoices = response;
 						console.log('invoices: ', invoices);
 						init();
@@ -2543,28 +2491,27 @@ function load_billing() {
 	});
 
 	function loadStripeJs() {
-		if(window.StripeCheckout) return;
+		if(window.StripeCheckout) return configureStripe();
 
 		$.ajaxSetup({ cache: true });
-		$.getScript('https://checkout.stripe.com/checkout.js', function(){
-			stripeHandler = StripeCheckout.configure({
-				// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-				key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-				// image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
-				image: '/badmin/images/Ringotel_emblem_new.png',
-				locale: 'auto',
-				token: function(token) {
-					console.log('stripe token: ', token);
-					stripeToken = token;
-				}
-			});
+		$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
+	}
 
-			// Close Checkout on page navigation:
-			window.addEventListener('popstate', function() {
-			  stripeHandler.close();
-			});
+	function configureStripe() {
+		stripeHandler = StripeCheckout.configure({
+			// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+			key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+			image: '/badmin/images/Ringotel_emblem_new.png',
+			locale: 'auto',
+			token: function(token) {
+				console.log('stripe token: ', token);
+				stripeToken = token;
+			}
+		});
 
-			// init();
+		// Close Checkout on page navigation:
+		window.addEventListener('popstate', function() {
+		  stripeHandler.close();
 		});
 	}
 
@@ -2579,6 +2526,7 @@ function load_billing() {
 		    discounts: discounts,
 		    addCard: addCard,
 		    editCard: editCard,
+		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: updateLicenses,
 		    extend: deepExtend,
@@ -2586,7 +2534,7 @@ function load_billing() {
 		}), cont);
 	}
 
-	function addCard() {
+	function openStripeWindow(onCLoseHandler) {
 		stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
@@ -2595,103 +2543,113 @@ function load_billing() {
 			panelLabel: "Add card",
 			// currency: 'eur',
 			// amount: plan.amount*100,
-			closed: function(result) {
-				console.log('addCard closed: ', result);
+			closed: onCLoseHandler
+		});
+	}
+
+	function addCard(callback) {
+		openStripeWindow(function(result) {
+			console.log('addCard closed: ', result);
+			
+			if(!stripeToken) return callback(null);
+			var reqParams = {
+				service: 'stripe',
+				token: stripeToken.id,
+				card: stripeToken.card
+			};
+
+			billingRequest('addCard', reqParams, function(err, response) {
+				console.log('saveCard response: ', err, stripeToken, response);
 				
-				show_loading_panel();
+				if(err || response.error) {
+					notify_about('error', err.message || response.error.message);
+					callback(null);
+				} else {
+					callback(stripeToken);
+				}
 
-				saveCard(stripeToken, function(err, response) {
-					show_content();
+				stripeToken = null;
 
-					if(err || !response || !response.success) return;
-
-					console.log('editCard token: ', stripeToken);
-
-					profile.billingDetails = profile.billingDetails || {};
-					profile.billingDetails.push(stripeToken.card);
-					profile.defaultBillingMethod = {
-						params: stripeToken.card
-					};
-
-					stripeToken = null;
-					
-					init();
-					
-				});
-			}
+			});
 		});
 	}
 
-	function editCard() {
-		stripeHandler.open({
-			email: profile.email,
-			name: 'Ringotel',
-			zipCode: true,
-			allowRememberMe: false,
-			panelLabel: "Add card",
-			// currency: 'eur',
-			// amount: plan.amount*100,
-			closed: function(result) {
-				console.log('editCard closed: ', result);
+	function editCard(callback) {
+		openStripeWindow(function(result) {
+			console.log('editCard closed: ', result);
 
-				show_loading_panel();
+			if(!stripeToken) return callback(null);;
+			var reqParams = {
+				service: 'stripe',
+				token: stripeToken.id,
+				card: stripeToken.card
+			};
 
-				updateCard(stripeToken, function(err, response) {
-					show_content();
+			billingRequest('updateCard', reqParams, function(err, response) {
+				console.log('updateCard response: ', err, stripeToken, response);				
+				
+				if(err || response.error) {
+					notify_about('error', err.message || response.error.message);
+					callback(null);
+				} else {
+					callback(stripeToken);
+				}
 
-					if(err || !response || !response.success) return;
+				stripeToken = null;
+			});
 
-					console.log('editCard token: ', stripeToken);
-
-					profile.billingDetails = profile.billingDetails || {};
-					profile.billingDetails.push(stripeToken.card);
-					profile.defaultBillingMethod = {
-						params: stripeToken.card
-					};
-
-					stripeToken = null;
-
-					init();
-				});
-			}
 		});
 	}
 
-	function saveCard(params, callback) {
-		console.log('saveCard: ', params);
-		if(!params) return callback();;
-		var reqParams = {
-			service: 'stripe',
-			token: params.id,
-			card: params.card
-		};
+	function renewSub(callback) {
 
-		billingRequest('addCard', reqParams, function(err, response) {
-			console.log('saveCard response: ', err, params, response);
+		show_loading_panel();
+
+		billingRequest('renewSubscription', { subId: sub._id }, function(err, response) {
+			console.log('renewSubscription response: ', err, response);
+
+			show_content();
+
+			if(err || response.error) notify_about('error', err.message || response.error.message);
 			callback(err, response);
 		});
+			
 	}
 
-	function updateCard(params, callback) {
-		console.log('updateCard: ', params);
-		if(!params) return callback();
-		var reqParams = {
-			service: 'stripe',
-			token: params.id,
-			card: params.card
-		};
+	// function saveCard(params, callback) {
+	// 	console.log('saveCard: ', params);
+	// 	if(!params) return callback();;
+	// 	var reqParams = {
+	// 		service: 'stripe',
+	// 		token: params.id,
+	// 		card: params.card
+	// 	};
 
-		billingRequest('updateCard', reqParams, function(err, response) {
-			console.log('updateCard response: ', err, params, response);
-			callback(err, response);
-		});
-	}
+	// 	billingRequest('addCard', reqParams, function(err, response) {
+	// 		console.log('saveCard response: ', err, params, response);
+	// 		callback(err, response);
+	// 	});
+	// }
+
+	// function updateCard(params, callback) {
+	// 	console.log('updateCard: ', params);
+	// 	if(!params) return callback();
+	// 	var reqParams = {
+	// 		service: 'stripe',
+	// 		token: params.id,
+	// 		card: params.card
+	// 	};
+
+	// 	billingRequest('updateCard', reqParams, function(err, response) {
+	// 		console.log('updateCard response: ', err, params, response);
+	// 		callback(err, response);
+	// 	});
+	// }
 
 	function addCoupon(string) {
 		billingRequest('addCoupon', { coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
-			if(!response.success) return notify_about('error', response.error.message);
 			discounts.push(response);
 			init();
 		});
@@ -2709,6 +2667,8 @@ function load_billing() {
 				subId: sub._id,
 				planId: params.plan.planId
 			}, function(err, response) {
+				show_content();
+
 				if(err) return notify_about('error', err.message);
 				console.log('changePlan: ', err, response);
 				
@@ -2716,7 +2676,6 @@ function load_billing() {
 				
 				sub = response.result;
 
-				show_content();
 				init();
 			});
 
@@ -2737,6 +2696,8 @@ function load_billing() {
 				addOns: params.addOns,
 				quantity: params.quantity
 			}, function(err, response) {
+				show_content();
+
 				if(err) return notify_about('error', err.message);
 				console.log('updateLicenses: ', err, response);
 
@@ -2744,7 +2705,6 @@ function load_billing() {
 
 				sub = response.result;
 				
-				show_content();
 				init();
 			});
 
@@ -4401,7 +4361,7 @@ function createExtRow(data){
             a.href = '#';
             addEvent(a, 'click', get_extension);
         } else {
-            a.href = '#' + data.kind + '?' + data.oid;
+            a.href = '#' + data.kind + '/' + data.oid;
         }
         a.textContent = data.ext;
         cell.appendChild(a);
@@ -4429,27 +4389,27 @@ function createExtRow(data){
 
     cell = row.insertCell(5);
     cell.setAttribute('data-cell', 'status');
-    cell.textContent = status || "";
+    cell.innerHTML = '<span class="label label-'+info.className+'">'+(status || '')+'</span>';
 
+    // cell = row.insertCell(6);
+    // if(data.kind) {
+    //     if(data.kind == 'user' || data.kind == 'phone') {
+    //         button = createNewButton({
+    //             type: 'tooltip',
+    //             title: PbxObject.frases.EDIT,
+    //             classname: 'btn btn-link btn-primary btn-md',
+    //             content: '<i class="fa fa-edit"></i>',
+    //             handler: editExtension
+    //         });
+    //         cell.appendChild(button);
+    //     }    
+    // }
     cell = row.insertCell(6);
-    if(data.kind) {
-        if(data.kind == 'user' || data.kind == 'phone') {
-            button = createNewButton({
-                type: 'tooltip',
-                title: PbxObject.frases.EDIT,
-                classname: 'btn btn-primary btn-sm',
-                content: '<i class="fa fa-edit"></i>',
-                handler: editExtension
-            });
-            cell.appendChild(button);
-        }    
-    }
-    cell = row.insertCell(7);
     if(data.oid) {
         button = createNewButton({
             type: 'tooltip',
             title: PbxObject.frases.DELETE,
-            classname: 'btn btn-danger btn-sm',
+            classname: 'btn btn-link btn-danger btn-md',
             content: '<i class="fa fa-trash"></i>',
             handler: delete_extension
         });
@@ -4460,7 +4420,7 @@ function createExtRow(data){
     row.id = data.oid;
     row.setAttribute('data-ext', data.ext);
     row.setAttribute('data-kind', data.kind);
-    row.className = classname;
+    // row.className = classname;
 
     return row;
 
@@ -4468,7 +4428,7 @@ function createExtRow(data){
 
 function updateExtensionRow(event, data){
 
-    // console.log(data);
+    // console.log('updateExtensionRow: ', data);
 
     var row = document.getElementById(data.oid);
     var state = data.state;
@@ -4480,7 +4440,7 @@ function updateExtensionRow(event, data){
             className = info.rclass,
             cell;
 
-        row.className = className;
+        // row.className = className;
 
         if(data.name){
             cell = row.querySelector('[data-cell="name"]');
@@ -4509,7 +4469,7 @@ function updateExtensionRow(event, data){
         //     cells[3].innerHTML = "";
         // }
         cell = row.querySelector('[data-cell="status"]');
-        if(cell) cell.innerHTML = status;
+        if(cell) cell.innerHTML = '<span class="label label-'+info.className+'">'+status+'</span>';
         // cells[5].innerHTML = status;
     }
 
@@ -4590,7 +4550,7 @@ function editExtension(e){
     button = createNewButton({
         type: 'tooltip',
         title: PbxObject.frases.CANCEL,
-        classname: 'btn btn-default btn-sm',
+        classname: 'btn btn-link btn-default btn-md',
         content: '<i class="fa fa-chevron-left"></i>',
         handler: function(){
                     row.style.display = 'table-row';
@@ -4611,7 +4571,7 @@ function editExtension(e){
     button = createNewButton({
         type: 'tooltip',
         title: PbxObject.frases.SAVE,
-        classname: 'btn btn-success btn-sm',
+        classname: 'btn btn-link btn-success btn-md',
         content: '<i class="fa fa-check"></i>',
         handler: set_extension_update
     });
@@ -4667,8 +4627,8 @@ function load_extension(result){
     if(kind === 'users') {
 
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
-        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
-        result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = result.storefree ? convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2) : 0;
         // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
         // if(result.storelimit) {
         //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
@@ -4694,7 +4654,7 @@ function load_extension(result){
     $(cont).html(rendered);
 
     var storelimitCont = document.getElementById('ext-storelimit-cont');
-    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
+    // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var state = document.querySelector('#el-extension .user-state-ind');
     var img = document.getElementById('user-avatar');
     var src = "/$AVATAR$?userid="+result.userid;
@@ -4706,11 +4666,11 @@ function load_extension(result){
 
     state.classList.add(getInfoFromState(result.state).rclass);
 
-    if(storeLimitTrigger) {
-        addEvent(storeLimitTrigger, 'change', function(){
-            storelimitCont.style.display = this.checked ? 'block' : 'none';
-        });
-    }
+    // if(storeLimitTrigger) {
+    //     addEvent(storeLimitTrigger, 'change', function(){
+    //         storelimitCont.style.display = this.checked ? 'block' : 'none';
+    //     });
+    // }
 
     if(kind !== 'users') {
         var storageUsage = document.querySelector('#el-extension .user-storage-usage');
@@ -4721,8 +4681,8 @@ function load_extension(result){
         var pinCont = document.getElementById('pin-cont');
         if(pinCont) pinCont.classList.add('hidden');
 
-        storeLimitTrigger.checked = !!result.storelimit;
-        storelimitCont.style.display = result.storelimit ? 'block' : 'none';
+        // storeLimitTrigger.checked = !!result.storelimit;
+        storelimitCont.style.display = 'block';
     }
 
     // getAvatar(result.userid, function(binary){
@@ -4814,10 +4774,10 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     // var login = d.getElementById("extlogin").textContent;
-    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
+    // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
-    if(!storeLimitTrigger.checked) storelimit.value = 0;
+    // if(!storeLimitTrigger.checked) storelimit.value = 0;
 
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
@@ -5005,7 +4965,7 @@ function GetStarted(container) {
 
 	this.init = function() {
 
-		createTour();
+		// createTour();
 
 		// Get initial data for the Widget
 		if(typeof objects === 'object') {
@@ -5867,17 +5827,20 @@ function createWebsocket(){
         // console.log(e);
         handleMessage(e.data);
     };
-    PbxObject.websocket.onclose = function(e){
-        console.log('WebSocket closed', e);
-        if(e.code === 1001) return window.location = '/';
-        var time = generateInterval(PbxObject.websocketTry);
-        setTimeout(function(){
-            PbxObject.websocketTry++;
-            createWebsocket();
-        }, time);
-    };
+    PbxObject.websocket.onclose = onWebsocketClose;
 
 }
+
+function onWebsocketClose(e) {
+    console.log('WebSocket closed', e);
+    if(e.code === 1006) return window.location = '/';
+    var time = generateInterval(PbxObject.websocketTry);
+    setTimeout(function(){
+        PbxObject.websocketTry++;
+        createWebsocket();
+    }, time);
+}
+
 //Reconnection Exponential Backoff Algorithm taken from http://blog.johnryding.com/post/78544969349/how-to-reconnect-web-sockets-in-a-realtime-web-app
 function generateInterval (k) {
     var maxInterval = (Math.pow(2, k) - 1) * 1000;
@@ -5898,16 +5861,11 @@ function billingRequest(path, params, cb) {
         'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
-        cb
-        // function(err, result) {
-            // console.log('billing response: ', err, result);
-            // if(err) return notify_about('error' , err);
-            // if(!result.success) {
-            //     notify_about('error' , result.error.message);
-            //     return cb(result.message);
-            // }
-            // if(cb) cb(null, result);
-        // }
+        function(err, result) {
+            console.log('billing response: ', err, result);
+            if(err || result.error) return cb(err || result.error);
+            if(cb) cb(null, result);
+        }
     );
 }
 
@@ -6021,17 +5979,14 @@ function request(method, url, data, options, callback){
             }
         }
             
-        if(status) {
-            if(status === 403) {
-                logout();
-            } else if(status === 200) {
-                if(callback) callback(null, response);
-            } else if(status >= 500) {
-                if(callback) return callback('The service is under maintenance. Please, try again later.');
-            } else {
-                if(callback) callback(response.error, response);
-            }
-
+        if(status === 403) {
+            logout();
+        } else if(status === 200) {
+            if(callback) callback(null, response);
+        } else if(status >= 500) {
+            if(callback) return callback('The service is under maintenance. Please, try again later.');
+        } else {
+            if(callback) callback(response.error, response);
         }
 
     };
@@ -6899,15 +6854,12 @@ function filterObject(array, kind, reverse) {
         //     (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
         //     '';
 
-    console.log('filterObject: ', array, kinds);
-
     // pattern = new RegExp(pattern);
     
     if(!kinds.length) return array;
 
     newArray = array.filter(function(item) {
         match = kinds.indexOf(item.kind) !== -1;
-        console.log('match: ', match, item.kind);
         return reverse ? !match : match;
 
         // console.log('filterObject match: ', kind, match);
@@ -8255,7 +8207,8 @@ function getInfoFromState(state, group){
 
     return {
         rstatus: status,
-        rclass: 'bg-'+className
+        rclass: 'bg-'+className,
+        className: className
     }
 
 }
@@ -9502,14 +9455,16 @@ function getRecObjects(result){
 		checkCount();
 	});
 	json_rpc_async('getExtensions', null, function(exts){
-		var extresult = filterObject(exts, 'phone|user');
+		var extresult = filterObject(exts, ['phone', 'user']);
+		console.log('getRecObjects: ', extresult);
 		if(result.extensions) {
-
-			obj.exts = extresult.filter(function(ext){
-				return result.extensions.indexOf(ext.ext) == -1;
+			obj.exts = extresult.filter(function(item){
+				return result.extensions.indexOf(item.ext) === -1;
 			});
+
 		} else {
 			obj.exts = extresult;
+
 		}
 
 		checkCount();

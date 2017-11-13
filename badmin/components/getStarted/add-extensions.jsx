@@ -17,7 +17,7 @@ var AddExtensions = React.createClass({
 	},
 
 	_chooseGroup: function(type) {
-		window.location.hash = '#'+type+'?'+type;
+		window.location.hash = '#'+type+'/'+type;
 		console.log('close Modal: ', this.props.step.name, $('#'+this.props.step.name));
 		$('#'+this.props.step.name).modal('hide');
 	},

@@ -12,8 +12,8 @@ function load_attendant(result){
     } else {
         getObjects(null, function(objs) {
             if(!filterObject(objs, 'attendant').length) {
-                attTour = MyTour('attendant', PbxObject.tours.attendant()).start();
-                updateTempParams({ tour: true });
+                // attTour = MyTour('attendant', PbxObject.tours.attendant()).start();
+                // updateTempParams({ tour: true });
             }
         });
     }
@@ -300,11 +300,13 @@ function setAttSettings(params, temp){
 
     params.forEach(function(obj){
         if(obj.key === 'jsonString'){
-            value = strToJson(obj.value);
+            // value = strToJson(obj.value);
+            value = obj.value;
             objects = JSON.parse(value);
             PbxObject.attendant.objects = objects;
         } else if(obj.key === 'connectors'){
-            value = strToJson(obj.value);
+            // value = strToJson(obj.value);
+            value = obj.value;
             addConnectors(JSON.parse(value));
         } else if(obj.key === 'greetings'){
             greetsFile = obj.value;

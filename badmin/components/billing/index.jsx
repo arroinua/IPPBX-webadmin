@@ -12,6 +12,7 @@ var BillingComponent = React.createClass({
 		editCard: React.PropTypes.func,
 		onPlanSelect: React.PropTypes.func,
 		updateLicenses: React.PropTypes.func,
+		renewSub: React.PropTypes.func,
 		extend: React.PropTypes.func,
 		addCoupon: React.PropTypes.func
 	},
@@ -31,7 +32,7 @@ var BillingComponent = React.createClass({
 	componentWillReceiveProps: function(props) {
 		console.log('componentWillReceiveProps: ', props);
 
-		var sub = JSON.parse(JSON.stringify(props.sub));
+		var sub = props.sub ? JSON.parse(JSON.stringify(props.sub)) : {};
 		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
 
@@ -60,6 +61,7 @@ var BillingComponent = React.createClass({
 		// }
 
 		this.setState({
+			profile: this.props.profile,
 			sub: sub,
 			cycleDays: cycleDays,
 			proratedDays: proratedDays,
@@ -159,24 +161,55 @@ var BillingComponent = React.createClass({
 
 	_addCard: function(e) {
 		if(e) e.preventDefault();
-		this.props.addCard();
+		
+		var profile = this.state.profile;
+
+		this.props.addCard(function(result) {
+			if(!result) return;
+
+
+			// profile.billingDetails = profile.billingDetails || [];
+			// profile.billingDetails.push(result.card);
+			// profile.defaultBillingMethod = {
+			// 	params: result.card
+			// };
+			
+			profile.billingMethod = {
+				params: result.card
+			};
+
+			this.setState({ profile: profile });
+		}.bind(this));
 	},
 
 	_editCard: function(e) {
 		e.preventDefault();
-		this.props.editCard();
+		
+		var profile = this.state.profile;
+
+		this.props.editCard(function(result) {
+			if(!result) return;
+
+			// profile.billingDetails = profile.billingDetails || [];
+			// profile.billingDetails.push(result.card);
+			// profile.defaultBillingMethod = {
+			// 	params: result.card
+			// };
+
+			profile.billingMethod = {
+				params: result.card
+			};
+
+			this.setState({ profile: profile });
+		}.bind(this));
 	},
 
-	_addPromo: function(e) {
-		e.preventDefault();
-	},
-
-	_getPaymentMethod: function(sources) {
-		if(!sources || !sources.length) return null;
-		return sources.reduce(function(prev, next) {
-			if(next.default) return prev = next;
-		}, null);
-	},
+	// _getPaymentMethod: function(sources) {
+	// 	if(!sources || !sources.length) return null;
+	// 	return sources.reduce(function(prev, next) {
+	// 		if(next.default) return prev = next;
+	// 	}, null);
+	// },
 
 	_openPlans: function(e) {
 		if(e) e.preventDefault();
@@ -195,7 +228,8 @@ var BillingComponent = React.createClass({
 	_onPlanSelect: function(plan) {
 		console.log('_onPlanSelect: ', plan);
 		var profile = this.props.profile;
-		var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
+		// var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
+		var paymentMethod = profile.billingMethod;
 		if(!paymentMethod) return this._addCard();
 
 		var sub = this.state.sub;
@@ -238,11 +272,58 @@ var BillingComponent = React.createClass({
 
 	},
 
+	_updateAndRenewSub: function(e) {
+		if(e) e.preventDefault();
+		this.props.editCard(function(result) {
+			if(!result) return;
+
+			var profile = this.state.profile;
+			profile.billingMethod = {
+				params: result.card
+			};
+
+			this.setState({ profile: profile });
+
+			this.props.renewSub(function(err) {
+				if(err) return;
+				var sub = this.state.sub;
+				sub.state = 'active';
+				this.setState({ sub: sub });
+			});
+		}.bind(this));
+	},
+
+	_renewSub: function(e) {
+		if(e) e.preventDefault();
+		this.props.renewSub(function(err) {
+			if(err) return;
+			var sub = this.state.sub;
+			sub.state = 'active';
+			this.setState({ sub: sub });
+		}.bind(this));
+	},
+
 	_cancelEditLicenses: function() {
 		var sub = JSON.parse(JSON.stringify(this.props.sub));
 		this.setState({ 
 			sub: sub
 		});
+	},
+
+	_isCardExpired: function(expMonth, expYear) {
+		var date = new Date();
+		var month = date.getMonth()+1;
+		var year = date.getFullYear();
+
+		return expMonth < month && expYear <= year;
+	},
+
+	_cardWillExpiredSoon: function(expMonth, expYear) {
+		var date = new Date();
+		var month = date.getMonth()+1;
+		var year = date.getFullYear();
+
+		return (expMonth - month) < 1;
 	},
 
 	_addCoupon: function(coupon) {
@@ -252,7 +333,8 @@ var BillingComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var profile = this.props.profile;
-		var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
+		// var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
+		var paymentMethod = profile.billingMethod;
 		var sub = this.props.sub;
 		var discounts = this.props.discounts;
 		var currSub = this.state.sub;
@@ -260,7 +342,7 @@ var BillingComponent = React.createClass({
 		var plans = this.props.plans;
 		var column = plans.length ? (12/plans.length) : 12;
 		var onPlanSelect = this._onPlanSelect;
-		var trial = sub.plan.planId === 'trial' ? true : false;
+		var trial = sub.plan.planId === 'trial' || sub.state === 'past_due';
 		var subAmount = sub.amount;
 
 		// apply discounts
@@ -273,34 +355,63 @@ var BillingComponent = React.createClass({
 		return (
 			<div>
 				<div className="row">
-					{	!paymentMethod && (
-						<div className="col-xs-12">
+					<div className="col-xs-12">
+					{
+						!paymentMethod ? (
 							<div className="alert alert-info" role="alert">
 								{ frases.BILLING.PAYMENT_METHOD_WARNING_P1 } <a href="#" onClick={this._addCard} className="alert-link">{ frases.BILLING.ADD_CREDIT_CARD }</a> { frases.BILLING.PAYMENT_METHOD_WARNING_P2 }
 							</div>
-						</div>
-					)}
+						) : this._isCardExpired(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
+							<div className="alert alert-warning" role="alert">
+								Your payment method has been expired. Please <a href="#" onClick={this._editCard} className="alert-link">add a valid payment method</a> to avoid service interruption.
+							</div>
+						) : this._cardWillExpiredSoon(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
+							<div className="alert alert-warning" role="alert">
+								Your payment method will expire soon. Please <a href="#" onClick={this._editCard} className="alert-link">update your payment method</a> to avoid service interruption.
+							</div>
+						) : ('')
+					}
+					{	
+						sub.state === 'past_due' ? (
+							<div className="alert alert-warning" role="alert">
+								We were not able to receive subscription payment. You may not use all available features on your subscription plan. Please, ensure that your payment method is valid and has sufficient funds and <a href="#" onClick={this._renewSub} className="alert-link">renew subscription</a> or <a href="#" onClick={this._updateAndRenewSub} className="alert-link">update your payment method</a>.
+							</div>
+						) : (sub.plan.planId === 'trial' && sub.state === 'expired') ? (
+							<div className="alert alert-warning" role="alert">
+								Your trial period has been expired. <a href="#plansCollapse" data-toggle="collapse" aria-expanded="false" aria-controls="plansCollapse" onClick={this._openPlans} className="alert-link">Upgrade your subscription plan</a> and use all available features.
+							</div>
+						) : ('')
+
+					}
+					
+					</div>
 					<div className="col-sm-6">
 						<h2>
 							<small>{ frases.BILLING.CURRENT_PLAN } </small>
 							<span>{ sub.plan.name } </span>
-							<a 
-								href="#" 
-								className="text-uppercase" 
-								style={{ fontSize: "14px" }} 
-								onClick={ this._openPlans }
-								role="button" 
-								data-toggle="collapse" 
-								href="#plansCollapse" 
-								aria-expanded="false" 
-								aria-controls="plansCollapse"
-							>{ frases.BILLING.UPGRADE_PLAN }</a>
+							{
+								sub.state === 'past_due' ? (
+									<a href="#" className="text-uppercase" style={{ fontSize: "14px" }} onClick={this._renewSub}>Renew</a>
+								) : (
+									<a 
+										href="#" 
+										className="text-uppercase" 
+										style={{ fontSize: "14px" }} 
+										role="button" 
+										onClick={this._openPlans}
+										data-toggle="collapse" 
+										href="#plansCollapse" 
+										aria-expanded="false" 
+										aria-controls="plansCollapse"
+									>{ frases.BILLING.UPGRADE_PLAN }</a>
+								)
+							}
 						</h2>
 						{
 							sub.plan.trialPeriod ? (
-								<p className="text-muted">{ frases.BILLING.TRIAL_EXPIRES }: <b>{ window.moment(this.state.sub.trialExpires).format('DD MMMM YYYY') }</b></p>
+								<p className="text-muted">{ frases.BILLING.TRIAL_EXPIRES } <b>{ window.moment(this.state.sub.trialExpires).format('DD MMMM YYYY') }</b></p>
 							) : (
-								<p className="text-muted">{ frases.BILLING.NEXT_CHARGE }: <b>{ window.moment(this.state.sub.nextBillingDate).format('DD MMMM YYYY') }</b></p>
+								<p className="text-muted">{ frases.BILLING.NEXT_CHARGE } <b>{ window.moment(this.state.sub.nextBillingDate).format('DD MMMM YYYY') }</b></p>
 							)
 						}
 					</div>
@@ -309,7 +420,7 @@ var BillingComponent = React.createClass({
 						{
 							paymentMethod && (
 								<p className="text-muted" style={{ userSelect: 'none' }}>
-									<a href="#" onClick={this._editCard} className="text-uppercase">{ frases.BILLING.EDIT_PAYMENT_METHOD }</a>
+									<a href="#" onClick={sub.state === 'past_due' ? this._updateAndRenewSub : this._editCard} className="text-uppercase">{ frases.BILLING.EDIT_PAYMENT_METHOD }</a>
 									<span> </span>
 									<b>{paymentMethod.params.brand}</b> •••• •••• •••• {paymentMethod.params.last4}
 									<br/>
@@ -322,12 +433,12 @@ var BillingComponent = React.createClass({
 				<div className="row">
 					<div className="col-xs-12 col-custom">
 						<div className="collapse" id="plansCollapse">
-						    <div className="panel-body">
+						    <div className="panel-body" style={{ background: 'none' }}>
 						    	<div className="row">
 							    	{ plans.map(function(plan, index) {
 
 							    		return (
-							    			<div className={"col-xs-12 col-sm-"+column} key={plan.planId}>
+							    			<div className={"col-xs-12 col-sm-4"} key={plan.planId}>
 							    				<PlanComponent plan={plan} frases={frases} onSelect={onPlanSelect} currentPlan={sub.plan.planId} maxusers={options.maxusers} />
 							    			</div>
 							    		);

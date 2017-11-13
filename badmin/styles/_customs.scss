@@ -9,6 +9,10 @@ input[readonly].readonly-custom{
     cursor: text;
 }
 
+table.table>tbody>tr>td {
+    vertical-align: middle;
+}
+
 #security-settings-cont table button {
     padding: 6px 0;
 }
@@ -119,14 +123,34 @@ input[readonly].readonly-custom{
     display: none;
 }
 
-.btn-primary {
-    background-color: $primary-color;
-    border-color: $primary-color;
-    color: $primary-text-color-1;
+// .btn-primary {
+//     background-color: $primary-color;
+//     border-color: $primary-color;
+//     color: $primary-text-color-1;
+// }
+
+// .btn-primary:hover {
+//     background-color: $primary-color-2;
+//     border-color: $primary-color-2;
+// }
+
+.btn-link.btn-primary,
+.btn-link.btn-danger {
+    background-color: none;
+    border-color: none;
 }
-.btn-primary:hover {
-    background-color: $primary-color-2;
-    border-color: $primary-color-2;
+
+.btn-link.btn-default {
+    color: #333;
+}
+.btn-link.btn-success {
+    color: #5cb85c;
+}
+.btn-link.btn-primary {
+    color: #337ab7;
+}
+.btn-link.btn-danger {
+    color: #c9302c;
 }
 
 .btn-xl {
@@ -242,6 +266,9 @@ input[readonly].readonly-custom{
 
 .bg-connected {
     background-color: #ace496;
+}
+.label.label-connected {
+    background-color: #337ab7;
 }
 
 .tout-routes-cont .input-group {

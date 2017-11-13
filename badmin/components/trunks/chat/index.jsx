@@ -34,7 +34,8 @@
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
-			type: props.type
+			type: props.type,
+			params: props.params || {}
 		});		
 	},
 
@@ -173,10 +174,9 @@
 											<div className="col-sm-8">
 												{
 													this.props.services.map(function(item) {
-														return (
-															<div className="text-center col-sm-2 col-xs-3" style={{ padding: "20px 0" }}>
+														return ( 
+															<div key={item.id} className="text-center col-sm-2 col-xs-3" style={{ padding: "20px 0" }}>
 																<TrunkServiceItemComponent 
-																	key={item.id} 
 																	selected={item.id === type} 
 																	item={item} 
 																	onClick={this._setService} 
@@ -199,7 +199,7 @@
 											properties={this.props.params.properties}
 											serviceParams={serviceParams}
 											onChange={this._onPropsChange}
-											disabled={!!this.state.params.pageid}
+											isNew={!this.state.params.pageid}
 										/>
 
 										{

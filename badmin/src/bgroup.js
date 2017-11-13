@@ -9,8 +9,8 @@ function load_bgroup(result){
         cont = d.getElementById('dcontainer'),
         // options = d.getElementById('options'),
         enabled = document.getElementById('enabled'),
-        storeLimitTrigger = document.getElementById('trigger-storelimit'),
-        storelimitCont = document.getElementById('storelimit-cont'),
+        // storeLimitTrigger = document.getElementById('trigger-storelimit'),
+        // storelimitCont = document.getElementById('storelimit-cont'),
         addUserForm = document.getElementById('new-user-form'),
         $enabledCont = $('.object-name .switch'),
         availableUsers = result.available;
@@ -25,7 +25,7 @@ function load_bgroup(result){
     getObjects(null, function(objs) {
         // if(!filterObject(objs, kind).length) {
             updateTempParams({ tour: true });
-            initTour({ kind: kind });
+            // initTour({ kind: kind });
         // }
     });
 
@@ -42,11 +42,11 @@ function load_bgroup(result){
         });
     }
 
-    if(storeLimitTrigger) {
-        addEvent(storeLimitTrigger, 'change', function(){
-            storelimitCont.style.display = this.checked ? 'block' : 'none';
-        });
-    }
+    // if(storeLimitTrigger) {
+    //     addEvent(storeLimitTrigger, 'change', function(){
+    //         storelimitCont.style.display = this.checked ? 'block' : 'none';
+    //     });
+    // }
     
     if(kind === 'users' || kind === 'equipment') {
         var table = document.getElementById('group-extensions').querySelector('tbody'),
@@ -111,10 +111,10 @@ function load_bgroup(result){
         
         addEvent(addUserForm, 'submit', function(e){
             e.preventDefault();
-            var storeLimitChecked = storeLimitTrigger.checked;
+            // var storeLimitChecked = storeLimitTrigger.checked;
             addUser(utype, function() {
                 cleanForm('new-user-form');
-                storeLimitTrigger.checked = storeLimitChecked;
+                // storeLimitTrigger.checked = storeLimitChecked;
             });
             // cleanForm();
         });
@@ -241,62 +241,8 @@ function load_bgroup(result){
             customize_upload('unit-greeting', unitGreeting);
             customize_upload('unit-waitmusic', unitWaitMusic);
 
-        // } else if(kind == 'hunting'){
-        //     if(result.options.timeout !== undefined)
-        //         d.getElementById("timeout2").value = result.options.timeout;
-        //     if(result.options.huntmode  !== undefined)
-        //         d.getElementById("huntmode2").value = result.options.huntmode || 1;
-        //     if(result.options.huntfwd  !== undefined)
-        //         d.getElementById("huntfwd2").checked = result.options.huntfwd;
-
-        //     var huntGreeting = result.options.greeting || '';
-        //     var huntWaitMusic = result.options.waitmusic || '';
-        //     customize_upload('hunt-greeting', huntGreeting);
-        //     customize_upload('hunt-waitmusic', huntWaitMusic);
-
         } else if(kind == 'pickup'){
             d.getElementById("groupno2").value = result.options.groupno || '';
-        // } else if(kind == 'icd'){
-        //     d.getElementById("icd-app").value = result.options.application || '';
-        //     d.getElementById("groupno").value = result.options.groupno || '';
-        //     d.getElementById("maxlines").value = result.options.maxlines || '';
-        //     d.getElementById("priority").value = result.options.priority || '';
-        //     d.getElementById("canpickup").checked = result.options.canpickup;
-        //     d.getElementById("autologin").checked = result.options.autologin;
-        //     d.getElementById("method").selectedIndex = result.options.method;
-        //     d.getElementById("natimeout").value = result.options.natimeout || '';
-        //     d.getElementById("resumetime").value = result.options.resumetime || '';
-        //     d.getElementById("queuelen").value = result.options.queuelen || '';
-        //     d.getElementById("maxqwait").value = result.options.maxqwait || '';
-        //     d.getElementById("overflowredirect").value = result.options.overflowredirect || '';
-        //     d.getElementById("overtimeredirect").value = result.options.overtimeredirect || '';
-        //     d.getElementById("indicationmode").value = result.options.indicationmode || '';
-        //     d.getElementById("indicationtime").value = result.options.indicationtime || '';
-            
-        //     $('#autologin').on('change', function(e){
-        //         switchVisibility('#open-autologin-options', this.checked);
-        //     });
-        //     switchVisibility('#open-autologin-options', result.options.autologin);
-
-        //     PbxObject.autologinOptions = {
-        //         network: result.options.network,
-        //         netmask: result.options.netmask
-        //     };
-
-        //     $('#open-autologin-options').on('click', function(e){
-        //         showModal('autologin_modal', PbxObject.autologinOptions, function(data, modalObject) {
-        //             if(data) PbxObject.autologinOptions = data;
-        //             $(modalObject).modal('hide');
-        //         });
-        //     });
-
-        //     //customizing upload element
-        //     var greetFile = result.options.greeting || '';
-        //     var queuemusic = result.options.queuemusic || '';
-        //     var queueprompt = result.options.queueprompt || '';
-        //     customize_upload('greeting', greetFile);
-        //     customize_upload('queuemusic', queuemusic);
-        //     customize_upload('queueprompt', queueprompt);
 
         } else if(kind == 'conference' || kind == 'channel' || kind == 'selector'){
 
@@ -559,7 +505,7 @@ function createServiceBtn(params){
     addEvent(button, 'click', function(e){
         getExternalUsers(params.id, params.type, params.props);
     });
-    button.className = "btn btn-default padding-lg ellipsis";
+    button.className = "btn btn-link btn-default padding-lg ellipsis";
     button.innerHTML = '<span>'+params.name+'</span>';
     
     return button;
@@ -1012,7 +958,7 @@ function addMembersRow(data){
     status = info.rstatus;
     classname = info.rclass;
     row.id = data.oid;
-    row.className = classname;
+    // row.className = classname;
 
     cell = row.insertCell(0);
     if(data.oid) {
@@ -1041,11 +987,11 @@ function addMembersRow(data){
     // }
     cell = row.insertCell(4);
     cell.setAttribute('data-cell', 'status');
-    cell.innerHTML = status;
+    cell.innerHTML = '<span class="label label-'+info.className+'">'+status+'</span>';
 
     cell = row.insertCell(5);
     button = document.createElement('button');
-    button.className = 'btn btn-danger btn-sm';
+    button.className = 'btn btn-link btn-danger btn-md';
     button.innerHTML = '<i class="fa fa-trash"></i>';
     addEvent(button, 'click', delete_extension);
     cell.appendChild(button);
@@ -1063,7 +1009,7 @@ function addUser(type, cb){
         emailEl = document.getElementById('user-email'),
         aliasEl = document.getElementById('user-alias'),
         passEl = document.getElementById('user-pass'),
-        storeLimitTrigger = document.getElementById('trigger-storelimit'),
+        // storeLimitTrigger = document.getElementById('trigger-storelimit'),
         storelimit = document.getElementById('storelimit'),
         ext, name, alias;
 
@@ -1088,12 +1034,12 @@ function addUser(type, cb){
     jprms += '"name":"'+name+'",';
     jprms += '"display":"'+alias+'",';
     jprms += '"password":"'+passEl.value+'",';
-    if(storeLimitTrigger.checked) {
-        storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
-        if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
-    } else {
-        jprms += '"storelimit": 0,';
-    }
+    // if(storeLimitTrigger.checked) {
+    storelimit = convertBytes(parseFloat(storelimit.value), 'GB', 'Byte');
+    if(storelimit >= 0) jprms += '"storelimit":'+storelimit+',';
+    // } else {
+        // jprms += '"storelimit": 0,';
+    // }
 
     var data = {
         kind: type,

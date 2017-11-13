@@ -11,7 +11,7 @@ function GetStarted(container) {
 
 	this.init = function() {
 
-		createTour();
+		// createTour();
 
 		// Get initial data for the Widget
 		if(typeof objects === 'object') {

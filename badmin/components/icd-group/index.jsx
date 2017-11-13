@@ -122,6 +122,7 @@
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
+			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			    <div className="row">
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
@@ -346,7 +347,6 @@
 			    		</PanelComponent>
 			    	</div>
 			    </div>
-			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			</div>
 		);
 	}

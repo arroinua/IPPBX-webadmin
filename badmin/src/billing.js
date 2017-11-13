@@ -16,28 +16,28 @@ function load_billing() {
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
-		if(err) return notify_about('error' , err);
+		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
 		billingRequest('getProfile', null, function(err, response) {
 			console.log('getProfile: ', err, response);
-			if(err) return notify_about('error' , err);
+			if(err) return notify_about('error' , err.message);
 			profile = response.result;
 
 			getPlans(profile.currency, function(err, result) {
-				if(err) return notify_about('error' , err);
+				if(err) return notify_about('error', err.message);
 				plans = result;
 
 				init();
 
 				getDiscounts(function(err, response) {
-					if(err) return notify_about('error' , err);
+					if(err) return notify_about('error', err.message);
 					discounts = response;
 
 					// init();
 
 					getInvoices(function(err, response) {
-						if(err) return notify_about('error' , err);
+						if(err) return notify_about('error', err.message);
 						invoices = response;
 						console.log('invoices: ', invoices);
 						init();
@@ -55,28 +55,27 @@ function load_billing() {
 	});
 
 	function loadStripeJs() {
-		if(window.StripeCheckout) return;
+		if(window.StripeCheckout) return configureStripe();
 
 		$.ajaxSetup({ cache: true });
-		$.getScript('https://checkout.stripe.com/checkout.js', function(){
-			stripeHandler = StripeCheckout.configure({
-				// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-				key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-				// image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
-				image: '/badmin/images/Ringotel_emblem_new.png',
-				locale: 'auto',
-				token: function(token) {
-					console.log('stripe token: ', token);
-					stripeToken = token;
-				}
-			});
+		$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
+	}
 
-			// Close Checkout on page navigation:
-			window.addEventListener('popstate', function() {
-			  stripeHandler.close();
-			});
+	function configureStripe() {
+		stripeHandler = StripeCheckout.configure({
+			// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+			key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+			image: '/badmin/images/Ringotel_emblem_new.png',
+			locale: 'auto',
+			token: function(token) {
+				console.log('stripe token: ', token);
+				stripeToken = token;
+			}
+		});
 
-			// init();
+		// Close Checkout on page navigation:
+		window.addEventListener('popstate', function() {
+		  stripeHandler.close();
 		});
 	}
 
@@ -91,6 +90,7 @@ function load_billing() {
 		    discounts: discounts,
 		    addCard: addCard,
 		    editCard: editCard,
+		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: updateLicenses,
 		    extend: deepExtend,
@@ -98,7 +98,7 @@ function load_billing() {
 		}), cont);
 	}
 
-	function addCard() {
+	function openStripeWindow(onCLoseHandler) {
 		stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
@@ -107,103 +107,113 @@ function load_billing() {
 			panelLabel: "Add card",
 			// currency: 'eur',
 			// amount: plan.amount*100,
-			closed: function(result) {
-				console.log('addCard closed: ', result);
+			closed: onCLoseHandler
+		});
+	}
+
+	function addCard(callback) {
+		openStripeWindow(function(result) {
+			console.log('addCard closed: ', result);
+			
+			if(!stripeToken) return callback(null);
+			var reqParams = {
+				service: 'stripe',
+				token: stripeToken.id,
+				card: stripeToken.card
+			};
+
+			billingRequest('addCard', reqParams, function(err, response) {
+				console.log('saveCard response: ', err, stripeToken, response);
 				
-				show_loading_panel();
+				if(err || response.error) {
+					notify_about('error', err.message || response.error.message);
+					callback(null);
+				} else {
+					callback(stripeToken);
+				}
 
-				saveCard(stripeToken, function(err, response) {
-					show_content();
+				stripeToken = null;
 
-					if(err || !response || !response.success) return;
-
-					console.log('editCard token: ', stripeToken);
-
-					profile.billingDetails = profile.billingDetails || {};
-					profile.billingDetails.push(stripeToken.card);
-					profile.defaultBillingMethod = {
-						params: stripeToken.card
-					};
-
-					stripeToken = null;
-					
-					init();
-					
-				});
-			}
+			});
 		});
 	}
 
-	function editCard() {
-		stripeHandler.open({
-			email: profile.email,
-			name: 'Ringotel',
-			zipCode: true,
-			allowRememberMe: false,
-			panelLabel: "Add card",
-			// currency: 'eur',
-			// amount: plan.amount*100,
-			closed: function(result) {
-				console.log('editCard closed: ', result);
+	function editCard(callback) {
+		openStripeWindow(function(result) {
+			console.log('editCard closed: ', result);
 
-				show_loading_panel();
+			if(!stripeToken) return callback(null);;
+			var reqParams = {
+				service: 'stripe',
+				token: stripeToken.id,
+				card: stripeToken.card
+			};
 
-				updateCard(stripeToken, function(err, response) {
-					show_content();
+			billingRequest('updateCard', reqParams, function(err, response) {
+				console.log('updateCard response: ', err, stripeToken, response);				
+				
+				if(err || response.error) {
+					notify_about('error', err.message || response.error.message);
+					callback(null);
+				} else {
+					callback(stripeToken);
+				}
 
-					if(err || !response || !response.success) return;
+				stripeToken = null;
+			});
 
-					console.log('editCard token: ', stripeToken);
-
-					profile.billingDetails = profile.billingDetails || {};
-					profile.billingDetails.push(stripeToken.card);
-					profile.defaultBillingMethod = {
-						params: stripeToken.card
-					};
-
-					stripeToken = null;
-
-					init();
-				});
-			}
 		});
 	}
 
-	function saveCard(params, callback) {
-		console.log('saveCard: ', params);
-		if(!params) return callback();;
-		var reqParams = {
-			service: 'stripe',
-			token: params.id,
-			card: params.card
-		};
+	function renewSub(callback) {
 
-		billingRequest('addCard', reqParams, function(err, response) {
-			console.log('saveCard response: ', err, params, response);
+		show_loading_panel();
+
+		billingRequest('renewSubscription', { subId: sub._id }, function(err, response) {
+			console.log('renewSubscription response: ', err, response);
+
+			show_content();
+
+			if(err || response.error) notify_about('error', err.message || response.error.message);
 			callback(err, response);
 		});
+			
 	}
 
-	function updateCard(params, callback) {
-		console.log('updateCard: ', params);
-		if(!params) return callback();
-		var reqParams = {
-			service: 'stripe',
-			token: params.id,
-			card: params.card
-		};
+	// function saveCard(params, callback) {
+	// 	console.log('saveCard: ', params);
+	// 	if(!params) return callback();;
+	// 	var reqParams = {
+	// 		service: 'stripe',
+	// 		token: params.id,
+	// 		card: params.card
+	// 	};
 
-		billingRequest('updateCard', reqParams, function(err, response) {
-			console.log('updateCard response: ', err, params, response);
-			callback(err, response);
-		});
-	}
+	// 	billingRequest('addCard', reqParams, function(err, response) {
+	// 		console.log('saveCard response: ', err, params, response);
+	// 		callback(err, response);
+	// 	});
+	// }
+
+	// function updateCard(params, callback) {
+	// 	console.log('updateCard: ', params);
+	// 	if(!params) return callback();
+	// 	var reqParams = {
+	// 		service: 'stripe',
+	// 		token: params.id,
+	// 		card: params.card
+	// 	};
+
+	// 	billingRequest('updateCard', reqParams, function(err, response) {
+	// 		console.log('updateCard response: ', err, params, response);
+	// 		callback(err, response);
+	// 	});
+	// }
 
 	function addCoupon(string) {
 		billingRequest('addCoupon', { coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
-			if(!response.success) return notify_about('error', response.error.message);
 			discounts.push(response);
 			init();
 		});
@@ -221,6 +231,8 @@ function load_billing() {
 				subId: sub._id,
 				planId: params.plan.planId
 			}, function(err, response) {
+				show_content();
+
 				if(err) return notify_about('error', err.message);
 				console.log('changePlan: ', err, response);
 				
@@ -228,7 +240,6 @@ function load_billing() {
 				
 				sub = response.result;
 
-				show_content();
 				init();
 			});
 
@@ -249,6 +260,8 @@ function load_billing() {
 				addOns: params.addOns,
 				quantity: params.quantity
 			}, function(err, response) {
+				show_content();
+
 				if(err) return notify_about('error', err.message);
 				console.log('updateLicenses: ', err, response);
 
@@ -256,7 +269,6 @@ function load_billing() {
 
 				sub = response.result;
 				
-				show_content();
 				init();
 			});
 

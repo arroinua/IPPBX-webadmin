@@ -4,9 +4,8 @@ var FacebookTrunkComponent = React.createClass({
 		frases: React.PropTypes.object,
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
-		// loginHandler: React.PropTypes.func,
 		onChange: React.PropTypes.func,
-		disabled: React.PropTypes.bool
+		isNew: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -19,10 +18,10 @@ var FacebookTrunkComponent = React.createClass({
 	},
 
 	componentWillMount: function() {
-		console.log('FacebookTrunkComponent: ', this.props);
+		console.log('FacebookTrunkComponent props: ', this.props);
 
 		this._initService();
-		
+
 		// this.setState({
 		// 	selectedPage: this.props.properties || {}
 		// });		
@@ -35,8 +34,13 @@ var FacebookTrunkComponent = React.createClass({
 	// },
 
 	_initService: function() {
-		if(window.FB) {
+		var props = this.props.properties;
+		if(props && props.id) {
+			this.setState({ init: true });
+
+		} else if(window.FB) {
 			window.FB.getLoginStatus(this._updateStatusCallback);
+
 		} else {
 			this._getFacebookSDK(function() {
 				window.FB.init({
@@ -77,15 +81,22 @@ var FacebookTrunkComponent = React.createClass({
 		}
 	},
 
+	_getSubscriptions: function() {
+		var appId = this.props.serviceParams.params.appId;
+		window.FB.api('/'+appId+'/subscriptions', function(response) {
+			console.log('_getSubscriptions: ', response);
+
+		}.bind(this));
+	},
+
 	_login: function() {
 		window.FB.login(function(response) {
 			console.log('window.FB.login: ', response);
-			updateStatusCallback(response);
-		}, {scope: 'email, manage_pages, read_page_mailboxes, pages_messaging'});
+			this._updateStatusCallback(response);
+		}.bind(this), {scope: 'email, manage_pages, read_page_mailboxes, pages_messaging'});
 	},
 
 	_selectPage: function(value) {
-		
 		var selectedPage = {};
 
 		this.state.pages.forEach(function(item) {
@@ -109,7 +120,7 @@ var FacebookTrunkComponent = React.createClass({
 		var pages = this.state.pages;
 		var frases = this.props.frases;
 		
-		console.log('FacebookTrunkComponent: ', pages);
+		console.log('FacebookTrunkComponent render: ', this.props.properties, this.props.serviceParams, pages);
 
 		return (
 			<div>
@@ -117,6 +128,17 @@ var FacebookTrunkComponent = React.createClass({
 					!this.state.init ? (
 
 						<h3 className="text-center"><i className="fa fa-fw fa-spinner fa-spin"></i></h3>
+
+					) : (this.props.properties && !this.props.isNew) ? (
+
+						<form className="form-horizontal">
+							<div className="form-group">
+							    <label htmlFor="ctc-select-1" className="col-sm-4 control-label">{frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE}</label>
+							    <div className="col-sm-4">
+									<p className="form-control-static">{this.props.properties.name}</p>
+								</div>
+							</div>
+						</form>
 
 					) : !pages ? (
 
@@ -136,29 +158,24 @@ var FacebookTrunkComponent = React.createClass({
 							    <label htmlFor="ctc-select-1" className="col-sm-4 control-label">{frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE}</label>
 							    <div className="col-sm-4">
 							    	{
-							    		this.props.disabled ? (
-									    	<p className="form-control-static">{this.state.selectedPage.name}</p>
-							    		) : (
-							    			<select 
-							    				className="form-control" 
-							    				id="ctc-select-1" 
-							    				value={this.state.selectedPage.id} 
-							    				onChange={this._onChange}
-							    				disabled={this.props.disabled}
-							    			>
-							    				{
-							    					pages.map(function(item) {
+						    			<select 
+						    				className="form-control" 
+						    				id="ctc-select-1" 
+						    				value={this.state.selectedPage.id} 
+						    				onChange={this._onChange}
+						    			>
+						    				{
+						    					pages.map(function(item) {
 
-							    						return (
+						    						return (
 
-							    							<option key={item.id} value={item.id}>{item.name}</option>
+						    							<option key={item.id} value={item.id}>{item.name}</option>
 
-							    						);
+						    						);
 
-							    					})
-							    				}
-							    			</select>
-							    		)
+						    					})
+						    				}
+						    			</select>
 							    	}
 							    </div>
 							</div>

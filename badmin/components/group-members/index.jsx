@@ -43,7 +43,8 @@
 
 	    return {
 	        rstatus: status,
-	        rclass: 'bg-'+className
+	        rclass: 'bg-'+className,
+	        className: className
 	    }
 
 	},

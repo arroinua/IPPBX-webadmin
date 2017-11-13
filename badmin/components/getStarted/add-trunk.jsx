@@ -16,7 +16,7 @@ var AddTrunk = React.createClass({
 	},
 
 	_addNewTrunk: function() {
-		window.location.hash = '#trunk?trunk';
+		window.location.hash = '#trunk/trunk';
 		$('#'+this.props.step.name).modal('hide');
 	},
 

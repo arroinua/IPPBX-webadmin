@@ -92,51 +92,7 @@
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
-			    <div className="row">
-			    	<div className="col-xs-12">
-					    <button type="button" role="button" className="btn btn-default padding-lg" onClick={this._getAvailableUsers}><i className="fa fa-user-plus"></i> {frases.CHAT_CHANNEL.ADD_MEMBERS}</button>
-					    <FilterInputComponent items={members} onChange={this._onFilter} />
-			    	</div>
-			    </div>
-			    <PanelComponent header={ filteredMembers.length + " " + frases.CHAT_CHANNEL.MEMBERS}>
-				    <div className="table-responsive">
-				        <table className="table table-hover sortable" id="group-extensions">
-				            
-				            <tbody>
-				            	{
-				            		members.length ?
-				            		(filteredMembers.map(function(item) {
-
-				            			itemState = this.props.getInfoFromState(item.state);
-				            			console.log('itemState: ', itemState);
-
-				            			return (
-
-				            				<tr id={item.oid} className={ itemState.rclass } key={item.number || item.ext}>
-				            					<td>
-				            						<a href="" onClick={this.props.getExtension}>{item.number || item.ext}</a>
-				            					</td>
-				            					<td data-cell="name">{item.name}</td>
-				            					<td data-cell="reg">{item.reg}</td>
-				            					<td data-cell="status" style={{ "textAlign": "right" }}>{ itemState.rstatus }</td>
-				            					<td style={{ "textAlign": "right" }}>
-				            						<button className="btn btn-danger btn-sm" onClick={this.props.deleteMember.bind(this, item.oid)}><i className="fa fa-trash"></i></button>
-				            					</td>
-				            				</tr>
-
-				            			)
-
-				            		}.bind(this))) :
-				            		(
-				            			<tr>
-				            				<td colSpan="3">{frases.CHAT_CHANNEL.NO_MEMBERS}. <a href="#" onClick={this._getAvailableUsers}>{frases.CHAT_CHANNEL.ADD_MEMBERS}</a></td>
-				            			</tr>
-				            		)
-				            	}
-				            </tbody>
-				        </table>
-				    </div>
-				</PanelComponent>
+			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			</div>
 		);
 	}

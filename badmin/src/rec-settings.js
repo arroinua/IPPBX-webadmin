@@ -32,14 +32,16 @@ function getRecObjects(result){
 		checkCount();
 	});
 	json_rpc_async('getExtensions', null, function(exts){
-		var extresult = filterObject(exts, 'phone|user');
+		var extresult = filterObject(exts, ['phone', 'user']);
+		console.log('getRecObjects: ', extresult);
 		if(result.extensions) {
-
-			obj.exts = extresult.filter(function(ext){
-				return result.extensions.indexOf(ext.ext) == -1;
+			obj.exts = extresult.filter(function(item){
+				return result.extensions.indexOf(item.ext) === -1;
 			});
+
 		} else {
 			obj.exts = extresult;
+
 		}
 
 		checkCount();

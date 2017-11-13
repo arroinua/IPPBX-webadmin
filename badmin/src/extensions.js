@@ -54,7 +54,7 @@ function createExtRow(data){
             a.href = '#';
             addEvent(a, 'click', get_extension);
         } else {
-            a.href = '#' + data.kind + '?' + data.oid;
+            a.href = '#' + data.kind + '/' + data.oid;
         }
         a.textContent = data.ext;
         cell.appendChild(a);
@@ -82,27 +82,27 @@ function createExtRow(data){
 
     cell = row.insertCell(5);
     cell.setAttribute('data-cell', 'status');
-    cell.textContent = status || "";
+    cell.innerHTML = '<span class="label label-'+info.className+'">'+(status || '')+'</span>';
 
+    // cell = row.insertCell(6);
+    // if(data.kind) {
+    //     if(data.kind == 'user' || data.kind == 'phone') {
+    //         button = createNewButton({
+    //             type: 'tooltip',
+    //             title: PbxObject.frases.EDIT,
+    //             classname: 'btn btn-link btn-primary btn-md',
+    //             content: '<i class="fa fa-edit"></i>',
+    //             handler: editExtension
+    //         });
+    //         cell.appendChild(button);
+    //     }    
+    // }
     cell = row.insertCell(6);
-    if(data.kind) {
-        if(data.kind == 'user' || data.kind == 'phone') {
-            button = createNewButton({
-                type: 'tooltip',
-                title: PbxObject.frases.EDIT,
-                classname: 'btn btn-primary btn-sm',
-                content: '<i class="fa fa-edit"></i>',
-                handler: editExtension
-            });
-            cell.appendChild(button);
-        }    
-    }
-    cell = row.insertCell(7);
     if(data.oid) {
         button = createNewButton({
             type: 'tooltip',
             title: PbxObject.frases.DELETE,
-            classname: 'btn btn-danger btn-sm',
+            classname: 'btn btn-link btn-danger btn-md',
             content: '<i class="fa fa-trash"></i>',
             handler: delete_extension
         });
@@ -113,7 +113,7 @@ function createExtRow(data){
     row.id = data.oid;
     row.setAttribute('data-ext', data.ext);
     row.setAttribute('data-kind', data.kind);
-    row.className = classname;
+    // row.className = classname;
 
     return row;
 
@@ -121,7 +121,7 @@ function createExtRow(data){
 
 function updateExtensionRow(event, data){
 
-    // console.log(data);
+    // console.log('updateExtensionRow: ', data);
 
     var row = document.getElementById(data.oid);
     var state = data.state;
@@ -133,7 +133,7 @@ function updateExtensionRow(event, data){
             className = info.rclass,
             cell;
 
-        row.className = className;
+        // row.className = className;
 
         if(data.name){
             cell = row.querySelector('[data-cell="name"]');
@@ -162,7 +162,7 @@ function updateExtensionRow(event, data){
         //     cells[3].innerHTML = "";
         // }
         cell = row.querySelector('[data-cell="status"]');
-        if(cell) cell.innerHTML = status;
+        if(cell) cell.innerHTML = '<span class="label label-'+info.className+'">'+status+'</span>';
         // cells[5].innerHTML = status;
     }
 
@@ -243,7 +243,7 @@ function editExtension(e){
     button = createNewButton({
         type: 'tooltip',
         title: PbxObject.frases.CANCEL,
-        classname: 'btn btn-default btn-sm',
+        classname: 'btn btn-link btn-default btn-md',
         content: '<i class="fa fa-chevron-left"></i>',
         handler: function(){
                     row.style.display = 'table-row';
@@ -264,7 +264,7 @@ function editExtension(e){
     button = createNewButton({
         type: 'tooltip',
         title: PbxObject.frases.SAVE,
-        classname: 'btn btn-success btn-sm',
+        classname: 'btn btn-link btn-success btn-md',
         content: '<i class="fa fa-check"></i>',
         handler: set_extension_update
     });
@@ -320,8 +320,8 @@ function load_extension(result){
     if(kind === 'users') {
 
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
-        result.storefree = convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2);
-        result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
+        result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = result.storefree ? convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2) : 0;
         // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
         // if(result.storelimit) {
         //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
@@ -347,7 +347,7 @@ function load_extension(result){
     $(cont).html(rendered);
 
     var storelimitCont = document.getElementById('ext-storelimit-cont');
-    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
+    // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var state = document.querySelector('#el-extension .user-state-ind');
     var img = document.getElementById('user-avatar');
     var src = "/$AVATAR$?userid="+result.userid;
@@ -359,11 +359,11 @@ function load_extension(result){
 
     state.classList.add(getInfoFromState(result.state).rclass);
 
-    if(storeLimitTrigger) {
-        addEvent(storeLimitTrigger, 'change', function(){
-            storelimitCont.style.display = this.checked ? 'block' : 'none';
-        });
-    }
+    // if(storeLimitTrigger) {
+    //     addEvent(storeLimitTrigger, 'change', function(){
+    //         storelimitCont.style.display = this.checked ? 'block' : 'none';
+    //     });
+    // }
 
     if(kind !== 'users') {
         var storageUsage = document.querySelector('#el-extension .user-storage-usage');
@@ -374,8 +374,8 @@ function load_extension(result){
         var pinCont = document.getElementById('pin-cont');
         if(pinCont) pinCont.classList.add('hidden');
 
-        storeLimitTrigger.checked = !!result.storelimit;
-        storelimitCont.style.display = result.storelimit ? 'block' : 'none';
+        // storeLimitTrigger.checked = !!result.storelimit;
+        storelimitCont.style.display = 'block';
     }
 
     // getAvatar(result.userid, function(binary){
@@ -467,10 +467,10 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     // var login = d.getElementById("extlogin").textContent;
-    var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
+    // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
-    if(!storeLimitTrigger.checked) storelimit.value = 0;
+    // if(!storeLimitTrigger.checked) storelimit.value = 0;
 
     if(group.options.length) var groupv = group.options[group.selectedIndex].value;
     
