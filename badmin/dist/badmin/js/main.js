@@ -2736,6 +2736,102 @@ function load_billing() {
 	}
 
 }
+function load_branch_options() {
+
+	var options = {};
+	var initLang = null;
+	var branchOptions = null;
+	var singleBranch = false;
+
+	init();
+
+	function init() {
+		json_rpc_async('getPbxOptions', null, function(result){
+			options = result;
+			initLang = options.lang;
+
+			singleBranch = result.mode === 1 || !result.prefix;
+
+		    if(singleBranch) {
+		    	json_rpc_async('getDeviceSettings', null, function(result) {
+		    		branchOptions = result;
+		    		render();
+		    		close_options();
+		    	});
+		    } else {
+		    	render();
+		    	close_options();
+		    }
+		});
+
+	}
+
+	function saveOptions(newOptions) {
+
+		var handler;
+		var files = [];
+
+		if(newOptions.options && newOptions.options.files) {
+			files = [].concat(newOptions.options.files);
+			delete newOptions.options.files;
+		}
+
+		console.log('saveOptions: ', options, newOptions, files);
+
+		// Upload audio files
+		if(files.length) {
+			files.forEach(function(item) {
+				uploadFile(item);
+			})
+		}
+
+		if(newOptions.lang && newOptions.lang !== initLang) {		    
+		    handler = set_options_success;
+		} else {
+		    handler = set_object_success;
+		}
+
+		json_rpc_async('setPbxOptions', newOptions, function(result) {
+			PbxObject.options = newOptions;
+
+			if(newOptions.adminpass === options.adminpass) {
+			    handler();
+			} else {
+			    if(window.localStorage['ringo_tid'] && !singleBranch) {
+			        billingRequest('changePassword', { login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
+			            if(!err) handler();
+			        });
+			    } else {
+			        handler();
+			    }
+			}
+		});
+	}
+
+	function saveBranchOptions(newOptions) {
+		console.log('saveBranchOptions: ', newOptions);
+
+		json_rpc_async('setDeviceSettings', newOptions, null);
+	}
+
+	function render() {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    singleBranch: singleBranch,
+		    params: options,
+		    branchParams: branchOptions,
+		    saveOptions: saveOptions,
+		    saveBranchOptions: saveBranchOptions
+		};
+
+		console.log('render: ', componentParams);
+
+		ReactDOM.render(OptionsComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		show_content();
+	}
+
+}
 function load_certificates(){
 	if(PbxObject.options.mode && PbxObject.options.mode !== 0)
 		$('#createCertBtn').click(createCert);
@@ -7266,16 +7362,17 @@ function set_object_success(){
 }
 
 function set_options_success() {
-    var i, newpath = '', parts = window.location.pathname.split('/');
-    for (i = 0; i < parts.length; i++) {
-        if (parts[i] === 'en' || parts[i] === 'uk' || parts[i] === 'ru') {
-            parts[i] = PbxObject.language;
-        }
-        newpath += '/';
-        newpath += parts[i];
-    }
-    var newURL = window.location.protocol + "//" + window.location.host + newpath.substring(1);
-    window.location.href = newURL;
+    // var i, newpath = '', parts = window.location.pathname.split('/');
+    // for (i = 0; i < parts.length; i++) {
+    //     if (parts[i] === 'en' || parts[i] === 'uk' || parts[i] === 'ru') {
+    //         parts[i] = PbxObject.language;
+    //     }
+    //     newpath += '/';
+    //     newpath += parts[i];
+    // }
+    // var newURL = window.location.protocol + "//" + window.location.host + newpath.substring(1);
+    // window.location.href = newURL;
+    window.location.reload(false);
 }
 
 function delete_object(name, kind, oid, noConfirm){
@@ -8533,12 +8630,12 @@ function load_pbx_options(result) {
     if(result.services) setServices(result.services);
     else PbxObject.options.services = [];
 
-    loadSecuritySettings({
-        ipcheck: result.ipcheck || false,
-        iptable: result.iptable || [],
-        adminipcheck: result.adminipcheck || false,
-        adminiptable: result.adminiptable || [] 
-    }, setSecuritySettings);
+    // loadSecuritySettings({
+    //     ipcheck: result.ipcheck || false,
+    //     iptable: result.iptable || [],
+    //     adminipcheck: result.adminipcheck || false,
+    //     adminiptable: result.adminiptable || [] 
+    // }, setSecuritySettings);
 }
 
 function loadSecuritySettings(params, cb) {

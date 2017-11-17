@@ -1514,16 +1514,17 @@ function set_object_success(){
 }
 
 function set_options_success() {
-    var i, newpath = '', parts = window.location.pathname.split('/');
-    for (i = 0; i < parts.length; i++) {
-        if (parts[i] === 'en' || parts[i] === 'uk' || parts[i] === 'ru') {
-            parts[i] = PbxObject.language;
-        }
-        newpath += '/';
-        newpath += parts[i];
-    }
-    var newURL = window.location.protocol + "//" + window.location.host + newpath.substring(1);
-    window.location.href = newURL;
+    // var i, newpath = '', parts = window.location.pathname.split('/');
+    // for (i = 0; i < parts.length; i++) {
+    //     if (parts[i] === 'en' || parts[i] === 'uk' || parts[i] === 'ru') {
+    //         parts[i] = PbxObject.language;
+    //     }
+    //     newpath += '/';
+    //     newpath += parts[i];
+    // }
+    // var newURL = window.location.protocol + "//" + window.location.host + newpath.substring(1);
+    // window.location.href = newURL;
+    window.location.reload(false);
 }
 
 function delete_object(name, kind, oid, noConfirm){
