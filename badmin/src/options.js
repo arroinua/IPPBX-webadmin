@@ -109,7 +109,7 @@ function setTimezones(el, defaultTz) {
 }
 
 function load_pbx_options(result) {
-    // console.log(result);
+    console.log(result);
     var options, chk, trow, tables, transforms, so;
 
     switch_options_tab('mainopt-tab');
@@ -190,12 +190,12 @@ function load_pbx_options(result) {
     if(result.services) setServices(result.services);
     else PbxObject.options.services = [];
 
-    // loadSecuritySettings({
-    //     ipcheck: result.ipcheck || false,
-    //     iptable: result.iptable || [],
-    //     adminipcheck: result.adminipcheck || false,
-    //     adminiptable: result.adminiptable || [] 
-    // }, setSecuritySettings);
+    loadSecuritySettings({
+        ipcheck: result.ipcheck || false,
+        iptable: result.iptable || [],
+        adminipcheck: result.adminipcheck || false,
+        adminiptable: result.adminiptable || [] 
+    }, setSecuritySettings);
 }
 
 function loadSecuritySettings(params, cb) {

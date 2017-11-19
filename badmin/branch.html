@@ -233,7 +233,8 @@
                     <div class="navbar nav-bar options-nav">
                         <ul class="nav nav-bar-nav">
                             <li>
-                                <a href="#" id="el-set-options" class="el-save-options"><i class="fa fa-check fa-fw"></i> {{SAVE}}
+                                <a href="#" class="options-close">
+                                    <i class="fa fa-remove fa-fw"></i>
                                 </a>
                             </li>
                         </ul>
@@ -241,11 +242,7 @@
                             <li>
                                 <a href="#" id="logout-btn" title="{{LOGOUT}}">
                                     <i class="fa fa-sign-out fa-fw"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="options-close">
-                                    <i class="fa fa-cog fa-fw"></i>
+                                    <span>{{LOGOUT}}</span>
                                 </a>
                             </li>
                         </ul>
@@ -261,15 +258,15 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#certificates" title="{{CERTIFICATES.CERTIFICATES_SETTS}}">
-                                            <i class="fa fa-lock fa-fw"></i>
-                                            <span>{{CERTIFICATES.CERTIFICATES_SETTS}}</span>
-                                        </a>
-                                    </li>
-                                    <li>
                                         <a href="#rec_settings" title="{{SETTINGS.REC_SETTINGS}}">
                                             <i class="fa fa-microphone fa-fw"></i>
                                             <span>{{SETTINGS.REC_SETTINGS}}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#services" title="{{SETTINGS.BRANCH_SERVICES}}">
+                                            <i class="fa fa-plug fa-fw"></i>
+                                            <span>{{SETTINGS.BRANCH_SERVICES}}</span>
                                         </a>
                                     </li>
                                     <li>
@@ -284,10 +281,10 @@
                                             <span>{{SETTINGS.BILLING}}</span>
                                         </a>
                                     </li>
-                                    <li class="branch-mode mode-users">
-                                        <a href="#" class="tab-switcher" data-tab="services-tab" title="{{SETTINGS.BRANCH_SERVICES}}">
-                                            {{SETTINGS.BRANCH_SERVICES}}
-                                            <i class="fa fa-angle-right fa-fw"></i>
+                                    <li>
+                                        <a href="#certificates" title="{{CERTIFICATES.CERTIFICATES_SETTS}}">
+                                            <i class="fa fa-lock fa-fw"></i>
+                                            <span>{{CERTIFICATES.CERTIFICATES_SETTS}}</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -297,71 +294,6 @@
                 </div>
             </script>
         </div>
-        <script type="text/html" id="ldap-settings">
-            <div class="acc-cont">
-                <h5 class="text-mute acc-header">Active Directory/LDAP <span class="caret pull-right"></span></h5>
-                <div class="acc-pane" id="ldap-tab">
-                    <form autocomplete="off">
-                        <div class="form-group">
-                            <label for="directoryServer" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_SERVER}}">{{frases.LDAP.DIR_SERVER}}</label>
-                            <input type="text" class="form-control" id="directoryServer" name="directoryServer" value="{{data.ldap.directoryServer}}">
-                        </div>
-                        <div class="form-group">
-                            <div class="checkbox">
-                                <label class="col-xs-12">
-                                    <input type="checkbox" id="directorySSL" name="directorySSL" {{#data.ldap.directorySSL}}checked{{/data.ldap.directorySSL}}> {{frases.LDAP.DIR_SSL}}
-                                </label>
-                            </div>
-                        </div>
-                        <br><br>
-                        <div class="form-group">
-                            <label for="directoryAttributeUID" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_ATTR_UID}}">{{frases.LDAP.DIR_ATTR_UID}}</label>
-                            <select id="directoryAttributeUID" name="directoryAttributeUID" class="form-control">
-                                <option value="userPrincipalName">userPrincipalName</option>
-                                <option value="sAMAccountName">sAMAccountName</option>
-                                <option value="uid">uid</option>
-                                <option value="name">name</option>
-                                <option value="mail">mail</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="directoryAttributePhone" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_ATTR_PHONE}}">{{frases.LDAP.DIR_ATTR_PHONE}}</label>
-                            <select id="directoryAttributePhone" name="directoryAttributePhone" class="form-control">
-                                <option value="telephoneNumber">telephoneNumber</option>
-                                <option value="mobile">mobile</option>
-                                <option value="ipPhone">ipPhone</option>
-                                <option value="0">{{frases.OTHER}}</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="customDirectoryAttributePhone" value="{{data.ldap.directoryAttributePhone}}" style="display: none">
-                        </div>
-                        <div class="form-group">
-                            <label for="directoryAuth" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_AUTH}}">{{frases.LDAP.DIR_AUTH}}</label>
-                            <select id="directoryAuth" name="directoryAuth" class="form-control">
-                                <option value="simple">simple</option>
-                                <option value="DIGEST-MD5">DIGEST-MD5</option>
-                                <option value="GSSAPI">GSSAPI (Kerberos 5)</option>
-                            </select>
-                        </div>
-                        <div id="gssapi-settings">
-                            <div class="form-group">
-                                <label for="directoryKDC" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_KDC}}">{{frases.LDAP.GSSAPI.DIR_KDC}}</label>
-                                <input type="text" class="form-control" id="directoryKDC" name="directoryKDC" value="{{data.ldap.directoryKDC}}">
-                            </div>
-                            <div class="form-group">
-                                <label for="directoryAdminServer" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_ADMIN_SERVER}}">{{frases.LDAP.GSSAPI.DIR_ADMIN_SERVER}}</label>
-                                <input type="text" class="form-control" id="directoryAdminServer" name="directoryAdminServer" value="{{data.ldap.directoryAdminServer}}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="directoryDomains" class="control-label" data-toggle="tooltip" title="{{frases.LDAP__DIR_DOMAINS}}">{{frases.LDAP.GSSAPI.DIR_DOMAINS}}</label>
-                            <input type="text" class="form-control" id="directoryDomains" name="directoryDomains" value="{{data.ldap.directoryDomains}}">
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </script>
         <script type="text/javascript" src="/badmin/js/vendors/react.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/react-dom.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>

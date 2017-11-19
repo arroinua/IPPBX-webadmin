@@ -469,6 +469,7 @@
     "EMPTYOBJECTWARNING": "Create group before adding users",
     "KINDS": {
     	"branch_options": "Settings",
+    	"services": "Integrations",
         "trunk": "Trunks",
         "users": "Users",
         "user": "User",

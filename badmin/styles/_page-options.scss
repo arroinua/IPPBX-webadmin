@@ -12,7 +12,7 @@
         transform:translateX(0px);
     }
     .options-nav{
-        margin-bottom: 20px;
+        margin-bottom: 0;
         background-color: $secondary-color;
     }
     .nav-bar-nav a{
@@ -57,17 +57,21 @@
         display: block;
         line-height: 20px;
         width: 100%;
-        margin-bottom: 10px; 
+        // margin-bottom: 10px; 
     }
-    ul.tab-toggles li a{
+    ul.tab-toggles li a {
         position: relative;
         display: block;
-        width: 90%;
+        // width: 90%;
         margin: 0 auto;
-        padding: 11.5px 20px;
+        padding: 20px;
         text-decoration: none;
-        border: 1px solid #333;
+        border-bottom: 1px solid #eee;
         color: $primary-text-color-1;
+    }
+
+    ul.tab-toggles li a:hover {
+        background-color: #eee;
     }
     
 }

@@ -411,7 +411,7 @@ function init_page(){
     if(!location.hash.substring(1))
         location.hash = 'dashboard';
 
-    load_pbx_options(PbxObject.options);
+    // load_pbx_options(PbxObject.options);
     get_object();
     set_listeners();
     $('[data-toggle="tooltip"]').tooltip({

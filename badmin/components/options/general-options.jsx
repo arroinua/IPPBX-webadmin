@@ -13,7 +13,7 @@ var GeneralOptionsComponent = React.createClass({
 		var value = type === 'checkbox' ? target.checked : (type === 'number' ? parseFloat(target.value) : target.value);
 		var update = {};
 		
-		update[target.name] = (value !== null && !isNaN(value)) ? value : "";;
+		update[target.name] = value !== null ? value : "";;
 
 		this.props.onChange(update);
 	},

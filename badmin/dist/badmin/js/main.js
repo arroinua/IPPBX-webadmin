@@ -8550,85 +8550,85 @@ function setTimezones(el, defaultTz) {
 
 function load_pbx_options(result) {
     // console.log(result);
-    var options, chk, trow, tables, transforms, so;
+    // var options, chk, trow, tables, transforms, so;
 
-    switch_options_tab('mainopt-tab');
-    setTimezones(document.getElementById('branch_timezone'), result.timezone);
+    // switch_options_tab('mainopt-tab');
+    // setTimezones(document.getElementById('branch_timezone'), result.timezone);
 
-    // PbxObject.oidOptions = result.oid;
-    PbxObject.config = result.config || [];
+    // // PbxObject.oidOptions = result.oid;
+    // PbxObject.config = result.config || [];
 
-    if (result.lang) {
-        var select = document.getElementById('interfacelang'),
-            i = select.options.length - 1;
-        while (i >= 0) {
-            if (select.options[i].value === result.lang) {
-                select.options[i].selected = true;
-            }
-            i--;
-        }
-    }
-
-    //customizing upload element
-    customize_upload('musonhold', result.options.holdmusicfile);
-
-    document.getElementById('adminname').value = result.adminname || '';
-    // document.getElementById('firstnumber').value = result.firstnumber || '';
-
-    var firstnumber = document.getElementById('firstnumber');
-    if(result.extensions){
-        firstnumber.value = poolArrayToString(result.extensions);
-    } else {
-        firstnumber.value = '';
-    }
-
-    // if(result.firstnumber && result.firstnumber){
-    //     //counting last number in pbx numbering pool
-    //     var lastnumber = result.firstnumber+(result.poolsize-1);
-    //     document.getElementById('lastnumber').value = lastnumber;
+    // if (result.lang) {
+    //     var select = document.getElementById('interfacelang'),
+    //         i = select.options.length - 1;
+    //     while (i >= 0) {
+    //         if (select.options[i].value === result.lang) {
+    //             select.options[i].selected = true;
+    //         }
+    //         i--;
+    //     }
     // }
 
-    if (result.options) {
-        document.getElementById('holdreminterv').value = result.options.holdremindtime || '';
-        document.getElementById('holdrectime').value = result.options.holdrecalltime || '';
-        document.getElementById('transrectime').value = result.options.transferrecalltime || '';
-        document.getElementById('transrecdest').value = result.options.transferrecallnumber || '';
-        document.getElementById('autoretrieve').checked = result.options.autoretrive;
-        document.getElementById('parkrectime').value = result.options.parkrecalltime || '';
-        document.getElementById('parkrecdest').value = result.options.parkrecallnumber || '';
-        document.getElementById('discontime').value = result.options.parkdroptimeout || '';
-    }
+    // //customizing upload element
+    // customize_upload('musonhold', result.options.holdmusicfile);
 
-    // options = document.getElementById('pbxoptions');
+    // document.getElementById('adminname').value = result.adminname || '';
+    // // document.getElementById('firstnumber').value = result.firstnumber || '';
 
-    so = document.getElementById('el-set-options');
-    so.onclick = set_pbx_options;
+    // var firstnumber = document.getElementById('firstnumber');
+    // if(result.extensions){
+    //     firstnumber.value = poolArrayToString(result.extensions);
+    // } else {
+    //     firstnumber.value = '';
+    // }
 
-    // toggle_presentation();
-    if(!window.localStorage['ringo_tid']) {
-        var billingTab = document.getElementById('billing-tab');
-        if(billingTab) billingTab.parentNode.removeChild(billingTab);
-    }
-    else if(result.mode === 1 || !result.prefix){
-        getDeviceSettings();
-    }
-    else {
-        var deviceTab = document.getElementById('deviceopt-tab');
-        var deviceBtn = document.getElementById('deviceopt-btn');
+    // // if(result.firstnumber && result.firstnumber){
+    // //     //counting last number in pbx numbering pool
+    // //     var lastnumber = result.firstnumber+(result.poolsize-1);
+    // //     document.getElementById('lastnumber').value = lastnumber;
+    // // }
+
+    // if (result.options) {
+    //     document.getElementById('holdreminterv').value = result.options.holdremindtime || '';
+    //     document.getElementById('holdrectime').value = result.options.holdrecalltime || '';
+    //     document.getElementById('transrectime').value = result.options.transferrecalltime || '';
+    //     document.getElementById('transrecdest').value = result.options.transferrecallnumber || '';
+    //     document.getElementById('autoretrieve').checked = result.options.autoretrive;
+    //     document.getElementById('parkrectime').value = result.options.parkrecalltime || '';
+    //     document.getElementById('parkrecdest').value = result.options.parkrecallnumber || '';
+    //     document.getElementById('discontime').value = result.options.parkdroptimeout || '';
+    // }
+
+    // // options = document.getElementById('pbxoptions');
+
+    // so = document.getElementById('el-set-options');
+    // so.onclick = set_pbx_options;
+
+    // // toggle_presentation();
+    // if(!window.localStorage['ringo_tid']) {
+    //     var billingTab = document.getElementById('billing-tab');
+    //     if(billingTab) billingTab.parentNode.removeChild(billingTab);
+    // }
+    // else if(result.mode === 1 || !result.prefix){
+    //     getDeviceSettings();
+    // }
+    // else {
+    //     var deviceTab = document.getElementById('deviceopt-tab');
+    //     var deviceBtn = document.getElementById('deviceopt-btn');
         
-        if(deviceTab) deviceTab.parentNode.removeChild(deviceTab);
-        if(deviceBtn) deviceBtn.parentNode.removeChild(deviceBtn);
-        // setAccordion();
-    }
+    //     if(deviceTab) deviceTab.parentNode.removeChild(deviceTab);
+    //     if(deviceBtn) deviceBtn.parentNode.removeChild(deviceBtn);
+    //     // setAccordion();
+    // }
 
-    // set LDAP options
-    loadAdvancedOptions({
-        ldap: result.ldap || {}
-    } || {});
+    // // set LDAP options
+    // loadAdvancedOptions({
+    //     ldap: result.ldap || {}
+    // } || {});
 
-    setAccordion('#featureopt-tab');
-    if(result.services) setServices(result.services);
-    else PbxObject.options.services = [];
+    // setAccordion('#featureopt-tab');
+    // if(result.services) setServices(result.services);
+    // else PbxObject.options.services = [];
 
     // loadSecuritySettings({
     //     ipcheck: result.ipcheck || false,
@@ -10644,6 +10644,74 @@ function deleteRoute(routeOid){
     var jprms = '\"oid\":\"'+routeOid+'\"';
     // console.log(jprms);
     json_rpc_async('deleteRoute', jprms, set_object_success);
+}
+function load_services() {
+
+	var services = [];
+	var ldap = {};
+
+	init();
+
+	function init() {
+		json_rpc_async('getPbxOptions', null, function(result){
+			ldap.props = result.ldap || {};
+			ldap.name = 'Microsoft Active Directory';
+			ldap.id = 'MicrosoftAD';
+
+			services = result.services;
+
+	    	render();
+	    	close_options();
+		});
+
+	}
+
+	function saveOptions(newOptions) {
+		console.log('saveOptions: ', newOptions);
+		var params = {
+			services: Array.isArray(newOptions) ? newOptions : [newOptions]
+		};
+
+		json_rpc_async('setPbxOptions', params, function() {
+			services = services.map(function(item) {
+				if(item.id === newOptions.id) 
+					item = newOptions;
+
+				return item;
+			});
+
+			console.log('saveOptions saved: ', services);
+
+			render();
+			set_object_success();
+		});
+	}
+
+	function saveLdapOptions(newOptions) {
+		json_rpc_async('setPbxOptions', { ldap: newOptions.props }, function() {
+			ldap = newOptions;
+
+			console.log('saveLdapOptions saved: ', newOptions);
+
+			render();
+			set_object_success();
+		});
+	}
+
+	function render() {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    saveOptions: saveOptions,
+		    saveLdapOptions: saveLdapOptions,
+		    services: services,
+		    ldap: ldap
+		};
+
+		ReactDOM.render(ServicesComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		show_content();
+	}
+
 }
 function load_statistics(){
     new Statistics();

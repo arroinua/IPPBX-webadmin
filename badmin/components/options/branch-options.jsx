@@ -14,7 +14,7 @@ var BranchOptionsComponent = React.createClass({
         var update = this.props.params;
 
         update[dataModel] = update[dataModel] || {};
-        update[dataModel][target.name] = (value !== null && !isNaN(value)) ? value : "";
+        update[dataModel][target.name] = value !== null ? value : "";
 
         this.props.onChange(update);
     },

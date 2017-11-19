@@ -12,7 +12,7 @@ var FunctionsOptionsComponent = React.createClass({
 		var value = type === 'checkbox' ? target.checked : (type === 'number' ? parseFloat(target.value) : target.value);
 		var update = {};
 
-		update[target.name] = (value !== null && !isNaN(value)) ? value : "";;
+		update[target.name] = value !== null ? value : "";;
 
 		this.props.onChange(update);
 	},
@@ -25,7 +25,7 @@ var FunctionsOptionsComponent = React.createClass({
 			files: this.props.files || []
 		};
 
-		update[target.name] = (value !== null && !isNaN(value)) ? value : "";;
+		update[target.name] = value !== null ? value : "";;
 		update.files.push(file);
 
 		console.log('_onFileUpload: ', target, value, update, file);
