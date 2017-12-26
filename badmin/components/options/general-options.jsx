@@ -7,19 +7,41 @@ var GeneralOptionsComponent = React.createClass({
 		onChange: React.PropTypes.func
 	},
 
+	getInitialState: function() {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function() {
+		this.setState({
+			params: this.props.params
+		});
+	},
+
+	componentWillReceiveProps: function(props) {
+		this.setState({
+			params: props.params
+		});
+	},
+
 	_onChange: function(e) {
 		var target = e.target;
 		var type = target.getAttribute('data-type') || target.type;
 		var value = type === 'checkbox' ? target.checked : (type === 'number' ? parseFloat(target.value) : target.value);
-		var update = {};
+		var update = this.state.params;
 		
 		update[target.name] = value !== null ? value : "";;
+
+		this.setState({
+			params: update
+		});
 
 		this.props.onChange(update);
 	},
 
 	_numPoolEl: function(el) {
-		var numpool = this._arrayToNumPool(this.props.params.extensions || []);
+		var numpool = this._arrayToNumPool(this.state.params.extensions || []);
 		el.value = numpool;
 		this.props.setPoolEl(el);
 	},
@@ -66,8 +88,7 @@ var GeneralOptionsComponent = React.createClass({
 
 	render: function() {
 		var frases = this.props.frases;
-		var params = this.props.params;
-		var tzones = moment.tz.names() || [];
+		var params = this.state.params;
 
 		return (
 			<form className="form-horizontal" autoComplete="off">
@@ -84,13 +105,7 @@ var GeneralOptionsComponent = React.createClass({
 			    <div className="form-group">
 			        <label htmlFor="branch_timezone" className="col-sm-4 control-label" data-toggle="tooltip" title={frases.OPTS__TIMEZONE}>{frases.SETTINGS.TIMEZONE}</label>
 			        <div className="col-sm-4">
-			            <select name="timezone" className="form-control" value={params.timezone} onChange={this._onChange}>
-			            	{
-			            		tzones.map(function(item) {
-			            			return <option key={item} value={item}>{item}</option>
-			            		})
-			            	}
-			            </select>
+			            <TimeZonesComponent timezone={this.state.params.timezone} onChange={this._onChange} />
 			        </div>
 			    </div>
 			    <div className="form-group">

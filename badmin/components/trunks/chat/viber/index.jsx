@@ -25,15 +25,14 @@ var ViberTrunkComponent = React.createClass({
 
 	_initService: function() {
 		this.setState({
-			app_key: this.props.properties.app_key || ''
+			access_token: this.props.properties.access_token || ''
 		});		
 	},
 
 	_onChange: function(e) {
 		var value = e.target.value;
 		var props = {
-			id: value,
-			app_key: value
+			access_token: value
 		};
 		
 		console.log('Viber _onChange: ', value);
@@ -56,7 +55,7 @@ var ViberTrunkComponent = React.createClass({
 					    			<input 
 					    				id="ctc-select-2"
 					    				className="form-control" 
-					    				value={this.state.app_key} 
+					    				value={this.state.access_token} 
 					    				onChange={this._onChange}
 					    				placeholder="e.g. 445da6az1s345z78-dazcczb2542zv51a-e0vc5fva17480im9"
 					    			/>

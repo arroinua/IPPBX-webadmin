@@ -107,6 +107,24 @@ function load_timer(result){
     }
 }
 
+function setTimezones(cont, selected) {
+    var tzones = moment.tz.names() || [];
+    var fragment = document.createDocumentFragment();
+    var option = null;
+
+    tzones.map(function(item) {
+        option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        if(item === selected) option.selected = true;
+
+        fragment.appendChild(option);
+        return item;
+    });
+
+    cont.appendChild(fragment);
+}
+
 function set_timer(){
         
     var jprms, 

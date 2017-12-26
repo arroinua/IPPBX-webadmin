@@ -658,6 +658,14 @@
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
     		"LEARN_MORE_LINK": "Learn how to create one",
     		"SELECT_PAGE": "Select Facebook Page"
+    	},
+    	"EMAIL": {
+    		"PROTOCOL": "Protocol",
+    		"USERNAME": "User name",
+    		"PASSWORD": "Password",
+    		"HOSTNAME": "Hostname",
+    		"PORT": "Port",
+    		"SSL": "Use TLS/SSL"
     	}
     },
     "ATTENDANT" : {
@@ -735,11 +743,14 @@
     },
     "BILLING" : {
     	"BILLING": "Billing",
+    	"CURRENT_BALANCE": "Current balance",
+    	"UPDATE_BALANCE": "Top up",
     	"CURRENT_PLAN": "Current plan",
-    	"UPGRADE_PLAN": "Change",
+    	"UPGRADE_PLAN": "Change plan",
     	"MONTHLY_TOTAL": "Monthly total",
+    	"ANNUALLY_TOTAL": "Annually total",
     	"NEXT_CHARGE": "Next charge",
-    	"TRIAL_EXPIRES": "Trial expires",
+    	"TRIAL_EXPIRES": "expires",
     	"EDIT_PAYMENT_METHOD": "Update",
     	"PAYMENT_METHOD_WARNING_P1": "To change plan and add licenses please",
     	"PAYMENT_METHOD_WARNING_P2": "to your account",
@@ -754,6 +765,10 @@
     	"UPDATE_LICENSES": "Update licenses",
     	"PLANS": {
     		"PER_USER": "per user",
+    		"PER_MONTH": "mo",
+    		"PER_YEAR": "year",
+    		"MONTHLY_PLANS": "Monthly",
+    		"ANNUAL_PLANS": "Annually",
     		"SHOW_ALL_FEATURES": "Show all features",
     		"CURRENT_PLAN": "Your plan",
     		"SELECT_PLAN": "Select plan"
@@ -770,6 +785,7 @@
     	"CONFIRM_PAYMENT": {
     		"HEADER": "Billing update",
     		"NEW_MONTHLY_RATE_MSG": "Your new monthly rate would be",
+    		"NEW_ANNUALLY_RATE_MSG": "Your new annual rate would be",
     		"TODAY_CHARGE_MSG": "Today you will be charged",
     		"CONFIRM_PAYMENT": "Pay now",
     		"CANCEL_PAYMENT": "Cancel"

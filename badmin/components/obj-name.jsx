@@ -16,7 +16,8 @@ var ObjectName = React.createClass({
 		return {
 			name: '',
 			submitDisabled: false,
-			enabled: false
+			enabled: false,
+			pending: false
 		};
 	},
 
@@ -55,36 +56,45 @@ var ObjectName = React.createClass({
 
 	_toggleState: function(e) {
 		var state = !this.state.enabled;
-		this.setState({ enabled: state });
-		this.props.onStateChange(state)
+		this.setState({ enabled: state, pending: true });
+		this.props.onStateChange(state, function(err, result) {
+			console.log('ObjectName _toggleState: ', err, result);
+			this.setState({ pending: false });
+			if(err) this.setState({ enabled: !state });
+		}.bind(this))
+	},
+
+	_getFooter: function() {
+		var frases = this.props.frases;
+		var state = this.state;
+		var props = this.props;
+
+		return (
+			<div>
+				{
+					props.onSubmit ?
+					<button type="button" style={{ marginRight: "5px" }} className="btn btn-success btn-md" onClick={props.onSubmit} disabled={state.submitDisabled}><i className="fa fa-check fa-fw"></i> {frases.SAVE}</button>
+					: ""
+				}
+				{
+					props.onCancel ?
+					<button type="button" className="btn btn-danger btn-md" onClick={props.onCancel}><i className="fa fa-trash fa-fw"></i> {frases.DELETE}</button>
+					: ""
+				}
+			</div>
+		);
 	},
 
 	render: function() {
 		var frases = this.props.frases;
 		var state = this.state;
 		var props = this.props;
-		var Footer = function() {
+		var Footer = this._getFooter();
 
-			return (
-				<div>
-					{
-						props.onSubmit ?
-						<button type="button" style={{ marginRight: "5px" }} className="btn btn-success btn-md" onClick={props.onSubmit} disabled={state.submitDisabled}><i className="fa fa-check fa-fw"></i> {frases.SAVE}</button>
-						: ""
-					}
-					{
-						props.onCancel ?
-						<button type="button" className="btn btn-danger btn-md" onClick={props.onCancel}><i className="fa fa-trash fa-fw"></i> {frases.DELETE}</button>
-						: ""
-					}
-				</div>
-			);
-		}
-
-		Footer();
+		console.log('ObjectName render: ', state);
 
 		return (
-			<PanelComponent footer={<Footer />}>
+			<PanelComponent footer={Footer}>
 				<div className="input-group object-name">
 				    <input 
 				    	id="objname"
@@ -104,7 +114,16 @@ var ObjectName = React.createClass({
 				            	type="checkbox" 
 				            	checked={state.enabled} 
 				            />
-				            <label htmlFor="enabled" data-toggle="tooltip" title={frases.OBJECT__STATE} onClick={this._toggleState}></label>
+				            <label 
+				            	htmlFor="enabled" 
+				            	data-toggle="tooltip" 
+				            	title={frases.OBJECT__STATE} 
+				            	onClick={this._toggleState}
+				            	style={{ 
+				            		opacity: state.pending ? 0.2 : 1,
+									pointerEvents: state.pending ? 'none' : 'auto' 
+								}}
+				            ></label>
 				        </div>
 				    </span>
 				</div>

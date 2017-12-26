@@ -27,14 +27,17 @@ var FacebookTrunkComponent = React.createClass({
 		// });		
 	},
 
-	// componentWillReceiveProps: function(props) {
-	// 	this.setState({
-	// 		selectedPage: props.properties || {}
-	// 	});		
+	// shouldComponentUpdate: function(nextProps, nextState){
+	// 	console.log('FacebookTrunkComponent shouldComponentUpdate: ', nextProps);
+	//     // return a boolean value
+	//     return !this.state.init && nextProps.isNew;
 	// },
 
 	_initService: function() {
 		var props = this.props.properties;
+
+		console.log('_initService: ', props);
+
 		if(props && props.id) {
 			this.setState({ init: true });
 
@@ -47,7 +50,7 @@ var FacebookTrunkComponent = React.createClass({
 					appId: this.props.serviceParams.params.appId,
 					autoLogAppEvents: true,
 					status: true,
-					version: 'v2.9'
+					version: 'v2.10'
 				});     
 				window.FB.getLoginStatus(this._updateStatusCallback);
 			}.bind(this));

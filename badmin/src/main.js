@@ -141,7 +141,10 @@ function json_rpc(method, params){
 }
 
 function json_rpc_async(method, params, handler, id){
-    var jsonrpc;
+    var xhr = {};
+    var jsonrpc = {};
+    var parsedJSON = {};
+    var requestTimer = null;
 
     if(params !== null){
         if(typeof params === 'object'){
@@ -152,38 +155,46 @@ function json_rpc_async(method, params, handler, id){
     } else{
         jsonrpc = '{\"method\":\"'+method+'\", \"id\":'+1+'}';
     }
-    var xhr = new XMLHttpRequest();
+    
+    xhr = new XMLHttpRequest();
     xhr.open("POST", "/", true);
 
-    var requestTimer = setTimeout(function(){
+    requestTimer = setTimeout(function(){
         xhr.abort();
         notify_about('info' , PbxObject.frases.TIMEOUT);
         show_content();
     }, 60*1000);
+
     xhr.onreadystatechange = function() {
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
             if(xhr.status != 200) {
-                if(xhr.status === 403) return window.location = '/';
+                console.error(method, xhr.responseText);
 
-                console.error(method, xhr.statusText);
-                notify_about('error', PbxObject.frases.ERROR);
-                if(handler) handler(null, xhr.statusText);
+                if(xhr.status === 403) return window.location = '/';
+                if(xhr.responseText) parsedJSON = JSON.parse(xhr.responseText);
+
+                if(handler) {
+                    handler(null, parsedJSON.error);
+                } else {
+                    notify_about('error', (parsedJSON.error ? parsedJSON.error.message : PbxObject.frases.ERROR));
+                }
                 show_content();
+
             } else {
                 if(xhr.responseText != null) {
                     if(!xhr.responseText) return;
-                    var parsedJSON = JSON.parse(xhr.responseText);
-                    if(parsedJSON.error != undefined){
+                    parsedJSON = JSON.parse(xhr.responseText);
+
+                    if(parsedJSON.error){
                         if(handler) handler(null, parsedJSON.error);
 
-                        notify_about('error' , parsedJSON.error.message);
-                        // if(handler) handler(parsedJSON.message);
+                        notify_about('error' , (parsedJSON.error ? parsedJSON.error.message : PbxObject.frases.ERROR));
                         show_content();
+
                     } else if(parsedJSON.result){
-                        if(handler !== null) {
-                            handler(parsedJSON.result);
-                        }
+                        if(handler !== null) handler(parsedJSON.result);
+
                     }
                 }
             }
@@ -234,7 +245,7 @@ function request(method, url, data, options, callback){
         } else if(status >= 500) {
             if(callback) return callback('The service is under maintenance. Please, try again later.');
         } else {
-            if(callback) callback(response.error, response);
+            if(callback) callback(response.error);
         }
 
     };
@@ -1418,13 +1429,13 @@ function newObjectAdded(event, data){
     remove_loading_panel();
     notify_about('success', name+' '+PbxObject.frases.CREATED);
 
-    console.log('newObjectAdded: ', nameEl, name);
-    if(nameEl && name) nameEl.value = name;
-
     if(data.ext) 
         addObjects(PbxObject.extensions, data, 'ext');
 
     if(kind === 'phone' || kind === 'user') return;
+
+    console.log('newObjectAdded: ', nameEl, name);
+    if(nameEl && name) nameEl.value = name;
     
     if(ul){
         var li = document.createElement('li'),
@@ -1790,9 +1801,9 @@ function setObjectState(oid, state, callback) {
     json_rpc_async('setObjectState', {
         oid: oid,
         enabled: state
-    }, function(result){
-        if(callback)
-            callback(result);
+    }, function(result, err){
+        if(err) notify_about('error', err.message);
+        if(callback) callback(result, err);
     });
 }
 

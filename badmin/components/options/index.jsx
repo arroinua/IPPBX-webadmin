@@ -20,7 +20,7 @@ var OptionsComponent = React.createClass({
 
 	componentWillMount: function() {
 		this.setState({
-			params: this.props.params,
+			// params: this.props.params,
 			branchParams: this.props.branchParams,
 			options: this.props.params.options
 		});		
@@ -28,7 +28,7 @@ var OptionsComponent = React.createClass({
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
-			params: props.params,
+			// params: props.params,
 			branchParams: props.branchParams,
 			options: props.params.options
 		});
@@ -41,7 +41,7 @@ var OptionsComponent = React.createClass({
 
 		console.log('_saveOptions: ', params);
 
-		if(params.adminpass !== params.confirmpass) {
+		if(params.adminpass && params.adminpass !== params.confirmpass) {
 			return alert(this.props.frases.OPTS__PWD_UNMATCH);
 		} else {
 			delete params.confirmpass;
@@ -49,18 +49,19 @@ var OptionsComponent = React.createClass({
 
 		params.extensions = this._poolToArray(this.poolEl.value);
 
-		if(options) 
-			params.options = options;
+		if(options) params.options = options;
 
-		this.props.saveOptions(params);
+		this.props.saveOptions(params, function() {
+			delete this.state.params.adminpass;
+			delete this.state.params.confirmpass;
+			this.setState({ params: params });
+
+		}.bind(this));
 
 		if(this.props.singleBranch) {
 			this.props.saveBranchOptions(branchParams);
 		}
 
-		delete params.adminpass;
-
-		this.setState({ params: params });
 	},
 
 	_handleOnChange: function(params) {
@@ -68,15 +69,19 @@ var OptionsComponent = React.createClass({
 		
 		if(!keys || !keys.length) return;
 
-		var state = this.state.params;
+		// var state = this.state.params;
 		// var newState = this.state.newParams || {};
 
-		keys.forEach(function(key) {
-			state[key] = params[key];
+		// keys.forEach(function(key) {
+			// state[key] = params[key];
 			// newState[key] = params[key];
-		});
+		// });
 
-		this.setState(state);
+		// this.setState(state);
+		
+		this.setState({
+			params: params
+		});
 	},
 
 	_handleOnFuncOptionsChange: function(params) {
@@ -146,9 +151,8 @@ var OptionsComponent = React.createClass({
 
 	render: function() {
 		var frases = this.props.frases;
+		var params = this.props.params;
 		var panelHead = this._panelHead();
-
-		console.log('OptionsComponent render: ', this.state.params);
 
 		return (
 			<div className="row">
@@ -166,10 +170,10 @@ var OptionsComponent = React.createClass({
 
 						<div className="tab-content" style={{ padding: "20px 0" }}>
 							<div role="tabpanel" className="tab-pane fade in active" id="tab-general-options">
-								<GeneralOptionsComponent frases={this.props.frases} singleBranch={this.props.singleBranch} params={this.state.params} onChange={this._handleOnChange} setPoolEl={this._setPoolEl} />
+								<GeneralOptionsComponent frases={this.props.frases} singleBranch={this.props.singleBranch} params={params} onChange={this._handleOnChange} setPoolEl={this._setPoolEl} />
 							</div>
 							<div role="tabpanel" className="tab-pane fade in" id="tab-security-options">
-								<SecurityOptionsComponent frases={this.props.frases} params={this.state.params} onChange={this._handleOnChange} />
+								<SecurityOptionsComponent frases={this.props.frases} params={params} onChange={this._handleOnChange} />
 							</div>
 							<div role="tabpanel" className="tab-pane fade in" id="tab-functions-options">
 								<FunctionsOptionsComponent frases={this.props.frases} params={this.state.options} onChange={this._handleOnFuncOptionsChange} />

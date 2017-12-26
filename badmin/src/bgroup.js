@@ -1054,7 +1054,7 @@ function addUser(type, cb){
     //     data.followme = followme.value;
     // }
     // console.log(jprms);
-    json_rpc_async('setObject', jprms, function(result){
+    json_rpc_async('setObject', jprms, function(result, error){
 
         if(result) {
             data.oid = result;
@@ -1104,6 +1104,8 @@ function addUser(type, cb){
             $('#new-user-form').trigger("users.create");
 
             if(cb) cb();
+        } else {
+            notify_about('error' , error && error.message);
         }
     });
 }

@@ -93,13 +93,13 @@ var BillingComponent = React.createClass({
 	},
 
 	_setAddonQuantity: function(params) {
-		console.log('_setAddonQuantity:', params);
+		console.log('_setAddonQuantity:', params, this.state.sub.addOns);
 		var sub = this.state.sub;
 		var addon = sub.addOns[params.index];
 		var newQuantity = addon.quantity + params.quantity;
 
 		if(newQuantity < 0) return;
-		if(addon.name === 'storage' && newQuantity < this.state.minStorage) return;
+		if(addon.name === 'storage' && addon.quantity > this.state.minStorage && newQuantity < this.state.minStorage) return;
 
 		addon.quantity = newQuantity;
 		sub.addOns[params.index] = addon;
@@ -107,8 +107,23 @@ var BillingComponent = React.createClass({
 		this.setState({ sub: sub });
 	},
 
+	_extendAddons: function(addOns, array) {
+		var newItem;
+		return addOns.map(function(addon) {
+			newItem = {};
+			array.forEach(function(item){
+				if(addon.name === item.name) {
+					newItem = deepExtend(newItem, addon);
+					newItem.quantity = item.quantity;
+				}
+			});
+			return newItem;
+		});
+	},
+
 	_countSubAmount: function(sub) {
 		var amount = sub.quantity * sub.plan.price;
+
 		if(sub.addOns && sub.addOns.length){
 		    sub.addOns.forEach(function (item){
 		        if(item.quantity) amount += (item.price * item.quantity);
@@ -226,20 +241,25 @@ var BillingComponent = React.createClass({
 	},
 
 	_onPlanSelect: function(plan) {
-		console.log('_onPlanSelect: ', plan);
+		console.log('_onPlanSelect 1: ', plan, this.state.sub);
 		var profile = this.props.profile;
 		// var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
 		var paymentMethod = profile.billingMethod;
-		if(!paymentMethod) return this._addCard();
+		// if(!paymentMethod) return this._addCard();
 
-		var sub = this.state.sub;
+		var sub = JSON.parse(JSON.stringify(this.props.sub));
 		sub.plan = plan;
+		sub.addOns = this._extendAddons(plan.addOns, sub.addOns);
+
+		console.log('_onPlanSelect 2: ', plan, sub);
+		
 		sub.amount = this._countSubAmount(sub);
 
 		var amounts = this._countNewPlanAmount(this.props.sub, sub);
 
 		this.props.onPlanSelect({ 
 			plan: plan,
+			annually: (plan.billingPeriodUnit === 'years'),
 			payment: {
 				currency: plan.currency,
 				totalAmount: amounts.totalAmount,
@@ -249,6 +269,7 @@ var BillingComponent = React.createClass({
 		});
 
 		sub.plan = JSON.parse(JSON.stringify(this.props.sub.plan));
+		sub.addOns = JSON.parse(JSON.stringify(this.props.sub.addOns));
 		sub.amount = this._countSubAmount(sub);
 	},
 
@@ -323,11 +344,29 @@ var BillingComponent = React.createClass({
 		var month = date.getMonth()+1;
 		var year = date.getFullYear();
 
-		return (expMonth - month) < 1;
+		return ((expMonth - month) < 1 && (expYear - year) < 1);
 	},
 
 	_addCoupon: function(coupon) {
 		this.props.addCoupon(coupon);
+	},
+
+	_currencyNameToSymbol: function(name) {
+		var symbol = "";
+
+		switch(name) {
+			case "eur":
+				symbol = "€";
+				break;
+			case "usd":
+				symbol = "$";
+				break;
+			default:
+				symbol = "€";
+				break;
+		}
+
+		return symbol;
 	},
 
 	render: function() {
@@ -358,7 +397,7 @@ var BillingComponent = React.createClass({
 					<div className="col-xs-12">
 					{
 						!paymentMethod ? (
-							<div className="alert alert-info" role="alert">
+							<div className="alert alert-info" role="alert" style={{ display: "none" }}>
 								{ frases.BILLING.PAYMENT_METHOD_WARNING_P1 } <a href="#" onClick={this._addCard} className="alert-link">{ frases.BILLING.ADD_CREDIT_CARD }</a> { frases.BILLING.PAYMENT_METHOD_WARNING_P2 }
 							</div>
 						) : this._isCardExpired(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
@@ -385,69 +424,86 @@ var BillingComponent = React.createClass({
 					}
 					
 					</div>
-					<div className="col-sm-6">
-						<h2>
-							<small>{ frases.BILLING.CURRENT_PLAN } </small>
-							<span>{ sub.plan.name } </span>
-							{
-								sub.state === 'past_due' ? (
-									<a href="#" className="text-uppercase" style={{ fontSize: "14px" }} onClick={this._renewSub}>Renew</a>
-								) : (
-									<a 
-										href="#" 
-										className="text-uppercase" 
-										style={{ fontSize: "14px" }} 
-										role="button" 
-										onClick={this._openPlans}
-										data-toggle="collapse" 
-										href="#plansCollapse" 
-										aria-expanded="false" 
-										aria-controls="plansCollapse"
-									>{ frases.BILLING.UPGRADE_PLAN }</a>
-								)
-							}
-						</h2>
-						{
-							sub.plan.trialPeriod ? (
-								<p className="text-muted">{ frases.BILLING.TRIAL_EXPIRES } <b>{ window.moment(this.state.sub.trialExpires).format('DD MMMM YYYY') }</b></p>
-							) : (
-								<p className="text-muted">{ frases.BILLING.NEXT_CHARGE } <b>{ window.moment(this.state.sub.nextBillingDate).format('DD MMMM YYYY') }</b></p>
-							)
-						}
-					</div>
-					<div className="col-sm-6" style={{ textAlign: "right" }}>
-						<h2><small>{ frases.BILLING.MONTHLY_TOTAL }</small> {sub.plan.currency} {parseFloat(subAmount).toFixed(2)}</h2>
-						{
-							paymentMethod && (
-								<p className="text-muted" style={{ userSelect: 'none' }}>
-									<a href="#" onClick={sub.state === 'past_due' ? this._updateAndRenewSub : this._editCard} className="text-uppercase">{ frases.BILLING.EDIT_PAYMENT_METHOD }</a>
-									<span> </span>
-									<b>{paymentMethod.params.brand}</b> •••• •••• •••• {paymentMethod.params.last4}
-									<br/>
-									{paymentMethod.params.exp_month}/{paymentMethod.params.exp_year}
-								</p>
-							)
-						}
-					</div>
-				</div>
-				<div className="row">
-					<div className="col-xs-12 col-custom">
-						<div className="collapse" id="plansCollapse">
-						    <div className="panel-body" style={{ background: 'none' }}>
-						    	<div className="row">
-							    	{ plans.map(function(plan, index) {
-
-							    		return (
-							    			<div className={"col-xs-12 col-sm-4"} key={plan.planId}>
-							    				<PlanComponent plan={plan} frases={frases} onSelect={onPlanSelect} currentPlan={sub.plan.planId} maxusers={options.maxusers} />
-							    			</div>
-							    		);
-
-							    	}) }
-							    </div>
-						    </div>
+					<div className="col-sm-12">
+						<div className="panel">
+							<div className="panel-body">
+								<div className="pull-left">
+									<h2 style={{ margin: 0 }}>
+										<small>{ sub.plan.billingPeriodUnit === 'years' ? frases.BILLING.ANNUALLY_TOTAL : frases.BILLING.MONTHLY_TOTAL } </small>
+										<span>{this._currencyNameToSymbol(sub.plan.currency)}{parseFloat(subAmount).toFixed(2)} </span>
+									</h2>
+									{
+										!sub.plan.trialPeriod && (
+											<p className="text-muted">{ frases.BILLING.NEXT_CHARGE } <b>{ window.moment(this.state.sub.nextBillingDate).format('DD MMMM YYYY') }</b></p>
+										)
+									}
+								</div>
+								<div className="pull-right" style={{ textAlign: "right" }}>
+									<p>
+										{
+											paymentMethod ? (
+												<a href="#" onClick={sub.state === 'past_due' ? this._updateAndRenewSub : this._editCard} className="text-uppercase">{ frases.BILLING.EDIT_PAYMENT_METHOD }</a>
+											) : (
+												<a href="#" className="text-uppercase" onClick={this._addCard}>{ frases.BILLING.ADD_CREDIT_CARD }</a>
+											)
+										}
+									</p>
+									{
+										paymentMethod && (
+											<p className="text-muted" style={{ userSelect: 'none' }}>
+												<b>{paymentMethod.params.brand}</b> •••• •••• •••• {paymentMethod.params.last4}
+												<br/>
+												{paymentMethod.params.exp_month}/{paymentMethod.params.exp_year}
+											</p>
+										)
+									}
+								</div>
+							</div>
 						</div>
-						<p></p>
+					</div>
+					<div className="col-sm-12">
+						<div className="panel">
+							<div className="panel-body">
+								<div className="pull-left">
+									<h2 style={{ margin: 0 }}>
+										<small>{ frases.BILLING.CURRENT_PLAN } </small>
+										<span>{ sub.plan.name } </span>
+									</h2>
+									{
+										sub.plan.trialPeriod && (
+											<p className="text-muted">{ frases.BILLING.TRIAL_EXPIRES } <b>{ window.moment(this.state.sub.trialExpires).format('DD MMMM YYYY') }</b></p>
+										)
+									}
+								</div>
+								<div className="pull-right">
+									{
+										sub.state === 'past_due' ? (
+											<a href="#" className="text-uppercase" style={{ fontSize: "14px" }} onClick={this._renewSub}>Renew</a>
+										) : (
+											<a 
+												href="#" 
+												className="text-uppercase" 
+												style={{ fontSize: "14px" }} 
+												role="button" 
+												onClick={this._openPlans}
+												data-toggle="collapse" 
+												href="#plansCollapse" 
+												aria-expanded="false" 
+												aria-controls="plansCollapse"
+											>{ frases.BILLING.UPGRADE_PLAN }</a>
+										)
+									}
+								</div>
+								<div className="row">
+									<div className="col-xs-12 col-custom">
+										<div className="collapse" id="plansCollapse">
+											<PlansComponent plans={plans} frases={frases} onPlanSelect={onPlanSelect} currentPlan={sub.plan} />
+										</div>
+										<p></p>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div className="row">
@@ -465,7 +521,7 @@ var BillingComponent = React.createClass({
 							        		</span>
 							        		<h3 className="data-model">{ currSub.quantity }</h3>
 							        		<span className="input-group-btn">
-							        			<button className="btn btn-default" type="button" disabled={trial} onClick={this._setUsersQuantity.bind(this, { quantity: +1 })}><i className="fa fa-plus"></i></button>
+							        			<button className="btn btn-default" type="button" disabled={trial} onClick={this._setUsersQuantity.bind(this, { quantity: 1 })}><i className="fa fa-plus"></i></button>
 							        		</span>
 							        	</div>
 							            <p>{ frases.BILLING.AVAILABLE_LICENSES.USERS }</p>
@@ -483,7 +539,7 @@ var BillingComponent = React.createClass({
 					        			        		</span>
 					        			            	<h3 className="data-model">{ item.quantity }</h3>
 					        				            <span className="input-group-btn">
-					        				            	<button className="btn btn-default" type="button" disabled={trial} onClick={this._setAddonQuantity.bind(this, { index: index, quantity: ( item.name === 'storage' ? +5 : +2 ) })}><i className="fa fa-plus"></i></button>
+					        				            	<button className="btn btn-default" type="button" disabled={trial} onClick={this._setAddonQuantity.bind(this, { index: index, quantity: ( item.name === 'storage' ? 5 : 2 ) })}><i className="fa fa-plus"></i></button>
 					        				            </span>
 					        				        </div>
 					        			            <p>{ frases.BILLING.AVAILABLE_LICENSES[item.name.toUpperCase()] }</p>

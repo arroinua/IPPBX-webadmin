@@ -12,6 +12,14 @@ function load_chattrunk(params) {
 		params: {
 			appId: '1920629758202993'
 		}
+	}, {
+		id: 'Email',
+		name: "Email",
+		icon: '/badmin/images/email.png'
+	}, {
+		id: 'Viber',
+		name: "Viber",
+		icon: '/badmin/images/viber.ico'
 	}
 	// {
 	// 	id: 'Facebook',
@@ -29,11 +37,6 @@ function load_chattrunk(params) {
 	// 		oauth_consumer_key: 'RBk2sDm5bYowCA7mLttioe4BC',
 	// 		oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
 	// 	}
-	// },{
-	// 	id: 'Viber',
-	// 	name: "Viber",
-	// 	icon: '/badmin/images/viber.ico'
-	// }
 	];
 
 	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
@@ -56,16 +59,19 @@ function load_chattrunk(params) {
 		});
 	}
 
-	function onStateChange(state) {
+	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
-		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+		setObjectState(PbxObject.oid, state, function(result, err) {
+		    console.log('onStateChange: ', state, result, err);
+		    if(callback) callback(err, result);
 		});
 	}
 
 	function setObject(params, cb) {
 
-	    if(!params.pageid) return console.error('pageid is not defined');
+		console.log('setObject: ', params);
+
+	    // if(!params.pageid) return console.error('pageid is not defined');
 
 	    show_loading_panel();
 
@@ -75,7 +81,6 @@ function load_chattrunk(params) {
 	    	name: params.name,
 	    	enabled: params.enabled || true,
 	    	type: params.type,
-	    	pageid: params.pageid,
 	    	pagename: params.pagename,
 	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
 	    	replytimeout: parseFloat(params.replytimeout)*60,
@@ -83,13 +88,21 @@ function load_chattrunk(params) {
 	    	routes: params.routes
 	    };
 
+	    if(params.pageid) props.pageid = params.pageid;
+
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    } else {
 	    	props.properties = params.properties;
 	    }
 
-    	json_rpc_async('setObject', props, function(result) {
+    	json_rpc_async('setObject', props, function(result, err) {
+    		if(err) {
+    			notify_about('error', err.message);
+    			cb(err);
+    			return;
+    		}
+
     		PbxObject.name = params.name;
     		if(handler) handler();
     		if(cb) cb(null, result);

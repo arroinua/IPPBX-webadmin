@@ -28,7 +28,7 @@ function load_branch_options() {
 
 	}
 
-	function saveOptions(newOptions) {
+	function saveOptions(newOptions, callback) {
 
 		var handler;
 		var files = [];
@@ -47,24 +47,30 @@ function load_branch_options() {
 			})
 		}
 
-		if(newOptions.lang && newOptions.lang !== initLang) {		    
+		if(newOptions.lang && newOptions.lang !== initLang) {	    
 		    handler = set_options_success;
 		} else {
 		    handler = set_object_success;
 		}
 
 		json_rpc_async('setPbxOptions', newOptions, function(result) {
-			PbxObject.options = newOptions;
+			PbxObject.options = options = newOptions;
 
-			if(newOptions.adminpass === options.adminpass) {
+			console.log('setPbxOptions success: ', newOptions, options);
+
+			if(!newOptions.adminpass) {
 			    handler();
 			} else {
 			    if(window.localStorage['ringo_tid'] && !singleBranch) {
 			        billingRequest('changePassword', { login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
-			            if(!err) handler();
+			            if(!err) {
+			            	handler();
+			            	if(callback) callback();
+			            }
 			        });
 			    } else {
 			        handler();
+			        if(callback) callback();
 			    }
 			}
 		});

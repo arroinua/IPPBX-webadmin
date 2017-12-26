@@ -12,6 +12,11 @@ function load_billing() {
 	var stripeToken;
 	var stripeHandler;
 
+	var methods = {
+		changePlan: changePlan,
+		updateLicenses: updateLicenses
+	}
+
 	loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
@@ -38,7 +43,10 @@ function load_billing() {
 
 					getInvoices(function(err, response) {
 						if(err) return notify_about('error', err.message);
-						invoices = response;
+						invoices = response.filter(function(item) {
+							return (item.paidAmount && parseFloat(item.paidAmount) > 0);
+						});
+
 						console.log('invoices: ', invoices);
 						init();
 					});
@@ -63,10 +71,13 @@ function load_billing() {
 
 	function configureStripe() {
 		stripeHandler = StripeCheckout.configure({
-			// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-			key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+			key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+			// key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
 			image: '/badmin/images/Ringotel_emblem_new.png',
-			locale: 'auto',
+			// email: profile.email,
+			// name: 'Ringotel',
+			// zipCode: true,
+			// locale: 'auto',
 			token: function(token) {
 				console.log('stripe token: ', token);
 				stripeToken = token;
@@ -92,76 +103,97 @@ function load_billing() {
 		    editCard: editCard,
 		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
-		    updateLicenses: updateLicenses,
+		    updateLicenses: onUpdateLicenses,
 		    extend: deepExtend,
 		    addCoupon: addCoupon
 		}), cont);
 	}
 
-	function openStripeWindow(onCLoseHandler) {
+	// function openStripeWindow(onCLoseHandler) {
+	// 	stripeHandler.open({
+	// 		email: profile.email,
+	// 		name: 'Ringotel',
+	// 		zipCode: true,
+	// 		allowRememberMe: false,
+	// 		panelLabel: "Add card",
+	// 		// currency: 'eur',
+	// 		// amount: plan.amount*100,
+	// 		closed: onCLoseHandler
+	// 	});
+	// }
+
+	function addCard(callback) {
 		stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
+			locale: 'auto',
 			allowRememberMe: false,
 			panelLabel: "Add card",
-			// currency: 'eur',
-			// amount: plan.amount*100,
-			closed: onCLoseHandler
-		});
-	}
-
-	function addCard(callback) {
-		openStripeWindow(function(result) {
-			console.log('addCard closed: ', result);
-			
-			if(!stripeToken) return callback(null);
-			var reqParams = {
-				service: 'stripe',
-				token: stripeToken.id,
-				card: stripeToken.card
-			};
-
-			billingRequest('addCard', reqParams, function(err, response) {
-				console.log('saveCard response: ', err, stripeToken, response);
+			amount: null,
+			closed: function(result) {
+				console.log('addCard closed: ', result);
 				
-				if(err || response.error) {
-					notify_about('error', err.message || response.error.message);
-					callback(null);
-				} else {
-					callback(stripeToken);
-				}
+				if(!stripeToken) return callback(null);
+				var reqParams = {
+					service: 'stripe',
+					token: stripeToken.id,
+					card: stripeToken.card
+				};
 
-				stripeToken = null;
+				billingRequest('addCard', reqParams, function(err, response) {
+					console.log('saveCard response: ', err, stripeToken, response);
+					
+					if(err || response.error) {
+						notify_about('error', err.message || response.error.message);
+						callback(null);
+					} else {
+						callback(stripeToken);
+						set_object_success();
+					}
 
-			});
+					stripeToken = null;
+
+				});
+			}
 		});
 	}
 
 	function editCard(callback) {
-		openStripeWindow(function(result) {
-			console.log('editCard closed: ', result);
+		stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			locale: 'auto',
+			allowRememberMe: false,
+			panelLabel: "Add card",
+			// currency: 'eur',
+			// amount: plan.amount*100,
+			closed: function(result) {
+				console.log('editCard closed: ', result);
 
-			if(!stripeToken) return callback(null);;
-			var reqParams = {
-				service: 'stripe',
-				token: stripeToken.id,
-				card: stripeToken.card
-			};
+				if(!stripeToken) return callback(null);;
+				var reqParams = {
+					service: 'stripe',
+					token: stripeToken.id,
+					card: stripeToken.card
+				};
 
-			billingRequest('updateCard', reqParams, function(err, response) {
-				console.log('updateCard response: ', err, stripeToken, response);				
-				
-				if(err || response.error) {
-					notify_about('error', err.message || response.error.message);
-					callback(null);
-				} else {
-					callback(stripeToken);
-				}
+				billingRequest('updateCard', reqParams, function(err, response) {
+					console.log('updateCard response: ', err, stripeToken, response);				
+					
+					if(err || response.error) {
+						notify_about('error', err.message || response.error.message);
+						callback(null);
+					} else {
+						callback(stripeToken);
+						set_object_success();
+					}
 
-				stripeToken = null;
-			});
+					stripeToken = null;
+				});
 
+			}
 		});
 	}
 
@@ -174,47 +206,65 @@ function load_billing() {
 
 			show_content();
 
-			if(err || response.error) notify_about('error', err.message || response.error.message);
-			callback(err, response);
+			if(err || response.error) {
+				notify_about('error', err.message || response.error.message);
+			} else {
+				callback(err, response);
+				set_object_success();
+			}
 		});
 			
 	}
 
-	// function saveCard(params, callback) {
-	// 	console.log('saveCard: ', params);
-	// 	if(!params) return callback();;
-	// 	var reqParams = {
-	// 		service: 'stripe',
-	// 		token: params.id,
-	// 		card: params.card
-	// 	};
+	function updateBalance(params, callbackFn) {
+		stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			locale: 'auto',
+			panelLabel: "Pay",
+			allowRememberMe: false,
+			currency: params.payment.currency,
+			amount: params.payment.chargeAmount*100,
+			closed: function(result) {
+				console.log('updateBalance closed: ', result, stripeToken);
 
-	// 	billingRequest('addCard', reqParams, function(err, response) {
-	// 		console.log('saveCard response: ', err, params, response);
-	// 		callback(err, response);
-	// 	});
-	// }
+				if(!stripeToken) return;
 
-	// function updateCard(params, callback) {
-	// 	console.log('updateCard: ', params);
-	// 	if(!params) return callback();
-	// 	var reqParams = {
-	// 		service: 'stripe',
-	// 		token: params.id,
-	// 		card: params.card
-	// 	};
+				var reqParams = {
+					currency: params.payment.currency,
+					amount: params.payment.chargeAmount,
+					description: 'Update balance',
+					token: stripeToken.id
+				};
 
-	// 	billingRequest('updateCard', reqParams, function(err, response) {
-	// 		console.log('updateCard response: ', err, params, response);
-	// 		callback(err, response);
-	// 	});
-	// }
+				billingRequest('updateBalance', reqParams, function(err, response) {
+
+					console.log('updateBalance: ', err, response);
+
+					if(err) {
+						notify_about('error', err.message);
+					} else {
+
+						if(methods[callbackFn])
+							methods[callbackFn](params);
+
+						stripeToken = null;		
+
+					}	
+
+				});
+
+			}
+		});
+	}
 
 	function addCoupon(string) {
 		billingRequest('addCoupon', { coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
 			discounts.push(response);
+			set_object_success();
 			init();
 		});
 	}
@@ -225,53 +275,79 @@ function load_billing() {
 		showModal('confirm_payment_modal', params, function(result, modal) {
 			console.log('confirm_payment_modal submit:', result);
 
-			show_loading_panel();
+			$(modal).modal('toggle');
 
-			billingRequest('changePlan', {
-				subId: sub._id,
-				planId: params.plan.planId
-			}, function(err, response) {
-				show_content();
+			// if((parseFloat(params.payment.chargeAmount) > 0) && !profile.billingMethod) return updateBalance(params, 'changePlan');
 
-				if(err) return notify_about('error', err.message);
-				console.log('changePlan: ', err, response);
-				
-				$(modal).modal('toggle');
-				
-				sub = response.result;
-
-				init();
-			});
+			changePlan(params);
 
 		});
 
 	}
 
-	function updateLicenses(params){
+	function changePlan(params, callback) {
+		show_loading_panel();
+
+		billingRequest('changePlan', {
+			subId: sub._id,
+			planId: params.plan.planId
+		}, function(err, response) {
+			console.log('changePlan response: ', err, response);
+
+			show_content();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'changePlan');
+				else notify_about('error', err.message);
+				return;
+			}
+						
+			sub = response.result;
+
+			set_object_success();
+
+			init();
+		});
+	}
+
+	function onUpdateLicenses(params){
 		console.log('updateLicenses: ', params);
 
 		showModal('confirm_payment_modal', params, function(result, modal) {
 			console.log('confirm_payment_modal submit:', result);
 
-			show_loading_panel();
+			$(modal).modal('toggle');
 
-			billingRequest('updateSubscription', {
-				subId: sub._id,
-				addOns: params.addOns,
-				quantity: params.quantity
-			}, function(err, response) {
-				show_content();
+			// if((parseFloat(params.payment.chargeAmount) > 0) && !profile.billingMethod) return updateBalance(params, 'updateLicenses');
 
-				if(err) return notify_about('error', err.message);
-				console.log('updateLicenses: ', err, response);
+			updateLicenses(params);
 
-				$(modal).modal('toggle');
+		});
+	}
 
-				sub = response.result;
-				
-				init();
-			});
+	function updateLicenses(params) {
+		show_loading_panel();
 
+		billingRequest('updateSubscription', {
+			subId: sub._id,
+			addOns: params.addOns,
+			quantity: params.quantity
+		}, function(err, response) {
+			console.log('updateLicenses response: ', err, response);
+
+			show_content();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'updateLicenses');
+				else notify_about('error', err.message);
+				return;
+			}
+
+			sub = response.result;
+
+			set_object_success();
+			
+			init();
 		});
 	}
 

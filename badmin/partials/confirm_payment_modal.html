@@ -9,9 +9,14 @@
 				<div class="row">
 					<div class="col-xs-12">
 						<p>
-							{{ frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG }} <b>{{payment.currency}} {{payment.chargeAmount}}</b>
+							{{ frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG }} <strong>{{payment.currency}} {{payment.chargeAmount}}</strong>
 							<br> 
-							{{ frases.BILLING.CONFIRM_PAYMENT.NEW_MONTHLY_RATE_MSG }} <b>{{payment.currency}} {{payment.totalAmount}}</b> 
+							{{ #annually }}
+								{{ frases.BILLING.CONFIRM_PAYMENT.NEW_ANNUALLY_RATE_MSG }} <strong>{{payment.currency}} {{payment.totalAmount}}</strong>
+							{{ /annually }}
+							{{ ^annually }}
+								{{ frases.BILLING.CONFIRM_PAYMENT.NEW_MONTHLY_RATE_MSG }} <strong>{{payment.currency}} {{payment.totalAmount}}</strong>
+							{{ /annually }}
 						</p>
 					</div>
 				</div>

@@ -19,7 +19,8 @@
 
 	getInitialState: function() {
 		return {
-			serivceInited: true
+			serivceInited: true,
+			properties: null
 		};
 	},
 
@@ -28,22 +29,27 @@
 		this.setState({
 			type: this.props.type,
 			params: params || {},
+			properties: params.properties,
 			selectedRoute: params.routes.length ? params.routes[0].target : (this.props.routes.length ? this.props.routes[0] : null)
 		});
 	},
 
 	componentWillReceiveProps: function(props) {
+		var params = props.params;
 		this.setState({
 			type: props.type,
-			params: props.params || {}
+			params: params || {},
+			properties: params.properties
 		});		
 	},
 
-	_onStateChange: function(state) {
+	_onStateChange: function(state, callback) {
 		var params = this.state.params;
 		params.enabled = state;
 		this.setState({ params: params });
-		this.props.onStateChange(state);
+		this.props.onStateChange(state, function(err, result) {
+			if(callback) callback(err, result);
+		});
 	},
 
 	_onNameChange: function(value) {
@@ -53,18 +59,22 @@
 	},
 	
 	_setObject: function() {
-		var params = this.state.params;
-		// var pages = this.state.pages;
+		var params = {};
 		var selectedRoute = this.state.selectedRoute || this.props.routes[0];
-		var properties = this.state.params.properties || {};
+		var properties = this.state.properties || {};
 
 		console.log('setObject: ', properties, selectedRoute);
 
-		// if(!pages || !pages.length) return console.error('page is not selected');;
 		if(!selectedRoute) return console.error('route is not selected');
 
+		Object.keys(this.state.params).forEach(function(key) {
+			params[key] = this.state.params[key];
+		}.bind(this));
+
+		// if(!pages || !pages.length) return console.error('page is not selected');;
+
 		params.type = this.state.type;
-		params.pageid = properties.id;
+		if(properties.id) params.pageid = properties.id;
 		params.pagename = properties.name || '';
 		params.properties = properties;
 		params.routes = [];
@@ -78,6 +88,7 @@
 		});
 
 		this.props.setObject(params, function(err, result) {
+			if(err) return;
 			this.setState({ params: params });
 		}.bind(this));
 	},
@@ -87,9 +98,9 @@
 	},
 
 	_onPropsChange: function(properties) {
-		var params = this.state.params;
-		params.properties = properties;
-		this.setState({ params: params });
+		// var params = this.state.params;
+		// params.properties = properties;
+		this.setState({ properties: properties });
 	},
 
 	_onParamsChange: function(e) {
@@ -125,6 +136,8 @@
 			component = TwitterTrunkComponent;
 		} else if(type === 'Viber') {
 			component = ViberTrunkComponent;
+		} else if(type === 'Email') {
+			component = EmailTrunkComponent;
 		}
 
 		return component;		
@@ -196,7 +209,7 @@
 
 										<ServiceComponent
 											frases={frases}
-											properties={this.props.params.properties}
+											properties={this.state.params.properties}
 											serviceParams={serviceParams}
 											onChange={this._onPropsChange}
 											isNew={!this.state.params.pageid}

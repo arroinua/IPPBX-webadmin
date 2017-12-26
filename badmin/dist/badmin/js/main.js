@@ -2322,7 +2322,7 @@ function addUser(type, cb){
     //     data.followme = followme.value;
     // }
     // console.log(jprms);
-    json_rpc_async('setObject', jprms, function(result){
+    json_rpc_async('setObject', jprms, function(result, error){
 
         if(result) {
             data.oid = result;
@@ -2372,6 +2372,8 @@ function addUser(type, cb){
             $('#new-user-form').trigger("users.create");
 
             if(cb) cb();
+        } else {
+            notify_about('error' , error && error.message);
         }
     });
 }
@@ -2448,6 +2450,11 @@ function load_billing() {
 	var stripeToken;
 	var stripeHandler;
 
+	var methods = {
+		changePlan: changePlan,
+		updateLicenses: updateLicenses
+	}
+
 	loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
@@ -2474,7 +2481,10 @@ function load_billing() {
 
 					getInvoices(function(err, response) {
 						if(err) return notify_about('error', err.message);
-						invoices = response;
+						invoices = response.filter(function(item) {
+							return (item.paidAmount && parseFloat(item.paidAmount) > 0);
+						});
+
 						console.log('invoices: ', invoices);
 						init();
 					});
@@ -2499,10 +2509,13 @@ function load_billing() {
 
 	function configureStripe() {
 		stripeHandler = StripeCheckout.configure({
-			// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-			key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+			key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+			// key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
 			image: '/badmin/images/Ringotel_emblem_new.png',
-			locale: 'auto',
+			// email: profile.email,
+			// name: 'Ringotel',
+			// zipCode: true,
+			// locale: 'auto',
 			token: function(token) {
 				console.log('stripe token: ', token);
 				stripeToken = token;
@@ -2528,76 +2541,97 @@ function load_billing() {
 		    editCard: editCard,
 		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
-		    updateLicenses: updateLicenses,
+		    updateLicenses: onUpdateLicenses,
 		    extend: deepExtend,
 		    addCoupon: addCoupon
 		}), cont);
 	}
 
-	function openStripeWindow(onCLoseHandler) {
+	// function openStripeWindow(onCLoseHandler) {
+	// 	stripeHandler.open({
+	// 		email: profile.email,
+	// 		name: 'Ringotel',
+	// 		zipCode: true,
+	// 		allowRememberMe: false,
+	// 		panelLabel: "Add card",
+	// 		// currency: 'eur',
+	// 		// amount: plan.amount*100,
+	// 		closed: onCLoseHandler
+	// 	});
+	// }
+
+	function addCard(callback) {
 		stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
+			locale: 'auto',
 			allowRememberMe: false,
 			panelLabel: "Add card",
-			// currency: 'eur',
-			// amount: plan.amount*100,
-			closed: onCLoseHandler
-		});
-	}
-
-	function addCard(callback) {
-		openStripeWindow(function(result) {
-			console.log('addCard closed: ', result);
-			
-			if(!stripeToken) return callback(null);
-			var reqParams = {
-				service: 'stripe',
-				token: stripeToken.id,
-				card: stripeToken.card
-			};
-
-			billingRequest('addCard', reqParams, function(err, response) {
-				console.log('saveCard response: ', err, stripeToken, response);
+			amount: null,
+			closed: function(result) {
+				console.log('addCard closed: ', result);
 				
-				if(err || response.error) {
-					notify_about('error', err.message || response.error.message);
-					callback(null);
-				} else {
-					callback(stripeToken);
-				}
+				if(!stripeToken) return callback(null);
+				var reqParams = {
+					service: 'stripe',
+					token: stripeToken.id,
+					card: stripeToken.card
+				};
 
-				stripeToken = null;
+				billingRequest('addCard', reqParams, function(err, response) {
+					console.log('saveCard response: ', err, stripeToken, response);
+					
+					if(err || response.error) {
+						notify_about('error', err.message || response.error.message);
+						callback(null);
+					} else {
+						callback(stripeToken);
+						set_object_success();
+					}
 
-			});
+					stripeToken = null;
+
+				});
+			}
 		});
 	}
 
 	function editCard(callback) {
-		openStripeWindow(function(result) {
-			console.log('editCard closed: ', result);
+		stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			locale: 'auto',
+			allowRememberMe: false,
+			panelLabel: "Add card",
+			// currency: 'eur',
+			// amount: plan.amount*100,
+			closed: function(result) {
+				console.log('editCard closed: ', result);
 
-			if(!stripeToken) return callback(null);;
-			var reqParams = {
-				service: 'stripe',
-				token: stripeToken.id,
-				card: stripeToken.card
-			};
+				if(!stripeToken) return callback(null);;
+				var reqParams = {
+					service: 'stripe',
+					token: stripeToken.id,
+					card: stripeToken.card
+				};
 
-			billingRequest('updateCard', reqParams, function(err, response) {
-				console.log('updateCard response: ', err, stripeToken, response);				
-				
-				if(err || response.error) {
-					notify_about('error', err.message || response.error.message);
-					callback(null);
-				} else {
-					callback(stripeToken);
-				}
+				billingRequest('updateCard', reqParams, function(err, response) {
+					console.log('updateCard response: ', err, stripeToken, response);				
+					
+					if(err || response.error) {
+						notify_about('error', err.message || response.error.message);
+						callback(null);
+					} else {
+						callback(stripeToken);
+						set_object_success();
+					}
 
-				stripeToken = null;
-			});
+					stripeToken = null;
+				});
 
+			}
 		});
 	}
 
@@ -2610,47 +2644,65 @@ function load_billing() {
 
 			show_content();
 
-			if(err || response.error) notify_about('error', err.message || response.error.message);
-			callback(err, response);
+			if(err || response.error) {
+				notify_about('error', err.message || response.error.message);
+			} else {
+				callback(err, response);
+				set_object_success();
+			}
 		});
 			
 	}
 
-	// function saveCard(params, callback) {
-	// 	console.log('saveCard: ', params);
-	// 	if(!params) return callback();;
-	// 	var reqParams = {
-	// 		service: 'stripe',
-	// 		token: params.id,
-	// 		card: params.card
-	// 	};
+	function updateBalance(params, callbackFn) {
+		stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			locale: 'auto',
+			panelLabel: "Pay",
+			allowRememberMe: false,
+			currency: params.payment.currency,
+			amount: params.payment.chargeAmount*100,
+			closed: function(result) {
+				console.log('updateBalance closed: ', result, stripeToken);
 
-	// 	billingRequest('addCard', reqParams, function(err, response) {
-	// 		console.log('saveCard response: ', err, params, response);
-	// 		callback(err, response);
-	// 	});
-	// }
+				if(!stripeToken) return;
 
-	// function updateCard(params, callback) {
-	// 	console.log('updateCard: ', params);
-	// 	if(!params) return callback();
-	// 	var reqParams = {
-	// 		service: 'stripe',
-	// 		token: params.id,
-	// 		card: params.card
-	// 	};
+				var reqParams = {
+					currency: params.payment.currency,
+					amount: params.payment.chargeAmount,
+					description: 'Update balance',
+					token: stripeToken.id
+				};
 
-	// 	billingRequest('updateCard', reqParams, function(err, response) {
-	// 		console.log('updateCard response: ', err, params, response);
-	// 		callback(err, response);
-	// 	});
-	// }
+				billingRequest('updateBalance', reqParams, function(err, response) {
+
+					console.log('updateBalance: ', err, response);
+
+					if(err) {
+						notify_about('error', err.message);
+					} else {
+
+						if(methods[callbackFn])
+							methods[callbackFn](params);
+
+						stripeToken = null;		
+
+					}	
+
+				});
+
+			}
+		});
+	}
 
 	function addCoupon(string) {
 		billingRequest('addCoupon', { coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
 			discounts.push(response);
+			set_object_success();
 			init();
 		});
 	}
@@ -2661,53 +2713,79 @@ function load_billing() {
 		showModal('confirm_payment_modal', params, function(result, modal) {
 			console.log('confirm_payment_modal submit:', result);
 
-			show_loading_panel();
+			$(modal).modal('toggle');
 
-			billingRequest('changePlan', {
-				subId: sub._id,
-				planId: params.plan.planId
-			}, function(err, response) {
-				show_content();
+			// if((parseFloat(params.payment.chargeAmount) > 0) && !profile.billingMethod) return updateBalance(params, 'changePlan');
 
-				if(err) return notify_about('error', err.message);
-				console.log('changePlan: ', err, response);
-				
-				$(modal).modal('toggle');
-				
-				sub = response.result;
-
-				init();
-			});
+			changePlan(params);
 
 		});
 
 	}
 
-	function updateLicenses(params){
+	function changePlan(params, callback) {
+		show_loading_panel();
+
+		billingRequest('changePlan', {
+			subId: sub._id,
+			planId: params.plan.planId
+		}, function(err, response) {
+			console.log('changePlan response: ', err, response);
+
+			show_content();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'changePlan');
+				else notify_about('error', err.message);
+				return;
+			}
+						
+			sub = response.result;
+
+			set_object_success();
+
+			init();
+		});
+	}
+
+	function onUpdateLicenses(params){
 		console.log('updateLicenses: ', params);
 
 		showModal('confirm_payment_modal', params, function(result, modal) {
 			console.log('confirm_payment_modal submit:', result);
 
-			show_loading_panel();
+			$(modal).modal('toggle');
 
-			billingRequest('updateSubscription', {
-				subId: sub._id,
-				addOns: params.addOns,
-				quantity: params.quantity
-			}, function(err, response) {
-				show_content();
+			// if((parseFloat(params.payment.chargeAmount) > 0) && !profile.billingMethod) return updateBalance(params, 'updateLicenses');
 
-				if(err) return notify_about('error', err.message);
-				console.log('updateLicenses: ', err, response);
+			updateLicenses(params);
 
-				$(modal).modal('toggle');
+		});
+	}
 
-				sub = response.result;
-				
-				init();
-			});
+	function updateLicenses(params) {
+		show_loading_panel();
 
+		billingRequest('updateSubscription', {
+			subId: sub._id,
+			addOns: params.addOns,
+			quantity: params.quantity
+		}, function(err, response) {
+			console.log('updateLicenses response: ', err, response);
+
+			show_content();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'updateLicenses');
+				else notify_about('error', err.message);
+				return;
+			}
+
+			sub = response.result;
+
+			set_object_success();
+			
+			init();
 		});
 	}
 
@@ -2766,7 +2844,7 @@ function load_branch_options() {
 
 	}
 
-	function saveOptions(newOptions) {
+	function saveOptions(newOptions, callback) {
 
 		var handler;
 		var files = [];
@@ -2785,24 +2863,30 @@ function load_branch_options() {
 			})
 		}
 
-		if(newOptions.lang && newOptions.lang !== initLang) {		    
+		if(newOptions.lang && newOptions.lang !== initLang) {	    
 		    handler = set_options_success;
 		} else {
 		    handler = set_object_success;
 		}
 
 		json_rpc_async('setPbxOptions', newOptions, function(result) {
-			PbxObject.options = newOptions;
+			PbxObject.options = options = newOptions;
 
-			if(newOptions.adminpass === options.adminpass) {
+			console.log('setPbxOptions success: ', newOptions, options);
+
+			if(!newOptions.adminpass) {
 			    handler();
 			} else {
 			    if(window.localStorage['ringo_tid'] && !singleBranch) {
 			        billingRequest('changePassword', { login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
-			            if(!err) handler();
+			            if(!err) {
+			            	handler();
+			            	if(callback) callback();
+			            }
 			        });
 			    } else {
 			        handler();
+			        if(callback) callback();
 			    }
 			}
 		});
@@ -3799,6 +3883,14 @@ function load_chattrunk(params) {
 		params: {
 			appId: '1920629758202993'
 		}
+	}, {
+		id: 'Email',
+		name: "Email",
+		icon: '/badmin/images/email.png'
+	}, {
+		id: 'Viber',
+		name: "Viber",
+		icon: '/badmin/images/viber.ico'
 	}
 	// {
 	// 	id: 'Facebook',
@@ -3816,11 +3908,6 @@ function load_chattrunk(params) {
 	// 		oauth_consumer_key: 'RBk2sDm5bYowCA7mLttioe4BC',
 	// 		oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
 	// 	}
-	// },{
-	// 	id: 'Viber',
-	// 	name: "Viber",
-	// 	icon: '/badmin/images/viber.ico'
-	// }
 	];
 
 	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
@@ -3843,16 +3930,19 @@ function load_chattrunk(params) {
 		});
 	}
 
-	function onStateChange(state) {
+	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
-		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+		setObjectState(PbxObject.oid, state, function(result, err) {
+		    console.log('onStateChange: ', state, result, err);
+		    if(callback) callback(err, result);
 		});
 	}
 
 	function setObject(params, cb) {
 
-	    if(!params.pageid) return console.error('pageid is not defined');
+		console.log('setObject: ', params);
+
+	    // if(!params.pageid) return console.error('pageid is not defined');
 
 	    show_loading_panel();
 
@@ -3862,7 +3952,6 @@ function load_chattrunk(params) {
 	    	name: params.name,
 	    	enabled: params.enabled || true,
 	    	type: params.type,
-	    	pageid: params.pageid,
 	    	pagename: params.pagename,
 	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
 	    	replytimeout: parseFloat(params.replytimeout)*60,
@@ -3870,13 +3959,21 @@ function load_chattrunk(params) {
 	    	routes: params.routes
 	    };
 
+	    if(params.pageid) props.pageid = params.pageid;
+
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    } else {
 	    	props.properties = params.properties;
 	    }
 
-    	json_rpc_async('setObject', props, function(result) {
+    	json_rpc_async('setObject', props, function(result, err) {
+    		if(err) {
+    			notify_about('error', err.message);
+    			cb(err);
+    			return;
+    		}
+
     		PbxObject.name = params.name;
     		if(handler) handler();
     		if(cb) cb(null, result);
@@ -4869,7 +4966,7 @@ function set_extension(kind){
 
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
-    // var login = d.getElementById("extlogin").textContent;
+    var login = d.getElementById("extlogin").textContent;
     // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
@@ -4887,7 +4984,7 @@ function set_extension(kind){
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
-    // if(login) jprms += '\"login\":\"'+login+'\",';
+    if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {
@@ -5989,7 +6086,10 @@ function json_rpc(method, params){
 }
 
 function json_rpc_async(method, params, handler, id){
-    var jsonrpc;
+    var xhr = {};
+    var jsonrpc = {};
+    var parsedJSON = {};
+    var requestTimer = null;
 
     if(params !== null){
         if(typeof params === 'object'){
@@ -6000,38 +6100,46 @@ function json_rpc_async(method, params, handler, id){
     } else{
         jsonrpc = '{\"method\":\"'+method+'\", \"id\":'+1+'}';
     }
-    var xhr = new XMLHttpRequest();
+    
+    xhr = new XMLHttpRequest();
     xhr.open("POST", "/", true);
 
-    var requestTimer = setTimeout(function(){
+    requestTimer = setTimeout(function(){
         xhr.abort();
         notify_about('info' , PbxObject.frases.TIMEOUT);
         show_content();
     }, 60*1000);
+
     xhr.onreadystatechange = function() {
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
             if(xhr.status != 200) {
-                if(xhr.status === 403) return window.location = '/';
+                console.error(method, xhr.responseText);
 
-                console.error(method, xhr.statusText);
-                notify_about('error', PbxObject.frases.ERROR);
-                if(handler) handler(null, xhr.statusText);
+                if(xhr.status === 403) return window.location = '/';
+                if(xhr.responseText) parsedJSON = JSON.parse(xhr.responseText);
+
+                if(handler) {
+                    handler(null, parsedJSON.error);
+                } else {
+                    notify_about('error', (parsedJSON.error ? parsedJSON.error.message : PbxObject.frases.ERROR));
+                }
                 show_content();
+
             } else {
                 if(xhr.responseText != null) {
                     if(!xhr.responseText) return;
-                    var parsedJSON = JSON.parse(xhr.responseText);
-                    if(parsedJSON.error != undefined){
+                    parsedJSON = JSON.parse(xhr.responseText);
+
+                    if(parsedJSON.error){
                         if(handler) handler(null, parsedJSON.error);
 
-                        notify_about('error' , parsedJSON.error.message);
-                        // if(handler) handler(parsedJSON.message);
+                        notify_about('error' , (parsedJSON.error ? parsedJSON.error.message : PbxObject.frases.ERROR));
                         show_content();
+
                     } else if(parsedJSON.result){
-                        if(handler !== null) {
-                            handler(parsedJSON.result);
-                        }
+                        if(handler !== null) handler(parsedJSON.result);
+
                     }
                 }
             }
@@ -6082,7 +6190,7 @@ function request(method, url, data, options, callback){
         } else if(status >= 500) {
             if(callback) return callback('The service is under maintenance. Please, try again later.');
         } else {
-            if(callback) callback(response.error, response);
+            if(callback) callback(response.error);
         }
 
     };
@@ -6259,7 +6367,7 @@ function init_page(){
     if(!location.hash.substring(1))
         location.hash = 'dashboard';
 
-    load_pbx_options(PbxObject.options);
+    // load_pbx_options(PbxObject.options);
     get_object();
     set_listeners();
     $('[data-toggle="tooltip"]').tooltip({
@@ -7266,13 +7374,13 @@ function newObjectAdded(event, data){
     remove_loading_panel();
     notify_about('success', name+' '+PbxObject.frases.CREATED);
 
-    console.log('newObjectAdded: ', nameEl, name);
-    if(nameEl && name) nameEl.value = name;
-
     if(data.ext) 
         addObjects(PbxObject.extensions, data, 'ext');
 
     if(kind === 'phone' || kind === 'user') return;
+
+    console.log('newObjectAdded: ', nameEl, name);
+    if(nameEl && name) nameEl.value = name;
     
     if(ul){
         var li = document.createElement('li'),
@@ -7638,9 +7746,9 @@ function setObjectState(oid, state, callback) {
     json_rpc_async('setObjectState', {
         oid: oid,
         enabled: state
-    }, function(result){
-        if(callback)
-            callback(result);
+    }, function(result, err){
+        if(err) notify_about('error', err.message);
+        if(callback) callback(result, err);
     });
 }
 
@@ -8438,504 +8546,6 @@ function load_new_trunk() {
     set_page();
 
 }
-function poolArrayToString(array){
-    var str = '';
-    array.forEach(function(obj, indx, array){
-        if(indx > 0) str += ',';
-        str += obj.firstnumber;
-        if(obj.poolsize > 1) str += ('-' + (obj.firstnumber+obj.poolsize-1));
-    });
-    return str;
-}
-
-function poolStringToObject(string){
-
-    var extensions = [];
-
-    string
-    .split(',')
-    .map(function(str){
-        return str.split('-');
-    })
-    .forEach(function(array){
-        extensions.push({
-            firstnumber: parseInt(array[0]),
-            poolsize: parseInt(array[1] ? (array[1] - array[0]+1) : 1)
-        });
-    });
-    return extensions;
-}
-
-function getDeviceSettings(){
-    // var e = event || window.event;
-    // if(e) e.preventDefault();
-    // if(PbxObject.deviceSettings) {
-    //     switch_options_tab('deviceopt-tab');
-    // } else {
-        json_rpc_async('getDeviceSettings', null, loadDeviceSettings);
-        // if(e) show_loading_panel(e.target);
-    // }
-}
-
-function loadDeviceSettings(result){
-    console.log('loadDeviceSettings: ', result);
-    PbxObject.deviceSettings = result;
-    var data = {
-        data: result,
-        frases: PbxObject.frases
-    };
-    var template = document.getElementById('device-options');
-    var rendered = Mustache.render(template.innerHTML, data);
-    document.getElementById('device-options-cont').insertAdjacentHTML('afterbegin', rendered);
-    template.parentNode.removeChild(template);
-
-    var codecsTables = [], codecsTable;
-    if(result.sip){
-        document.getElementById('sip-log').value = result.sip.log || 0;
-        codecsTable = document.getElementById('sip-codecs').querySelector('tbody');
-        buildCodecsTable(codecsTable, result.sip.codecs, result.avcodecs);
-        codecsTables.push(codecsTable);
-    }
-    if(result.sips){
-        document.getElementById('sips-log').value = result.sips.log || 0;
-        codecsTable = document.getElementById('sips-codecs').querySelector('tbody');
-        buildCodecsTable(codecsTable, result.sips.codecs, result.avcodecs);
-        codecsTables.push(codecsTable);
-    }
-    if(result.wss){
-        document.getElementById('wss-log').value = result.wss.log || 0;
-        codecsTable = document.getElementById('wss-codecs').querySelector('tbody');
-        buildCodecsTable(codecsTable, result.wss.codecs, result.avcodecs);
-        codecsTables.push(codecsTable);
-    }
-    if(result.http)
-        document.getElementById('http-log').value = result.http.log || 0;
-    if(result.system){
-        document.getElementById('rec-format').value = result.system.recformat || 'PCM 8 Khz 16 bit';
-    }
-    if(result.system.smdr){
-        document.getElementById('smdr-host').value = result.system.smdr.host;
-    }
-
-    setAccordion('#device-options-cont');
-
-    codecsTables.forEach(function(table){
-        new Sortable(table);
-    });
-    // show_content();
-    // switch_options_tab('deviceopt-tab');
-}
-
-function setTimezones(el, defaultTz) {
-    if(!el) return;
-    var timezones = moment.tz.names() || [],
-        fragment = document.createDocumentFragment(),
-        option, defaultOption;
-
-    defaultOption = document.createElement('option');
-    defaultOption.value = "";
-    defaultOption.innerText = "Default timezone";
-    fragment.appendChild(defaultOption);
-
-    timezones.forEach(function(tz) {
-        option = document.createElement('option');
-        option.value = tz;
-        option.innerText = tz;
-        fragment.appendChild(option);
-    });
-
-    el.appendChild(fragment);
-    el.value = defaultTz || "";
-}
-
-function load_pbx_options(result) {
-    // console.log(result);
-    // var options, chk, trow, tables, transforms, so;
-
-    // switch_options_tab('mainopt-tab');
-    // setTimezones(document.getElementById('branch_timezone'), result.timezone);
-
-    // // PbxObject.oidOptions = result.oid;
-    // PbxObject.config = result.config || [];
-
-    // if (result.lang) {
-    //     var select = document.getElementById('interfacelang'),
-    //         i = select.options.length - 1;
-    //     while (i >= 0) {
-    //         if (select.options[i].value === result.lang) {
-    //             select.options[i].selected = true;
-    //         }
-    //         i--;
-    //     }
-    // }
-
-    // //customizing upload element
-    // customize_upload('musonhold', result.options.holdmusicfile);
-
-    // document.getElementById('adminname').value = result.adminname || '';
-    // // document.getElementById('firstnumber').value = result.firstnumber || '';
-
-    // var firstnumber = document.getElementById('firstnumber');
-    // if(result.extensions){
-    //     firstnumber.value = poolArrayToString(result.extensions);
-    // } else {
-    //     firstnumber.value = '';
-    // }
-
-    // // if(result.firstnumber && result.firstnumber){
-    // //     //counting last number in pbx numbering pool
-    // //     var lastnumber = result.firstnumber+(result.poolsize-1);
-    // //     document.getElementById('lastnumber').value = lastnumber;
-    // // }
-
-    // if (result.options) {
-    //     document.getElementById('holdreminterv').value = result.options.holdremindtime || '';
-    //     document.getElementById('holdrectime').value = result.options.holdrecalltime || '';
-    //     document.getElementById('transrectime').value = result.options.transferrecalltime || '';
-    //     document.getElementById('transrecdest').value = result.options.transferrecallnumber || '';
-    //     document.getElementById('autoretrieve').checked = result.options.autoretrive;
-    //     document.getElementById('parkrectime').value = result.options.parkrecalltime || '';
-    //     document.getElementById('parkrecdest').value = result.options.parkrecallnumber || '';
-    //     document.getElementById('discontime').value = result.options.parkdroptimeout || '';
-    // }
-
-    // // options = document.getElementById('pbxoptions');
-
-    // so = document.getElementById('el-set-options');
-    // so.onclick = set_pbx_options;
-
-    // // toggle_presentation();
-    // if(!window.localStorage['ringo_tid']) {
-    //     var billingTab = document.getElementById('billing-tab');
-    //     if(billingTab) billingTab.parentNode.removeChild(billingTab);
-    // }
-    // else if(result.mode === 1 || !result.prefix){
-    //     getDeviceSettings();
-    // }
-    // else {
-    //     var deviceTab = document.getElementById('deviceopt-tab');
-    //     var deviceBtn = document.getElementById('deviceopt-btn');
-        
-    //     if(deviceTab) deviceTab.parentNode.removeChild(deviceTab);
-    //     if(deviceBtn) deviceBtn.parentNode.removeChild(deviceBtn);
-    //     // setAccordion();
-    // }
-
-    // // set LDAP options
-    // loadAdvancedOptions({
-    //     ldap: result.ldap || {}
-    // } || {});
-
-    // setAccordion('#featureopt-tab');
-    // if(result.services) setServices(result.services);
-    // else PbxObject.options.services = [];
-
-    // loadSecuritySettings({
-    //     ipcheck: result.ipcheck || false,
-    //     iptable: result.iptable || [],
-    //     adminipcheck: result.adminipcheck || false,
-    //     adminiptable: result.adminiptable || [] 
-    // }, setSecuritySettings);
-}
-
-function loadSecuritySettings(params, cb) {
-    ReactDOM.render(
-        SecuritySettings({ params: params, frases: PbxObject.frases, onChange: cb}),
-        document.getElementById('security-settings-cont')
-    );
-}
-
-function setSecuritySettings(params) {
-    function _filterEmptyRules(rule) {
-        return rule.net && rule.mask;
-    }
-
-    PbxObject.options.ipcheck = params.ipcheck;
-    PbxObject.options.iptable = params.iptable.filter(_filterEmptyRules);
-    PbxObject.options.adminipcheck = params.adminipcheck;
-    PbxObject.options.adminiptable = params.adminiptable.filter(_filterEmptyRules);
-}
-
-// function loadLdapOptions(opts){
-function loadAdvancedOptions(opts){
-    console.log('Advanced options: ', opts);
-
-    function isCustomPhoneAttr(val){
-        var regex = new RegExp('telephoneNumber|mobile|ipPhone');
-        return !regex.test(val);
-    }
-
-    var data = {
-        data: opts,
-        frases: PbxObject.frases
-    },
-    template = document.getElementById('ldap-settings'),
-    rendered = Mustache.render(template.innerHTML, data);
-
-    document.getElementById('services-options-cont').insertAdjacentHTML('afterbegin', rendered);
-    template.parentNode.removeChild(template);
-
-    $('#directoryAttributePhone').on('change', function(e) {
-        switchVisibility('#customDirectoryAttributePhone', isCustomPhoneAttr(this.value));
-    })
-    $('#directoryAuth').on('change', function(e) {
-        switchVisibility('#gssapi-settings', this.value === 'GSSAPI');    
-    });
-    switchVisibility('#gssapi-settings', opts.ldap.directoryAuth === 'GSSAPI');
-
-    // setAccordion('#advanced-options-cont');
-
-    // If settings wasn't set - return 
-    if(!opts.ldap.directoryServer) return;
-
-    $('#directoryAttributeUID').val(opts.ldap.directoryAttributeUID);
-    if(isCustomPhoneAttr(opts.ldap.directoryAttributePhone)) {
-        $('#directoryAttributePhone').val('0');
-        $('#customDirectoryAttributePhone').show();
-    } else {
-        $('#directoryAttributePhone').val(opts.ldap.directoryAttributePhone);
-    }
-
-    $('#directoryAuth').val(opts.ldap.directoryAuth);
-
-}
-
-function set_pbx_options(e) {
-
-    var e = e || window.event;
-    if(e) e.preventDefault();
-
-    if(PbxObject.options.mode === 1 || !PbxObject.options.prefix)
-        setDeviceSettings();
-
-    var jprms = '',
-        passChanged = false,
-        handler,
-        login = document.getElementById('adminname').value,
-        pass = document.getElementById('adminpass').value,
-        confpass = document.getElementById('confirmpass').value,
-        select = document.getElementById('interfacelang'),
-        firstnumber = document.getElementById('firstnumber'),
-        lastnumber = document.getElementById('lastnumber'),
-        timezoneEl = document.getElementById('branch_timezone'),
-        lang = select.options[select.selectedIndex].value,
-        ldapOptions = getLdapOptions();
-
-    if(firstnumber && firstnumber.value){
-        var extensions = poolStringToObject(firstnumber.value);
-        jprms += '"extensions":' + (JSON.stringify(extensions)) + ', ';
-    } else {
-        alert(PbxObject.frases.OPTS__POOL_UNSPECIFIED);
-        return;
-    }
-
-    if (pass) {
-        if(pass !== confpass) {
-        // if(!confpass){
-        //     alert(PbxObject.frases.OPTS__PWD_CONF_EMPTY);
-        //     return false;
-        // } else if(confpass && confpass !== pass){
-            alert(PbxObject.frases.OPTS__PWD_UNMATCH);
-            return false;
-        } else {
-            passChanged = true;
-        }
-    }
-    else{
-        show_loading_panel();
-    }
-
-    jprms += '"lang":"' + lang + '", ';
-    if (pass) jprms += '"adminpass":"' + pass + '", ';
-
-    if(timezoneEl.value) {
-        PbxObject.options.timezone = timezoneEl.value;
-        jprms += '"timezone":"' + timezoneEl.value + '", ';
-    }
-    jprms += '"ipcheck":' + (PbxObject.options.ipcheck || false) + ', ';
-    if(PbxObject.options.iptable) 
-        jprms += '"iptable":' + JSON.stringify(PbxObject.options.iptable) + ', ';
-
-    jprms += '"adminipcheck":' + (PbxObject.options.adminipcheck || false) + ', ';
-    if(PbxObject.options.adminiptable) 
-        jprms += '"adminiptable":' + JSON.stringify(PbxObject.options.adminiptable) + ', ';
-
-    if(ldapOptions) jprms += '\"ldap\":' + JSON.stringify(ldapOptions) + ', ';
-    if(PbxObject.options.services) {
-        var forms = [].slice.call(document.querySelectorAll('#externalServices form')),
-        serviceObj = {},
-        services = forms.map(retrieveFormData).map(function(item){
-            serviceObj = {};
-            Object.keys(item).forEach(function(key){
-                serviceObj.props = serviceObj.props || {};
-                if(key.indexOf('prop_') !== -1) {
-                    serviceObj.props[key.replace('prop_', '')] = item[key] || "";
-                } else {
-                    serviceObj[key] = item[key] !== undefined ? item[key] : "";
-                }
-            });
-            return serviceObj;
-        });
-
-        console.log('Saved services: ', services);
-        jprms += '\"services\":' + JSON.stringify(services) + ', ';
-    }
-
-    jprms += '\"options\":{';
-    var file = document.getElementById("musonhold");
-    if (file.value) {
-        jprms += '"holdmusicfile":"' + file.files[0].name + '", ';
-        upload('musonhold');
-    }
-    if (document.getElementById('holdreminterv').value) jprms += '"holdremindtime":' + document.getElementById('holdreminterv').value + ', ';
-    if (document.getElementById('holdrectime').value) jprms += '"holdrecalltime":' + document.getElementById('holdrectime').value + ', ';
-    if (document.getElementById('transrectime').value) jprms += '"transferrecalltime":' + document.getElementById('transrectime').value + ', ';
-    if (document.getElementById('transrecdest').value) jprms += '"transferrecallnumber":"' + document.getElementById('transrecdest').value + '", ';
-    jprms += '"autoretrive":' + document.getElementById('autoretrieve').checked + ', ';
-    if (document.getElementById('parkrectime').value) jprms += '"parkrecalltime":' + document.getElementById('parkrectime').value + ', ';
-    if (document.getElementById('parkrecdest').value) jprms += '"parkrecallnumber":"' + document.getElementById('parkrecdest').value + '", ';
-    if (document.getElementById('discontime').value) jprms += '"parkdroptimeout":' + document.getElementById('discontime').value;
-    jprms += '}';
-
-    if (lang !== PbxObject.language) {
-        PbxObject.language = lang;
-        window.localStorage.setItem('pbxLanguage', lang);
-        handler = set_options_success;
-    }
-    else {
-        handler = set_object_success;
-        PbxObject.options.ldap = ldapOptions;
-    }
-
-    json_rpc_async('setPbxOptions', jprms, function() {
-        if(!passChanged) {
-            handler();
-        } else {
-            if(window.localStorage['ringo_tid'] && (PbxObject.options.mode !== 1 || PbxObject.options.prefix)) {
-                billingRequest('changePassword', { login: login, password: pass }, function(err, result) {
-                    if(!err) handler();
-                });
-            } else {
-                handler();
-            }
-        }
-    });
-}
-
-function setDeviceSettings(){
-    var jprms = '';
-    var codecsTable;
-    
-    jprms += '\"sip\":{';
-    if(document.getElementById('sip-port').value) jprms += '"port":' + document.getElementById('sip-port').value + ', ';
-    if(document.getElementById('sip-log').value) jprms += '"log":' + document.getElementById('sip-log').value + ', ';
-    if(document.getElementById('sip-enabled').value) jprms += '"enabled":' + document.getElementById('sip-enabled').checked + ', ';
-    codecsTable = document.getElementById('sip-codecs').querySelector('tbody');
-    jprms += '\"codecs\":'+ JSON.stringify(getCodecsString(codecsTable));
-    jprms += '},';
-    jprms += '\"sips\":{';
-    if(document.getElementById('sips-port').value) jprms += '"port":' + document.getElementById('sips-port').value + ', ';
-    if(document.getElementById('sips-log').value) jprms += '"log":' + document.getElementById('sips-log').value + ', ';
-    if(document.getElementById('sips-enabled').value) jprms += '"enabled":' + document.getElementById('sips-enabled').checked + ', ';
-    codecsTable = document.getElementById('sips-codecs').querySelector('tbody');
-    jprms += '\"codecs\":'+ JSON.stringify(getCodecsString(codecsTable));
-    jprms += '},';
-    jprms += '\"wss\":{';
-    if(document.getElementById('wss-port').value) jprms += '"port":' + document.getElementById('wss-port').value + ', ';
-    if(document.getElementById('wss-log').value) jprms += '"log":' + document.getElementById('wss-log').value + ', ';
-    if(document.getElementById('wss-enabled').value) jprms += '"enabled":' + document.getElementById('wss-enabled').checked + ', ';
-    codecsTable = document.getElementById('wss-codecs').querySelector('tbody');
-    jprms += '\"codecs\":'+ JSON.stringify(getCodecsString(codecsTable));
-    jprms += '},';
-    jprms += '\"http\":{';
-    if(document.getElementById('http-port').value) jprms += '"port":' + document.getElementById('http-port').value + ', ';
-    if(document.getElementById('http-log').value) jprms += '"log":' + document.getElementById('http-log').value + ', ';
-    if(document.getElementById('http-ssl').value) jprms += '"ssl":' + document.getElementById('http-ssl').checked + ', ';
-    jprms += '},';
-    jprms += '\"nat\":{';
-    if(document.getElementById('stun')) jprms += '"stun":"' + ( document.getElementById('stun').value || "" ) + '", ';
-    if(document.getElementById('router')) jprms += '"router":"' + ( document.getElementById('router').value || "" ) + '", ';
-    if(document.getElementById('rtpfirst') && document.getElementById('rtpfirst').value) jprms += '"rtpfirst":' + document.getElementById('rtpfirst').value + ', ';
-    if(document.getElementById('rtplast') && document.getElementById('rtplast').value) jprms += '"rtplast":' + document.getElementById('rtplast').value + ', ';
-    jprms += '},';
-    jprms += '\"registrar\":{';
-    if(document.getElementById('minexpires') && document.getElementById('minexpires').value) jprms += '"minexpires":' + document.getElementById('minexpires').value + ', ';
-    if(document.getElementById('maxexpires') && document.getElementById('maxexpires').value) jprms += '"maxexpires":' + document.getElementById('maxexpires').value + ', ';
-    jprms += '},';
-    jprms += '\"net\":{';
-    if(document.getElementById('tcptimeout') && document.getElementById('tcptimeout').value) jprms += '"tcptimeout":' + document.getElementById('tcptimeout').value + ', ';
-    if(document.getElementById('rtptimeout') && document.getElementById('rtptimeout').value) jprms += '"rtptimeout":' + document.getElementById('rtptimeout').value + ', ';
-    if(document.getElementById('iptos') && document.getElementById('iptos').value) jprms += '"iptos":' + document.getElementById('iptos').value + ', ';
-    jprms += '},';
-    jprms += '\"system\":{';
-    if(document.getElementById('config-name')) jprms += '"config":"' + ( document.getElementById('config-name').value || "" ) + '", ';
-    if(document.getElementById('backup-path')) jprms += '"backup":"' + ( document.getElementById('backup-path').value || "" ) + '", ';
-    if(document.getElementById('rec-path')) jprms += '"store":"' + ( document.getElementById('rec-path').value || "" ) + '", ';
-    if(document.getElementById('rec-format')) jprms += '"recformat":"' + ( document.getElementById('rec-format').value || "" ) + '", ';
-    jprms += '},';
-    jprms += '\"smtp\":{';
-    if(document.getElementById('smtp-host').value) jprms += '"host":"' + ( document.getElementById('smtp-host').value || "" ) + '", ';
-    if(document.getElementById('smtp-port').value) jprms += '"port":"' + ( document.getElementById('smtp-port').value || "" ) + '", ';
-    if(document.getElementById('smtp-username').value) jprms += '"username":"' + ( document.getElementById('smtp-username').value || "" ) + '", ';
-    if(document.getElementById('smtp-password').value) jprms += '"password":"' + ( document.getElementById('smtp-password').value || "" ) + '", ';
-    if(document.getElementById('smtp-from')) jprms += '"from":"' + ( document.getElementById('smtp-from').value || "" ) + '", ';
-    jprms += '},';
-    jprms += '\"smdr\":{';
-    if(document.getElementById('smdr-port') && document.getElementById('smdr-port').value) jprms += '"port":' + document.getElementById('smdr-port').value + ', ';
-    if(document.getElementById('smdr-host') && document.getElementById('smdr-host').value) jprms += '"host":"' + document.getElementById('smdr-host').value + '", ';
-    if(document.getElementById('smdr-enabled') && document.getElementById('smdr-enabled').value) jprms += '"state":' + document.getElementById('smdr-enabled').checked + ', ';
-    jprms += '},';
-
-    // console.log(jprms);
-    json_rpc_async('setDeviceSettings', jprms, null);
-}
-
-function getLdapOptions(){
-    var ldapForm = document.querySelector('#ldap-tab form'),
-        data = null;
-    if(ldapForm) {
-        data = retrieveFormData(ldapForm);
-        if(!data.directoryAttributePhone === '0') data.directoryAttributePhone = $('#customDirectoryAttributePhone').val();
-        if(data.directoryAuth !== 'GSSAPI') {
-            delete data.directoryKDC;
-            delete data.directoryAdminServer;
-        }
-    }
-    console.log('setLdapOptions: ', data);
-    return data;
-}
-
-function setServices(services){
-    
-    // convert services props into array of keys and values
-    services.forEach(function(service){
-        if(service.props && Object.keys.length) {
-            service.props = Object.keys(service.props).map(function(key) {
-                return { name: key.replace('_', ' '), key: key, value: service.props[key] };
-            });
-        } else {
-            service.props = [];
-        }
-    });
-        
-    var tmpParams = {
-        services: services,
-        frases: PbxObject.frases
-    },
-    cont = document.querySelector('#services-options-cont'),
-    render;
-
-    console.log('Services: ', services);
-
-    getPartial('services', function(template){
-        rendered = Mustache.render(template, tmpParams);
-        cont.insertAdjacentHTML('beforeend', rendered);
-
-        setAccordion('#services-options-cont');
-    });
-}
-
-
 function Pagination(options){
 
     // this.records = {};
@@ -10348,11 +9958,17 @@ function set_routes(){
     json_rpc_async('setObject', jprms, handler);
 }
 
+function getRouteObjects(callback) {
+    getObjects(['equipment','users','cli','timer','routes','pickup', 'chattrunk' ,'chatchannel'], function(result) {
+        callback(result);
+    }, true);
+}
+
 function build_routes_table(routes){
     var result, fragment,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
-    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
+    getRouteObjects(function(result) {
         if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
         else {
             sortByKey(routes, 'number');
@@ -10363,25 +9979,25 @@ function build_routes_table(routes){
             tbody.appendChild(fragment);
         }    
         show_content();
-    }, true); 
+    });
 }
 
 function editRow(row, route) {
-    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
+    getRouteObjects(function(result) {
         var newroute = build_route_row(route, result);
         row.parentNode.insertBefore(newroute, row);
         row.style.display = 'none';
-    }, true);
+    });
 }
 
 function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
+    getRouteObjects(function(result) {
         var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
         tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
-    }, true);
+    });
 
 }
 
@@ -11330,6 +10946,24 @@ function load_timer(result){
         
         pickr.setDate(yeardays);
     }
+}
+
+function setTimezones(cont, selected) {
+    var tzones = moment.tz.names() || [];
+    var fragment = document.createDocumentFragment();
+    var option = null;
+
+    tzones.map(function(item) {
+        option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        if(item === selected) option.selected = true;
+
+        fragment.appendChild(option);
+        return item;
+    });
+
+    cont.appendChild(fragment);
 }
 
 function set_timer(){

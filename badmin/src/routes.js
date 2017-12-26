@@ -127,11 +127,17 @@ function set_routes(){
     json_rpc_async('setObject', jprms, handler);
 }
 
+function getRouteObjects(callback) {
+    getObjects(['equipment','users','cli','timer','routes','pickup', 'chattrunk' ,'chatchannel'], function(result) {
+        callback(result);
+    }, true);
+}
+
 function build_routes_table(routes){
     var result, fragment,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
-    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
+    getRouteObjects(function(result) {
         if(!routes.length && result.length) tbody.appendChild(build_route_row(null, result));
         else {
             sortByKey(routes, 'number');
@@ -142,25 +148,25 @@ function build_routes_table(routes){
             tbody.appendChild(fragment);
         }    
         show_content();
-    }, true); 
+    });
 }
 
 function editRow(row, route) {
-    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
+    getRouteObjects(function(result) {
         var newroute = build_route_row(route, result);
         row.parentNode.insertBefore(newroute, row);
         row.style.display = 'none';
-    }, true);
+    });
 }
 
 function add_new_route(e){
     var e = e || window.event;
     if(e) e.preventDefault();
 
-    getObjects(['equipment','users','cli','timer','routes','pickup'], function(result) {
+    getRouteObjects(function(result) {
         var tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
         tbody.insertBefore(build_route_row(null, result), tbody.children[0]);
-    }, true);
+    });
 
 }
 

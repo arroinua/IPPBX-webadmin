@@ -466,7 +466,7 @@ function set_extension(kind){
 
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
-    // var login = d.getElementById("extlogin").textContent;
+    var login = d.getElementById("extlogin").textContent;
     // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
@@ -484,7 +484,7 @@ function set_extension(kind){
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
-    // if(login) jprms += '\"login\":\"'+login+'\",';
+    if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {

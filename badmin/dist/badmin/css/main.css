@@ -93,6 +93,23 @@ table.table > tbody > tr > td {
 }
 
 /*
+    Button groups custom styles
+*/
+.btn-group.btn-group-custom .btn {
+  color: #777;
+  background-color: #fff;
+  border-color: #777;
+}
+
+.btn-group.btn-group-custom .btn.active,
+.btn-group.btn-group-custom .btn:active,
+.btn-group.btn-group-custom .btn:hover {
+  color: #fff;
+  background-color: #777;
+  border-color: #777;
+}
+
+/*
     Popover custom styles
 */
 .popover {

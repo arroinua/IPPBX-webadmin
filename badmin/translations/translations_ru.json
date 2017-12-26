@@ -659,6 +659,14 @@
     		"NO_PAGES_MSG": "Похоже, вы еще не создали и / или не управляете ни одной страницей Facebook",
     		"LEARN_MORE_LINK": "Узнайте, как создать страницу в Facebook",
     		"SELECT_PAGE": "Выбрать Facebook страницу"
+    	},
+    	"EMAIL": {
+    		"PROTOCOL": "Протокол",
+    		"USERNAME": "Имя пользователя",
+    		"PASSWORD": "Пароль",
+    		"HOSTNAME": "Имя хоста",
+    		"PORT": "Порт",
+    		"SSL": "Подключение через TLS/SSL"
     	}
     },
     "ATTENDANT" : {
@@ -736,11 +744,14 @@
     },
     "BILLING" : {
     	"BILLING": "Биллинг",
+    	"CURRENT_BALANCE": "Текущий баланс",
+    	"UPDATE_BALANCE": "Пополнить",
     	"CURRENT_PLAN": "Текущий план",
-    	"UPGRADE_PLAN": "Изменить",
+    	"UPGRADE_PLAN": "Изменить план",
     	"MONTHLY_TOTAL": "Сумма в месяц",
+    	"ANNUALLY_TOTAL": "Сумма в год",
     	"NEXT_CHARGE": "Следующий платеж",
-    	"TRIAL_EXPIRES": "Пробный период заканчивается",
+    	"TRIAL_EXPIRES": "заканчивается",
     	"EDIT_PAYMENT_METHOD": "Изменить",
     	"PAYMENT_METHOD_WARNING_P1": "Чтобы изменить план и добавить лицензии, пожалуйста",
     	"PAYMENT_METHOD_WARNING_P2": "к вашему аккаунту",
@@ -754,7 +765,11 @@
     	"CANCEL_LICENSE_UPDATE": "Отмена",
     	"UPDATE_LICENSES": "Обновить лицензии",
     	"PLANS": {
-    		"PER_USER": "за пользователя",
+    		"PER_USER": "за пользователь",
+    		"PER_MONTH": "месяц",
+    		"PER_YEAR": "год",
+    		"MONTHLY_PLANS": "Ежемесячная оплата",
+    		"ANNUAL_PLANS": "Ежегодная оплата",
     		"SHOW_ALL_FEATURES": "Все возможности",
     		"CURRENT_PLAN": "Ваш план",
     		"SELECT_PLAN": "Выберите план"
@@ -771,6 +786,7 @@
     	"CONFIRM_PAYMENT": {
     		"HEADER": "Обновление биллинга",
     		"NEW_MONTHLY_RATE_MSG": "Ваш новый ежемесячный платеж будет",
+    		"NEW_ANNUALLY_RATE_MSG": "Ваш новый ежегодный платеж будет",
     		"TODAY_CHARGE_MSG": "Сегодня сумма к оплате будет",
     		"CONFIRM_PAYMENT": "Оплатить сейчас",
     		"CANCEL_PAYMENT": "Отменить"

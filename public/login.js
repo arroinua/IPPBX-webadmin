@@ -5,23 +5,25 @@
     var formEl = document.querySelector('form');
     var errsCont = document.getElementById('errs-cont');
     var apiGateway = 'https://my.ringotel.co/branch/api';
+    var host = window.location.host;
 
     formEl.addEventListener('submit', submitForm, false);
 
     function submitForm(e) {
         e.preventDefault();
         var submitted = false;
-        var login = e.target.login.value;
+        // var login = e.target.login.value;
         var pass = e.target.password.value;
+        var login = host.substr(0, host.indexOf('.'));
 
         console.log('submitForm: ', login, pass);
 
         hideErrors();
 
-        if(!login) {
-            showError('Login is required');
-            return false;
-        }
+        // if(!login) {
+        //     showError('Login is required');
+        //     return false;
+        // }
 
         toggleDisableState(formEl.submit);
 
@@ -117,6 +119,11 @@
             }
 
         };
+
+        xhr.onerror = function(e) {
+            console.error('onerror:', e);
+            callback(e);
+        }
 
         if(data) {
             dataStr = JSON.stringify(data);
