@@ -5,6 +5,13 @@ function GroupMemberComponent(props) {
 
 	return (
 	    <tr id={item.oid} key={item.number || item.ext}>
+	    	{
+	    		props.sortable && (
+	    			<td className="draggable">
+	    				<i className="fa fa-ellipsis-v"></i>
+	    			</td>
+	    		)
+	    	}
 	    	<td>
 	    		<a href="" onClick={props.getExtension}>{item.number || item.ext}</a>
 	    	</td>

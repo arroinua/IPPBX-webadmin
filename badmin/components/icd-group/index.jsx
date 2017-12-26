@@ -102,6 +102,14 @@
 			route: route
 		});
 	},
+	
+	_onSortMember: function(array) {
+		var params = this.state.params;
+		params.members = array;
+		this.setState({
+			params: params
+		});
+	},
 
 	render: function() {
 		var frases = this.props.frases;
@@ -122,7 +130,7 @@
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
-			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
+			    <GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			    <div className="row">
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>

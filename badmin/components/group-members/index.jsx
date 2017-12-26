@@ -5,7 +5,9 @@
 		members: React.PropTypes.array,
 		getExtension: React.PropTypes.func,
 		getAvailableUsers: React.PropTypes.func,
-		deleteMember: React.PropTypes.func
+		deleteMember: React.PropTypes.func,
+		sortable: React.PropTypes.bool,
+		onSort: React.PropTypes.func
 	},
 
 	componentWillMount: function() {
@@ -55,11 +57,37 @@
 		});
 	},
 
+	_tableRef: function(el) {
+		console.log('_tableRef: ', el);
+		if(this.props.sortable) return new Sortable(el);
+	},
+
+	_reorderMembers: function(members, order) {
+		var newArray = [];
+		newArray.length = members.length;
+		
+		members.forEach(function(item, index, array) {
+			newArray[order.indexOf(item.oid)] = item;
+			// newArray.splice(order.indexOf(item.oid), 0, newArray.splice(index, 1)[0]);
+		});
+
+		return newArray;
+	},
+
+	_onSortEnd: function(e) {
+		var target = e.currentTarget;
+		var order = [].slice.call(target.children).map(function(el, index) {
+			el = el.id;
+			return el;
+		});
+
+		this.props.onSort(this._reorderMembers(this.props.members, order));
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var members = this.props.members;
 		var filteredMembers = this.state.filteredMembers || [];
-		var itemState = {};
 
 		return (
 			<PanelComponent header={ filteredMembers.length + " " + frases.CHAT_CHANNEL.MEMBERS}>
@@ -72,17 +100,17 @@
 					    <div className="table-responsive">
 					        <table className="table table-hover sortable" id="group-extensions">
 					            
-					            <tbody>
+					            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
 					            	{
-					            		filteredMembers.length ?
-					            		(filteredMembers.map(function(item, index) {
+					            		filteredMembers.length ? (
 
-					            			itemState = this._getInfoFromState(item.state);
+					            			filteredMembers.map(function(item, index) {
 
-					            			return <GroupMemberComponent key={index} item={item} itemState={itemState} getExtension={this.props.getExtension} deleteMember={this.props.deleteMember} />
+					            				return <GroupMemberComponent key={item.oid} sortable={this.props.sortable} item={item} itemState={this._getInfoFromState(item.state)} getExtension={this.props.getExtension} deleteMember={this.props.deleteMember} />
 
-					            		}.bind(this))) :
-					            		(
+					            			}.bind(this))
+
+					            		) : (
 					            			<tr>
 					            				<td colSpan="5">{frases.CHAT_CHANNEL.NO_MEMBERS}</td>
 					            			</tr>

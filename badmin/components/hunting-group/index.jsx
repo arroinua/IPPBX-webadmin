@@ -16,8 +16,8 @@
 	getInitialState: function() {
 		return {
 			params: {},
-			files: [],
-			filteredMembers: []
+			files: []
+			// filteredMembers: []
 		};
 	},
 
@@ -25,8 +25,8 @@
 		this.setState({
 			params: this.props.params || {},
 			options: this.props.params.options,
-			removeObject: this.props.removeObject,
-			filteredMembers: this.props.params.members
+			removeObject: this.props.removeObject
+			// filteredMembers: this.props.params.members
 		});		
 	},
 
@@ -34,8 +34,8 @@
 		this.setState({
 			params: props.params,
 			options: this.props.params.options,
-			removeObject: props.removeObject,
-			filteredMembers: props.params.members
+			removeObject: props.removeObject
+			// filteredMembers: props.params.members
 		});
 	},
 
@@ -66,33 +66,35 @@
 	},
 
 	_handleOnChange: function(e) {
-		var state = this.state;
+		var options = this.state.options;
 		var target = e.target;
 		var type = target.getAttribute('data-type') || target.type;
 		var value = type === 'checkbox' ? target.checked : target.value;
 
-		state.options[target.name] = type === 'number' ? parseFloat(value) : value;
+		options[target.name] = type === 'number' ? parseFloat(value) : value;
 
 		console.log('_handleOnChange: ', target, value);
 
 		this.setState({
-			state: state
+			options: options
 		});
 	},
 
 	_onFileUpload: function(e) {
-		var state = this.state;
+		var options = this.state.options;
+		var files = this.state.files;
 		var target = e.target;
 		var file = target.files[0];
 		var value = file.name;
 
-		state.options[target.name] = value;
-		state.files.push(file);
+		options[target.name] = value;
+		files.push(file);
 
 		console.log('_onFileUpload: ', target, value, file);
 
 		this.setState({
-			state: state
+			options: options,
+			files: files
 		});	
 	},
 
@@ -103,11 +105,19 @@
 		});
 	},
 
+	_onSortMember: function(array) {
+		var params = this.state.params;
+		params.members = array;
+		this.setState({
+			params: params
+		});
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var params = this.state.params;
 		var members = params.members || [];
-		var filteredMembers = this.state.filteredMembers || [];
+		// var filteredMembers = this.state.filteredMembers || [];
 
 		console.log('remder: ', params.name);
 
@@ -122,7 +132,7 @@
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
-			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
+			    <GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			    <div className="row">
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
