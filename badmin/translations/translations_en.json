@@ -119,6 +119,7 @@
 	"SETTINGS" : {
 		"SETTINGS" : "Settings",
 		"TO_MAIN_TAB_BTN" : "Back",
+		"ADMIN_EMAIL": "Admin email",
 		"CHANGE_PASSWORD": "Change password",
 		"CONFIRM_PASSWORD": "Confirm password",
 		"SIP" : "SIP",

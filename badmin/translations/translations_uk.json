@@ -121,6 +121,7 @@
 		"TO_MAIN_TAB_BTN" : "Назад",
 		"CHANGE_PASSWORD": "Змінити пароль",
 		"CONFIRM_PASSWORD": "Підтвердити пароль",
+		"ADMIN_EMAIL": "Email адміністратора",
 		"SIP" : "SIP",
 		"SIPS" : "SIPS",
 		"WSS" : "WSS",

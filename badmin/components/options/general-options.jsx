@@ -115,6 +115,12 @@ var GeneralOptionsComponent = React.createClass({
 			        </div>
 			    </div>
 			    <div className="form-group">
+			        <label htmlFor="email" className="col-sm-4 control-label">{frases.SETTINGS.ADMIN_EMAIL}</label>
+			        <div className="col-sm-4">
+			            <input type="email" className="form-control" name="email" value={params.email} onChange={this._onChange} placeholder={frases.SETTINGS.ADMIN_EMAIL} autoComplete="off" />
+			        </div>
+			    </div>
+			    <div className="form-group">
 			        <label htmlFor="adminname" className="col-sm-4 control-label" data-toggle="tooltip" title={frases.OPTS__LOGIN}>{frases.LOGIN}</label>
 			        <div className="col-sm-4">
 			            <input type="text" className="form-control" name="adminname" value={params.adminname} placeholder={frases.LOGIN} readOnly={!this.props.singleBranch} autoComplete="off" onChange={this._onChange} />
