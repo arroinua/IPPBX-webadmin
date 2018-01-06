@@ -3869,6 +3869,25 @@ function load_chatchannel(params) {
     set_page();
 
 }
+function load_chats_report(){
+
+	json_rpc_async('getActivityStatistics', {
+		begin: 1514592000000,
+		end: 1515196800000
+	}, init);
+
+	function init(params){
+		console.log('load_chats_report params: ', params);
+
+		var componentParams = {
+			frases: PbxObject.frases,
+		    activityParams: params
+		};
+
+		ReactDOM.render(AnalyticsComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+}
 function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
@@ -8546,6 +8565,20 @@ function load_new_trunk() {
     set_page();
 
 }
+function load_numbers(params) {
+
+	console.log('load_numbers');
+
+	getCoutries();
+
+	function getCoutries() {
+		billingRequest('getDidCountries', null, function(err, response) {
+			console.log('getSubscription response: ', err, response.result);
+			if(err) return notify_about('error' , err.message);
+		});
+	}
+
+}
 function Pagination(options){
 
     // this.records = {};
@@ -8808,21 +8841,20 @@ function Picker(pickrElement, defaults){
 
     this._setCurrentRange = function(option){
         if(option === 'today'){
-            var today = this.today();
-            this.date.start = today;
-            this.date.end = today + 24*60*60*1000;
+            this.date.start = today().toStartOf().valueOf();
+            this.date.end = today().toEndOf().valueOf();
         } else if(option === 'yesterday'){
-            this.date.end = this.today();
-            this.date.start = this.date.end - 24*60*60*1000;
+            this.date.end = today().toEndOf().minus(1).valueOf();
+            this.date.start = today().toStartOf().minus(1).valueOf();
         } else if(option === 'week'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 7*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(7).valueOf();
         } else if(option === '30_days'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 30*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(1, 'month').valueOf();
         } else if(option === '60_days'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 60*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(30).valueOf();
         }
         // else if(option === 'month'){
         //     var curr_date = new Date();
@@ -8843,8 +8875,8 @@ function Picker(pickrElement, defaults){
     this._rangeToString = function(){
         var start = rome.find(cfrom).getDateString('MM/DD/YYYY');
         var end = rome.find(cto).getDateString('MM/DD/YYYY');
-        this.date.start = new Date(start).getTime();
-        this.date.end = new Date(end).getTime();
+        this.date.start = today(start).toStartOf().valueOf();
+        this.date.end = today(end).toEndOf().valueOf();
 
         this._setButtonText();
     };
@@ -8858,9 +8890,8 @@ function Picker(pickrElement, defaults){
     };
 
     this._setCustomRange = function(date){
-        var today = this.today();
-        var start = new Date(today);
-        var end = new Date(today + 24*60*60*1000);
+        var start = today().toStartOf().dateOf();
+        var end = today().toEndOf().dateOf();
         
         cfrom.value = this.formatDate(start);
         cto.value = this.formatDate(end);
@@ -8875,10 +8906,13 @@ function Picker(pickrElement, defaults){
         removeEvent(document, 'click', this._closeDropdowns);
     };
 
-    this.today = function(){
-        var now = new Date();
-        var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).valueOf();
-        return today;
+    this.today = function(date){
+        // var now = new Date();
+        // var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).valueOf();
+        // return today;
+        // var dateObj = date ? new Date(date) : new Date;
+
+        return today().toStartOf().valueOf();
     };
 
     this.template = function(){
@@ -11144,6 +11178,79 @@ function check_days(e){
         if(day.parentNode.nodeName === 'LABEL') day.parentNode.classList.add('active');
     }
 }
+function today(date) {
+
+    'use strict';
+
+    var _date = date ? new Date(date) : new Date();
+    var scope = {
+        valueOf: valueOf,
+        dateOf: dateOf,
+        toStartOf: toStartOf,
+        toEndOf: toEndOf,
+        plus: plus,
+        minus: minus
+    };
+
+    function valueOf() {
+        return _date.valueOf();
+    }
+
+    function dateOf() {
+        return _date;
+    }
+
+    function toStartOf(period) {
+        if(period === 'month') {
+            _date = new Date(_date.setDate(1));
+        } else if(period === 'year') {
+            _date = new Date(_date.setMonth(0,1));
+        } else {
+            _date = new Date(_date.setHours(0,0,0,1));
+        }
+
+        return scope;
+    }
+
+    function toEndOf(period) {
+        if(period === 'month') {
+            scope.toStartOf('month').plus(1, 'month').minus(1);
+        } else if(period === 'year') {
+            _date = new Date(_date.setMonth(11,31));
+        } else {
+            _date = new Date(_date.setHours(23,59,59));
+        }
+
+        return scope;
+    }
+
+    function plus(number, period) {
+        if(!period) {
+            _date = new Date(_date.setDate(_date.getDate() + number));
+        } else if(period.match(/month|months/g)) {
+            _date = new Date(_date.setMonth(_date.getMonth() + number));
+        } else if(period.match(/year|years/g)) {
+            _date = new Date(_date.setFullYear(_date.getFullYear() + number));
+        }
+
+        return scope;
+    };
+
+    function minus(number, period) {
+        if(!period) {
+            _date = new Date(_date.setDate(_date.getDate() - number));
+        } else if(period.match(/month|months/g)) {
+            _date = new Date(_date.setMonth(_date.getMonth() - number));
+        } else if(period.match(/year|years/g)) {
+            _date = new Date(_date.setFullYear(_date.getFullYear() - number));
+        }
+
+        return scope;
+    };
+
+    return scope;
+
+ }
 function MyTour(name, options) {
 
 	if(!name) return console.error('tour name is undefined');
