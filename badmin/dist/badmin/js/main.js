@@ -4579,6 +4579,8 @@ function load_extensions(result) {
     // TableSortable.sortables_init();
     // add_search_handler();
 
+    var data = filterObject(result, ['user', 'phone']);
+
     function init(data){
         var componentParams = {
             frases: PbxObject.frases,
@@ -4590,7 +4592,7 @@ function load_extensions(result) {
         ReactDOM.render(ExtensionsComponent(componentParams), document.getElementById('el-loaded-content'));
     }
 
-    init(result);
+    init(data);
     set_page();
     show_content();
 
