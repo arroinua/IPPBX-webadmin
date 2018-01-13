@@ -208,16 +208,19 @@ input[type="checkbox"]:checked + .help-block {
     margin-top: 10px;
     overflow: hidden;
     border: 1px solid #eee;
+    border-radius: $global-radius;
 }
 .avatar-cont img{
-    max-width: 100%;
+    height: 100%;
+    width: auto;
+    margin: auto;
 }
 
 .user-state-ind {
     position: absolute;
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: $global-radius;
     margin: 7px;
 }
 

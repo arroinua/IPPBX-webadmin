@@ -86,10 +86,12 @@ table.table > tbody > tr > td {
 }
 
 .modal-custom .modal-content {
-  border-radius: 0;
+  border-radius: 10px;
 }
 
 .modal-custom .modal-footer {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
   background-color: #f3f8f9;
 }
 
@@ -257,7 +259,8 @@ table.table > tbody > tr > td {
 }
 
 .nav-tabs.custom-nav-tabs > li > a {
-  border-radius: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .form-control.custom-input {
@@ -396,7 +399,7 @@ table.table > tbody > tr > td {
 .el-notifier {
   position: fixed;
   z-index: 1100;
-  top: 0;
+  top: 15px;
   width: 400px;
   left: 50%;
   margin-left: -200px;
@@ -404,8 +407,8 @@ table.table > tbody > tr > td {
   text-align: center;
   line-height: 2.5;
   box-shadow: 0 0 5px #f3f8f9;
-  border: 1px solid #333;
-  border-top: none;
+  border: none;
+  border-radius: 10px;
   color: #333;
   animation: slideDown 7s;
   -webkit-animation: slideDown 7s;
@@ -413,9 +416,8 @@ table.table > tbody > tr > td {
 @media only screen and (max-width: 767px) {
   .el-notifier {
     min-height: 50px;
-    width: 100%;
-    left: 0;
-    margin: 0;
+    width: 300px;
+    margin-left: -150px;
   }
 }
 
@@ -1618,17 +1620,20 @@ input[type="checkbox"]:checked + .help-block {
   margin-top: 10px;
   overflow: hidden;
   border: 1px solid #eee;
+  border-radius: 10px;
 }
 
 .avatar-cont img {
-  max-width: 100%;
+  height: 100%;
+  width: auto;
+  margin: auto;
 }
 
 .user-state-ind {
   position: absolute;
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: 10px;
   margin: 7px;
 }
 

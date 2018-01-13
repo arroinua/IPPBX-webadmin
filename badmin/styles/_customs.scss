@@ -42,9 +42,11 @@ table.table>tbody>tr>td {
 }
 
 .modal-custom .modal-content{
-    border-radius: 0;
+    border-radius: $global-radius;
 }
 .modal-custom .modal-footer{
+    border-bottom-left-radius: $global-radius;
+    border-bottom-right-radius: $global-radius;
     background-color: $primary-color-l1;
 }
 
@@ -227,7 +229,8 @@ table.table>tbody>tr>td {
     background-color: transparent;
 }
 .nav-tabs.custom-nav-tabs > li > a {
-    border-radius: 0;
+    border-top-left-radius: $global-radius;
+    border-top-right-radius: $global-radius;
 }
 .form-control.custom-input{
     height: auto;
