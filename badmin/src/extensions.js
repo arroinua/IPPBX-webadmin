@@ -1,35 +1,48 @@
 function load_extensions(result) {
     // console.log(result);
-    var row,
-        table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
-        // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
-        fragment = document.createDocumentFragment();
+    // var row,
+    //     table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
+    //     // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
+    //     fragment = document.createDocumentFragment();
 
-    PbxObject.extensions = result;
+    // PbxObject.extensions = result;
 
-    for(var i=0; i<result.length; i++){
+    // for(var i=0; i<result.length; i++){
 
-        // if(!result[i].oid) continue;
+    //     // if(!result[i].oid) continue;
 
-        row = createExtRow(result[i]);
-        fragment.appendChild(row);
+    //     row = createExtRow(result[i]);
+    //     fragment.appendChild(row);
 
-    }
-        
-    table.appendChild(fragment);
-    
-    // if(passReveal.length) {
-    //     passReveal.forEach(function(item){
-    //         addEvent(item, 'click', revealPassword);
-    //     });
     // }
+        
+    // table.appendChild(fragment);
+    
+    // // if(passReveal.length) {
+    // //     passReveal.forEach(function(item){
+    // //         addEvent(item, 'click', revealPassword);
+    // //     });
+    // // }
 
-    // var $modal = $('#el-extension');
-    // $('#pagecontainer').prepend($modal);
-    // $($modal).insertBefore('#pagecontainer');
+    // // var $modal = $('#el-extension');
+    // // $('#pagecontainer').prepend($modal);
+    // // $($modal).insertBefore('#pagecontainer');
 
-    TableSortable.sortables_init();
-    add_search_handler();
+    // TableSortable.sortables_init();
+    // add_search_handler();
+
+    function init(data){
+        var componentParams = {
+            frases: PbxObject.frases,
+            data: data,
+            getExtension: getExtension,
+            deleteExtension: deleteExtension
+        };
+
+        ReactDOM.render(ExtensionsComponent(componentParams), document.getElementById('el-loaded-content'));
+    }
+
+    init(result);
     set_page();
     show_content();
 
@@ -168,6 +181,20 @@ function updateExtensionRow(event, data){
 
     updateObjects(PbxObject.extensions, data, 'ext');
 
+}
+
+function getExtension(oid) {
+    show_loading_panel();
+
+    if(!PbxObject.templates.extension){
+        $.get('/badmin/views/extension.html', function(template){
+            PbxObject.templates = PbxObject.templates || {};
+            PbxObject.templates.extension = template;
+            json_rpc_async('getObject', { oid: oid }, load_extension);
+        });
+    } else {
+        json_rpc_async('getObject', { oid: oid }, load_extension);
+    }
 }
 
 function get_extension(e){

@@ -3,6 +3,7 @@
 	propTypes: {
 		frases: React.PropTypes.object,
 		members: React.PropTypes.array,
+		withGroups: React.PropTypes.bool,
 		getExtension: React.PropTypes.func,
 		getAvailableUsers: React.PropTypes.func,
 		deleteMember: React.PropTypes.func,
@@ -51,6 +52,28 @@
 
 	},
 
+	_getKindIcon: function(kind) {
+		var icon = '';
+
+		if(kind === 'user') icon = 'fa-user';
+		else if(kind === 'phone') icon = 'fa-fax';
+		else if(kind === 'chatchannel') icon = 'fa-comments-o';
+		else if(kind === 'hunting') icon = 'icon-find_replace';
+		else if(kind === 'icd') icon = 'icon-headset_mic';
+		else if(kind === 'selector') icon = 'fa-line-chart';
+		else if(kind === 'attendant') icon = 'icon-room_service';
+		else if(kind === 'trunk') icon = 'fa-cloud';
+		else if(kind === 'chattrunk') icon = 'fa-whatsapp';
+		else if(kind === 'timer') icon = 'fa-calendar';
+		else if(kind === 'routes') icon = 'fa-arrows';
+		else if(kind === 'channel') icon = 'fa-rss';
+		else if(kind === 'conference') icon = 'icon-call_split';
+		else if(kind === 'pickup') icon = 'icon-phone_missed';
+		else if(kind === 'cli') icon = 'icon-fingerprint';
+
+		return icon;
+	},
+
 	_onFilter: function(items) {
 		this.setState({
 			filteredMembers: items
@@ -90,38 +113,54 @@
 		var filteredMembers = this.state.filteredMembers || [];
 
 		return (
-			<PanelComponent header={ filteredMembers.length + " " + frases.CHAT_CHANNEL.MEMBERS}>
-			    <div className="row">
-			    	<div className="col-xs-12">
-					    <button type="button" role="button" className="btn btn-default padding-lg" onClick={this.props.getAvailableUsers}><i className="fa fa-user-plus"></i> {frases.CHAT_CHANNEL.ADD_MEMBERS}</button>
-					    <FilterInputComponent items={members} onChange={this._onFilter} />
-			    	</div>
-			    	<div className="col-xs-12">
-					    <div className="table-responsive">
-					        <table className="table table-hover sortable" id="group-extensions">
-					            
-					            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
-					            	{
-					            		filteredMembers.length ? (
+			<div className="row">
+		    	<div className="col-xs-12">
+		    		{
+		    			this.props.getAvailableUsers && (
+				    		<button type="button" role="button" className="btn btn-default padding-lg" onClick={this.props.getAvailableUsers}><i className="fa fa-user-plus"></i> {frases.CHAT_CHANNEL.ADD_MEMBERS}</button>
+		    			)
+		    		}
+				    <FilterInputComponent items={members} onChange={this._onFilter} />
+		    	</div>
+		    	<div className="col-xs-12">
+					<div className="panel">
+						<div className="panel-body" style={{ padding: "0" }}>
+						    <div className="table-responsive">
+						        <table className="table table-hover sortable" id="group-extensions" style={{ marginBottom: "0" }}>
+						            
+						            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
+						            	{
+						            		filteredMembers.length ? (
 
-					            			filteredMembers.map(function(item, index) {
+						            			filteredMembers.map(function(item, index) {
 
-					            				return <GroupMemberComponent key={item.oid} sortable={this.props.sortable} item={item} itemState={this._getInfoFromState(item.state)} getExtension={this.props.getExtension} deleteMember={this.props.deleteMember} />
+						            				item.icon = this._getKindIcon(item.kind);
 
-					            			}.bind(this))
+						            				return <GroupMemberComponent 
+						            					key={item.oid} 
+						            					sortable={this.props.sortable} 
+						            					item={item} 
+						            					withGroup={this.props.withGroups} 
+						            					itemState={this._getInfoFromState(item.state)} 
+						            					getExtension={this.props.getExtension} 
+						            					deleteMember={this.props.deleteMember} 
+						            				/>
 
-					            		) : (
-					            			<tr>
-					            				<td colSpan="5">{frases.CHAT_CHANNEL.NO_MEMBERS}</td>
-					            			</tr>
-					            		)
-					            	}
-					            </tbody>
-					        </table>
-					    </div>
+						            			}.bind(this))
+
+						            		) : (
+						            			<tr>
+						            				<td colSpan="5">{frases.CHAT_CHANNEL.NO_MEMBERS}</td>
+						            			</tr>
+						            		)
+						            	}
+						            </tbody>
+						        </table>
+						    </div>
+						</div>
 					</div>
-			    </div>
-			</PanelComponent>
+				</div>
+			</div>
 		);
 	}
 });

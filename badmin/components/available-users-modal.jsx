@@ -13,12 +13,21 @@ var AvailableUsersComponent = React.createClass({
 		};
 	},
 
-	componentDidMount: function() {
-		this.setState({ data: this.props.data || [] });
+	componentWillMount: function() {
+		var data = this._sortItems(this.props.data, 'ext');
+		this.setState({ data: data || [] });
 	},
 
 	componentWillReceiveProps: function(props) {
-		this.setState({ data: props.data || [] });	
+		var data = this._sortItems(props.data, 'ext');
+		this.setState({ data: data || [] });	
+	},
+
+	_sortItems: function(array, sortBy) {
+		return array.sort(function(a, b) {
+			return parseFloat(a[sortBy]) - parseFloat(b[sortBy]);
+		});
+
 	},
 
 	_saveChanges: function() {
@@ -71,8 +80,6 @@ var AvailableUsersComponent = React.createClass({
 						</li>
 						{
 							this.state.data.map(function(item, index) {
-								console.log('_getModalBody: ', item);
-
 								return (
 									<li key={item.ext} style={{ padding: "8px 10px", color: "#333", cursor: "pointer", background: (item.selected ? '#c2f0ff' : 'none') }} onClick={this._selectMember.bind(this, index)}>
 										<span>{ item.ext }</span>

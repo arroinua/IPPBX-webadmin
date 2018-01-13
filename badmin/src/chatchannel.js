@@ -107,7 +107,7 @@ function load_chatchannel(params) {
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
-		    getExtension: get_extension,
+		    getExtension: getExtension,
 		    deleteMember: deleteMember
 		};
 

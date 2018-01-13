@@ -472,12 +472,12 @@ function showGroups(e){
             var ul = document.createElement('ul');
             ul.id = 'ul-'+kind;
 
-            if(kind != 'unit' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
-                likind = document.createElement('li');
-                likind.className = 'menu-name';
-                likind.innerHTML = PbxObject.frases.KINDS[kind];
-                ul.appendChild(likind);
-            }
+            // if(kind != 'unit' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
+            //     likind = document.createElement('li');
+            //     likind.className = 'menu-name';
+            //     likind.innerHTML = PbxObject.frases.KINDS[kind];
+            //     ul.appendChild(likind);
+            // }
 
             show_loading_panel(parent[0]);
 
@@ -1548,6 +1548,34 @@ function delete_object(name, kind, oid, noConfirm){
 
     } else{
         return false;
+    }
+}
+
+function deleteExtension(params){
+    var oid = params.oid,
+        ext = params.ext,
+        group = params.group,
+        msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
+        conf = confirm(msg);
+
+    PbxObject.members = PbxObject.members || [];
+    PbxObject.available = PbxObject.available || [];
+
+    if (conf){
+        json_rpc_async('deleteObject', { oid: oid }, function(){
+            // remove member from array
+            PbxObject.members.forEach(function(item, index, array) {
+                if(item.oid === oid) {
+                    array.splice(index, 1);
+                }
+            });
+
+            // add extension to available
+            PbxObject.available.push(ext);
+            PbxObject.available.sort();
+        });        
+    } else {
+        return;
     }
 }
 

@@ -50,6 +50,7 @@ var EmailTrunkComponent = React.createClass({
 		var frases = this.props.frases;
 		
 		console.log('EmailTrunkComponent render: ', this.state.props, this.props.serviceParams);
+		// <option value="pop3">POP3</option>
 
 		return (
 			<form className="form-horizontal" autoComplete='off'>

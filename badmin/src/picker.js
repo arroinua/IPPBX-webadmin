@@ -54,7 +54,7 @@ function Picker(pickrElement, defaults){
         } else if(target.nodeName === 'BUTTON'){
             if(target.name === "submitButton"){
                 if(customRange) self._rangeToString(); //if custom range option is selected
-                if(self.defaults.submitFunction) self.defaults.submitFunction();
+                if(self.defaults.submitFunction) self.defaults.submitFunction({ date: this.date });
             } else if(target.name === "selectButton"){
                 if(customRange) self._rangeToString();
             }
@@ -100,21 +100,20 @@ function Picker(pickrElement, defaults){
 
     this._setCurrentRange = function(option){
         if(option === 'today'){
-            var today = this.today();
-            this.date.start = today;
-            this.date.end = today + 24*60*60*1000;
+            this.date.start = today().toStartOf().valueOf();
+            this.date.end = today().toEndOf().valueOf();
         } else if(option === 'yesterday'){
-            this.date.end = this.today();
-            this.date.start = this.date.end - 24*60*60*1000;
+            this.date.end = today().toEndOf().minus(1).valueOf();
+            this.date.start = today().toStartOf().minus(1).valueOf();
         } else if(option === 'week'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 7*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(7).valueOf();
         } else if(option === '30_days'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 30*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(30).valueOf();
         } else if(option === '60_days'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 60*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(60).valueOf();
         }
         // else if(option === 'month'){
         //     var curr_date = new Date();
@@ -135,8 +134,8 @@ function Picker(pickrElement, defaults){
     this._rangeToString = function(){
         var start = rome.find(cfrom).getDateString('MM/DD/YYYY');
         var end = rome.find(cto).getDateString('MM/DD/YYYY');
-        this.date.start = new Date(start).getTime();
-        this.date.end = new Date(end).getTime();
+        this.date.start = today(start).toStartOf().valueOf();
+        this.date.end = today(end).toEndOf().valueOf();
 
         this._setButtonText();
     };
@@ -150,9 +149,8 @@ function Picker(pickrElement, defaults){
     };
 
     this._setCustomRange = function(date){
-        var today = this.today();
-        var start = new Date(today);
-        var end = new Date(today + 24*60*60*1000);
+        var start = today().toStartOf().dateOf();
+        var end = today().toEndOf().dateOf();
         
         cfrom.value = this.formatDate(start);
         cto.value = this.formatDate(end);
@@ -168,9 +166,7 @@ function Picker(pickrElement, defaults){
     };
 
     this.today = function(){
-        var now = new Date();
-        var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).valueOf();
-        return today;
+        return today().toStartOf().valueOf();
     };
 
     this.template = function(){

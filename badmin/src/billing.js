@@ -74,6 +74,7 @@ function load_billing() {
 			key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
 			// key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
 			image: '/badmin/images/Ringotel_emblem_new.png',
+			billingAddress: true,
 			// email: profile.email,
 			// name: 'Ringotel',
 			// zipCode: true,

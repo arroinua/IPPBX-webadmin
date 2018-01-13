@@ -11,6 +11,7 @@ input[readonly].readonly-custom{
 
 table.table>tbody>tr>td {
     vertical-align: middle;
+    border-top: 1px solid #f3f8f9;
 }
 
 #security-settings-cont table button {
@@ -45,6 +46,22 @@ table.table>tbody>tr>td {
 }
 .modal-custom .modal-footer{
     background-color: $primary-color-l1;
+}
+
+/*
+    Forms custom styles
+*/
+
+// input.form-control {
+//     border-radius: $global-radius;
+// }
+
+/*
+    Buttons custom styles
+*/
+
+.btn {
+    border-radius: $global-radius;
 }
 
 /*

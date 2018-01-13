@@ -66,7 +66,8 @@ function load_hunting(params) {
 		$('#available-users-modal').modal('hide');
 	}
 
-	function deleteMember(oid) {
+	function deleteMember(params) {
+		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 		setObject(objParams, function(result) {
@@ -132,7 +133,7 @@ function load_hunting(params) {
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
-		    getExtension: get_extension,
+		    getExtension: getExtension,
 		    deleteMember: deleteMember
 		};
 

@@ -1,12 +1,13 @@
 .page-content{
     position: relative;
-    margin-left: 60px;
-    padding-bottom: 40px;
-    background-color: $primary-color-l1;
+    margin-left: 90px;
+    padding: 15px;
+    // padding-bottom: 40px;
     overflow: auto;
     z-index: 200;
     // overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
+    background-color: $primary-color-l1;
 
     @include transition-all(300ms);
 
@@ -16,7 +17,7 @@
 	    transform:translateX(-320px);
 	}
 	&.squeezed-right{
-	    margin-left: 250px;
+	    margin-left: 300px;
 		@media only screen and (max-width: $handheld) {
 			margin-left: 0;
 			-ms-transform:translateX(250px);

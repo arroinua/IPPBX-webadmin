@@ -2512,6 +2512,7 @@ function load_billing() {
 			key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
 			// key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
 			image: '/badmin/images/Ringotel_emblem_new.png',
+			billingAddress: true,
 			// email: profile.email,
 			// name: 'Ringotel',
 			// zipCode: true,
@@ -3853,7 +3854,7 @@ function load_chatchannel(params) {
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
-		    getExtension: get_extension,
+		    getExtension: getExtension,
 		    deleteMember: deleteMember
 		};
 
@@ -3867,6 +3868,53 @@ function load_chatchannel(params) {
 	init(objParams);
 	show_content();
     set_page();
+
+}
+function load_chats_report(){
+
+	init();
+	show_content();
+    set_page();
+
+    // function formatTimeString(time, format){
+    //     var h, m, s, newtime;
+    //     h = Math.floor(time / 3600);
+    //     time = time - h * 3600;
+    //     m = Math.floor(time / 60);
+    //     s = Math.floor(time - m * 60);
+
+    //     newtime = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+    //     if(!format || format == 'hh:mm:ss'){
+    //         newtime += ':' + (s < 10 ? '0'+s : s);
+    //     }
+    //     return newtime;
+    // }
+
+    // function formatIndex(value, format) {
+    // 	var result = value;
+    // 	if(format === 'ms') result = this._formatTimeString(result / 1000);
+
+    // 	return result;
+    // }
+
+    // function getIndexFormat(index) {
+    // 	var durations = /art|atfr|atrm|atta/;
+    // 	if(index.match(durations)) {
+    // 		return 'duration';
+    // 	}
+
+    // 	return 'number';
+    // }
+
+	function init(params){
+		console.log('load_chats_report params: ', params);
+
+		var componentParams = {
+			frases: PbxObject.frases
+		};
+
+		ReactDOM.render(AnalyticsComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
 
 }
 function load_chattrunk(params) {
@@ -4500,36 +4548,49 @@ function EventEmitter() {
 }
 function load_extensions(result) {
     // console.log(result);
-    var row,
-        table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
-        // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
-        fragment = document.createDocumentFragment();
+    // var row,
+    //     table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
+    //     // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
+    //     fragment = document.createDocumentFragment();
 
-    PbxObject.extensions = result;
+    // PbxObject.extensions = result;
 
-    for(var i=0; i<result.length; i++){
+    // for(var i=0; i<result.length; i++){
 
-        // if(!result[i].oid) continue;
+    //     // if(!result[i].oid) continue;
 
-        row = createExtRow(result[i]);
-        fragment.appendChild(row);
+    //     row = createExtRow(result[i]);
+    //     fragment.appendChild(row);
 
-    }
-        
-    table.appendChild(fragment);
-    
-    // if(passReveal.length) {
-    //     passReveal.forEach(function(item){
-    //         addEvent(item, 'click', revealPassword);
-    //     });
     // }
+        
+    // table.appendChild(fragment);
+    
+    // // if(passReveal.length) {
+    // //     passReveal.forEach(function(item){
+    // //         addEvent(item, 'click', revealPassword);
+    // //     });
+    // // }
 
-    // var $modal = $('#el-extension');
-    // $('#pagecontainer').prepend($modal);
-    // $($modal).insertBefore('#pagecontainer');
+    // // var $modal = $('#el-extension');
+    // // $('#pagecontainer').prepend($modal);
+    // // $($modal).insertBefore('#pagecontainer');
 
-    TableSortable.sortables_init();
-    add_search_handler();
+    // TableSortable.sortables_init();
+    // add_search_handler();
+
+    function init(data){
+        var componentParams = {
+            frases: PbxObject.frases,
+            data: data,
+            getExtension: getExtension,
+            deleteExtension: deleteExtension
+        };
+
+        ReactDOM.render(ExtensionsComponent(componentParams), document.getElementById('el-loaded-content'));
+    }
+
+    init(result);
     set_page();
     show_content();
 
@@ -4668,6 +4729,20 @@ function updateExtensionRow(event, data){
 
     updateObjects(PbxObject.extensions, data, 'ext');
 
+}
+
+function getExtension(oid) {
+    show_loading_panel();
+
+    if(!PbxObject.templates.extension){
+        $.get('/badmin/views/extension.html', function(template){
+            PbxObject.templates = PbxObject.templates || {};
+            PbxObject.templates.extension = template;
+            json_rpc_async('getObject', { oid: oid }, load_extension);
+        });
+    } else {
+        json_rpc_async('getObject', { oid: oid }, load_extension);
+    }
 }
 
 function get_extension(e){
@@ -5426,7 +5501,8 @@ function load_hunting(params) {
 		$('#available-users-modal').modal('hide');
 	}
 
-	function deleteMember(oid) {
+	function deleteMember(params) {
+		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 		setObject(objParams, function(result) {
@@ -5492,7 +5568,7 @@ function load_hunting(params) {
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
-		    getExtension: get_extension,
+		    getExtension: getExtension,
 		    deleteMember: deleteMember
 		};
 
@@ -5578,7 +5654,8 @@ function load_icd(params) {
 		$('#available-users-modal').modal('hide');
 	}
 
-	function deleteMember(oid) {
+	function deleteMember(params) {
+		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 		setObject(objParams, function(result) {
@@ -5644,7 +5721,7 @@ function load_icd(params) {
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
-		    getExtension: get_extension,
+		    getExtension: getExtension,
 		    deleteMember: deleteMember
 		};
 
@@ -6417,12 +6494,12 @@ function showGroups(e){
             var ul = document.createElement('ul');
             ul.id = 'ul-'+kind;
 
-            if(kind != 'unit' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
-                likind = document.createElement('li');
-                likind.className = 'menu-name';
-                likind.innerHTML = PbxObject.frases.KINDS[kind];
-                ul.appendChild(likind);
-            }
+            // if(kind != 'unit' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
+            //     likind = document.createElement('li');
+            //     likind.className = 'menu-name';
+            //     likind.innerHTML = PbxObject.frases.KINDS[kind];
+            //     ul.appendChild(likind);
+            // }
 
             show_loading_panel(parent[0]);
 
@@ -7496,6 +7573,34 @@ function delete_object(name, kind, oid, noConfirm){
     }
 }
 
+function deleteExtension(params){
+    var oid = params.oid,
+        ext = params.ext,
+        group = params.group,
+        msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
+        conf = confirm(msg);
+
+    PbxObject.members = PbxObject.members || [];
+    PbxObject.available = PbxObject.available || [];
+
+    if (conf){
+        json_rpc_async('deleteObject', { oid: oid }, function(){
+            // remove member from array
+            PbxObject.members.forEach(function(item, index, array) {
+                if(item.oid === oid) {
+                    array.splice(index, 1);
+                }
+            });
+
+            // add extension to available
+            PbxObject.available.push(ext);
+            PbxObject.available.sort();
+        });        
+    } else {
+        return;
+    }
+}
+
 function delete_extension(e){
     var row = getClosest(e.target, 'tr'),
         // oid = row.getAttribute('data-oid'),
@@ -8546,6 +8651,20 @@ function load_new_trunk() {
     set_page();
 
 }
+function load_numbers(params) {
+
+	console.log('load_numbers');
+
+	getCoutries();
+
+	function getCoutries() {
+		billingRequest('getDidCountries', null, function(err, response) {
+			console.log('getSubscription response: ', err, response.result);
+			if(err) return notify_about('error' , err.message);
+		});
+	}
+
+}
 function Pagination(options){
 
     // this.records = {};
@@ -8762,7 +8881,7 @@ function Picker(pickrElement, defaults){
         } else if(target.nodeName === 'BUTTON'){
             if(target.name === "submitButton"){
                 if(customRange) self._rangeToString(); //if custom range option is selected
-                if(self.defaults.submitFunction) self.defaults.submitFunction();
+                if(self.defaults.submitFunction) self.defaults.submitFunction({ date: this.date });
             } else if(target.name === "selectButton"){
                 if(customRange) self._rangeToString();
             }
@@ -8808,21 +8927,20 @@ function Picker(pickrElement, defaults){
 
     this._setCurrentRange = function(option){
         if(option === 'today'){
-            var today = this.today();
-            this.date.start = today;
-            this.date.end = today + 24*60*60*1000;
+            this.date.start = today().toStartOf().valueOf();
+            this.date.end = today().toEndOf().valueOf();
         } else if(option === 'yesterday'){
-            this.date.end = this.today();
-            this.date.start = this.date.end - 24*60*60*1000;
+            this.date.end = today().toEndOf().minus(1).valueOf();
+            this.date.start = today().toStartOf().minus(1).valueOf();
         } else if(option === 'week'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 7*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(7).valueOf();
         } else if(option === '30_days'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 30*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(30).valueOf();
         } else if(option === '60_days'){
-            this.date.end = this.today() + 24*60*60*1000;
-            this.date.start = this.date.end - 60*24*60*60*1000;
+            this.date.end = today().toEndOf().valueOf();
+            this.date.start = today().toStartOf().minus(60).valueOf();
         }
         // else if(option === 'month'){
         //     var curr_date = new Date();
@@ -8843,8 +8961,8 @@ function Picker(pickrElement, defaults){
     this._rangeToString = function(){
         var start = rome.find(cfrom).getDateString('MM/DD/YYYY');
         var end = rome.find(cto).getDateString('MM/DD/YYYY');
-        this.date.start = new Date(start).getTime();
-        this.date.end = new Date(end).getTime();
+        this.date.start = today(start).toStartOf().valueOf();
+        this.date.end = today(end).toEndOf().valueOf();
 
         this._setButtonText();
     };
@@ -8858,9 +8976,8 @@ function Picker(pickrElement, defaults){
     };
 
     this._setCustomRange = function(date){
-        var today = this.today();
-        var start = new Date(today);
-        var end = new Date(today + 24*60*60*1000);
+        var start = today().toStartOf().dateOf();
+        var end = today().toEndOf().dateOf();
         
         cfrom.value = this.formatDate(start);
         cto.value = this.formatDate(end);
@@ -8876,9 +8993,7 @@ function Picker(pickrElement, defaults){
     };
 
     this.today = function(){
-        var now = new Date();
-        var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).valueOf();
-        return today;
+        return today().toStartOf().valueOf();
     };
 
     this.template = function(){
@@ -11144,6 +11259,79 @@ function check_days(e){
         if(day.parentNode.nodeName === 'LABEL') day.parentNode.classList.add('active');
     }
 }
+function today(date) {
+
+    'use strict';
+
+    var _date = date ? new Date(date) : new Date();
+    var scope = {
+        valueOf: valueOf,
+        dateOf: dateOf,
+        toStartOf: toStartOf,
+        toEndOf: toEndOf,
+        plus: plus,
+        minus: minus
+    };
+
+    function valueOf() {
+        return _date.valueOf();
+    }
+
+    function dateOf() {
+        return _date;
+    }
+
+    function toStartOf(period) {
+        if(period === 'month') {
+            _date = new Date(_date.setDate(1));
+        } else if(period === 'year') {
+            _date = new Date(_date.setMonth(0,1));
+        } else {
+            _date = new Date(_date.setHours(0,0,0,1));
+        }
+
+        return scope;
+    }
+
+    function toEndOf(period) {
+        if(period === 'month') {
+            scope.toStartOf('month').plus(1, 'month').minus(1);
+        } else if(period === 'year') {
+            _date = new Date(_date.setMonth(11,31));
+        } else {
+            _date = new Date(_date.setHours(23,59,59));
+        }
+
+        return scope;
+    }
+
+    function plus(number, period) {
+        if(!period) {
+            _date = new Date(_date.setDate(_date.getDate() + number));
+        } else if(period.match(/month|months/g)) {
+            _date = new Date(_date.setMonth(_date.getMonth() + number));
+        } else if(period.match(/year|years/g)) {
+            _date = new Date(_date.setFullYear(_date.getFullYear() + number));
+        }
+
+        return scope;
+    };
+
+    function minus(number, period) {
+        if(!period) {
+            _date = new Date(_date.setDate(_date.getDate() - number));
+        } else if(period.match(/month|months/g)) {
+            _date = new Date(_date.setMonth(_date.getMonth() - number));
+        } else if(period.match(/year|years/g)) {
+            _date = new Date(_date.setFullYear(_date.getFullYear() - number));
+        }
+
+        return scope;
+    };
+
+    return scope;
+
+ }
 function MyTour(name, options) {
 
 	if(!name) return console.error('tour name is undefined');
