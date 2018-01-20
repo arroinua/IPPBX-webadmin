@@ -155,11 +155,11 @@ function updateExtensionRow(event, data){
             if(cell) cell.innerHTML = data.name;
             // cells[1].innerHTML = data.name;
         }
-        if(data.display){
-            cell = row.querySelector('[data-cell="display"]');
-            if(cell) cell.innerHTML = data.display;
-            // cells[1].innerHTML = data.name;
-        }
+        // if(data.display){
+        //     cell = row.querySelector('[data-cell="display"]');
+        //     if(cell) cell.innerHTML = data.display;
+        //     // cells[1].innerHTML = data.name;
+        // }
         if(data.hasOwnProperty('group')){
             cell = row.querySelector('[data-cell="group"]');
             if(cell) cell.innerHTML = data.group;
@@ -512,7 +512,7 @@ function set_extension(kind){
     //     jprms += '\"followme\":\"'+d.getElementById("followme").value+'\",';
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
-    jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
+    // jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
     if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';

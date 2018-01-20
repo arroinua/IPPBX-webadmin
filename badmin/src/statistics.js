@@ -55,12 +55,15 @@ function Statistics(){
     }
 
     this._init = function(){
-        picker = new Picker('statistics-date-picker', {submitFunction: self.getStatisticsData, buttonSize: 'md'});
+        picker = new Picker('statistics-date-picker', {submitFunction: self.getStatisticsData, interval: true, buttonSize: 'md'});
         start = picker.date.start;
         end = picker.date.end;
-        params = '\"begin\":'+start+', \"end\":'+end;
+        interval = picker.interval;
+        // params = '\"begin\":'+start+', \"end\":'+end;
+
             
-        json_rpc_async('getCallStatistics', params, self._setStatistics);
+        json_rpc_async('getCallStatistics', { begin: start, end: end }, self._setStatistics);
+        json_rpc_async('getCallStatisticsGraph', { begin: start, end: end, interval: interval }, self._setCharts);
 
         extStatBtn.onclick = function(){
             if(extStatBtn.getAttribute('data-state') !== 'shown'){
@@ -94,6 +97,33 @@ function Statistics(){
         set_page();
     };
 
+    this.getColumns = function(data, colname, match, params) {
+        // var columns = [];
+        // var col = [];
+        var col = [colname];
+        var value = null;
+        var convert = params ? params.convert : null;
+
+        data.map(function(item) {
+            for(var key in item) {
+                if(key !== colname && (match ? match.indexOf(key) !== -1 : true)) {
+                    value = item[key];
+                    
+                    if(convert === 'minutes') {
+                        value = parseFloat(((value / 1000) / 60).toFixed(2));
+                    }
+
+                    col.push(value);
+                }
+            }
+
+            // columns.push(col);
+        }.bind(this));
+
+        return col;
+        // return columns;
+    };
+
     this.getStatisticsData = function(){
         var params = { begin: picker.date.start,  end: picker.date.end };
 
@@ -103,6 +133,16 @@ function Statistics(){
             self._setStatistics(result);
             $('#statistics-cont').removeClass('faded');
         });
+
+        json_rpc_async(
+            'getCallStatisticsGraph', 
+            { 
+                begin: picker.date.start, 
+                end: picker.date.end, 
+                interval: picker.interval 
+            }, 
+            self._setCharts
+        );
 
         getTrunksQosData(params, renderTrunksQosStat);
 
@@ -184,6 +224,76 @@ function Statistics(){
         }
         // console.log(data);
         tbody.appendChild(tRows);
+    };
+
+    this._setCharts = function(data) {
+
+        data = data.map(function(item) {
+            item['s'] = item.i - item.m;
+            return item;
+        });
+
+        console.log('statistics charts data: ', data);
+
+        var outChart = c3.generate({
+            bindto: '#outbounds-chart',
+            data: {
+                x: 'intervals',
+                columns: [
+                    self.getColumns(data, 'intervals', ['t']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.OUTCALLS, ['o']),
+                ]
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    }
+                }
+            }
+        });
+
+        var insChart = c3.generate({
+            bindto: '#inbounds-chart',
+            data: {
+                x: 'intervals',
+                columns: [
+                    self.getColumns(data, 'intervals', ['t']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.INCALLS, ['s']),
+                    self.getColumns(data, PbxObject.frases.STATISTICS.LOSTCALLS, ['m']),
+                ],
+                type: 'bar',
+                groups: [[PbxObject.frases.SETTINGS.INCALLS, PbxObject.frases.STATISTICS.LOSTCALLS]]
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    }
+                }
+            }
+        });
+
+        var intsChart = c3.generate({
+            bindto: '#internals-chart',
+            data: {
+                x: 'intervals',
+                columns: [
+                    self.getColumns(data, 'intervals', ['t']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.INTCALLS, ['l']),
+                ]
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    }
+                }
+            }
+        });
     };
 
     this._build_trunks_statistics = function(data){

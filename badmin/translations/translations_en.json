@@ -661,6 +661,8 @@
     		"SELECT_PAGE": "Select Facebook Page"
     	},
     	"EMAIL": {
+    		"SELECT_ACCOUNT_PROVIDER": " Mail account provider",
+    		"OTHER_PROVIDER": "Other provider",
     		"PROTOCOL": "Protocol",
     		"USERNAME": "User name",
     		"PASSWORD": "Password",

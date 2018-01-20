@@ -3927,18 +3927,56 @@ function load_chattrunk(params) {
 	var services = [{
 		id: 'FacebookMessenger',
 		name: "Messenger",
-		icon: '/badmin/images/facebook_messenger.png',
+		icon: '/badmin/images/channels/fm.png',
 		params: {
 			appId: '1920629758202993'
 		}
 	}, {
 		id: 'Email',
 		name: "Email",
-		icon: '/badmin/images/email.png'
+		icon: '/badmin/images/channels/email.png',
+		providers: {
+			gmail: {
+				protocol: 'imap',
+				hostname: 'imap.gmail.com',
+				port: 993,
+				usessl: true
+			},
+			outlook: {
+				protocol: 'imap',
+				hostname: 'imap-mail.outlook.com',
+				port: 993,
+				usessl: true
+			},
+			office365: {
+				protocol: 'imap',
+				hostname: 'outlook.office365.com',
+				port: 993,
+				usessl: true
+			},
+			icloud: {
+				protocol: 'imap',
+				hostname: 'imap.mail.me.com',
+				port: 993,
+				usessl: true
+			},
+			aol: {
+				protocol: 'imap',
+				hostname: 'imap.aol.com',
+				port: 993,
+				usessl: true
+			},
+			yahoo: {
+				protocol: 'imap',
+				hostname: 'imap.mail.yahoo.com',
+				port: 993,
+				usessl: true
+			}
+		}
 	}, {
 		id: 'Viber',
 		name: "Viber",
-		icon: '/badmin/images/viber.ico'
+		icon: '/badmin/images/channels/viber.ico'
 	}
 	// {
 	// 	id: 'Facebook',
@@ -4703,11 +4741,11 @@ function updateExtensionRow(event, data){
             if(cell) cell.innerHTML = data.name;
             // cells[1].innerHTML = data.name;
         }
-        if(data.display){
-            cell = row.querySelector('[data-cell="display"]');
-            if(cell) cell.innerHTML = data.display;
-            // cells[1].innerHTML = data.name;
-        }
+        // if(data.display){
+        //     cell = row.querySelector('[data-cell="display"]');
+        //     if(cell) cell.innerHTML = data.display;
+        //     // cells[1].innerHTML = data.name;
+        // }
         if(data.hasOwnProperty('group')){
             cell = row.querySelector('[data-cell="group"]');
             if(cell) cell.innerHTML = data.group;
@@ -5060,7 +5098,7 @@ function set_extension(kind){
     //     jprms += '\"followme\":\"'+d.getElementById("followme").value+'\",';
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
-    jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
+    // jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
     if(login) jprms += '\"login\":\"'+login+'\",';
     jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
@@ -6085,6 +6123,8 @@ function logout() {
         window.location = '/';
     };
     xhr.send();
+
+    setLastQuery('');
 }
 
 function createWebsocket(){
@@ -6631,6 +6671,9 @@ function get_object(e){
             //     load_template(template, kind);
             // });
         }
+
+        setLastQuery(query);
+
     }
 
     if(isSmallScreen() && $('#pagecontent').hasClass('squeezed-right')) {
@@ -6710,6 +6753,10 @@ function setTempParams(obj) {
 
 function clearTempParams() {
     PbxObject.currentObj = {};
+}
+
+function setLastQuery(query) {
+    window.sessionStorage.query = query;
 }
 
 function set_page(){
@@ -8590,6 +8637,8 @@ function change_protocol(){
     if(lastURL) {
         window.sessionStorage.removeItem('lastURL');
         window.location = lastURL;
+    } else if(window.sessionStorage.query) {
+        window.location.hash = window.sessionStorage.query;
     }
 
     initGlobals(window);
@@ -10503,12 +10552,15 @@ function Statistics(){
     }
 
     this._init = function(){
-        picker = new Picker('statistics-date-picker', {submitFunction: self.getStatisticsData, buttonSize: 'md'});
+        picker = new Picker('statistics-date-picker', {submitFunction: self.getStatisticsData, interval: true, buttonSize: 'md'});
         start = picker.date.start;
         end = picker.date.end;
-        params = '\"begin\":'+start+', \"end\":'+end;
+        interval = picker.interval;
+        // params = '\"begin\":'+start+', \"end\":'+end;
+
             
-        json_rpc_async('getCallStatistics', params, self._setStatistics);
+        json_rpc_async('getCallStatistics', { begin: start, end: end }, self._setStatistics);
+        json_rpc_async('getCallStatisticsGraph', { begin: start, end: end, interval: interval }, self._setCharts);
 
         extStatBtn.onclick = function(){
             if(extStatBtn.getAttribute('data-state') !== 'shown'){
@@ -10542,6 +10594,33 @@ function Statistics(){
         set_page();
     };
 
+    this.getColumns = function(data, colname, match, params) {
+        // var columns = [];
+        // var col = [];
+        var col = [colname];
+        var value = null;
+        var convert = params ? params.convert : null;
+
+        data.map(function(item) {
+            for(var key in item) {
+                if(key !== colname && (match ? match.indexOf(key) !== -1 : true)) {
+                    value = item[key];
+                    
+                    if(convert === 'minutes') {
+                        value = parseFloat(((value / 1000) / 60).toFixed(2));
+                    }
+
+                    col.push(value);
+                }
+            }
+
+            // columns.push(col);
+        }.bind(this));
+
+        return col;
+        // return columns;
+    };
+
     this.getStatisticsData = function(){
         var params = { begin: picker.date.start,  end: picker.date.end };
 
@@ -10551,6 +10630,16 @@ function Statistics(){
             self._setStatistics(result);
             $('#statistics-cont').removeClass('faded');
         });
+
+        json_rpc_async(
+            'getCallStatisticsGraph', 
+            { 
+                begin: picker.date.start, 
+                end: picker.date.end, 
+                interval: picker.interval 
+            }, 
+            self._setCharts
+        );
 
         getTrunksQosData(params, renderTrunksQosStat);
 
@@ -10632,6 +10721,76 @@ function Statistics(){
         }
         // console.log(data);
         tbody.appendChild(tRows);
+    };
+
+    this._setCharts = function(data) {
+
+        data = data.map(function(item) {
+            item['s'] = item.i - item.m;
+            return item;
+        });
+
+        console.log('statistics charts data: ', data);
+
+        var outChart = c3.generate({
+            bindto: '#outbounds-chart',
+            data: {
+                x: 'intervals',
+                columns: [
+                    self.getColumns(data, 'intervals', ['t']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.OUTCALLS, ['o']),
+                ]
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    }
+                }
+            }
+        });
+
+        var insChart = c3.generate({
+            bindto: '#inbounds-chart',
+            data: {
+                x: 'intervals',
+                columns: [
+                    self.getColumns(data, 'intervals', ['t']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.INCALLS, ['s']),
+                    self.getColumns(data, PbxObject.frases.STATISTICS.LOSTCALLS, ['m']),
+                ],
+                type: 'bar',
+                groups: [[PbxObject.frases.SETTINGS.INCALLS, PbxObject.frases.STATISTICS.LOSTCALLS]]
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    }
+                }
+            }
+        });
+
+        var intsChart = c3.generate({
+            bindto: '#internals-chart',
+            data: {
+                x: 'intervals',
+                columns: [
+                    self.getColumns(data, 'intervals', ['t']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.INTCALLS, ['l']),
+                ]
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%d-%m-%Y'
+                    }
+                }
+            }
+        });
     };
 
     this._build_trunks_statistics = function(data){
@@ -11659,7 +11818,7 @@ function setTrunkOutRoute(route) {
 function set_trunk(){
     var name = document.getElementById('objname').value,
         enabled = document.getElementById('enabled'),
-        passanumberEl = document.getElementById('passanumber'),
+        // passanumberEl = document.getElementById('passanumber'),
         protoOpts,
         jprms,
         handler,
@@ -11742,7 +11901,7 @@ function set_trunk(){
 
     jprms += '"parameters":{';
 
-    if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+    // if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
 
     protoOpts = JSON.stringify(PbxObject.protocolOpts);
     protoOpts = protoOpts.substr(1, protoOpts.length-2);

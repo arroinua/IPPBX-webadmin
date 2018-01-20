@@ -1,4 +1,4 @@
- var ChannelTypeAnalyticsComponent = React.createClass({
+ var ChatGroupsAnalyticsComponent = React.createClass({
 
 	propTypes: {
 		frases: React.PropTypes.object,
@@ -31,11 +31,18 @@
 		return columns;
 	},
 
+	_getColumnIds: function(columns) {
+		return columns.reduce(function(result, next) {
+			result.push(next[0]);
+			return result;
+		}, []);
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var data = this.props.data;
 
-		console.log('ChannelTypeAnalyticsComponent render:', data);
+		console.log('ChatGroupsAnalyticsComponent render:', data);
 
 		return (
 			data && (
@@ -45,7 +52,7 @@
 							<ChartComponent 
 								type="donut" 
 								data={{
-									columns: this._getColumns(data, 'name', ['tnc'])
+									columns: this._getColumns(data, 'name', ['tnc']),
 								}} 
 								options={{
 									donut: {
@@ -65,7 +72,7 @@
 								type="donut" 
 								data={{
 									columns: this._getColumns(data, 'name', ['tr'])
-								}} 
+								}}
 								options={{
 									donut: {
 										label: {
@@ -137,4 +144,4 @@
 	}
 });
 
-ChannelTypeAnalyticsComponent = React.createFactory(ChannelTypeAnalyticsComponent);
+ChatGroupsAnalyticsComponent = React.createFactory(ChatGroupsAnalyticsComponent);

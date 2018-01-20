@@ -5,9 +5,11 @@
 		data: React.PropTypes.array
 	},
 
-	_getColumns: function(data, colname, match) {
+	_getColumns: function(data, colname, match, params) {
 		var columns = [];
 		var col = [];
+		var value = null;
+		var convert = params ? params.convert : null;
 
 		// if(match) {
 		// 	matchRegExp = new RegExp((typeof match === 'string' ? match : match.reduce(function(prev, next) { return prev+'|'+next })), 'gi');
@@ -16,7 +18,15 @@
 		data.map(function(item) {
 			col = [item[colname]];
 			for(var key in item) {
-				if(key !== colname && (match ? match.indexOf(key) !== -1 : true)) col.push(item[key]);
+				if(key !== colname && (match ? match.indexOf(key) !== -1 : true)) {
+					value = item[key];
+					
+					if(convert === 'minutes') {
+						value = parseFloat(((value / 1000) / 60).toFixed(2));
+					}
+
+					col.push(value);
+				}
 			}
 
 			columns.push(col);
@@ -25,84 +35,114 @@
 		return columns;
 	},
 
+	_getColumnIds: function(columns) {
+		return columns.reduce(function(result, next) {
+			result.push(next[0]);
+			return result;
+		}, []);
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var data = this.props.data;
-		var chartData1, chartData2;
-		var chartOptions = {};
 
-		if(data) {
-			chartData1 = {
-				columns: this._getColumns(data, 'name', ['tnc']),
-			};
-
-			chartOptions1 = {
-				donut: {
-					title: "New customers",
-					label: {
-			            format: function (value, ratio, id) {
-			                return value;
-			            }
-			        }
-				}
-			};
-
-			chartData2 = {
-				columns: this._getColumns(data, 'name', ['tr']),
-				// labels: {
-		  //           format: function (v, id, i, j) {
-		  //           	// var format = this._getIndexFormat(key) === 'duration' ? this._formatIndex(item[key], 'ms') : item[key];
-		  //           	console.log('ChannelsAnalyticsComponent chartOptions label: ', v, id, i, j);
-		  //               return v;
-		  //           }
-		  //       }
-			};
-
-			chartOptions2 = {
-				donut: {
-					title: "New requests",
-					label: {
-			            format: function (value, ratio, id) {
-			                return value;
-			            }
-			        }
-				},
-					
-			};
-
-			chartData3 = {
-				columns: this._getColumns(data, 'name', ['ar']),
-			};
-
-			chartOptions3 = {
-				donut: {
-					title: "Assigned requests",
-					label: {
-			            format: function (value, ratio, id) {
-			                return value;
-			            }
-			        }
-				}
-			};
-		}
-
-		console.log('ChannelsAnalyticsComponent render:', data, chartData1);
+		console.log('ChannelsAnalyticsComponent render:', data);
 
 		return (
 			data && (
-				<PanelComponent header="By channel name">
-					<div className="row">
-						<div className="col-sm-4">
-							<ChartComponent type="donut" data={chartData1} options={chartOptions1} />
-						</div>
-						<div className="col-sm-4">
-							<ChartComponent type="donut" data={chartData2} options={chartOptions2} />
-						</div>
-						<div className="col-sm-4">
-							<ChartComponent type="donut" data={chartData3} options={chartOptions3} />
-						</div>
+				<div className="row">
+					<div className="col-sm-4">
+						<PanelComponent header="New customers">
+							<ChartComponent 
+								type="donut" 
+								data={{
+									columns: this._getColumns(data, 'name', ['tnc'])
+								}} 
+								options={{
+									donut: {
+										label: {
+								            format: function (value, ratio, id) {
+								                return value;
+								            }
+								        }
+									}
+								}} 
+							/>
+						</PanelComponent>
 					</div>
-				</PanelComponent>
+					<div className="col-sm-4">
+						<PanelComponent header="New requests">
+							<ChartComponent 
+								type="donut" 
+								data={{
+									columns: this._getColumns(data, 'name', ['tr'])
+								}} 
+								options={{
+									donut: {
+										label: {
+								            format: function (value, ratio, id) {
+								                return value;
+								            }
+								        }
+									}
+								}} 
+							/>
+						</PanelComponent>
+					</div>
+					<div className="col-sm-4">
+						<PanelComponent header="Assigned requests">
+							<ChartComponent 
+								type="donut" 
+								data={{
+									columns: this._getColumns(data, 'name', ['ar'])
+								}} 
+								options={{
+									donut: {
+										label: {
+								            format: function (value, ratio, id) {
+								                return value;
+								            }
+								        }
+									}
+								}}
+							/>
+						</PanelComponent>
+					</div>
+					<div className="col-sm-6">
+						<PanelComponent header="Average time to first answer (minutes)">
+							<ChartComponent 
+								type="bar" 
+								data={{
+									columns: this._getColumns(data, 'name', ['atfr'], { convert: 'minutes' })
+								}} 
+								options={{
+									bar: {
+								        width: {
+								            ratio: 0.5
+								        }
+								    }
+								}} 
+							/>
+						</PanelComponent>
+					</div>
+					<div className="col-sm-6">
+						<PanelComponent header="Average resolution time (minutes)">
+							<ChartComponent 
+								type="bar" 
+								data={{
+									columns: this._getColumns(data, 'name', ['art'], { convert: 'minutes' })
+								}} 
+								options={{
+									bar: {
+								        width: {
+								            ratio: 0.5
+								        }
+								    }
+								}} 
+							/>
+						</PanelComponent>
+					</div>
+				</div>
 			)
 		);
 	}

@@ -1081,9 +1081,7 @@ input.cmn-toggle-round:checked + label:before {
 .panel {
   border-radius: 10px;
   border: 1px solid #eee;
-  background-color: #fff;
   margin-bottom: 20px;
-  overflow: hidden;
 }
 .panel.minimized .panel-body {
   display: none;
@@ -1110,7 +1108,6 @@ input.cmn-toggle-round:checked + label:before {
   margin: 0;
   padding: 15px;
   text-transform: uppercase;
-  background-color: #fff;
   border-bottom: 1px solid #eee;
   cursor: pointer;
 }
@@ -1121,8 +1118,6 @@ input.cmn-toggle-round:checked + label:before {
 .panel-body {
   position: relative;
   padding: 15px;
-  background-color: #fff;
-  overflow: hidden;
 }
 @media only screen and (max-width: 767px) {
   .panel-body {
@@ -1147,10 +1142,12 @@ input.cmn-toggle-round:checked + label:before {
   text-align: center;
   border-top: 1px solid #eee;
   background-color: #33C3F0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .pl-txt h5 {
-  color: #333;
+  color: #fff;
 }
 
 .att-container {

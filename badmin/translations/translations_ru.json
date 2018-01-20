@@ -484,7 +484,7 @@
         "routes": "Маршрутизация вызовов",
         "application": "Приложения",
         "timer": "Таймеры",
-        "conference": "Конференц Группы",
+        "conference": "Конференц-группы",
         "selector": "Селекторные совещания",
         "hunting": "Поиск свободного номера",
         "channel": "Каналы",
@@ -662,6 +662,8 @@
     		"SELECT_PAGE": "Выбрать Facebook страницу"
     	},
     	"EMAIL": {
+    		"SELECT_ACCOUNT_PROVIDER": "Провайдер учетной записи",
+    		"OTHER_PROVIDER": "Другой провайдер",
     		"PROTOCOL": "Протокол",
     		"USERNAME": "Имя пользователя",
     		"PASSWORD": "Пароль",

@@ -7,12 +7,8 @@
     <div id="statistics-cont" class="row pl-kind pl-all">
         <div class="col-xs-12 col-custom">
             <div class="panel">
+                <div class="panel-header">{{SETTINGS.OUTCALLS}}</div>
                 <div class="panel-body">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <h3 style="padding-left:30px;">{{SETTINGS.OUTCALLS}}</h3>
-                        </div>
-                    </div>
                     <div class="row">
                         <div class="col-sm-6 col-xs-12" style="text-align:center">
                             <div class="col-xs-6">
@@ -35,15 +31,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="outbounds-chart"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="panel">
+                <div class="panel-header">{{SETTINGS.INCALLS}}</div>
                 <div class="panel-body">
                     <!-- <hr> -->
                     <div class="row">
-                        <div class="col-xs-12">
-                            <h3 style="padding-left:30px;">{{SETTINGS.INCALLS}}</h3>
-                        </div>
                         <div style="text-align:center">
                             <div class="col-sm-3 col-xs-6">
                                 <h3 class="data-model text-primary" data-model="inbounds.total">0</h3>
@@ -57,6 +56,11 @@
                                 <h3 class="data-model" data-model="inbounds.duration">0</h3>
                                 <p>{{STATISTICS.TOTALDURATION}}</p>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="inbounds-chart"></div>
                         </div>
                     </div>
                 </div>
@@ -95,12 +99,10 @@
                 </div>
             </div>
             <div class="panel">
+                <div class="panel-header">{{SETTINGS.INTCALLS}}</div>
                 <div class="panel-body">
                     <!-- <hr> -->
                     <div class="row">
-                        <div class="col-xs-12">
-                            <h3 style="padding-left:30px;">{{SETTINGS.INTCALLS}}</h3>
-                        </div>
                         <div style="text-align:center">
                             <div class="col-sm-3 col-xs-6">
                                 <h3 class="data-model" data-model="internals.total">0</h3>
@@ -110,6 +112,11 @@
                                 <h3 class="data-model" data-model="internals.duration">0</h3>
                                 <p>{{STATISTICS.TOTALDURATION}}</p>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="internals-chart"></div>
                         </div>
                     </div>
                 </div>
@@ -161,6 +168,7 @@
         </div>
         <div class="col-xs-12 col-custom">
             <div class="panel">
+                <div class="panel-header">{{TRUNKS}}</div>
                 <div class="panel-body">
                     <span>{{EXPORT}}:</span>
                     <a href="#" style="margin:7px;" class="btn btn-default btn-sm" download="{{REPORT}}.xls" onclick="return ExcellentExport.excel(this, 'trunks-statistics-table', 'report');">.xls</a>

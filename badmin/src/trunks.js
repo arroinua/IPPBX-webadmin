@@ -284,7 +284,7 @@ function setTrunkOutRoute(route) {
 function set_trunk(){
     var name = document.getElementById('objname').value,
         enabled = document.getElementById('enabled'),
-        passanumberEl = document.getElementById('passanumber'),
+        // passanumberEl = document.getElementById('passanumber'),
         protoOpts,
         jprms,
         handler,
@@ -367,7 +367,7 @@ function set_trunk(){
 
     jprms += '"parameters":{';
 
-    if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+    // if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
 
     protoOpts = JSON.stringify(PbxObject.protocolOpts);
     protoOpts = protoOpts.substr(1, protoOpts.length-2);

@@ -8,7 +8,8 @@ var AnalyticsComponent = React.createClass({
 	getInitialState: function() {
 		return {
 			picker: {},
-			fetch: {}
+			fetch: {},
+			showChartType: 'chatGroup'
 		};
 	},
 
@@ -23,34 +24,65 @@ var AnalyticsComponent = React.createClass({
 		this.setState({ fetch: params });
 	},
 
+	_onChartTypeSelect: function(e) {
+		var value = e.target.value;
+		this.setState({ showChartType: value });
+
+	},
+
 	render: function() {
 		var frases = this.props.frases;
+		var showChartType = this.state.showChartType;
 
 		return (
 			<div>
-				<div className="row">
-				    <div className="col-xs-12">
-				        <div id="chatstat-date-picker" className="col-sm-4 col-xs-12 dropdown custom-dropdown pull-right" style={{marginBottom: "20px"}}></div>
-				    </div>
+				<div className="row" style={{margin: "20px 0"}}>
+				    <div id="chatstat-date-picker" className="col-sm-4 cdropdown custom-dropdown"></div>
 				</div>
-				<GetAndRenderAnalyticsDataComponent 
-					component={ActivityAnalyticsComponent} 
-					frases={this.props.frases} 
-					fetch={this.state.fetch} 
-					method="getActivityStatistics"
-				/>
-				<GetAndRenderAnalyticsDataComponent 
-					component={ChannelsAnalyticsComponent} 
-					frases={this.props.frases} 
-					fetch={this.state.fetch}
-					method="getChannelStatistics"
-				/>
-				<GetAndRenderAnalyticsDataComponent 
-					component={ChannelTypeAnalyticsComponent} 
-					frases={this.props.frases} 
-					fetch={this.state.fetch}
-					method="getChannelTypeStatistics"
-				/>
+				<div className="row">
+					<div className="col-xs-12">
+						<GetAndRenderAnalyticsDataComponent 
+							component={ActivityAnalyticsComponent} 
+							frases={this.props.frases} 
+							fetch={this.state.fetch} 
+							method="getActivityStatistics"
+						/>
+					</div>
+				</div>
+					<div className="row" style={{ margin: "20px 0" }}>
+						<div className="col-sm-4">
+							<select className="form-control" onChange={this._onChartTypeSelect}>
+								<option value="chatGroup">By chat group</option>
+								<option value="channelName">By channel name</option>
+								<option value="channelType">By channel type</option>
+							</select>
+						</div>
+					</div>
+
+					{
+						showChartType === 'chatGroup' ? (
+							<GetAndRenderAnalyticsDataComponent 
+								component={ChatGroupsAnalyticsComponent} 
+								frases={this.props.frases} 
+								fetch={this.state.fetch}
+								method="getChatGroupStatistics"
+							/>
+						) : showChartType === 'channelName' ? (
+							<GetAndRenderAnalyticsDataComponent 
+								component={ChannelsAnalyticsComponent} 
+								frases={this.props.frases} 
+								fetch={this.state.fetch}
+								method="getChannelStatistics"
+							/>
+						) : (
+							<GetAndRenderAnalyticsDataComponent 
+								component={ChannelTypeAnalyticsComponent} 
+								frases={this.props.frases} 
+								fetch={this.state.fetch}
+								method="getChannelTypeStatistics"
+							/>
+						)
+					}
 			</div>
 		);
 	}

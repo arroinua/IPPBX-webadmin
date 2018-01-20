@@ -1,9 +1,8 @@
 .panel{
     border-radius: $global-radius;
     border: 1px solid #eee;
-    background-color: #fff;
     margin-bottom: 20px;
-    overflow: hidden;
+    // overflow: hidden;
 
     &.minimized{
 	    .panel-body{
@@ -54,7 +53,7 @@
     margin: 0;
     padding: 15px;
     text-transform: uppercase;
-    background-color: $secondary-color;
+    // background-color: $secondary-color;
     border-bottom: 1px solid #eee;
     // color: $primary-text-color-2;
     cursor: pointer;
@@ -67,8 +66,8 @@
 .panel-body{
     position: relative;
     padding: 15px;
-    background-color: #fff;
-    overflow: hidden;
+    // background-color: #fff;
+    // overflow: hidden;
 
 	@media only screen and (max-width: $handheld) {
         padding: 15px;
@@ -92,7 +91,9 @@
     text-align: center;
     border-top: 1px solid #eee;
     background-color: $primary-color;
+    border-bottom-left-radius: $global-radius;
+    border-bottom-right-radius: $global-radius;
 }
 .pl-txt h5{
-    color: $primary-text-color-1;
+    color: #fff;
 }

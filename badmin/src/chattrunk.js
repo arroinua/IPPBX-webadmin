@@ -8,18 +8,56 @@ function load_chattrunk(params) {
 	var services = [{
 		id: 'FacebookMessenger',
 		name: "Messenger",
-		icon: '/badmin/images/facebook_messenger.png',
+		icon: '/badmin/images/channels/fm.png',
 		params: {
 			appId: '1920629758202993'
 		}
 	}, {
 		id: 'Email',
 		name: "Email",
-		icon: '/badmin/images/email.png'
+		icon: '/badmin/images/channels/email.png',
+		providers: {
+			gmail: {
+				protocol: 'imap',
+				hostname: 'imap.gmail.com',
+				port: 993,
+				usessl: true
+			},
+			outlook: {
+				protocol: 'imap',
+				hostname: 'imap-mail.outlook.com',
+				port: 993,
+				usessl: true
+			},
+			office365: {
+				protocol: 'imap',
+				hostname: 'outlook.office365.com',
+				port: 993,
+				usessl: true
+			},
+			icloud: {
+				protocol: 'imap',
+				hostname: 'imap.mail.me.com',
+				port: 993,
+				usessl: true
+			},
+			aol: {
+				protocol: 'imap',
+				hostname: 'imap.aol.com',
+				port: 993,
+				usessl: true
+			},
+			yahoo: {
+				protocol: 'imap',
+				hostname: 'imap.mail.yahoo.com',
+				port: 993,
+				usessl: true
+			}
+		}
 	}, {
 		id: 'Viber',
 		name: "Viber",
-		icon: '/badmin/images/viber.ico'
+		icon: '/badmin/images/channels/viber.ico'
 	}
 	// {
 	// 	id: 'Facebook',

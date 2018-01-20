@@ -61,6 +61,8 @@ function logout() {
         window.location = '/';
     };
     xhr.send();
+
+    setLastQuery('');
 }
 
 function createWebsocket(){
@@ -607,6 +609,9 @@ function get_object(e){
             //     load_template(template, kind);
             // });
         }
+
+        setLastQuery(query);
+
     }
 
     if(isSmallScreen() && $('#pagecontent').hasClass('squeezed-right')) {
@@ -686,6 +691,10 @@ function setTempParams(obj) {
 
 function clearTempParams() {
     PbxObject.currentObj = {};
+}
+
+function setLastQuery(query) {
+    window.sessionStorage.query = query;
 }
 
 function set_page(){
@@ -2566,6 +2575,8 @@ function change_protocol(){
     if(lastURL) {
         window.sessionStorage.removeItem('lastURL');
         window.location = lastURL;
+    } else if(window.sessionStorage.query) {
+        window.location.hash = window.sessionStorage.query;
     }
 
     initGlobals(window);
