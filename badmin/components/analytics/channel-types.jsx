@@ -41,7 +41,7 @@
 			data && (
 				<div className="row">
 					<div className="col-sm-4">
-						<PanelComponent header="New customers">
+						<PanelComponent header={frases.CHANNEL_STATISTICS.INDEXES.NEW_CUSTOMERS}>
 							<ChartComponent 
 								type="donut" 
 								data={{
@@ -60,7 +60,7 @@
 						</PanelComponent>
 					</div>
 					<div className="col-sm-4">
-						<PanelComponent header="New requests">
+						<PanelComponent header={frases.CHANNEL_STATISTICS.INDEXES.NEW_REQUESTS}>
 							<ChartComponent 
 								type="donut" 
 								data={{
@@ -79,7 +79,7 @@
 						</PanelComponent>
 					</div>
 					<div className="col-sm-4">
-						<PanelComponent header="Assigned requests">
+						<PanelComponent header={frases.CHANNEL_STATISTICS.INDEXES.ASSIGNED_REQUESTS}>
 							<ChartComponent 
 								type="donut" 
 								data={{
@@ -98,7 +98,7 @@
 						</PanelComponent>
 					</div>
 					<div className="col-sm-6">
-						<PanelComponent header="Average time to first answer (minutes)">
+						<PanelComponent header={frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY + " (" + frases.MINUTES + ")"}>
 							<ChartComponent 
 								type="bar" 
 								data={{
@@ -115,7 +115,7 @@
 						</PanelComponent>
 					</div>
 					<div className="col-sm-6">
-						<PanelComponent header="Average resolution time (minutes)">
+						<PanelComponent header={frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME + " (" + frases.MINUTES + ")"}>
 							<ChartComponent 
 								type="bar" 
 								data={{

@@ -571,7 +571,7 @@ function get_object(e){
         lang = PbxObject.language,
         callback = null,
         fn = null;
-        
+    
     if(query === PbxObject.query) return;
     if(query){
 
@@ -611,6 +611,10 @@ function get_object(e){
         }
 
         setLastQuery(query);
+
+        // Analytics
+        ga('set', 'page', ('/'+kind));
+        ga('send', 'pageview');
 
     }
 

@@ -7,6 +7,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <!-- Google Analytics -->
+        <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', 'UA-82207439-2', 'auto');
+        </script>
+        <script async src='https://www.google-analytics.com/analytics.js'></script>
+        <!-- End Google Analytics -->
         <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/badmin/fonts/css/icomoon.css" />
         <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
@@ -27,7 +34,7 @@
                         <a href="#dashboard" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
                     </div>
                     <ul class="nav-list">
-                        <li class="branch-mode mode-users">
+                        <li>
                             <a href="#" data-kind="users" title="{{KINDS.users}}">
                                 <i class="fa fa-user fa-fw"></i>
                                 <span>{{KINDS.users}}</span>
@@ -86,7 +93,7 @@
                         <li class="branch-mode mode-trunks">
                             <a href="#" data-kind="chattrunk" title="{{KINDS.chattrunk}}">
                                 <i class="fa fa-whatsapp fa-fw"></i>
-                                <span>Chat Trunks</span>
+                                <span>{{KINDS.chattrunk}}</span>
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
@@ -189,16 +196,16 @@
                                         <i class="fa fa-history fa-fw"></i>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdown">
-                                        <!-- <li>
-                                            <a href="#reports" role="menuitem" tabindex="-1">
-                                                <i class="fa fa-bar-chart fa-fw"></i>
-                                                {{KINDS.reports}}
-                                            </a>
-                                        </li> -->
                                         <li>
                                             <a href="#statistics" role="menuitem" tabindex="-1">
                                                 <i class="fa fa-table fa-fw"></i>
                                                 {{KINDS.statistics}}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#channel_statistics" role="menuitem" tabindex="-1">
+                                                <i class="fa fa-commenting-o fa-fw"></i>
+                                                {{KINDS.channel_statistics}}
                                             </a>
                                         </li>
                                         <li>

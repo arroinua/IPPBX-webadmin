@@ -117,6 +117,7 @@ function load_chattrunk(params) {
 	    	kind: PbxObject.kind,
 	    	oid: params.oid,
 	    	name: params.name,
+	    	directref: params.directref,
 	    	enabled: params.enabled || true,
 	    	type: params.type,
 	    	pagename: params.pagename,

@@ -4,7 +4,9 @@
 		frases: React.PropTypes.object,
 		fetch: React.PropTypes.object,
 		method: React.PropTypes.string,
-		component: React.PropTypes.func
+		component: React.PropTypes.func,
+		onComponentLoad: React.PropTypes.func,
+		onComponentUpdate: React.PropTypes.func
 	},
 
 	getDefaultProps: function() {
@@ -12,7 +14,7 @@
 	},
 
 	getInitialState: function() {
-		return { data: null };
+		return { data: null, fetching: false };
 	},
 
 	componentWillMount: function() {
@@ -20,21 +22,28 @@
 	},
 
 	componentWillReceiveProps: function(props) {
-		this._getData(props.method, props.fetch);
+		this.setState({ fetching: true });
+		
+		this._getData(props.method, props.fetch, function(result) {
+			this.setState({ fetching: false })
+			this._setData(result);
+		}.bind(this));
 	},
 
-	_getData: function(method, params) {
-		console.log('GetAndRenderAnalyticsDataComponent _getData: ', method, params);
+	shouldComponentUpdate: function() {
+		return !this.state.fetching;
+	},
+
+	_getData: function(method, params, callback) {
 		if(!method || !params.date) return;
 
 		json_rpc_async(method, {
 			begin: params.date.start,
 			end: params.date.end
-		}, this._setData);
+		}, callback);
 	},
 
 	_setData: function(data) {
-		console.log('GetAndRenderAnalyticsDataComponent _setData: ', this.props.method, data);
 
 		this.setState({
 			data: data
@@ -46,7 +55,9 @@
 		var data = this.state.data;
 		var Component = this.props.component;
 
-		return <Component frases={frases} data={data} />
+		return (
+			data ? <Component frases={frases} data={data} onLoad={this.props.onComponentLoad} onUpdate={this.props.onComponentUpdate} /> : null
+		)
 	}
 });
 

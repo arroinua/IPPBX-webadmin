@@ -488,13 +488,14 @@
         "hunting": "Call Hunting Groups",
         "channel": "Channels",
         "channels": "Channel Monitoring",
-        "chatchannel": "Chat channels",
-        "chattrunk": "Chat trunks",
+        "chatchannel": "Service groups",
+        "chattrunk": "Channels",
         "calls": "Dashboard",
         "dashboard": "Dashboard",
         "records": "Call Records",
         "rec_settings": "Recording settings",
-        "statistics": "Statistics",
+        "statistics": "Calls statistics",
+        "channel_statistics": "Channel statistics",
         "reports": "Reports",
         "extensions": "Extensions",
         "attendant": "Auto-attendant",
@@ -578,6 +579,7 @@
     "DBOWNER" : "Database owner",
     "OWNER" : "Owner",
     "STATISTICS" : {
+    	"STATISTICS": "Statistics",
     	"TYPES" : {
     		"PERIOD" : "Period",
     		"INTERVAL" : "Interval"
@@ -639,8 +641,8 @@
     	"QUEUE_SETTINGS_TAB": "Queue"
     },
     "CHAT_CHANNEL": {
-    	"DEFAULT_NAME": "Chat channel",
-    	"NO_MEMBERS": "No members in the channel",
+    	"DEFAULT_NAME": "Service group",
+    	"NO_MEMBERS": "No members in the group",
     	"ADD_MEMBERS": "Add members",
     	"MEMBERS": "Members",
     	"AVAILABLE_USERS": "Available users",
@@ -650,8 +652,8 @@
     	"SELECT_SERVICE": "Select service",
     	"NO_CHANNELS_MSG_1": "You need to",
     	"NO_CHANNELS_MSG_2": "before connecting a Chat trnuk",
-    	"CREATE_CHANNEL": "create a Chat channel",
-    	"SELECT_CHANNEL": "Select Chat Channel",
+    	"CREATE_CHANNEL": "create new Service group",
+    	"SELECT_CHANNEL": "Select Service group",
     	"SESSION_TIMEOUT": "Session timeout (min)",
     	"REPLY_TIMEOUT": "Reply timeout (min)",
     	"FACEBOOK": {
@@ -669,6 +671,23 @@
     		"HOSTNAME": "Hostname",
     		"PORT": "Port",
     		"SSL": "Use TLS/SSL"
+    	}
+    },
+    "CHANNEL_STATISTICS": {
+    	"INDEXES": {
+    		"NEW_CUSTOMERS": "New customers",
+    		"NEW_REQUESTS": "New requests",
+    		"ASSIGNED_REQUESTS": "Assigned requests",
+    		"TOTAL_REPLIES": "Total replies",
+    		"TIME_TO_FIRST_REPLY": "Time to first reply",
+    		"RESOLUTION_TIME": "Resolution time",
+    		"TIME_TO_REPLY": "Time to reply",
+    		"TIME_TO_ASSIGN": "Time to assign"
+    	},
+    	"SHOW_BY": {
+    		"CHAT_GROUP": "By chat group",
+    		"CHANNEL_NAME": "By channel name",
+    		"CHANNEL_TYPE": "By channel type"
     	}
     },
     "ATTENDANT" : {

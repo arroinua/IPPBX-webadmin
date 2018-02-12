@@ -185,7 +185,9 @@ var FacebookTrunkComponent = React.createClass({
 						</form>
 
 					)
+
 				}	
+
 			</div>
 		);
 	}

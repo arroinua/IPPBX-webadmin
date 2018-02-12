@@ -63,7 +63,7 @@
 		var selectedRoute = this.state.selectedRoute || this.props.routes[0];
 		var properties = this.state.properties || {};
 
-		console.log('setObject: ', properties, selectedRoute);
+		console.log('setObject: ', properties, selectedRoute, this.state.params);
 
 		if(!selectedRoute) return console.error('route is not selected');
 
@@ -87,6 +87,8 @@
 			timeout: 86400
 		});
 
+		console.log('setObject params: ', params);
+
 		this.props.setObject(params, function(err, result) {
 			if(err) return;
 			this.setState({ params: params });
@@ -106,8 +108,10 @@
 	_onParamsChange: function(e) {
 		var target = e.target;
 		var params = this.state.params;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : target.value;
 
-		params[target.name] = target.value;
+		params[target.name] = value;
 		this.setState({ params: params });
 	},
 
@@ -220,6 +224,16 @@
 
 												<form className="form-horizontal">
 													<hr/>
+													<div className="form-group">
+														<div className="col-sm-offset-4 col-sm-8">
+															<div className="checkbox">
+															    <label>
+															    	<input type="checkbox" name="directref" checked={params.directref} onChange={this._onParamsChange} />
+															    	<span>Allow routing on request</span>
+															    </label>
+															</div>
+														</div>
+													</div>
 													<div className="form-group">
 														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
 														<div className="col-sm-4">

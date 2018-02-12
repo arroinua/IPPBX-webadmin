@@ -29,6 +29,7 @@ var EmailTrunkComponent = React.createClass({
 
 	_onChange: function(e) {
 		var target = e.target;
+		var state = this.state;
 		var data = this.state.data;
 		var value = target.type === 'checkbox' ? target.checked : (target.type === 'number' ? parseFloat(target.value) : target.value);
 		
@@ -114,6 +115,16 @@ var EmailTrunkComponent = React.createClass({
 							    	</select>
 							    </div>
 							</div>
+							{
+								this.state.provider === 'other' && (
+									<div className="form-group">
+									    <label htmlFor="usermail" className="col-sm-4 control-label">{frases.EMAIL}</label>
+									    <div className="col-sm-4">
+									    	<input type="text" className="form-control" name="usermail" value={data.usermail} onChange={this._onChange} autoComplete='off' required />
+									    </div>
+									</div>
+								)
+							}
 							<div className="form-group">
 							    <label htmlFor="username" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.USERNAME}</label>
 							    <div className="col-sm-4">

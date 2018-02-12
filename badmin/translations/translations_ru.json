@@ -489,13 +489,14 @@
         "hunting": "Поиск свободного номера",
         "channel": "Каналы",
         "channels": "Мониторинг каналов",
-        "chatchannel": "Чат каналы",
-        "chattrunk": "Чат транки",
+        "chatchannel": "Группы обслуживания",
+        "chattrunk": "Каналы",
         "calls": "Панель мониторинга",
         "dashboard": "Панель мониторинга",
         "records": "Журнал вызовов",
         "rec_settings": "Настройка записи разговоров",
-        "statistics": "Статистика",
+        "statistics": "Статистика звонков",
+        "channel_statistics": "Статистика чатов",
         "reports": "Отчеты",
         "extensions": "Внутренние номера",
         "attendant": "Авто-секретарь",
@@ -579,6 +580,7 @@
     "DBOWNER" : "Собственник БД",
     "OWNER" : "Пользователь",
     "STATISTICS" : {
+    	"STATISTICS": "Статистика",
     	"TYPES" : {
     		"PERIOD" : "За период",
     		"INTERVAL" : "Интервальный"
@@ -640,8 +642,8 @@
     	"QUEUE_SETTINGS_TAB": "Очередь"
     },
     "CHAT_CHANNEL": {
-    	"DEFAULT_NAME": "Чат канал",
-    	"NO_MEMBERS": "Нет участников в канале",
+    	"DEFAULT_NAME": "Группа обслуживания",
+    	"NO_MEMBERS": "Нет участников в группе",
     	"ADD_MEMBERS": "Добавить участников",
     	"MEMBERS": "Участников",
     	"AVAILABLE_USERS": "Доступные пользователи",
@@ -650,9 +652,9 @@
     "CHAT_TRUNK": {
     	"SELECT_SERVICE": "Выберите сервис",
     	"NO_CHANNELS_MSG_1": "Вам необходимо",
-    	"NO_CHANNELS_MSG_2": "перед тем как подключить Чат транк",
-    	"CREATE_CHANNEL": "создать Чат канал",
-    	"SELECT_CHANNEL": "Выберите Чат канал",
+    	"NO_CHANNELS_MSG_2": "перед тем как подключить Канал",
+    	"CREATE_CHANNEL": "создать Канал",
+    	"SELECT_CHANNEL": "Выберите Канал",
     	"SESSION_TIMEOUT": "Таймаут сессии (мин)",
     	"REPLY_TIMEOUT": "Таймаут ответа (мин)",
     	"FACEBOOK": {
@@ -670,6 +672,23 @@
     		"HOSTNAME": "Имя хоста",
     		"PORT": "Порт",
     		"SSL": "Подключение через TLS/SSL"
+    	}
+    },
+    "CHANNEL_STATISTICS": {
+    	"INDEXES": {
+    		"NEW_CUSTOMERS": "Новые клиенты",
+    		"NEW_REQUESTS": "Новые запросы",
+    		"ASSIGNED_REQUESTS": "Назначенные запросы",
+    		"TOTAL_REPLIES": "Всего ответов",
+    		"TIME_TO_FIRST_REPLY": "Время до первого ответа",
+    		"RESOLUTION_TIME": "Время решения вопроса",
+    		"TIME_TO_REPLY": "Время ответа на сообщение",
+    		"TIME_TO_ASSIGN": "Время до назначения запроса"
+    	},
+    	"SHOW_BY": {
+    		"CHAT_GROUP": "По группе обслуживания",
+    		"CHANNEL_NAME": "По имени канала",
+    		"CHANNEL_TYPE": "По типу канала"
     	}
     },
     "ATTENDANT" : {

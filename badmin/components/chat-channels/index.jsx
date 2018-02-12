@@ -86,7 +86,7 @@
 			    <ObjectName 
 			    	name={params.name}
 			    	frases={frases} 
-			    	enabled={params.enabled || false}
+			    	enabled={params.enabled}
 			    	onStateChange={this._onStateChange}
 			    	onChange={this._onNameChange}
 			    	onSubmit={this._setObject}

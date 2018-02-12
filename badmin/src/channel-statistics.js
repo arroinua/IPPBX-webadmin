@@ -1,7 +1,6 @@
-function load_chats_report(){
+function load_channel_statistics(){
 
 	init();
-	show_content();
     set_page();
 
     // function formatTimeString(time, format){

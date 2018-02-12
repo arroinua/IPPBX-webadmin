@@ -7,6 +7,8 @@ function load_chatchannel(params) {
 	var modalId = 'available-users-modal';
 	var modalCont = document.getElementById('available-users-cont');
 
+	if(!params.name) params.enabled = true;
+
 	if(!modalCont) {
 		modalCont = document.createElement('div');
 		modalCont.id = "available-users-cont";
