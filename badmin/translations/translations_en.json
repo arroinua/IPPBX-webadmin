@@ -649,6 +649,7 @@
     	"SELECT_ALL": "Select all"
     },
     "CHAT_TRUNK": {
+		"OBJ_NAME_PLACEHOLDER" : "Channel name",
     	"SELECT_SERVICE": "Select service",
     	"NO_CHANNELS_MSG_1": "You need to",
     	"NO_CHANNELS_MSG_2": "before connecting a Chat trnuk",
@@ -656,6 +657,7 @@
     	"SELECT_CHANNEL": "Select Service group",
     	"SESSION_TIMEOUT": "Session timeout (min)",
     	"REPLY_TIMEOUT": "Reply timeout (min)",
+    	"GROUP_IN_REQUEST": "Select service group in request",
     	"FACEBOOK": {
     		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",

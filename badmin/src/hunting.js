@@ -34,26 +34,25 @@ function load_hunting(params) {
 		});
 	}
 
-	function getAvailableUsers() {
-		var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
+	// function getAvailableUsers() {
+	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
-	    json_rpc_async('getAvailableUsers', params, function(result){
-			console.log('getAvailableUsers: ', result);
-			showAvailableUsers(result);
-		});
-	}
+	//     json_rpc_async('getAvailableUsers', params, function(result){
+	// 		console.log('getAvailableUsers: ', result);
+	// 		showAvailableUsers(result);
+	// 	});
+	// }
 
-	function showAvailableUsers(data) {
-		console.log('showAvailableUsers: ', data);
+	function showAvailableUsers() {
+		console.log('showAvailableUsers: ');
 
-		ReactDOM.render(AvailableUsersComponent({
-			modalId: modalId,
+		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
-		    data: data,
-		    onSubmit: addMembers
+		    onSubmit: addMembers,
+		    groupid: PbxObject.name ? PbxObject.oid : null
 		}), modalCont);
 
-		$('#'+modalId).modal();
+		// $('#'+modalId).modal();
 	}
 
 	function addMembers(array) {
@@ -128,7 +127,7 @@ function load_hunting(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    getAvailableUsers: getAvailableUsers,
+		    getAvailableUsers: showAvailableUsers,
 		    setObject: setObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,

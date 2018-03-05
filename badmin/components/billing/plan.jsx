@@ -22,6 +22,7 @@ var PlanComponent = React.createClass({
 		var frases = this.props.frases;
 		var plan = this.props.plan;
 		var period = plan.billingPeriodUnit;
+		var attributes = plan.attributes || plan.customData;
 
 		return (
 			<div className="panel" style={{ border: '1px solid #54c3f0', boxShadow: 'none', textAlign: 'center' }}>
@@ -29,8 +30,8 @@ var PlanComponent = React.createClass({
 				<div className="panel-body">
 					<ul style={{ padding: '0', listStyle: 'none' }}>
 						<li><strong>{period === 'months' ? plan.price : (plan.price / 12)}</strong>{plan.currency} { frases.BILLING.PLANS.PER_USER }/{ frases.BILLING.PLANS.PER_MONTH }</li>
-						<li><strong>{plan.customData.storageperuser}</strong>GB { frases.BILLING.PLANS.PER_USER }</li>
-						<li><strong>{plan.customData.linesperuser}</strong> { frases.BILLING.AVAILABLE_LICENSES.LINES } { frases.BILLING.PLANS.PER_USER }</li>
+						<li><strong>{attributes.storageperuser}</strong>GB { frases.BILLING.PLANS.PER_USER }</li>
+						<li><strong>{attributes.linesperuser}</strong> { frases.BILLING.AVAILABLE_LICENSES.LINES } { frases.BILLING.PLANS.PER_USER }</li>
 					</ul>
 					<a href="https://ringotel.co/pricing/" target="_blanc">{ frases.BILLING.PLANS.SHOW_ALL_FEATURES }</a>
 				</div>

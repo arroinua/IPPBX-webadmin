@@ -198,7 +198,7 @@
 		"TIMEZONE": "Часовой пояс"
 	},
 	"OPTIONS" : "Опции",
-	"LOGOUT": "Выйти из системы",
+	"LOGOUT": "Выйти",
 	"GENERAL" : "Общие",
 	"TYPE" : "Тип",
 	"STATE" : "Статус",
@@ -650,6 +650,7 @@
     	"SELECT_ALL": "Выбрать всех"
     },
     "CHAT_TRUNK": {
+    	"OBJ_NAME_PLACEHOLDER" : "Имя канала",
     	"SELECT_SERVICE": "Выберите сервис",
     	"NO_CHANNELS_MSG_1": "Вам необходимо",
     	"NO_CHANNELS_MSG_2": "перед тем как подключить Канал",
@@ -657,6 +658,7 @@
     	"SELECT_CHANNEL": "Выберите Канал",
     	"SESSION_TIMEOUT": "Таймаут сессии (мин)",
     	"REPLY_TIMEOUT": "Таймаут ответа (мин)",
+    	"GROUP_IN_REQUEST": "Выбор группы обслуживания в запросе",
     	"FACEBOOK": {
     		"LOGIN_MSG": "Подключите ваш Facebook аккаунт. Вам нужен аккаунт Facebook с разрешениями для управления опубликованной страницей Facebook.",
     		"NO_PAGES_MSG": "Похоже, вы еще не создали и / или не управляете ни одной страницей Facebook",

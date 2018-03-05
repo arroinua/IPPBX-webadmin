@@ -126,7 +126,7 @@
 					<div className="panel">
 						<div className="panel-body" style={{ padding: "0" }}>
 						    <div className="table-responsive">
-						        <table className="table table-hover sortable" id="group-extensions" style={{ marginBottom: "0" }}>
+						        <table className={"table table-hover" + ((filteredMembers.length && this.props.sortable) ? "sortable" : "")} id="group-extensions" style={{ marginBottom: "0" }}>
 						            
 						            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
 						            	{

@@ -1646,6 +1646,7 @@ input[type="checkbox"]:checked + .help-block {
   height: 100vh;
   background-color: rgba(243, 248, 249, 0.7);
   z-index: 1000;
+  overflow: hidden;
 }
 
 .loader {

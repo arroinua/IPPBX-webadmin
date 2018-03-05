@@ -4,14 +4,15 @@ function load_chattrunk(params) {
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
-	var routes = [];
+	// var routes = [];
 	var services = [{
 		id: 'FacebookMessenger',
 		name: "Messenger",
 		icon: '/badmin/images/channels/fm.png',
 		params: {
 			appId: '1920629758202993'
-		}
+		},
+		component: FacebookTrunkComponent
 	}, {
 		id: 'Email',
 		name: "Email",
@@ -53,11 +54,18 @@ function load_chattrunk(params) {
 				port: 993,
 				usessl: true
 			}
-		}
+		},
+		component: EmailTrunkComponent
 	}, {
 		id: 'Viber',
 		name: "Viber",
-		icon: '/badmin/images/channels/viber.ico'
+		icon: '/badmin/images/channels/viber.ico',
+		component: ViberTrunkComponent
+	}, {
+		id: 'sip',
+		name: 'Number',
+		icon: '/badmin/images/channels/did.png',
+		component: DidTrunkComponent
 	}
 	// {
 	// 	id: 'Facebook',
@@ -77,25 +85,34 @@ function load_chattrunk(params) {
 	// 	}
 	];
 
+	var modalCont = document.getElementById('create-service-group');
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "create-service-group";
+		document.body.appendChild(modalCont);
+	}
+
 	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
 	params.replytimeout = (params.replytimeout || 86400)/60;
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
-	init();
+	// init();
     set_page();
+    render();
 
-	function init() {
-		getObjects('chatchannel', function(result) {
-			console.log('getObjects: ', result);
-			routes = result || [];
 
-			render();
-			// initServices(type);
+	// function init() {
+	// 	getObjects('chatchannel', function(result) {
+	// 		console.log('getObjects: ', result);
+	// 		routes = result || [];
 
-		});
-	}
+	// 		render();
+	// 		// initServices(type);
+
+	// 	});
+	// }
 
 	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
@@ -153,6 +170,18 @@ function load_chattrunk(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
 	}
 
+	function createGroup(type) {
+		var componentParams = {
+			type: type,
+			frases: PbxObject.frases,
+			onSubmit: function(params) {
+				console.log('createGroup: ', params);
+			}
+		};
+
+		ReactDOM.render(CreateGroupModalComponent(componentParams), modalCont);
+	}
+
 	// function render(serviceParams) {
 	function render() {
 		var componentParams = {
@@ -162,7 +191,9 @@ function load_chattrunk(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    // serviceParams: serviceParams,
-		    routes: routes,
+		    // routes: routes,
+		    createGroup: createGroup,
+		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
 		    removeObject: removeObject

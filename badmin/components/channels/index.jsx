@@ -6,32 +6,34 @@
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
 		routes: React.PropTypes.array,
+		getObjects: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
 		setObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func
 	},
 
-	getDefaultProps: function() {
-		return {
-			routes: []
-		};
-	},
-
 	getInitialState: function() {
 		return {
-			serivceInited: true,
+			routes: null,
+			serivceInited: false,
+			selectedRoute: [],
 			properties: null
 		};
 	},
 
 	componentWillMount: function() {
 		var params = this.props.params;
-		this.setState({
-			type: this.props.type,
+		var type = this.props.type;
+
+		this.setState({ 
+			routes: [],
+			type: type,
 			params: params || {},
 			properties: params.properties,
-			selectedRoute: params.routes.length ? params.routes[0].target : (this.props.routes.length ? this.props.routes[0] : null)
+			serivceInited: true
 		});
+
+		this._setService(type);
 	},
 
 	componentWillReceiveProps: function(props) {
@@ -127,9 +129,21 @@
 	},
 
 	_setService: function(type) {
-		this.setState({ 
-			type: type
-		});
+		var params = this.props.params;
+
+		this._getAvailableRoutes(type, function(result) {
+			this.setState({ 
+				type: type, 
+				routes: result || [],
+				selectedRoute: (params.routes && params.routes.length) ? params.routes[0].target : ((this.props.routes && this.props.routes.length) ? this.props.routes[0] : [])
+			});
+		}.bind(this));
+	},
+
+	_getAvailableRoutes: function(type, callback) {
+		console.log('_getAvailableRoutes: ', type);
+		var groupType = type === 'sip' ? ['hunting', 'icd'] : ['chatchannel'];
+		this.props.getObjects(groupType, callback);	
 	},
 
 	_getComponentName: function(type) {
@@ -154,20 +168,28 @@
 		}, {});
 	},
 
+	_createGroup: function(e) {
+		e.preventDefault();
+		this.props.createGroup(this.state.type);
+	},
+
 	render: function() {
 		var params = this.state.params;
 		var frases = this.props.frases;
 		var type = this.state.type;
-		var ServiceComponent = this._getComponentName(type);
 		var serviceParams = this._getServiceParams(type);
-		
+		var ServiceComponent = serviceParams.component;
+
 		console.log('ChatTrunkComponent: ', params, ServiceComponent);
+
+		if(!params) return null;
 
 		return (
 			<div>
 				<ObjectName 
 					name={params.name} 
 					frases={frases} 
+			    	placeholder={frases.CHAT_TRUNK.OBJ_NAME_PLACEHOLDER}
 					enabled={params.enabled || false}
 					submitDisabled={this.state.submitDisabled}
 					onStateChange={this._onStateChange}
@@ -177,12 +199,7 @@
 				/>
 				<PanelComponent>
 					{
-						!this.props.routes.length ? (
-
-							<h4>{frases.CHAT_TRUNK.NO_CHANNELS_MSG_1}<a href="#chatchannel/chatchannel"> {frases.CHAT_TRUNK.CREATE_CHANNEL}</a> {frases.CHAT_TRUNK.NO_CHANNELS_MSG_2}</h4>
-						
-						) : (
-
+						this.state.serivceInited ? (
 							<div className="row">
 								<div className="col-xs-12">
 									<form className="form-horizontal">
@@ -210,7 +227,6 @@
 								</div>
 								<div className="col-xs-12">
 									<div>
-
 										<ServiceComponent
 											frases={frases}
 											properties={this.state.params.properties}
@@ -224,34 +240,47 @@
 
 												<form className="form-horizontal">
 													<hr/>
-													<div className="form-group">
-														<div className="col-sm-offset-4 col-sm-8">
-															<div className="checkbox">
-															    <label>
-															    	<input type="checkbox" name="directref" checked={params.directref} onChange={this._onParamsChange} />
-															    	<span>Allow routing on request</span>
-															    </label>
+													{
+														this.state.routes ? (
+															this.state.routes.length ? (
+																<div className="form-group">
+																	<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
+																	<div className="col-sm-4">
+																		<select className="form-control" id="ctc-select-2" value={this.state.selectedRoute.oid} onChange={this._selectRoute}>
+																			{
+																				this.state.routes.map(function(item) {
+																					return <option key={item.oid} value={item.oid}>{item.name}</option>
+																				})
+																			}
+																		</select>
+																	</div>
+																</div>
+															) : (
+																<div className="form-group">
+																	<div className="col-sm-4 col-sm-offset-4">
+																		<button className="btn btn-primary" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create group</button>
+																	</div>
+																</div>
+															)
+														) : (
+															<Spinner/>
+														)
+													}
+
+													{
+														type === 'FacebookMessenger' && (
+															<div className="form-group">
+																<div className="col-sm-offset-4 col-sm-8">
+																	<div className="checkbox">
+																	    <label>
+																	    	<input type="checkbox" name="directref" checked={params.directref} onChange={this._onParamsChange} />
+																	    	<span>{frases.CHAT_TRUNK.GROUP_IN_REQUEST}</span>
+																	    </label>
+																	</div>
+																</div>
 															</div>
-														</div>
-													</div>
-													<div className="form-group">
-														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
-														<div className="col-sm-4">
-															<select className="form-control" id="ctc-select-2" value={this.state.selectedRoute.oid} onChange={this._selectRoute}>
-																{
-																	this.props.routes.map(function(item) {
-
-																		return (
-
-																			<option key={item.oid} value={item.oid}>{item.name}</option>
-
-																		);
-
-																	})
-																}
-															</select>
-														</div>
-													</div>
+														)
+													}
 													<div className="form-group">
 														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SESSION_TIMEOUT}</label>
 														<div className="col-sm-4">
@@ -271,8 +300,13 @@
 
 									</div>
 								</div>
+							</div>		
+						) : (
+							<div className="row">
+								<div className="col-xs-12">
+									<Spinner />
+								</div>
 							</div>
-
 						)
 					}
 							

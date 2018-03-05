@@ -100,7 +100,7 @@ var ObjectName = React.createClass({
 				    	id="objname"
 				    	type="text" 
 				    	className="form-control" 
-				    	placeholder={frases.GROUPSNAME} 
+				    	placeholder={props.placeholder || frases.GROUPSNAME} 
 				    	value={state.name}
 				    	onChange={this._onChange} 
 				    	required

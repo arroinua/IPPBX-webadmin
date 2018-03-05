@@ -108,7 +108,8 @@ function billingRequest(path, params, cb) {
     if(!access_token) return cb('MISSING_TOKEN');
     request(
         'POST',
-        'https://my.ringotel.co/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        // 'https://api-web.ringotel.net/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        'https://bb277d16.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
         function(err, result) {
@@ -949,6 +950,7 @@ function toggle_presentation() {
 
 function show_loading_panel(container){
     if(document.getElementById('el-loading')) return;
+    if(typeof container === 'string') container = document.getElementById(container);
     var back = document.createElement('div');
     back.id = 'el-loading';
     back.className = 'el-loading-panel ';
@@ -972,8 +974,7 @@ function show_content(togglecont){
     setBreadcrumbs();
     remove_loading_panel();
 
-    if($('#dcontainer').hasClass('faded'))
-        $('#dcontainer').removeClass('faded');
+    $('#dcontainer').removeClass('faded');
 
     if(togglecont === false) return;
 }
@@ -1531,10 +1532,10 @@ function objectDeleted(data){
     }
 }
 
-function set_object_success(){
+function set_object_success(message){
     remove_loading_panel();
 
-    notify_about('success', PbxObject.frases.SAVED);
+    notify_about('success', (message || PbxObject.frases.SAVED));
 }
 
 function set_options_success() {
