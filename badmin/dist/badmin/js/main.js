@@ -4009,7 +4009,7 @@ function load_chattrunk(params) {
 	}
 
 	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
-	params.replytimeout = (params.replytimeout || 86400)/60;
+	params.replytimeout = (params.replytimeout || 3600)/60;
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
@@ -11757,10 +11757,10 @@ function load_trunk(result){
     show_content();
     set_page();
 
-    renderTrunkIncRoute({
-        route: result.inboundbnumbertransforms.filter(getCurrIncRoutes)[0],
-        frases: PbxObject.frases
-    });
+    // renderTrunkIncRoute({
+    //     route: result.inboundbnumbertransforms.filter(getCurrIncRoutes)[0],
+    //     frases: PbxObject.frases
+    // });
 
     // renderTrunkOutRoute();
     
@@ -11787,22 +11787,23 @@ function getRouteOptions(cb) {
 
 function renderTrunkIncRoute(params) {
 
-    var route = null;
+    var routes = null;
 
     getRouteOptions(function(options) {
         if(params.route) {
-            route = options.filter(function(item) {
+            routes = options.filter(function(item) {
                 return (item.ext === params.route.prefix);
             })[0];
         }
 
-        console.log('renderTrunkIncRoute: ', route);
+        console.log('renderTrunkIncRoute: ', routes);
 
         // Render incoming route parameter
         ReactDOM.render(
             TrunkIncRoute({
-                options: options,
-                route: route,
+                // options: options,
+                // routes: routes,
+                routes: result.inboundbnumbertransforms,
                 frases: params.frases,
                 onChange: setTrunkIncRoute
             }),

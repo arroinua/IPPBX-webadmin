@@ -1,4 +1,4 @@
- var HuntingGroupComponent = React.createClass({
+var HuntingGroupComponent = React.createClass({
 
 	propTypes: {
 		frases: React.PropTypes.object,

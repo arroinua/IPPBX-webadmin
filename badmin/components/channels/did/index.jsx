@@ -69,7 +69,7 @@ var DidTrunkComponent = React.createClass({
 		var data = this.state.data;
 		var value = target.type === 'checkbox' ? target.checked : (target.type === 'number' ? parseFloat(target.value) : target.value);
 		
-		console.log('DidTrunkComponent onChange: ', value);
+		console.log('DidTrunkComponent onChange: ', target.name, value);
 
 		data[target.name] = value;
 
@@ -93,6 +93,8 @@ var DidTrunkComponent = React.createClass({
 		} else {
 			data.number = value;
 		}
+
+		data.id = value;
 
 		this.setState({ data: data, number: value });
 

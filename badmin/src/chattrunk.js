@@ -93,7 +93,7 @@ function load_chattrunk(params) {
 	}
 
 	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
-	params.replytimeout = (params.replytimeout || 86400)/60;
+	params.replytimeout = (params.replytimeout || 3600)/60;
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
