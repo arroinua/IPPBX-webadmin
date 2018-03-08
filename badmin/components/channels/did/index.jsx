@@ -15,7 +15,7 @@ var DidTrunkComponent = React.createClass({
 			newDid: null,
 			cycleDays: 0,
 			proratedDays: 0,
-			number: "",
+			// number: "",
 			numbers: null,
 			countries: [],
 			locations: [],
@@ -24,6 +24,7 @@ var DidTrunkComponent = React.createClass({
 			selectedLocation: {},
 			selectedPriceObject: {},
 			selectedType: 'Local',
+			selectedNumber: {},
 			showNewDidSettings: false
 		};
 	},
@@ -36,8 +37,10 @@ var DidTrunkComponent = React.createClass({
 			var sub = response.result;
 			var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 			var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
+			var number = "";
 
 			this.setState({ 
+				data: this.props.properties || {},
 				sub: response.result,
 				cycleDays: cycleDays,
 				proratedDays: proratedDays
@@ -46,10 +49,17 @@ var DidTrunkComponent = React.createClass({
 			this._getAssignedDids(function(err, response) {
 				if(err) return notify_about('error', err);
 
+				if(this.props.isNew) {
+					number = (response.result && response.result.length) ? response.result[0].number : {};
+				} else {
+					number = this.props.properties.number;
+				}
+
 				this.setState({
-					data: this.props.properties || {},
-					numbers: response.result || []
+					numbers: response.result || [],
 				});
+
+				this._setSelectedNumber(number);
 
 			}.bind(this));
 
@@ -84,22 +94,24 @@ var DidTrunkComponent = React.createClass({
 	_onNumberSelect: function(e) {
 		var value = e.target.value;
 		var state = this.state;
-		var data = this.state.data;
+		var number = "";
 
-		if(!value) {
-			data.number = "";
-		} else if(value === 'other') {
-			data.number = "";
-		} else {
-			data.number = value;
+		if(value && value !== 'other') {
+			number = value;
 		}
 
-		data.id = value;
+		this._setSelectedNumber(number);
 
-		this.setState({ data: data, number: value });
+	},
 
+	_setSelectedNumber: function(number) {
+		var data = this.state.data;
+		var selectedNumber = this.state.numbers.filter(function(item) { return item.number === number })[0];
+		
+		data.number = data.id = number;
+
+		this.setState({ data: data, selectedNumber: selectedNumber });
 		this.props.onChange(data);
-
 	},
 
 	_onCountrySelect: function(e) {
@@ -188,7 +200,7 @@ var DidTrunkComponent = React.createClass({
 			var state = this.state;
 			state.numbers.push(response.result);
 			state.showNewDidSettings = false;
-			state.number = response.result.number;
+			state.selectedNumber = response.result;
 
 			this.setState(state);
 			this.props.onChange(state.data);
@@ -233,47 +245,90 @@ var DidTrunkComponent = React.createClass({
 		console.log('DidTrunkComponent render: ', state.data, this.props.serviceParams);
 
 		return (
-			<div>
+			<form className="form-horizontal" autoComplete='off'>
 				{
 					this.state.numbers ? (
-						this.state.showNewDidSettings ? (
-							<form className="form-horizontal" autoComplete='off'>
+						!this.state.showNewDidSettings ? (
+							<div>
+								{
+									this.props.isNew ? (
+										<div>
+											<div className="form-group">
+												<div className="col-sm-4 col-sm-offset-4">
+													<button className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> Add new local number</button>
+												</div>
+											</div>
+
+											{
+												this.state.numbers.length && (
+													<div>
+														<div className="form-group">
+															<div className="col-sm-4 col-sm-offset-4">
+																<p>or</p>
+															</div>
+														</div>
+														<div className="form-group">
+															<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Select number</label>
+															<div className="col-sm-4">
+																<select className="form-control" name="number" value={this.state.selectedNumber.number} onChange={this._onNumberSelect}>
+																	{
+																		this.state.numbers.map(function(item) {
+																			return <option key={item._id} value={item.number}>{item.formatted}</option>
+																		})
+																	}
+																</select>
+															</div>
+														</div>
+													</div>
+												)
+											}
+										</div>
+									) : (
+										<div className="form-group">
+											<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Selected number</label>
+											<div className="col-sm-4">
+												<p className="form-control-static">{this.state.selectedNumber.formatted}</p>
+											</div>
+										</div>
+									)
+								}
+							</div>
+						) : (
+							<div>
 								<div className="form-group">
 									<div className="col-sm-4 col-sm-offset-4">
-										<a href="" onClick={this._showNewDidSettings}><i className="fa fa-arrow-left"></i> Select existed phone number</a>
+										<a href="" onClick={this._showNewDidSettings}><i className="fa fa-arrow-left"></i> Cancel</a>
 									</div>
 								</div>
+
 								{
 									(maxdids && (maxdids <= state.numbers.length)) ? (
 										<div className="col-sm-8 col-sm-offset-4">
-											<p>You can only have one number during your tria period. <br/> <a href="#billing">Change plan</a> to add more numbers.</p>
-											<br/>
+											<p>You can only have one number during your tria period.</p> 
+											<p>You can <a href="#billing">change plan</a> to add more numbers.</p>
 										</div>
 									) : (
 										<div>
-											{
-												
-												<div className="form-group">
-												    <label htmlFor="country" className="col-sm-4 control-label">Select Country</label>
-												    <div className="col-sm-4">
-												    	{
-												    		this.state.countries.length ? (
-												    			<select className="form-control" name="country" value={selectedCountry.id || ""} onChange={this._onCountrySelect}>
-												    				<option value="">Select country</option>
-												    				{
-												    					this.state.countries.map(function(item) {
-												    						return <option key={item.id} value={item.id}>{item.attributes.name + " ("+item.attributes.prefix+")"}</option>
-												    					})
-												    				}
-												    			</select>
-												    		) : (
-																<Spinner />
-												    		)
-												    	}
-														    	
-												    </div>
-												</div>
-											}
+											<div className="form-group">
+											    <label htmlFor="country" className="col-sm-4 control-label">Select Country</label>
+											    <div className="col-sm-4">
+											    	{
+											    		this.state.countries.length ? (
+											    			<select className="form-control" name="country" value={selectedCountry.id || ""} onChange={this._onCountrySelect}>
+											    				<option value="">Select country</option>
+											    				{
+											    					this.state.countries.map(function(item) {
+											    						return <option key={item.id} value={item.id}>{item.attributes.name + " ("+item.attributes.prefix+")"}</option>
+											    					})
+											    				}
+											    			</select>
+											    		) : (
+															<Spinner />
+											    		)
+											    	}
+													    	
+											    </div>
+											</div>
 
 											{
 												selectedCountry.id && (
@@ -319,53 +374,14 @@ var DidTrunkComponent = React.createClass({
 										</div>
 									)
 								}
-										
-							</form>
-						) : (
-							<form className="form-horizontal" autoComplete='off'>
-								<div className="form-group">
-									<div className="col-sm-4 col-sm-offset-4">
-										<button className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> Add new local number</button>
-									</div>
-								</div>
-								<div className="form-group">
-									<div className="col-sm-4 col-sm-offset-4">
-										<p>or</p>
-									</div>
-								</div>
-								<div className="form-group">
-									<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Select number</label>
-									<div className="col-sm-4">
-										<select className="form-control" name="number" value={this.state.number} onChange={this._onNumberSelect}>
-											<option value="">Not selected</option>
-											{
-												this.state.numbers.map(function(item) {
-													return <option key={item._id} value={item.number}>{item.formatted}</option>
-												})
-											}
-											<option value="other">Other external number</option>
-										</select>
-									</div>
-								</div>
-
-								{
-									this.state.number === 'other' && (
-										<div className="form-group">
-										    <label htmlFor="ext-number" className="col-sm-4 control-label">Phone number</label>
-										    <div className="col-sm-4">
-										    	<input type="text" className="form-control" name="number" value={data.number} onChange={this._onChange} />
-										    </div>
-										</div>
-									)
-								}
-							</form>	
+							</div>
 						)
 					) : (
 						<Spinner />
 					)
 				}
 						
-			</div>
+			</form>
 		);
 	}
 });

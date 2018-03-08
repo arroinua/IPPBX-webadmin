@@ -20,24 +20,11 @@ var ChannelRouteComponent = React.createClass({
 			
 	},
 
-	componentWillReceiveProps: function(props, prevprops) {
-		if(prevprops.type !== props) {
+	componentWillReceiveProps: function(props) {
+		if(props.type !== this.props.type) {
 			this.setState({ routes: [] });
+			this._setRoutes(props);
 		}
-		this._setRoutes(props);
-	},
-
-	_selectRoute: function(e) {
-		var value = e.target.value;
-		var selectedRoute = {};
-		this.state.routes.forEach(function(item) {
-			if(item.oid === value) selectedRoute = item;
-		});
-
-		console.log('_selectRoute: ', selectedRoute);
-
-		this.setState({ selectedRoute: selectedRoute });
-		this.props.onChange(selectedRoute);
 	},
 
 	_setRoutes: function(props) {
@@ -59,10 +46,23 @@ var ChannelRouteComponent = React.createClass({
 		}.bind(this));
 	},
 
+	_selectRoute: function(e) {
+		var value = e.target.value;
+		var selectedRoute = {};
+		this.state.routes.forEach(function(item) {
+			if(item.oid === value) selectedRoute = item;
+		});
+
+		console.log('_selectRoute: ', selectedRoute);
+
+		this.setState({ selectedRoute: selectedRoute });
+		this.props.onChange(selectedRoute);
+	},
+
 	_getAvailableRoutes: function(type, callback) {
 		// var type = this.props.type;
 		console.log('_getAvailableRoutes: ', type);
-		var groupType = type === 'sip' ? ['hunting', 'icd'] : ['chatchannel'];
+		var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
 
 		getObjects(groupType, function(result) {
 			callback(result);
@@ -85,73 +85,43 @@ var ChannelRouteComponent = React.createClass({
 
 	render: function() {
 		var frases = this.props.frases;
+		var selectedRoute = this.state.selectedRoute;
 		
 		return (
 			this.state.routes ? (
 				<div>
-					<select className="form-control" value={this.state.selectedRoute.oid} onChange={this._selectRoute}>
-						{
-							this.state.routes.map(function(item) {
-								return <option key={item.oid} value={item.oid}>{item.name}</option>
-							})
-						}
-					</select>
-					<p>or</p>
-					<button className="btn btn-primary" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create group</button>
-
-					<hr/>
-
-					<div className="form-group">
-					    <label className="col-sm-4 control-label">
-					        <span>{frases.HUNTINGTYPE.HUNTINGTYPE} </span>
-					        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.GRP__HUNT_MODE}></a>
-					    </label>
-					    <div className="col-sm-4">
-					        <select data-type="number" name="huntmode" value={ this.state.options.huntmode } onChange={ this._handleOnChange } className="form-control">
-					            <option value="1">{frases.HUNTINGTYPE.SERIAL}</option>
-					            <option value="3">{frases.HUNTINGTYPE.PARALLEL}</option>
-					        </select>
-					    </div>
-					</div>
-					<div className="form-group">
-					    <label className="col-sm-4 control-label">
-					        <span>{frases.HUNT_TOUT} </span>
-					        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.GRP__CALL_TOUT}></a>
-					    </label>
-					    <div className="col-sm-4">
-					        <input type="number" className="form-control" value={ this.state.options.timeout } name="timeout" onChange={ this._handleOnChange } />
-					    </div>
-					</div>
-					<div className="form-group">
-					    <div className="col-sm-offset-4 col-sm-8">
-					        <div className="checkbox">
-					            <label>
-					                <input type="checkbox" name="huntfwd" checked={ this.state.options.huntfwd } onChange={ this._handleOnChange } /> {frases.FORWFROMHUNT}
-					            </label>
-					            
-					        </div>
-					    </div>
-					</div>
-					<div className="form-group">
-					    <label className="col-sm-4 control-label">
-					        <span>{frases.GREETNAME} </span>
-					        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.UNIT__GREETINGS}></a>
-					    </label>
-					    <div className="col-sm-4">
-					        <FileUpload name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
-					    </div>
-					</div>
-					<div className="form-group">
-					    <label className="col-sm-4 control-label">
-					        <span>{frases.WAIT_MUSIC} </span>
-					        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.UNIT__WAITMUSIC}></a>
-					    </label>
-					    <div className="col-sm-4">
-					        <FileUpload name="waitmusic" value={this.state.options.waitmusic} onChange={this._onFileUpload} />
-					    </div>
-					</div>
-
+					<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_SERVICE_GROUP}</label>
+					{
+						this.state.routes.length ? (
+							<div className="col-sm-4">
+								<select className="form-control" value={selectedRoute.oid} onChange={this._selectRoute}>
+									{
+										this.state.routes.map(function(item) {
+											return <option key={item.oid} value={item.oid}>{item.name}</option>
+										})
+									}
+								</select>
+							</div>
+						) : (
+							<div className="col-sm-4">
+								<p>You don't have service groups yet.</p>
+							</div>
+						)
+					}
+					{
+						this.props.type === 'Telephony' ? (
+							<div className="col-sm-4">
+								<a href="#hunting/hunting" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create Hunting group</a>
+								<a href="#icd/icd" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create Hotline</a>
+							</div>
+						) : (
+							<div className="col-sm-4">
+								<a href="#chatchannel/chatchannel" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create Service group</a>
+							</div>
+						)
+					}
 				</div>
+						
 			) : (
 				<Spinner/>
 			)

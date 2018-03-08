@@ -109,7 +109,7 @@ function billingRequest(path, params, cb) {
     request(
         'POST',
         // 'https://api-web.ringotel.net/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
-        'https://bb277d16.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        'https://03c82274.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
         function(err, result) {

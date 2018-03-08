@@ -5,7 +5,7 @@
     var formEl = document.querySelector('form');
     var errsCont = document.getElementById('errs-cont');
     // var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    var apiGateway = 'https://bb277d16.ngrok.io/branch/api';
+    var apiGateway = 'https://03c82274.ngrok.io/branch/api';
     var host = window.location.host;
 
     formEl.addEventListener('submit', submitForm, false);

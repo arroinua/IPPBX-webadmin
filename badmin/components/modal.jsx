@@ -4,6 +4,7 @@ var ModalComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		size: React.PropTypes.string,
+		type: React.PropTypes.string,
 		title: React.PropTypes.string,
 		submitText: React.PropTypes.string,
 		cancelText: React.PropTypes.string,
@@ -61,8 +62,8 @@ var ModalComponent = React.createClass({
 						</div>
 						{ this.props.submit ? 
 						<div className="modal-footer">
-							<button className="btn btn-default" data-dismiss="modal">{this.props.cancelText}</button>
-							<button className="btn btn-primary" onClick={this._submitModal}>{this.props.submitText}</button>
+							<button className="btn btn-link" data-dismiss="modal">{this.props.cancelText}</button>
+							<button className={"btn btn-"+(this.props.type || "primary")} onClick={this._submitModal}>{this.props.submitText}</button>
 						</div>
 						: null }
 					</div>

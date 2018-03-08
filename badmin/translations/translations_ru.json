@@ -656,6 +656,7 @@
     	"NO_CHANNELS_MSG_2": "перед тем как подключить Канал",
     	"CREATE_CHANNEL": "создать Канал",
     	"SELECT_CHANNEL": "Выберите Канал",
+    	"SELECT_SERVICE_GROUP": "Распределить на сервис группу",
     	"SESSION_TIMEOUT": "Таймаут сессии (мин)",
     	"REPLY_TIMEOUT": "Таймаут ответа (мин)",
     	"GROUP_IN_REQUEST": "Выбор группы обслуживания в запросе",
@@ -667,6 +668,7 @@
     	},
     	"EMAIL": {
     		"SELECT_ACCOUNT_PROVIDER": "Провайдер учетной записи",
+    		"NOT_SELECTED": "Не выбран",
     		"OTHER_PROVIDER": "Другой провайдер",
     		"PROTOCOL": "Протокол",
     		"USERNAME": "Имя пользователя",

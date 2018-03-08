@@ -655,6 +655,7 @@
     	"NO_CHANNELS_MSG_2": "before connecting a Chat trnuk",
     	"CREATE_CHANNEL": "create new Service group",
     	"SELECT_CHANNEL": "Select Service group",
+    	"SELECT_SERVICE_GROUP": "Allocate to Service group",
     	"SESSION_TIMEOUT": "Session timeout (min)",
     	"REPLY_TIMEOUT": "Reply timeout (min)",
     	"GROUP_IN_REQUEST": "Select service group in request",
@@ -666,6 +667,7 @@
     	},
     	"EMAIL": {
     		"SELECT_ACCOUNT_PROVIDER": " Mail account provider",
+    		"NOT_SELECTED": "Not selected",
     		"OTHER_PROVIDER": "Other provider",
     		"PROTOCOL": "Protocol",
     		"USERNAME": "User name",

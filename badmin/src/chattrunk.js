@@ -62,7 +62,7 @@ function load_chattrunk(params) {
 		icon: '/badmin/images/channels/viber.ico',
 		component: ViberTrunkComponent
 	}, {
-		id: 'sip',
+		id: 'Telephony',
 		name: 'Number',
 		icon: '/badmin/images/channels/did.png',
 		component: DidTrunkComponent
@@ -134,7 +134,7 @@ function load_chattrunk(params) {
 	    	kind: PbxObject.kind,
 	    	oid: params.oid,
 	    	name: params.name,
-	    	directref: params.directref,
+	    	directref: params.directref || true,
 	    	enabled: params.enabled || true,
 	    	type: params.type,
 	    	pagename: params.pagename,
@@ -149,7 +149,8 @@ function load_chattrunk(params) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    } else {
-	    	props.properties = params.properties;
+	    	if(Object.keys(params.properties).length) props.properties = params.properties;
+	    	else return console.error('Properties are empty');
 	    }
 
     	json_rpc_async('setObject', props, function(result, err) {
@@ -166,8 +167,30 @@ function load_chattrunk(params) {
     	});
 	}
 
-	function removeObject(params) {
-		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	function confirmRemoveObject(type, callback) {
+		var props = {
+			frases: PbxObject.frases,
+			name: PbxObject.name,
+			warning: type === 'Telephony' ? "By deleting the channel the number assigned to it will be also deleted." : null,
+			onSubmit: callback
+		};
+
+		ReactDOM.render(DeleteObjectModalComponent(props), modalCont);
+	}
+
+	function removeObject(type, params) {
+		console.log('removeObject: ', type, params);
+
+		confirmRemoveObject(type, function() {
+			
+			if(type === 'Telephony') {
+				billingRequest('unassignDid', { number: params.number }, function(err, response) {
+					console.log('unassignDid: ', response);
+				});
+			}
+
+			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+		});
 	}
 
 	function createGroup(type) {

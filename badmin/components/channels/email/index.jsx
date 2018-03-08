@@ -85,10 +85,10 @@ var EmailTrunkComponent = React.createClass({
 					this.props.isNew && (
 						<form className="form-horizontal" autoComplete='off'>
 							<div className="form-group">
-							    <label htmlFor="provider" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.SERVICE_PROVIDER}</label>
+							    <label htmlFor="provider" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.SELECT_ACCOUNT_PROVIDER}</label>
 							    <div className="col-sm-4">
 							    	<select type="text" className="form-control" name="provider" value={this.state.provider} onChange={this._onProviderSelect}>
-							    		<option value="">{frases.CHAT_TRUNK.EMAIL.SELECT_ACCOUNT_PROVIDER}</option>
+							    		<option value="">{frases.CHAT_TRUNK.EMAIL.NOT_SELECTED}</option>
 							    		<option value="gmail">Gmail</option>
 							    		<option value="outlook">Outlook</option>
 							    		<option value="office365">Office 365</option>

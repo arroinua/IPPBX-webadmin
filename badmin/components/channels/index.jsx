@@ -16,7 +16,7 @@
 		return {
 			routes: null,
 			serivceInited: false,
-			selectedRoute: [],
+			selectedRoute: null,
 			properties: null
 		};
 	},
@@ -63,12 +63,15 @@
 	
 	_setObject: function() {
 		var params = {};
-		var selectedRoute = this.state.selectedRoute || this.props.routes[0];
-		var properties = this.state.properties || {};
+		var selectedRoute = this.state.selectedRoute;
+		var properties = this.state.properties;
 
 		console.log('setObject: ', properties, selectedRoute, this.state.params);
 
 		if(!selectedRoute) return console.error('route is not selected');
+		if(!Object.keys(properties).length || !properties.id) {
+			return notify_about('info', 'Fill in all required fields');
+		}
 
 		Object.keys(this.state.params).forEach(function(key) {
 			params[key] = this.state.params[key];
@@ -99,7 +102,7 @@
 	},
 
 	_removeObject: function() {
-		this.props.removeObject(this.state.params);
+		this.props.removeObject(this.state.type, this.state.properties);
 	},
 
 	_onPropsChange: function(properties) {
@@ -132,6 +135,7 @@
 
 	_selectRoute: function(route) {
 		console.log('_selectRoute: ', route);
+		this.setState({ selectedRoute: route });
 	},
 
 	_setService: function(type) {
@@ -149,7 +153,7 @@
 
 	// _getAvailableRoutes: function(type, callback) {
 	// 	console.log('_getAvailableRoutes: ', type);
-	// 	var groupType = type === 'sip' ? ['hunting', 'icd'] : ['chatchannel'];
+	// 	var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
 	// 	var routes = [];
 
 	// 	getExtensions(function(result) {
@@ -276,37 +280,20 @@
 											isNew={!this.state.params.pageid}
 										/>
 
+										<hr className="col-xs-12"/>
+
 										{
 											this.state.serivceInited && (
 
 												<form className="form-horizontal">
-													<hr/>
 													<div className="form-group">
-														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
-														<div className="col-sm-4">
-															<ChannelRouteComponent frases={frases} type={type} routes={this.props.params.routes} onChange={this._selectRoute} />
-														</div>
+														<ChannelRouteComponent frases={frases} type={type} routes={this.props.params.routes} onChange={this._selectRoute} />
 													</div>
 
-													{
-														type === 'FacebookMessenger' && (
-															<div className="form-group">
-																<div className="col-sm-offset-4 col-sm-8">
-																	<div className="checkbox">
-																	    <label>
-																	    	<input type="checkbox" name="directref" checked={params.directref} onChange={this._onParamsChange} />
-																	    	<span>{frases.CHAT_TRUNK.GROUP_IN_REQUEST}</span>
-																	    </label>
-																	</div>
-																</div>
-															</div>
-														)
-													}
-
-													<hr/>
+													<hr />
 
 													{
-														type !== 'sip' && (
+														type !== 'Telephony' && (
 															<div className="form-group">
 																<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
 																<div className="col-sm-4">
