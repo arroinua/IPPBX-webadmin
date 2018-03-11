@@ -36,7 +36,7 @@
             display: none;
         }  
         >ul > li > a i:first-child{
-            font-size: 1.4em;
+            font-size: 1.2em;
         }
         ul > li > a{
             padding: 15px;
@@ -163,6 +163,7 @@
             padding: 12px 15px 12px 30px;
         }
         li a i{
+            text-align: center;
             @extend .context-icon;
         }
         li a i{

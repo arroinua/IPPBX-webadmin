@@ -64,7 +64,7 @@
 
 		console.log('setObject: ', properties, selectedRoute, this.state.params);
 
-		if(!selectedRoute) return console.error('route is not selected');
+		if(!selectedRoute || !selectedRoute.oid || !selectedRoute.name) return notify_about('info', this.props.frases.CHAT_TRUNK.SERVICE_GROUP_NOT_SELECTED);
 
 		Object.keys(this.state.params).forEach(function(key) {
 			params[key] = this.state.params[key];
@@ -104,7 +104,7 @@
 	_buyDidNumber(params, callback) {
 		console.log('_buyDidNumber: ', params);
 
-	    if(!params.dgid || !params.poid) return callback(frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED);
+	    if(!params.dgid || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
 
 	    var thisObj = this;
 
@@ -127,7 +127,7 @@
 			}
 
 			if(!response.success && response.error.name === 'ENOENT') {
-				return callback(frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
+				return callback(this.props.frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
 			}
 
 			callback(null, response.result.number);

@@ -19,7 +19,7 @@ var DidTrunkComponent = React.createClass({
 			chargeAmount: 0,
 			numbers: null,
 			countries: [],
-			locations: [],
+			locations: null,
 			didTypes: ['Local'],
 			selectedCountry: {},
 			selectedLocation: {},
@@ -108,7 +108,7 @@ var DidTrunkComponent = React.createClass({
 		
 		state.selectedCountry = country;
 		state.selectedLocation = {};
-		state.locations.length = 0;
+		state.locations = null;
 
 		this.setState(state);
 
@@ -284,22 +284,32 @@ var DidTrunkComponent = React.createClass({
 															<div>
 																<div className="form-group">
 																    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_LOCATION}</label>
-																    <div className="col-sm-4">
-																    	{
-																    		this.state.locations.length ? (
-																    			<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
-																    				<option value="">----------</option>
-																    				{
-																    					this.state.locations.map(function(item) {
-																    						return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
-																    					})
-																    				}
-																    			</select>
-																    		) : (
-																    			<Spinner />
-																    		)
-																    	}
-																    </div>
+															    	{
+															    		this.state.locations ? (
+															    			<div>
+															    				{
+															    					this.state.locations.length ? (
+															    						<div className="col-sm-4">
+																	    					<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
+																	    						<option value="">----------</option>
+																	    						{
+																	    							this.state.locations.map(function(item) {
+																	    								return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
+																	    							})
+																	    						}
+																	    					</select>
+																	    				</div>
+																    				) : (
+																    					<div className="col-sm-8">
+																    						<p>{frases.CHAT_TRUNK.DID.CHECK_COUNTRY_AVAILABILITY_MSG}</p>
+																    					</div>
+																    				)
+															    				}
+															    			</div>
+															    		) : (
+															    			<Spinner />
+															    		)
+															    	}
 																</div>
 
 																{
@@ -318,7 +328,7 @@ var DidTrunkComponent = React.createClass({
 																					</div>
 																				) : !selectedPriceObject ? (
 																					<div className="col-sm-8 col-sm-offset-4">
-																						<p>{frases.CHAT_TRUNK.DID.CHECK_AVAILABILITY_MSG}</p>
+																						<p>{frases.CHAT_TRUNK.DID.CHECK_LOCATION_AVAILABILITY_MSG}</p>
 																					</div>
 																				) : (
 																					<Spinner />

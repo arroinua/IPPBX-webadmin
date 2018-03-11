@@ -46,7 +46,7 @@ var BillingComponent = React.createClass({
 		});
 	},
 
-	componentDidMount: function() {
+	componentWillMount: function() {
 		var options = this.props.options;
 		var sub = JSON.parse(JSON.stringify(this.props.sub));
 		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
@@ -553,9 +553,6 @@ var BillingComponent = React.createClass({
 							    </div>
 							    <div className="row">
 									<div className="col-xs-12">
-										<div className={"alert alert-info "+((paymentMethod && trial)  ? 'hidden' : 'hidden')} role="alert">
-											To add more licenses, please <a href="#" onClick={this._openPlans} className="alert-link">upgrade your plan</a>
-										</div>
 										<div className={"text-center "+(sub.amount !== currSub.amount ? '' : 'hidden')}>
 											<hr/>
 											<button className="btn btn-default btn-lg" style={{ marginRight: "5px" }} onClick={this._cancelEditLicenses}>{ frases.BILLING.CANCEL_LICENSE_UPDATE }</button>

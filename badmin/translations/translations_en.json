@@ -663,6 +663,7 @@
     	"CREATE_HUNTING_GROUP": "Create Hunting group",
     	"CREATE_ICD_GROUP": "Create Hotline",
     	"NO_SERVICE_GROUP": "You don't have service groups yet.",
+    	"SERVICE_GROUP_NOT_SELECTED": "Service group is not selected",
     	"FACEBOOK": {
     		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
@@ -696,7 +697,8 @@
     			"CHANGE_PLAN_LINK": "Change plan",
     			"CHANGE_PLAN_MSG": "to add more numbers"
     		},
-    		"CHECK_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this location.",
+    		"CHECK_COUNTRY_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this country.",
+    		"CHECK_LOCATION_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this location.",
     		"RESTRICTIONS_MSG1": "Current location has the following registration requirements",
     		"RESTRICTIONS_MSG2": "Information should be sent to did@ringotel.co within 10 days.",
     		"RESTRICTIONS_MSG3": "DID number will not be activated until full registration details are provided and approved.",
@@ -850,7 +852,7 @@
     		"NEW_ANNUALLY_RATE_MSG": "Your new annual rate would be",
     		"NEW_SUB_AMOUNT": "Your new subscription amount would be",
     		"TODAY_CHARGE_MSG": "Today you will be charged",
-    		"ADD_NUMBER_NEW_AMOUNT": "By adding this number your new subscription amount would be",
+    		"ADD_NUMBER_NEW_AMOUNT": "This number will add the following amount to your subscription",
     		"PLUS_TAXES": "plus applicable taxes",
     		"CONFIRM_PAYMENT": "Pay now",
     		"CANCEL_PAYMENT": "Cancel"

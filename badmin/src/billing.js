@@ -109,19 +109,6 @@ function load_billing() {
 		}), cont);
 	}
 
-	// function openStripeWindow(onCLoseHandler) {
-	// 	stripeHandler.open({
-	// 		email: profile.email,
-	// 		name: 'Ringotel',
-	// 		zipCode: true,
-	// 		allowRememberMe: false,
-	// 		panelLabel: "Add card",
-	// 		// currency: 'eur',
-	// 		// amount: plan.amount*100,
-	// 		closed: onCLoseHandler
-	// 	});
-	// }
-
 	function addCard(callback) {
 		PbxObject.stripeHandler.open({
 			email: profile.email,
