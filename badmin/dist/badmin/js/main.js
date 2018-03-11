@@ -2442,92 +2442,91 @@ function load_billing() {
 	close_options();
 
 	var cont = document.getElementById('el-loaded-content');
-	var profile = {};
+	var profile = PbxObject.profile;
 	var sub = {};
 	var plans = [];
 	var invoices = [];
 	var discounts = [];
-	var stripeToken;
-	var stripeHandler;
+	// var stripeToken;
+	// var stripeHandler;
 
 	var methods = {
 		changePlan: changePlan,
 		updateLicenses: updateLicenses
 	}
 
-	loadStripeJs();
+	// loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		billingRequest('getProfile', null, function(err, response) {
-			console.log('getProfile: ', err, response);
-			if(err) return notify_about('error' , err.message);
-			profile = response.result;
+		// billingRequest('getProfile', null, function(err, response) {
+		// 	console.log('getProfile: ', err, response);
+		// 	if(err) return notify_about('error' , err.message);
 
-			getPlans(profile.currency, function(err, result) {
+		getPlans(profile.currency, function(err, result) {
+			if(err) return notify_about('error', err.message);
+			plans = result;
+
+			init();
+
+			getDiscounts(function(err, response) {
 				if(err) return notify_about('error', err.message);
-				plans = result;
+				discounts = response;
 
-				init();
+				// init();
 
-				getDiscounts(function(err, response) {
+				getInvoices(function(err, response) {
 					if(err) return notify_about('error', err.message);
-					discounts = response;
-
-					// init();
-
-					getInvoices(function(err, response) {
-						if(err) return notify_about('error', err.message);
-						invoices = response.filter(function(item) {
-							return (item.paidAmount && parseFloat(item.paidAmount) > 0);
-						});
-
-						console.log('invoices: ', invoices);
-						init();
+					invoices = response.filter(function(item) {
+						return (item.paidAmount && parseFloat(item.paidAmount) > 0);
 					});
+
+					console.log('invoices: ', invoices);
+					init();
 				});
-
-					
-
-				// set_page();
-				show_content();
 			});
 
+				
+
+			// set_page();
+			show_content();
 		});
+
+		// });
 
 	});
 
-	function loadStripeJs() {
-		if(window.StripeCheckout) return configureStripe();
+	// function loadStripeJs() {
+	// 	if(window.StripeCheckout) return configureStripe();
 
-		$.ajaxSetup({ cache: true });
-		$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
-	}
+	// 	$.ajaxSetup({ cache: true });
+	// 	$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
+	// }
 
-	function configureStripe() {
-		stripeHandler = StripeCheckout.configure({
-			key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-			// key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-			image: '/badmin/images/Ringotel_emblem_new.png',
-			billingAddress: true,
-			// email: profile.email,
-			// name: 'Ringotel',
-			// zipCode: true,
-			// locale: 'auto',
-			token: function(token) {
-				console.log('stripe token: ', token);
-				stripeToken = token;
-			}
-		});
+	// function configureStripe() {
+	// 	stripeHandler = StripeCheckout.configure({
+	// 		// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+	// 		key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+	// 		image: '/badmin/images/Ringotel_emblem_new.png',
+	// 		billingAddress: true,
+	// 		// email: profile.email,
+	// 		// name: 'Ringotel',
+	// 		// zipCode: true,
+	// 		// locale: 'auto',
+	// 		token: function(token) {
+	// 			console.log('stripe token: ', token);
+	// 			stripeToken = token;
+	// 		}
+	// 	});
 
-		// Close Checkout on page navigation:
-		window.addEventListener('popstate', function() {
-		  stripeHandler.close();
-		});
-	}
+	// 	// Close Checkout on page navigation:
+	// 	window.addEventListener('popstate', function() {
+	// 	  stripeHandler.close();
+	// 	});
+	// }
 
 	function init() {
 		ReactDOM.render(BillingComponent({
@@ -2562,7 +2561,7 @@ function load_billing() {
 	// }
 
 	function addCard(callback) {
-		stripeHandler.open({
+		PbxObject.stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
@@ -2573,25 +2572,25 @@ function load_billing() {
 			closed: function(result) {
 				console.log('addCard closed: ', result);
 				
-				if(!stripeToken) return callback(null);
+				if(!PbxObject.stripeToken) return callback(null);
 				var reqParams = {
 					service: 'stripe',
-					token: stripeToken.id,
-					card: stripeToken.card
+					token: PbxObject.stripeToken.id,
+					card: PbxObject.stripeToken.card
 				};
 
 				billingRequest('addCard', reqParams, function(err, response) {
-					console.log('saveCard response: ', err, stripeToken, response);
+					console.log('saveCard response: ', err, PbxObject.stripeToken, response);
 					
 					if(err || response.error) {
 						notify_about('error', err.message || response.error.message);
 						callback(null);
 					} else {
-						callback(stripeToken);
+						callback(PbxObject.stripeToken);
 						set_object_success();
 					}
 
-					stripeToken = null;
+					PbxObject.stripeToken = null;
 
 				});
 			}
@@ -2599,7 +2598,7 @@ function load_billing() {
 	}
 
 	function editCard(callback) {
-		stripeHandler.open({
+		PbxObject.stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
@@ -2611,25 +2610,25 @@ function load_billing() {
 			closed: function(result) {
 				console.log('editCard closed: ', result);
 
-				if(!stripeToken) return callback(null);;
+				if(!PbxObject.stripeToken) return callback(null);;
 				var reqParams = {
 					service: 'stripe',
-					token: stripeToken.id,
-					card: stripeToken.card
+					token: PbxObject.stripeToken.id,
+					card: PbxObject.stripeToken.card
 				};
 
 				billingRequest('updateCard', reqParams, function(err, response) {
-					console.log('updateCard response: ', err, stripeToken, response);				
+					console.log('updateCard response: ', err, PbxObject.stripeToken, response);				
 					
 					if(err || response.error) {
 						notify_about('error', err.message || response.error.message);
 						callback(null);
 					} else {
-						callback(stripeToken);
+						callback(PbxObject.stripeToken);
 						set_object_success();
 					}
 
-					stripeToken = null;
+					PbxObject.stripeToken = null;
 				});
 
 			}
@@ -2656,7 +2655,7 @@ function load_billing() {
 	}
 
 	function updateBalance(params, callbackFn) {
-		stripeHandler.open({
+		PbxObject.stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
@@ -2666,15 +2665,15 @@ function load_billing() {
 			currency: params.payment.currency,
 			amount: params.payment.chargeAmount*100,
 			closed: function(result) {
-				console.log('updateBalance closed: ', result, stripeToken);
+				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
 
-				if(!stripeToken) return;
+				if(!PbxObject.stripeToken) return;
 
 				var reqParams = {
 					currency: params.payment.currency,
 					amount: params.payment.chargeAmount,
 					description: 'Update balance',
-					token: stripeToken.id
+					token: PbxObject.stripeToken.id
 				};
 
 				billingRequest('updateBalance', reqParams, function(err, response) {
@@ -2688,7 +2687,7 @@ function load_billing() {
 						if(methods[callbackFn])
 							methods[callbackFn](params);
 
-						stripeToken = null;		
+						PbxObject.stripeToken = null;		
 
 					}	
 
@@ -3920,7 +3919,6 @@ function load_chattrunk(params) {
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
-	// var routes = [];
 	var services = [{
 		id: 'FacebookMessenger',
 		name: "Messenger",
@@ -4008,27 +4006,14 @@ function load_chattrunk(params) {
 		document.body.appendChild(modalCont);
 	}
 
-	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
-	params.replytimeout = (params.replytimeout || 3600)/60;
-
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
-	// init();
+	params.sessiontimeout = (params.sessiontimeout || 86400*7);
+	params.replytimeout = (params.replytimeout || 3600);
+
     set_page();
-    render();
-
-
-	// function init() {
-	// 	getObjects('chatchannel', function(result) {
-	// 		console.log('getObjects: ', result);
-	// 		routes = result || [];
-
-	// 		render();
-	// 		// initServices(type);
-
-	// 	});
-	// }
+    render(type, params);
 
 	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
@@ -4042,99 +4027,101 @@ function load_chattrunk(params) {
 
 		console.log('setObject: ', params);
 
-	    // if(!params.pageid) return console.error('pageid is not defined');
-
 	    show_loading_panel();
 
-	    var props = {
-	    	kind: PbxObject.kind,
-	    	oid: params.oid,
-	    	name: params.name,
-	    	directref: params.directref || true,
-	    	enabled: params.enabled || true,
-	    	type: params.type,
-	    	pagename: params.pagename,
-	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
-	    	replytimeout: parseFloat(params.replytimeout)*60,
-	    	// properties: params.properties,
-	    	routes: params.routes
-	    };
+	    params.directref = true;
 
-	    if(params.pageid) props.pageid = params.pageid;
+		json_rpc_async('setObject', params, function(result, err) {
+			if(err) {
+				return notify_about('error', err.message);
+			}
 
-	    if(PbxObject.name) {
-	    	handler = set_object_success;
-	    } else {
-	    	if(Object.keys(params.properties).length) props.properties = params.properties;
-	    	else return console.error('Properties are empty');
-	    }
+			if(PbxObject.name) {
+				set_object_success();
+			} else {
+				PbxObject.name = params.name;
+			}
 
-    	json_rpc_async('setObject', props, function(result, err) {
-    		if(err) {
-    			notify_about('error', err.message);
-    			cb(err);
-    			return;
-    		}
-
-    		PbxObject.name = params.name;
-    		if(handler) handler();
-    		if(cb) cb(null, result);
-    		show_content();
-    	});
+			render(params.type, params);
+			remove_loading_panel();
+		});
+    	
 	}
 
 	function confirmRemoveObject(type, callback) {
 		var props = {
 			frases: PbxObject.frases,
 			name: PbxObject.name,
-			warning: type === 'Telephony' ? "By deleting the channel the number assigned to it will be also deleted." : null,
+			warning: (type === 'Telephony' ? 
+				PbxObject.frases.CHAT_TRUNK.DID.DELETE_SIP_CHANNEL_MSG 
+				: PbxObject.frases.CHAT_TRUNK.DID.DELETE_OTHER_CHANNEL_MSG
+			),
 			onSubmit: callback
 		};
 
 		ReactDOM.render(DeleteObjectModalComponent(props), modalCont);
 	}
 
-	function removeObject(type, params) {
-		console.log('removeObject: ', type, params);
+	function updateBalance(params, callback) {
+		PbxObject.stripeHandler.open({
+			// name: 'Ringotel',
+			// zipCode: true,
+			// locale: 'auto',
+			panelLabel: "Pay",
+			allowRememberMe: false,
+			// currency: params.currency,
+			amount: params.chargeAmount*100,
+			closed: function(result) {
+				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
 
-		confirmRemoveObject(type, function() {
-			
-			if(type === 'Telephony') {
-				billingRequest('unassignDid', { number: params.number }, function(err, response) {
-					console.log('unassignDid: ', response);
+				if(!PbxObject.stripeToken) return;
+
+				var reqParams = {
+					currency: params.currency,
+					amount: params.chargeAmount,
+					description: 'Update balance',
+					token: PbxObject.stripeToken.id
+				};
+
+				show_loading_panel();
+
+				billingRequest('updateBalance', reqParams, function(err, response) {
+
+					console.log('updateBalance: ', err, response);
+
+					remove_loading_panel();
+
+					if(err) {
+						notify_about('error', err.message);
+					} else {
+
+						if(callback) callback(params);
+
+						PbxObject.stripeToken = null;		
+
+					}	
+
 				});
-			}
 
-			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+			}
 		});
 	}
 
-	function createGroup(type) {
-		var componentParams = {
-			type: type,
-			frases: PbxObject.frases,
-			onSubmit: function(params) {
-				console.log('createGroup: ', params);
-			}
-		};
-
-		ReactDOM.render(CreateGroupModalComponent(componentParams), modalCont);
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
 	}
 
-	// function render(serviceParams) {
-	function render() {
+	function render(type, params) {
 		var componentParams = {
 			type: type,
 			services: services,
-			// onServiceChange: onServiceChange,
 			frases: PbxObject.frases,
 		    params: params,
-		    // serviceParams: serviceParams,
-		    // routes: routes,
-		    createGroup: createGroup,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
+		    updateBalance: updateBalance,
+		    confirmRemoveObject: confirmRemoveObject,
 		    removeObject: removeObject
 		};
 
@@ -6141,21 +6128,26 @@ window.onerror = function(msg, url, linenumber) {
     };
  }
 
+ init();
+
 function init(){
+    var fn = setupPage;
+    initGlobals(window);
+
     window.clearInterval(PbxObject.initInterval);
     if (document.readyState === "complete" || document.readyState === "interactive") {
-        init_page();
+        fn();
     } else {
         if (document.addEventListener) {
             document.addEventListener('DOMContentLoaded', function factorial() {
                 document.removeEventListener('DOMContentLoaded', arguments.callee, false);
-                init_page();
+                fn();
             }, false);
         } else if (document.attachEvent) {
             document.attachEvent('onreadystatechange', function() {
                 if (document.readyState === 'complete') {
                     document.detachEvent('onreadystatechange', arguments.callee);
-                    init_page();
+                    fn();
                 }
             });
         }
@@ -6177,16 +6169,26 @@ function logout() {
 function createWebsocket(){
 
     var protocol = (location.protocol === 'https:') ? 'wss:' : 'ws:';
-    PbxObject.websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
-    PbxObject.websocket.onopen = function(e){
+    var websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
+
+    websocket.onopen = function(e){
         console.log('WebSocket opened: ', e);
         PbxObject.websocketTry = 1;
     };
-    PbxObject.websocket.onmessage = function(e){
+    
+    websocket.onmessage = function(e){
         // console.log(e);
         handleMessage(e.data);
     };
-    PbxObject.websocket.onclose = onWebsocketClose;
+    
+    websocket.onclose = onWebsocketClose;
+
+    window.onbeforeunload = function() {
+        websocket.onclose = function () {}; // disable onclose handler first
+        websocket.close()
+    };
+
+    PbxObject.websocket = websocket;
 
 }
 
@@ -6210,6 +6212,38 @@ function generateInterval (k) {
   
     // generate the interval to a random number between 0 and the maxInterval determined from above
     return Math.random() * maxInterval;
+}
+
+function loadStripeJs() {
+    if(window.StripeCheckout) return configureStripe();
+
+    $.ajaxSetup({ cache: true });
+    $.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
+}
+
+function configureStripe() {
+    var stripeHandler = StripeCheckout.configure({
+        // key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+        key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+        image: '/badmin/images/Ringotel_emblem_new.png',
+        billingAddress: true,
+        email: PbxObject.profile.email,
+        currency: PbxObject.profile.currency,
+        name: 'Ringotel',
+        zipCode: true,
+        locale: 'auto',
+        token: function(token) {
+            console.log('stripe token: ', token);
+            PbxObject.stripeToken = token;
+        }
+    });
+
+    // Close Checkout on page navigation:
+    window.addEventListener('popstate', function() {
+      stripeHandler.close();
+    });
+
+    PbxObject.stripeHandler = stripeHandler;
 }
 
 function billingRequest(path, params, cb) {
@@ -6372,7 +6406,7 @@ function request(method, url, data, options, callback){
     
 }
 
-function getTranslations(language){
+function getTranslations(language, callback){
     var xhr = new XMLHttpRequest();
     var file = 'translations_'+language+'.json';
     xhr.open('GET', '/badmin/translations/'+file, true);
@@ -6380,23 +6414,20 @@ function getTranslations(language){
         if(e.target.status === 403) {
             logout();
         } else if(e.target.status === 200) {
-
-            // console.log(xhr.responseText);
             var data = JSON.parse(xhr.responseText);
-            loadTranslations(data);
-
+            callback(null, data);
         } else {
-            notify_about('error' , 'ERROR_OCCURED');
+            callback('ERROR_OCCURED');
         }
     };
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send();
 }
 
-function loadTranslations(result){
-    PbxObject.frases = result;
-    init();
-}
+// function loadTranslations(result){
+//     PbxObject.frases = result;
+//     init();
+// }
 
 function sendData(method, params, id){
 
@@ -6491,6 +6522,57 @@ function subscribeToEvents() {
     $(document).on('onmessage.object.delete', onObjectDelete);
 }
 
+function getPbxOptions(callback) {
+    var cache = window.sessionStorage.getItem('pbxOptions');
+    if(cache) {
+        callback(JSON.parse(cache));
+    } else {
+        json_rpc_async('getPbxOptions', null, callback);
+    }
+}
+
+function setupPage() {
+    var language, 
+        lastURL = window.sessionStorage.getItem('lastURL');
+
+    createWebsocket();
+
+    getSystemTime();
+
+    getPbxOptions(function(options) {
+
+        PbxObject.options = options;
+
+        language = options.lang || 'en';
+        moment.locale(language);
+        
+        getTranslations(language, function(err, translations) {
+
+            if(err) return notify_about('error', err);
+
+            PbxObject.frases = translations;
+
+            billingRequest('getProfile', null, function(err, response) {
+                console.log('getProfile: ', err, response);
+
+                if(lastURL) {
+                    window.sessionStorage.removeItem('lastURL');
+                    window.location = lastURL;
+                } else if(window.sessionStorage.query) {
+                    window.location.hash = window.sessionStorage.query;
+                }
+
+                PbxObject.profile = response.result;
+
+                init_page();
+
+            });
+
+        });
+
+    });
+}
+
 function init_page(){
 
     // set globals
@@ -6508,6 +6590,8 @@ function init_page(){
     setPageHeight();
 
     subscribeToEvents();
+
+    loadStripeJs();
 
     // PbxObject.groups = {};
     // PbxObject.templates = {};
@@ -6535,8 +6619,10 @@ function init_page(){
         location.hash = 'dashboard';
 
     // load_pbx_options(PbxObject.options);
+    
     get_object();
     set_listeners();
+
     $('[data-toggle="tooltip"]').tooltip({
         delay: {"show": 1000, "hide": 100}
     });
@@ -8628,9 +8714,9 @@ function getQueryParams(str){
     return (str || document.location.search).replace(/(^\?)/,'').split("&").map(function(n){return n = n.split("="),this[n[0]] = n[1],this}.bind({}))[0];
 }
 
-function getSystemTime(callback){
+function getSystemTime(){
     json_rpc_async('getSystemTime', null, function (result){
-        if(callback) return result;
+        PbxObject.systime = result;
     });
 }
 
@@ -8681,47 +8767,6 @@ function change_protocol(){
         document.getElementById('h323').parentNode.style.display = 'none';
     }
 };
-
-(function(){
-    var language, 
-    lastURL = window.sessionStorage.getItem('lastURL');
-
-    if(lastURL) {
-        window.sessionStorage.removeItem('lastURL');
-        window.location = lastURL;
-    } else if(window.sessionStorage.query) {
-        window.location.hash = window.sessionStorage.query;
-    }
-
-    initGlobals(window);
-    createWebsocket();
-
-    window.onbeforeunload = function() {
-        PbxObject.websocket.onclose = function () {}; // disable onclose handler first
-        PbxObject.websocket.close()
-    };
-
-    if(window.localStorage.getItem('pbxOptions')) {
-        var data = window.localStorage.getItem('pbxOptions');
-        data = JSON.parse(data);
-        language = data.lang || 'en';
-
-        getTranslations(language);
-        PbxObject.options = data;
-        window.localStorage.removeItem('pbxOptions');
-        moment.locale(language);
-    } else {
-        json_rpc_async('getPbxOptions', null, function(result){
-            language = result.lang || 'en';
-            getTranslations(language);
-            PbxObject.options = result;
-            moment.locale(language);
-        });
-        getSystemTime(function (systime){
-            PbxObject.systime = systime;
-        });
-    }
-})();
 function load_new_trunk() {
 
 	var trunks = [

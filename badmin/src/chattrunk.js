@@ -4,7 +4,6 @@ function load_chattrunk(params) {
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
-	// var routes = [];
 	var services = [{
 		id: 'FacebookMessenger',
 		name: "Messenger",
@@ -92,27 +91,14 @@ function load_chattrunk(params) {
 		document.body.appendChild(modalCont);
 	}
 
-	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
-	params.replytimeout = (params.replytimeout || 3600)/60;
-
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
-	// init();
+	params.sessiontimeout = (params.sessiontimeout || 86400*7);
+	params.replytimeout = (params.replytimeout || 3600);
+
     set_page();
-    render();
-
-
-	// function init() {
-	// 	getObjects('chatchannel', function(result) {
-	// 		console.log('getObjects: ', result);
-	// 		routes = result || [];
-
-	// 		render();
-	// 		// initServices(type);
-
-	// 	});
-	// }
+    render(type, params);
 
 	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
@@ -126,99 +112,101 @@ function load_chattrunk(params) {
 
 		console.log('setObject: ', params);
 
-	    // if(!params.pageid) return console.error('pageid is not defined');
-
 	    show_loading_panel();
 
-	    var props = {
-	    	kind: PbxObject.kind,
-	    	oid: params.oid,
-	    	name: params.name,
-	    	directref: params.directref || true,
-	    	enabled: params.enabled || true,
-	    	type: params.type,
-	    	pagename: params.pagename,
-	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
-	    	replytimeout: parseFloat(params.replytimeout)*60,
-	    	// properties: params.properties,
-	    	routes: params.routes
-	    };
+	    params.directref = true;
 
-	    if(params.pageid) props.pageid = params.pageid;
+		json_rpc_async('setObject', params, function(result, err) {
+			if(err) {
+				return notify_about('error', err.message);
+			}
 
-	    if(PbxObject.name) {
-	    	handler = set_object_success;
-	    } else {
-	    	if(Object.keys(params.properties).length) props.properties = params.properties;
-	    	else return console.error('Properties are empty');
-	    }
+			if(PbxObject.name) {
+				set_object_success();
+			} else {
+				PbxObject.name = params.name;
+			}
 
-    	json_rpc_async('setObject', props, function(result, err) {
-    		if(err) {
-    			notify_about('error', err.message);
-    			cb(err);
-    			return;
-    		}
-
-    		PbxObject.name = params.name;
-    		if(handler) handler();
-    		if(cb) cb(null, result);
-    		show_content();
-    	});
+			render(params.type, params);
+			remove_loading_panel();
+		});
+    	
 	}
 
 	function confirmRemoveObject(type, callback) {
 		var props = {
 			frases: PbxObject.frases,
 			name: PbxObject.name,
-			warning: type === 'Telephony' ? "By deleting the channel the number assigned to it will be also deleted." : null,
+			warning: (type === 'Telephony' ? 
+				PbxObject.frases.CHAT_TRUNK.DID.DELETE_SIP_CHANNEL_MSG 
+				: PbxObject.frases.CHAT_TRUNK.DID.DELETE_OTHER_CHANNEL_MSG
+			),
 			onSubmit: callback
 		};
 
 		ReactDOM.render(DeleteObjectModalComponent(props), modalCont);
 	}
 
-	function removeObject(type, params) {
-		console.log('removeObject: ', type, params);
+	function updateBalance(params, callback) {
+		PbxObject.stripeHandler.open({
+			// name: 'Ringotel',
+			// zipCode: true,
+			// locale: 'auto',
+			panelLabel: "Pay",
+			allowRememberMe: false,
+			// currency: params.currency,
+			amount: params.chargeAmount*100,
+			closed: function(result) {
+				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
 
-		confirmRemoveObject(type, function() {
-			
-			if(type === 'Telephony') {
-				billingRequest('unassignDid', { number: params.number }, function(err, response) {
-					console.log('unassignDid: ', response);
+				if(!PbxObject.stripeToken) return;
+
+				var reqParams = {
+					currency: params.currency,
+					amount: params.chargeAmount,
+					description: 'Update balance',
+					token: PbxObject.stripeToken.id
+				};
+
+				show_loading_panel();
+
+				billingRequest('updateBalance', reqParams, function(err, response) {
+
+					console.log('updateBalance: ', err, response);
+
+					remove_loading_panel();
+
+					if(err) {
+						notify_about('error', err.message);
+					} else {
+
+						if(callback) callback(params);
+
+						PbxObject.stripeToken = null;		
+
+					}	
+
 				});
-			}
 
-			delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+			}
 		});
 	}
 
-	function createGroup(type) {
-		var componentParams = {
-			type: type,
-			frases: PbxObject.frases,
-			onSubmit: function(params) {
-				console.log('createGroup: ', params);
-			}
-		};
-
-		ReactDOM.render(CreateGroupModalComponent(componentParams), modalCont);
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
 	}
 
-	// function render(serviceParams) {
-	function render() {
+	function render(type, params) {
 		var componentParams = {
 			type: type,
 			services: services,
-			// onServiceChange: onServiceChange,
 			frases: PbxObject.frases,
 		    params: params,
-		    // serviceParams: serviceParams,
-		    // routes: routes,
-		    createGroup: createGroup,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
+		    updateBalance: updateBalance,
+		    confirmRemoveObject: confirmRemoveObject,
 		    removeObject: removeObject
 		};
 

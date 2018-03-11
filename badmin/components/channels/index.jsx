@@ -5,10 +5,11 @@
 		services: React.PropTypes.array,
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
-		// routes: React.PropTypes.array,
 		getObjects: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
 		setObject: React.PropTypes.func,
+		updateBalance: React.PropTypes.func,
+		confirmRemoveObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func
 	},
 
@@ -16,8 +17,7 @@
 		return {
 			routes: null,
 			serivceInited: false,
-			selectedRoute: null,
-			properties: null
+			selectedRoute: null
 		};
 	},
 
@@ -28,9 +28,7 @@
 		this.setState({ 
 			routes: [],
 			type: type,
-			isNew: !params.pageid,
 			params: params || {},
-			properties: params.properties,
 			serivceInited: true
 		});
 
@@ -38,11 +36,9 @@
 	},
 
 	componentWillReceiveProps: function(props) {
-		var params = props.params;
 		this.setState({
-			type: props.type,
-			params: params || {},
-			properties: params.properties
+			type: props.type || this.props.type,
+			params: props.params || this.props.params
 		});		
 	},
 
@@ -64,51 +60,111 @@
 	_setObject: function() {
 		var params = {};
 		var selectedRoute = this.state.selectedRoute;
-		var properties = this.state.properties;
+		var properties = this.state.params.properties;
 
 		console.log('setObject: ', properties, selectedRoute, this.state.params);
 
 		if(!selectedRoute) return console.error('route is not selected');
-		if(!Object.keys(properties).length || !properties.id) {
-			return notify_about('info', 'Fill in all required fields');
-		}
 
 		Object.keys(this.state.params).forEach(function(key) {
 			params[key] = this.state.params[key];
 		}.bind(this));
 
-		// if(!pages || !pages.length) return console.error('page is not selected');;
-
 		params.type = this.state.type;
 		if(properties.id) params.pageid = properties.id;
 		params.pagename = properties.name || '';
-		params.properties = properties;
-		params.routes = [];
-		params.routes.push({
+		params.routes = [{
 			target: {
 				oid: selectedRoute.oid,
 				name: selectedRoute.name
 			},
 			priority: 1,
 			timeout: 86400
-		});
+		}];
 
 		console.log('setObject params: ', params);
 
-		this.props.setObject(params, function(err, result) {
-			if(err) return;
-			this.setState({ params: params });
-		}.bind(this));
+		if(!params.pageid && params.type === 'Telephony') {
+			this._buyDidNumber(params.properties, function(err, result) {
+
+				if(err) return notify_about('error', err.message);
+
+				params.pageid = params.pagename = result;
+				params.properties = { number: result, id: result }
+
+				this.props.setObject(params);
+
+			}.bind(this));
+
+		} else {
+			this.props.setObject(params);
+		}
+	},
+
+	_buyDidNumber(params, callback) {
+		console.log('_buyDidNumber: ', params);
+
+	    if(!params.dgid || !params.poid) return callback(frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED);
+
+	    var thisObj = this;
+
+	    show_loading_panel();
+
+		billingRequest('orderDid', params, function(err, response) {
+			console.log('_buyDidNumber: ', err, response, params);
+
+			remove_loading_panel();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE') {
+					thisObj.props.updateBalance({ chargeAmount: params.chargeAmount, currency: params.currency }, function(err, result) {
+						thisObj._buyDidNumber(params, callback);
+					});
+					return;
+				} else {
+					return callback(err);
+				}
+			}
+
+			if(!response.success && response.error.name === 'ENOENT') {
+				return callback(frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
+			}
+
+			callback(null, response.result.number);
+
+		});
 	},
 
 	_removeObject: function() {
-		this.props.removeObject(this.state.type, this.state.properties);
+		var state = this.state;
+		var type = state.type;
+		var removeObject = this.props.removeObject;
+
+		this.props.confirmRemoveObject(type, function() {
+			show_loading_panel();
+			
+			if(type === 'Telephony') {
+				if(!state.params.properties.number) return console.error('number is not defined');
+				
+				billingRequest('unassignDid', { number: state.params.properties.number }, function(err, response) {
+					removeObject();
+					remove_loading_panel();
+				});
+
+			} else {
+				removeObject();
+				remove_loading_panel();
+
+			}
+		});
 	},
 
 	_onPropsChange: function(properties) {
 		// var params = this.state.params;
 		// params.properties = properties;
-		this.setState({ properties: properties });
+		var params = this.state.params;
+		params.properties = properties;
+		this.setState({ params: params });
 	},
 
 	_onParamsChange: function(e) {
@@ -117,7 +173,13 @@
 		var type = target.getAttribute('data-type') || target.type;
 		var value = type === 'checkbox' ? target.checked : target.value;
 
+		if(target.name === 'replytimeout' || target.name === 'sessiontimeout') 
+			value = parseInt(value, 10) * 60;
+
 		params[target.name] = value;
+
+		console.log('_onParamsChange: ', target.name, value);
+
 		this.setState({ params: params });
 	},
 
@@ -139,12 +201,15 @@
 	},
 
 	_setService: function(type) {
-		var params = this.props.params;
+		if(this.state.type === type) return;
 
+		var params = this.props.params;
+		params.properties = params.pageid ? params.properties : {};
 		// this._getAvailableRoutes(type, function(result) {
 		this.setState({ 
-			type: type, 
-			properties: this.state.isNew ? {} : this.state.properties
+			type: type,
+			params: params
+			// properties: 
 			// routes: result,
 			// selectedRoute: (params.routes && params.routes.length) ? params.routes[0].target : ((this.props.routes && this.props.routes.length) ? this.props.routes[0] : [])
 		});
@@ -165,26 +230,30 @@
 	// 	}.bind(this));
 	// },
 
-	_getComponentName: function(type) {
-		var component = null;
-		if(type === 'FacebookMessenger' || type === 'Facebook') {
-			component = FacebookTrunkComponent;
-		} else if(type === 'Twitter') {
-			component = TwitterTrunkComponent;
-		} else if(type === 'Viber') {
-			component = ViberTrunkComponent;
-		} else if(type === 'Email') {
-			component = EmailTrunkComponent;
-		}
+	// _getComponentName: function(type) {
+	// 	var component = null;
+	// 	if(type === 'FacebookMessenger' || type === 'Facebook') {
+	// 		component = FacebookTrunkComponent;
+	// 	} else if(type === 'Twitter') {
+	// 		component = TwitterTrunkComponent;
+	// 	} else if(type === 'Viber') {
+	// 		component = ViberTrunkComponent;
+	// 	} else if(type === 'Email') {
+	// 		component = EmailTrunkComponent;
+	// 	}
 
-		return component;		
-	},
+	// 	return component;		
+	// },
 
 	_getServiceParams: function(type) {
 		return this.props.services.reduce(function(prev, next) {
 			if(next.id === type) prev = next;
 			return prev;
 		}, {});
+	},
+
+	_toMinutes: function(value) {
+		return parseInt(value, 10)/60;
 	},
 
 	// _createGroup: function(e) {
@@ -282,36 +351,30 @@
 
 										<hr className="col-xs-12"/>
 
-										{
-											this.state.serivceInited && (
+										<form className="form-horizontal">
+											<div className="form-group">
+												<ChannelRouteComponent frases={frases} type={type} routes={this.props.params.routes} onChange={this._selectRoute} />
+											</div>
 
-												<form className="form-horizontal">
+											<hr />
+
+											{
+												type !== 'Telephony' && (
 													<div className="form-group">
-														<ChannelRouteComponent frases={frases} type={type} routes={this.props.params.routes} onChange={this._selectRoute} />
-													</div>
-
-													<hr />
-
-													{
-														type !== 'Telephony' && (
-															<div className="form-group">
-																<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
-																<div className="col-sm-4">
-																	<input type="number" className="form-control" name="replytimeout" value={params.replytimeout} onChange={this._onParamsChange} />
-																</div>
-															</div>
-														)
-													}
-													<div className="form-group">
-														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SESSION_TIMEOUT}</label>
+														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
 														<div className="col-sm-4">
-															<input type="number" className="form-control" name="sessiontimeout" value={params.sessiontimeout} onChange={this._onParamsChange} />
+															<input type="number" className="form-control" name="replytimeout" value={this._toMinutes(params.replytimeout)} onChange={this._onParamsChange} />
 														</div>
 													</div>
-												</form>
-
-											)
-										}
+												)
+											}
+											<div className="form-group">
+												<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SESSION_TIMEOUT}</label>
+												<div className="col-sm-4">
+													<input type="number" className="form-control" name="sessiontimeout" value={this._toMinutes(params.sessiontimeout)} onChange={this._onParamsChange} />
+												</div>
+											</div>
+										</form>
 
 									</div>
 								</div>

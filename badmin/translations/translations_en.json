@@ -659,6 +659,10 @@
     	"SESSION_TIMEOUT": "Session timeout (min)",
     	"REPLY_TIMEOUT": "Reply timeout (min)",
     	"GROUP_IN_REQUEST": "Select service group in request",
+    	"CREATE_SERVICE_GROUP": "Create Service group",
+    	"CREATE_HUNTING_GROUP": "Create Hunting group",
+    	"CREATE_ICD_GROUP": "Create Hotline",
+    	"NO_SERVICE_GROUP": "You don't have service groups yet.",
     	"FACEBOOK": {
     		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
@@ -675,6 +679,38 @@
     		"HOSTNAME": "Hostname",
     		"PORT": "Port",
     		"SSL": "Use TLS/SSL"
+    	},
+    	"DID": {
+    		"LOCATION": "Location",
+    		"NUMBER": "Number",
+    		"STATUS": "Status",
+    		"ADD_NUMBER_BTN": "Add new number",
+    		"SELECT_COUNTRY": "Select country",
+    		"SELECT_LOCATION": "Select location",
+    		"DELETE_SIP_CHANNEL_MSG": "IMPORTANT: By deleting the channel the number assigned to it will be also deleted. You will no longer receive call via this channel.",
+    		"DELETE_OTHER_CHANNEL_MSG": "IMPORTANT: By deleting the channel you will no longer receive requests via this channel.",
+    		"NOTIFY_LOCATION_NOT_SELECTED": "Please select number location",
+    		"NOTIFY_NO_AVAILABLE_NUMBERS": "No available number in the selected location",
+    		"LIMIT_REACHED": {
+    			"MAIN_MSG": "You can have only one number during your trial period.",
+    			"CHANGE_PLAN_LINK": "Change plan",
+    			"CHANGE_PLAN_MSG": "to add more numbers"
+    		},
+    		"CHECK_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this location.",
+    		"RESTRICTIONS_MSG1": "Current location has the following registration requirements",
+    		"RESTRICTIONS_MSG2": "Information should be sent to did@ringotel.co within 10 days.",
+    		"RESTRICTIONS_MSG3": "DID number will not be activated until full registration details are provided and approved.",
+    		"RESTRICTIONS_MSG4": "Please note that your order will be cancelled in case you fail to provide the details for registration.",
+    		"RESTRICTIONS": {
+    			"1": "Name, business name and contact phone numbers.",
+    			"2": "Company registration certificate",
+    			"3": "Address worldwide.",
+    			"4": "Local address in the same country as DID ordered.",
+    			"5": "Local address in the same area as DID ordered.",
+    			"6": "Local address in the same city as DID ordered.",
+    			"7": "Proof of address form (copy of utility bill no older than 6 months).",
+    			"8": "Specific registration form needs to be filled in and signed by the end user. You will be provided with the required form during registration process."
+    		}
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -812,7 +848,10 @@
     		"HEADER": "Billing update",
     		"NEW_MONTHLY_RATE_MSG": "Your new monthly rate would be",
     		"NEW_ANNUALLY_RATE_MSG": "Your new annual rate would be",
+    		"NEW_SUB_AMOUNT": "Your new subscription amount would be",
     		"TODAY_CHARGE_MSG": "Today you will be charged",
+    		"ADD_NUMBER_NEW_AMOUNT": "By adding this number your new subscription amount would be",
+    		"PLUS_TAXES": "plus applicable taxes",
     		"CONFIRM_PAYMENT": "Pay now",
     		"CANCEL_PAYMENT": "Cancel"
     	}

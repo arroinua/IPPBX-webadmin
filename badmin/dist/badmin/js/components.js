@@ -171,9 +171,13 @@ function DeleteObjectModalComponent(props) {
 				"?"
 			),
 			props.warning && React.createElement(
-				"p",
-				{ className: "text-danger" },
-				props.warning
+				"div",
+				{ className: "alert alert-warning", role: "alert" },
+				React.createElement(
+					"p",
+					null,
+					props.warning
+				)
 			)
 		);
 	}
@@ -534,14 +538,14 @@ var ObjectName = React.createClass({
 			null,
 			props.onSubmit ? React.createElement(
 				'button',
-				{ type: 'button', style: { marginRight: "5px" }, className: 'btn btn-success btn-md', onClick: props.onSubmit, disabled: state.submitDisabled },
+				{ type: 'button', style: { marginRight: "5px" }, className: 'btn btn-success', onClick: props.onSubmit, disabled: state.submitDisabled },
 				React.createElement('i', { className: 'fa fa-check fa-fw' }),
 				' ',
 				frases.SAVE
 			) : "",
 			props.onCancel ? React.createElement(
 				'button',
-				{ type: 'button', className: 'btn btn-danger btn-md', onClick: props.onCancel },
+				{ type: 'button', className: 'btn btn-link btn-danger pull-right', onClick: props.onCancel },
 				React.createElement('i', { className: 'fa fa-trash fa-fw' }),
 				' ',
 				frases.DELETE
@@ -559,7 +563,7 @@ var ObjectName = React.createClass({
 
 		return React.createElement(
 			PanelComponent,
-			{ footer: Footer },
+			{ classname: 'object-name-cont', footer: Footer },
 			React.createElement(
 				'div',
 				{ className: 'input-group object-name' },
@@ -579,7 +583,7 @@ var ObjectName = React.createClass({
 					{ className: 'input-group-addon' },
 					React.createElement(
 						'div',
-						{ className: 'switch switch-lg' },
+						{ className: 'switch switch-md' },
 						React.createElement('input', {
 							className: 'cmn-toggle cmn-toggle-round',
 							type: 'checkbox',
@@ -729,7 +733,7 @@ function PanelComponent(props) {
 
 	return React.createElement(
 		"div",
-		{ className: "panel" },
+		{ className: "panel " + (props.classname || "") },
 		props.header && React.createElement(
 			"div",
 			{ className: "panel-header" },
@@ -967,6 +971,1121 @@ function Select3Menu(props) {
 		})
 	);
 };
+var ChannelRouteComponent = React.createClass({
+	displayName: 'ChannelRouteComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		type: React.PropTypes.string,
+		routes: React.PropTypes.array,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			options: {},
+			routes: null,
+			selectedRoute: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this._setRoutes(this.props);
+	},
+
+	componentWillReceiveProps: function (props) {
+		if (props.type !== this.props.type) {
+			this.setState({ routes: [] });
+			this._setRoutes(props);
+		}
+	},
+
+	_setRoutes: function (props) {
+		// var props = this.props;
+		var selectedRoute = {};
+
+		this._getAvailableRoutes(props.type, function (result) {
+			console.log('_getAvailableRoutes: ', result);
+
+			selectedRoute = props.routes && props.routes.length ? props.routes[0].target : result && result.length ? result[0] : {};
+
+			this.setState({
+				routes: result || [],
+				selectedRoute: selectedRoute
+			});
+
+			this.props.onChange(selectedRoute);
+		}.bind(this));
+	},
+
+	_selectRoute: function (e) {
+		var value = e.target.value;
+		var selectedRoute = {};
+		this.state.routes.forEach(function (item) {
+			if (item.oid === value) selectedRoute = item;
+		});
+
+		console.log('_selectRoute: ', selectedRoute);
+
+		this.setState({ selectedRoute: selectedRoute });
+		this.props.onChange(selectedRoute);
+	},
+
+	_getAvailableRoutes: function (type, callback) {
+		// var type = this.props.type;
+		console.log('_getAvailableRoutes: ', type);
+		var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
+
+		getObjects(groupType, function (result) {
+			callback(result);
+		});
+	},
+
+	_handleOnChange: function (e) {
+		var target = e.target;
+		var params = this.state.params;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : target.value;
+
+		params[target.name] = value;
+		this.setState({ options: params });
+	},
+
+	_createGroup: function () {},
+
+	render: function () {
+		var frases = this.props.frases;
+		var selectedRoute = this.state.selectedRoute;
+
+		return this.state.routes ? React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'label',
+				{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
+				frases.CHAT_TRUNK.SELECT_SERVICE_GROUP
+			),
+			this.state.routes.length ? React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					'select',
+					{ className: 'form-control', value: selectedRoute.oid, onChange: this._selectRoute },
+					this.state.routes.map(function (item) {
+						return React.createElement(
+							'option',
+							{ key: item.oid, value: item.oid },
+							item.name
+						);
+					})
+				)
+			) : React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					'p',
+					null,
+					frases.CHAT_TRUNK.NO_SERVICE_GROUP
+				)
+			),
+			this.props.type === 'Telephony' ? React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					'a',
+					{ href: '#hunting/hunting', className: 'btn btn-link', onClick: this._createGroup },
+					React.createElement('i', { className: 'fa fa-plus-circle' }),
+					' ',
+					frases.CHAT_TRUNK.CREATE_HUNTING_GROUP
+				),
+				React.createElement(
+					'a',
+					{ href: '#icd/icd', className: 'btn btn-link', onClick: this._createGroup },
+					React.createElement('i', { className: 'fa fa-plus-circle' }),
+					' ',
+					frases.CHAT_TRUNK.CREATE_ICD_GROUP
+				)
+			) : React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					'a',
+					{ href: '#chatchannel/chatchannel', className: 'btn btn-link', onClick: this._createGroup },
+					React.createElement('i', { className: 'fa fa-plus-circle' }),
+					' ',
+					frases.CHAT_TRUNK.CREATE_SERVICE_GROUP
+				)
+			)
+		) : React.createElement(Spinner, null);
+	}
+});
+
+ChannelRouteComponent = React.createFactory(ChannelRouteComponent);
+var ChatTrunkComponent = React.createClass({
+	displayName: 'ChatTrunkComponent',
+
+
+	propTypes: {
+		type: React.PropTypes.string,
+		services: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		params: React.PropTypes.object,
+		getObjects: React.PropTypes.func,
+		onStateChange: React.PropTypes.func,
+		setObject: React.PropTypes.func,
+		updateBalance: React.PropTypes.func,
+		confirmRemoveObject: React.PropTypes.func,
+		removeObject: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			routes: null,
+			serivceInited: false,
+			selectedRoute: null
+		};
+	},
+
+	componentWillMount: function () {
+		var params = this.props.params;
+		var type = this.props.type;
+
+		this.setState({
+			routes: [],
+			type: type,
+			params: params || {},
+			serivceInited: true
+		});
+
+		this._setService(type);
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			type: props.type || this.props.type,
+			params: props.params || this.props.params
+		});
+	},
+
+	_onStateChange: function (state, callback) {
+		var params = this.state.params;
+		params.enabled = state;
+		this.setState({ params: params });
+		this.props.onStateChange(state, function (err, result) {
+			if (callback) callback(err, result);
+		});
+	},
+
+	_onNameChange: function (value) {
+		var params = this.state.params;
+		params.name = value;
+		this.setState({ params: params });
+	},
+
+	_setObject: function () {
+		var params = {};
+		var selectedRoute = this.state.selectedRoute;
+		var properties = this.state.params.properties;
+
+		console.log('setObject: ', properties, selectedRoute, this.state.params);
+
+		if (!selectedRoute) return console.error('route is not selected');
+
+		Object.keys(this.state.params).forEach(function (key) {
+			params[key] = this.state.params[key];
+		}.bind(this));
+
+		params.type = this.state.type;
+		if (properties.id) params.pageid = properties.id;
+		params.pagename = properties.name || '';
+		params.routes = [{
+			target: {
+				oid: selectedRoute.oid,
+				name: selectedRoute.name
+			},
+			priority: 1,
+			timeout: 86400
+		}];
+
+		console.log('setObject params: ', params);
+
+		if (!params.pageid && params.type === 'Telephony') {
+			this._buyDidNumber(params.properties, function (err, result) {
+
+				if (err) return notify_about('error', err.message);
+
+				params.pageid = params.pagename = result;
+				params.properties = { number: result, id: result };
+
+				this.props.setObject(params);
+			}.bind(this));
+		} else {
+			this.props.setObject(params);
+		}
+	},
+
+	_buyDidNumber(params, callback) {
+		console.log('_buyDidNumber: ', params);
+
+		if (!params.dgid || !params.poid) return callback(frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED);
+
+		var thisObj = this;
+
+		show_loading_panel();
+
+		billingRequest('orderDid', params, function (err, response) {
+			console.log('_buyDidNumber: ', err, response, params);
+
+			remove_loading_panel();
+
+			if (err) {
+				if (err.name === 'NO_PAYMENT_SOURCE') {
+					thisObj.props.updateBalance({ chargeAmount: params.chargeAmount, currency: params.currency }, function (err, result) {
+						thisObj._buyDidNumber(params, callback);
+					});
+					return;
+				} else {
+					return callback(err);
+				}
+			}
+
+			if (!response.success && response.error.name === 'ENOENT') {
+				return callback(frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
+			}
+
+			callback(null, response.result.number);
+		});
+	},
+
+	_removeObject: function () {
+		var state = this.state;
+		var type = state.type;
+		var removeObject = this.props.removeObject;
+
+		this.props.confirmRemoveObject(type, function () {
+			show_loading_panel();
+
+			if (type === 'Telephony') {
+				if (!state.params.properties.number) return console.error('number is not defined');
+
+				billingRequest('unassignDid', { number: state.params.properties.number }, function (err, response) {
+					removeObject();
+					remove_loading_panel();
+				});
+			} else {
+				removeObject();
+				remove_loading_panel();
+			}
+		});
+	},
+
+	_onPropsChange: function (properties) {
+		// var params = this.state.params;
+		// params.properties = properties;
+		var params = this.state.params;
+		params.properties = properties;
+		this.setState({ params: params });
+	},
+
+	_onParamsChange: function (e) {
+		var target = e.target;
+		var params = this.state.params;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : target.value;
+
+		if (target.name === 'replytimeout' || target.name === 'sessiontimeout') value = parseInt(value, 10) * 60;
+
+		params[target.name] = value;
+
+		console.log('_onParamsChange: ', target.name, value);
+
+		this.setState({ params: params });
+	},
+
+	// _selectRoute: function(e) {
+	// 	var value = e.target.value;
+	// 	var selectedRoute = {};
+	// 	this.state.routes.forEach(function(item) {
+	// 		if(item.oid === value) selectedRoute = item;
+	// 	});
+
+	// 	console.log('_selectRoute: ', selectedRoute);
+
+	// 	this.setState({ selectedRoute: selectedRoute });
+	// },
+
+	_selectRoute: function (route) {
+		console.log('_selectRoute: ', route);
+		this.setState({ selectedRoute: route });
+	},
+
+	_setService: function (type) {
+		if (this.state.type === type) return;
+
+		var params = this.props.params;
+		params.properties = params.pageid ? params.properties : {};
+		// this._getAvailableRoutes(type, function(result) {
+		this.setState({
+			type: type,
+			params: params
+			// properties: 
+			// routes: result,
+			// selectedRoute: (params.routes && params.routes.length) ? params.routes[0].target : ((this.props.routes && this.props.routes.length) ? this.props.routes[0] : [])
+		});
+		// }.bind(this));
+	},
+
+	// _getAvailableRoutes: function(type, callback) {
+	// 	console.log('_getAvailableRoutes: ', type);
+	// 	var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
+	// 	var routes = [];
+
+	// 	getExtensions(function(result) {
+	// 		routes = result;
+	// 		this.props.getObjects(groupType, function(result) {
+	// 			routes = routes.concat(result);
+	// 			callback(routes);
+	// 		});
+	// 	}.bind(this));
+	// },
+
+	// _getComponentName: function(type) {
+	// 	var component = null;
+	// 	if(type === 'FacebookMessenger' || type === 'Facebook') {
+	// 		component = FacebookTrunkComponent;
+	// 	} else if(type === 'Twitter') {
+	// 		component = TwitterTrunkComponent;
+	// 	} else if(type === 'Viber') {
+	// 		component = ViberTrunkComponent;
+	// 	} else if(type === 'Email') {
+	// 		component = EmailTrunkComponent;
+	// 	}
+
+	// 	return component;		
+	// },
+
+	_getServiceParams: function (type) {
+		return this.props.services.reduce(function (prev, next) {
+			if (next.id === type) prev = next;
+			return prev;
+		}, {});
+	},
+
+	_toMinutes: function (value) {
+		return parseInt(value, 10) / 60;
+	},
+
+	// _createGroup: function(e) {
+	// 	e.preventDefault();
+	// 	this.props.createGroup(this.state.type);
+	// },
+	// {
+	// 	this.state.routes ? (
+	// 		this.state.routes.length ? (
+	// 			<div className="form-group">
+	// 				<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
+	// 				<div className="col-sm-4">
+	// 					<select className="form-control" id="ctc-select-2" value={this.state.selectedRoute.oid} onChange={this._selectRoute}>
+	// 						{
+	// 							this.state.routes.map(function(item) {
+	// 								return <option key={item.oid} value={item.oid}>{item.name}</option>
+	// 							})
+	// 						}
+	// 					</select>
+	// 				</div>
+	// 			</div>
+	// 		) : (
+	// 			<div className="form-group">
+	// 				<div className="col-sm-4 col-sm-offset-4">
+	// 					<button className="btn btn-primary" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create group</button>
+	// 				</div>
+	// 			</div>
+	// 		)
+	// 	) : (
+	// 		<Spinner/>
+	// 	)
+	// }
+
+	render: function () {
+		var params = this.state.params;
+		var frases = this.props.frases;
+		var type = this.state.type;
+		var serviceParams = this._getServiceParams(type);
+		var ServiceComponent = serviceParams.component;
+
+		console.log('ChatTrunkComponent: ', params, ServiceComponent);
+
+		if (!params) return null;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(ObjectName, {
+				name: params.name,
+				frases: frases,
+				placeholder: frases.CHAT_TRUNK.OBJ_NAME_PLACEHOLDER,
+				enabled: params.enabled || false,
+				submitDisabled: this.state.submitDisabled,
+				onStateChange: this._onStateChange,
+				onChange: this._onNameChange,
+				onSubmit: this._setObject,
+				onCancel: this.state.params.pageid ? this._removeObject : null
+			}),
+			React.createElement(
+				PanelComponent,
+				null,
+				this.state.serivceInited ? React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-xs-12' },
+						React.createElement(
+							'form',
+							{ className: 'form-horizontal' },
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ className: 'col-sm-4 control-label' },
+									frases.CHAT_TRUNK.SELECT_SERVICE
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-8' },
+									this.props.services.map(function (item) {
+										return React.createElement(
+											'div',
+											{ key: item.id, className: 'text-center col-sm-2 col-xs-3', style: { padding: "20px 0" } },
+											React.createElement(TrunkServiceItemComponent, {
+												selected: item.id === type,
+												item: item,
+												onClick: this._setService,
+												disabled: params.pageid && item.id !== type
+											})
+										);
+									}.bind(this))
+								)
+							)
+						),
+						React.createElement('hr', null)
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-xs-12' },
+						React.createElement(
+							'div',
+							null,
+							React.createElement(ServiceComponent, {
+								frases: frases,
+								properties: this.state.params.properties,
+								serviceParams: serviceParams,
+								onChange: this._onPropsChange,
+								isNew: !this.state.params.pageid
+							}),
+							React.createElement('hr', { className: 'col-xs-12' }),
+							React.createElement(
+								'form',
+								{ className: 'form-horizontal' },
+								React.createElement(
+									'div',
+									{ className: 'form-group' },
+									React.createElement(ChannelRouteComponent, { frases: frases, type: type, routes: this.props.params.routes, onChange: this._selectRoute })
+								),
+								React.createElement('hr', null),
+								type !== 'Telephony' && React.createElement(
+									'div',
+									{ className: 'form-group' },
+									React.createElement(
+										'label',
+										{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
+										frases.CHAT_TRUNK.REPLY_TIMEOUT
+									),
+									React.createElement(
+										'div',
+										{ className: 'col-sm-4' },
+										React.createElement('input', { type: 'number', className: 'form-control', name: 'replytimeout', value: this._toMinutes(params.replytimeout), onChange: this._onParamsChange })
+									)
+								),
+								React.createElement(
+									'div',
+									{ className: 'form-group' },
+									React.createElement(
+										'label',
+										{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
+										frases.CHAT_TRUNK.SESSION_TIMEOUT
+									),
+									React.createElement(
+										'div',
+										{ className: 'col-sm-4' },
+										React.createElement('input', { type: 'number', className: 'form-control', name: 'sessiontimeout', value: this._toMinutes(params.sessiontimeout), onChange: this._onParamsChange })
+									)
+								)
+							)
+						)
+					)
+				) : React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-xs-12' },
+						React.createElement(Spinner, null)
+					)
+				)
+			)
+		);
+	}
+});
+
+ChatTrunkComponent = React.createFactory(ChatTrunkComponent);
+function TrunkServiceItemComponent(props) {
+
+	var itemStyles = {
+		display: 'block',
+		textDecoration: 'none',
+		opacity: props.disabled ? 0.5 : 1,
+		cursor: props.disabled ? 'default' : 'pointer'
+	};
+
+	function selectItem(e) {
+		e.preventDefault();
+		if (props.disabled) return;
+		props.onClick(props.item.id);
+	}
+
+	return React.createElement(
+		'a',
+		{
+			href: '#',
+			style: itemStyles,
+			onClick: selectItem,
+			className: props.disabled ? "disabled" : ""
+		},
+		React.createElement('img', {
+			src: props.item.icon,
+			alt: props.item.name + ' icon',
+			style: { width: "40px", height: "40px" }
+		}),
+		React.createElement(
+			'h5',
+			{ className: props.selected ? '' : 'hidden' },
+			props.item.name
+		)
+	);
+}
+var ActivityAnalyticsComponent = React.createClass({
+	displayName: "ActivityAnalyticsComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		data: React.PropTypes.object,
+		onLoad: React.PropTypes.func
+	},
+
+	componentDidMount: function () {
+		this.props.onLoad();
+	},
+
+	componentDidUpdate: function (props) {
+		this.props.onUpdate();
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var data = this.props.data;
+		// var chartData = {};
+		// var chartAttributes = {};
+
+		// if(data) {
+		// 	chartData = {
+		// 		columns: [
+		// 			['Assigned', (data.ar || 0)],
+		// 			['Unassigned', (data.ur || 0)]
+		// 		]
+		// 	};
+
+		// 	chartAttributes = {
+		// 		donut: {
+		// 			label: {
+		// 	            format: function (value, ratio, id) {
+		// 	                return value;
+		// 	            }
+		// 	        }
+		// 		}
+		// 	};
+		// }
+
+		return data && React.createElement(
+			"div",
+			null,
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.tnc, desc: frases.CHANNEL_STATISTICS.INDEXES.NEW_CUSTOMERS } })
+				),
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.tr, desc: frases.CHANNEL_STATISTICS.INDEXES.NEW_REQUESTS } })
+				),
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.ar, desc: frases.CHANNEL_STATISTICS.INDEXES.ASSIGNED_REQUESTS } })
+				),
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.rr, desc: frases.CHANNEL_STATISTICS.INDEXES.TOTAL_REPLIES } })
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.atfr, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY, format: "ms" } })
+				),
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.art, desc: frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME, format: "ms" } })
+				),
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.atrm, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_REPLY, format: "ms" } })
+				),
+				React.createElement(
+					"div",
+					{ className: "col-sm-3 col-xs-6" },
+					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.atta, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_ASSIGN, format: "ms" } })
+				)
+			)
+		);
+	}
+});
+
+ActivityAnalyticsComponent = React.createFactory(ActivityAnalyticsComponent);
+var ChannelTypeAnalyticsComponent = React.createClass({
+	displayName: 'ChannelTypeAnalyticsComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		data: React.PropTypes.array
+	},
+
+	_getColumns: function (data, colname, match, params) {
+		var columns = [];
+		var col = [];
+		var value = null;
+		var convert = params ? params.convert : null;
+
+		data.map(function (item) {
+			col = [item[colname]];
+			for (var key in item) {
+				if (key !== colname && (match ? match.indexOf(key) !== -1 : true)) {
+					value = item[key];
+
+					if (convert === 'minutes') {
+						value = parseFloat((value / 1000 / 60).toFixed(2));
+					}
+
+					col.push(value);
+				}
+			}
+
+			columns.push(col);
+		}.bind(this));
+
+		return columns;
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var data = this.props.data;
+
+		console.log('ChannelTypeAnalyticsComponent render:', data);
+
+		return data && React.createElement(
+			'div',
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					PanelComponent,
+					{ header: frases.CHANNEL_STATISTICS.INDEXES.NEW_CUSTOMERS },
+					React.createElement(ChartComponent, {
+						type: 'donut',
+						data: {
+							columns: this._getColumns(data, 'name', ['tnc'])
+						},
+						options: {
+							donut: {
+								label: {
+									format: function (value, ratio, id) {
+										return value;
+									}
+								}
+							}
+						}
+					})
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					PanelComponent,
+					{ header: frases.CHANNEL_STATISTICS.INDEXES.NEW_REQUESTS },
+					React.createElement(ChartComponent, {
+						type: 'donut',
+						data: {
+							columns: this._getColumns(data, 'name', ['tr'])
+						},
+						options: {
+							donut: {
+								label: {
+									format: function (value, ratio, id) {
+										return value;
+									}
+								}
+							}
+						}
+					})
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'col-sm-4' },
+				React.createElement(
+					PanelComponent,
+					{ header: frases.CHANNEL_STATISTICS.INDEXES.ASSIGNED_REQUESTS },
+					React.createElement(ChartComponent, {
+						type: 'donut',
+						data: {
+							columns: this._getColumns(data, 'name', ['ar'])
+						},
+						options: {
+							donut: {
+								label: {
+									format: function (value, ratio, id) {
+										return value;
+									}
+								}
+							}
+						}
+					})
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'col-sm-6' },
+				React.createElement(
+					PanelComponent,
+					{ header: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY + " (" + frases.MINUTES + ")" },
+					React.createElement(ChartComponent, {
+						type: 'bar',
+						data: {
+							columns: this._getColumns(data, 'name', ['atfr'], { convert: 'minutes' })
+						},
+						options: {
+							bar: {
+								width: {
+									ratio: 0.5
+								}
+							}
+						}
+					})
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'col-sm-6' },
+				React.createElement(
+					PanelComponent,
+					{ header: frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME + " (" + frases.MINUTES + ")" },
+					React.createElement(ChartComponent, {
+						type: 'bar',
+						data: {
+							columns: this._getColumns(data, 'name', ['art'], { convert: 'minutes' })
+						},
+						options: {
+							bar: {
+								width: {
+									ratio: 0.5
+								}
+							}
+						}
+					})
+				)
+			)
+		);
+	}
+});
+
+ChannelTypeAnalyticsComponent = React.createFactory(ChannelTypeAnalyticsComponent);
+var GetAndRenderAnalyticsDataComponent = React.createClass({
+	displayName: "GetAndRenderAnalyticsDataComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		fetch: React.PropTypes.object,
+		method: React.PropTypes.string,
+		component: React.PropTypes.func,
+		onComponentLoad: React.PropTypes.func,
+		onComponentUpdate: React.PropTypes.func
+	},
+
+	getDefaultProps: function () {
+		return { fetch: {} };
+	},
+
+	getInitialState: function () {
+		return { data: null, fetching: false };
+	},
+
+	componentWillMount: function () {
+		this._getData(this.props.method, this.props.fetch);
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({ fetching: true });
+
+		this._getData(props.method, props.fetch, function (result) {
+			this.setState({ fetching: false });
+			this._setData(result);
+		}.bind(this));
+	},
+
+	shouldComponentUpdate: function () {
+		return !this.state.fetching;
+	},
+
+	_getData: function (method, params, callback) {
+		if (!method || !params.date) return;
+
+		json_rpc_async(method, {
+			begin: params.date.start,
+			end: params.date.end
+		}, callback);
+	},
+
+	_setData: function (data) {
+
+		this.setState({
+			data: data
+		});
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var data = this.state.data;
+		var Component = this.props.component;
+
+		return data ? React.createElement(Component, { frases: frases, data: data, onLoad: this.props.onComponentLoad, onUpdate: this.props.onComponentUpdate }) : null;
+	}
+});
+
+GetAndRenderAnalyticsDataComponent = React.createFactory(GetAndRenderAnalyticsDataComponent);
+var AnalyticsComponent = React.createClass({
+	displayName: 'AnalyticsComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		utils: React.PropTypes.object
+	},
+
+	getInitialState: function () {
+		return {
+			picker: {},
+			fetch: {},
+			showChartType: 'chatGroup'
+		};
+	},
+
+	componentDidMount: function () {
+		var picker = new Picker('chatstat-date-picker', { submitFunction: this._getData, buttonSize: 'md' });
+		this._getData({
+			date: picker.date
+		});
+	},
+
+	_getData: function (params) {
+		show_loading_panel();
+		this.setState({ fetch: params });
+	},
+
+	_onChartTypeSelect: function (e) {
+		var value = e.target.value;
+		this.setState({ showChartType: value });
+	},
+
+	_onComponentLoad: function () {
+		console.log('_onComponentLoad');
+		show_content();
+	},
+
+	_onComponentUpdate: function () {
+		console.log('_onComponentUpdate');
+		show_content();
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var showChartType = this.state.showChartType;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row', style: { margin: "20px 0" } },
+				React.createElement('div', { id: 'chatstat-date-picker', className: 'col-sm-4 cdropdown custom-dropdown' })
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					React.createElement(GetAndRenderAnalyticsDataComponent, {
+						component: ActivityAnalyticsComponent,
+						frases: this.props.frases,
+						fetch: this.state.fetch,
+						method: 'getActivityStatistics',
+						onComponentLoad: this._onComponentLoad,
+						onComponentUpdate: this._onComponentUpdate
+					})
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row', style: { margin: "20px 0" } },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						'select',
+						{ className: 'form-control', onChange: this._onChartTypeSelect },
+						React.createElement(
+							'option',
+							{ value: 'chatGroup' },
+							frases.CHANNEL_STATISTICS.SHOW_BY.CHAT_GROUP
+						),
+						React.createElement(
+							'option',
+							{ value: 'channelName' },
+							frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_NAME
+						),
+						React.createElement(
+							'option',
+							{ value: 'channelType' },
+							frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_TYPE
+						)
+					)
+				)
+			),
+			showChartType === 'chatGroup' ? React.createElement(GetAndRenderAnalyticsDataComponent, {
+				component: ChannelTypeAnalyticsComponent,
+				frases: this.props.frases,
+				fetch: this.state.fetch,
+				method: 'getChatGroupStatistics'
+			}) : showChartType === 'channelName' ? React.createElement(GetAndRenderAnalyticsDataComponent, {
+				component: ChannelTypeAnalyticsComponent,
+				frases: this.props.frases,
+				fetch: this.state.fetch,
+				method: 'getChannelStatistics'
+			}) : React.createElement(GetAndRenderAnalyticsDataComponent, {
+				component: ChannelTypeAnalyticsComponent,
+				frases: this.props.frases,
+				fetch: this.state.fetch,
+				method: 'getChannelTypeStatistics'
+			})
+		);
+	}
+});
+
+AnalyticsComponent = React.createFactory(AnalyticsComponent);
+var SingleIndexAnalyticsComponent = React.createClass({
+	displayName: 'SingleIndexAnalyticsComponent',
+
+
+	propTypes: {
+		params: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			params: {}
+		};
+	},
+
+	// componentWillMount: function() {
+	// 	var picker = new Picker('chatstat-date-picker', {submitFunction: this._getData, buttonSize: 'md'});
+	// 	this._getData({
+	// 		date: picker.date
+	// 	});
+	// },
+
+	_formatTimeString: function (time, format) {
+		var h, m, s, newtime;
+		h = Math.floor(time / 3600);
+		time = time - h * 3600;
+		m = Math.floor(time / 60);
+		s = Math.floor(time - m * 60);
+
+		newtime = (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
+		if (!format || format == 'hh:mm:ss') {
+			newtime += ':' + (s < 10 ? '0' + s : s);
+		}
+		return newtime;
+	},
+
+	_formatIndex: function (value, format) {
+		var result = value;
+		if (format === 'ms') result = this._formatTimeString(result / 1000);
+
+		return result;
+	},
+
+	render: function () {
+		var params = this.props.params;
+		return React.createElement(
+			'div',
+			{ className: 'panel' },
+			React.createElement(
+				'div',
+				{ className: 'panel-body text-center' },
+				React.createElement(
+					'h3',
+					{ style: { margin: "5px 0" } },
+					this._formatIndex(params.index, params.format)
+				),
+				React.createElement('span', { style: { display: "inline-block", width: "50px", height: "1px", background: "#eee" } }),
+				React.createElement(
+					'h5',
+					null,
+					params.desc
+				)
+			)
+		);
+	}
+});
+
+SingleIndexAnalyticsComponent = React.createFactory(SingleIndexAnalyticsComponent);
 var AddLicensesComponent = React.createClass({
 	displayName: 'AddLicensesComponent',
 
@@ -2112,1158 +3231,293 @@ var PlansComponent = React.createClass({
 });
 
 PlansComponent = React.createFactory(PlansComponent);
-var ActivityAnalyticsComponent = React.createClass({
-	displayName: "ActivityAnalyticsComponent",
+var GroupMembersComponent = React.createClass({
+	displayName: 'GroupMembersComponent',
 
 
 	propTypes: {
 		frases: React.PropTypes.object,
-		data: React.PropTypes.object,
-		onLoad: React.PropTypes.func
-	},
-
-	componentDidMount: function () {
-		this.props.onLoad();
-	},
-
-	componentDidUpdate: function (props) {
-		this.props.onUpdate();
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var data = this.props.data;
-		// var chartData = {};
-		// var chartAttributes = {};
-
-		// if(data) {
-		// 	chartData = {
-		// 		columns: [
-		// 			['Assigned', (data.ar || 0)],
-		// 			['Unassigned', (data.ur || 0)]
-		// 		]
-		// 	};
-
-		// 	chartAttributes = {
-		// 		donut: {
-		// 			label: {
-		// 	            format: function (value, ratio, id) {
-		// 	                return value;
-		// 	            }
-		// 	        }
-		// 		}
-		// 	};
-		// }
-
-		return data && React.createElement(
-			"div",
-			null,
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.tnc, desc: frases.CHANNEL_STATISTICS.INDEXES.NEW_CUSTOMERS } })
-				),
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.tr, desc: frases.CHANNEL_STATISTICS.INDEXES.NEW_REQUESTS } })
-				),
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.ar, desc: frases.CHANNEL_STATISTICS.INDEXES.ASSIGNED_REQUESTS } })
-				),
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.rr, desc: frases.CHANNEL_STATISTICS.INDEXES.TOTAL_REPLIES } })
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.atfr, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY, format: "ms" } })
-				),
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.art, desc: frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME, format: "ms" } })
-				),
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.atrm, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_REPLY, format: "ms" } })
-				),
-				React.createElement(
-					"div",
-					{ className: "col-sm-3 col-xs-6" },
-					React.createElement(SingleIndexAnalyticsComponent, { params: { index: data.atta, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_ASSIGN, format: "ms" } })
-				)
-			)
-		);
-	}
-});
-
-ActivityAnalyticsComponent = React.createFactory(ActivityAnalyticsComponent);
-var ChannelTypeAnalyticsComponent = React.createClass({
-	displayName: 'ChannelTypeAnalyticsComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		data: React.PropTypes.array
-	},
-
-	_getColumns: function (data, colname, match, params) {
-		var columns = [];
-		var col = [];
-		var value = null;
-		var convert = params ? params.convert : null;
-
-		data.map(function (item) {
-			col = [item[colname]];
-			for (var key in item) {
-				if (key !== colname && (match ? match.indexOf(key) !== -1 : true)) {
-					value = item[key];
-
-					if (convert === 'minutes') {
-						value = parseFloat((value / 1000 / 60).toFixed(2));
-					}
-
-					col.push(value);
-				}
-			}
-
-			columns.push(col);
-		}.bind(this));
-
-		return columns;
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var data = this.props.data;
-
-		console.log('ChannelTypeAnalyticsComponent render:', data);
-
-		return data && React.createElement(
-			'div',
-			{ className: 'row' },
-			React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					PanelComponent,
-					{ header: frases.CHANNEL_STATISTICS.INDEXES.NEW_CUSTOMERS },
-					React.createElement(ChartComponent, {
-						type: 'donut',
-						data: {
-							columns: this._getColumns(data, 'name', ['tnc'])
-						},
-						options: {
-							donut: {
-								label: {
-									format: function (value, ratio, id) {
-										return value;
-									}
-								}
-							}
-						}
-					})
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					PanelComponent,
-					{ header: frases.CHANNEL_STATISTICS.INDEXES.NEW_REQUESTS },
-					React.createElement(ChartComponent, {
-						type: 'donut',
-						data: {
-							columns: this._getColumns(data, 'name', ['tr'])
-						},
-						options: {
-							donut: {
-								label: {
-									format: function (value, ratio, id) {
-										return value;
-									}
-								}
-							}
-						}
-					})
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					PanelComponent,
-					{ header: frases.CHANNEL_STATISTICS.INDEXES.ASSIGNED_REQUESTS },
-					React.createElement(ChartComponent, {
-						type: 'donut',
-						data: {
-							columns: this._getColumns(data, 'name', ['ar'])
-						},
-						options: {
-							donut: {
-								label: {
-									format: function (value, ratio, id) {
-										return value;
-									}
-								}
-							}
-						}
-					})
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'col-sm-6' },
-				React.createElement(
-					PanelComponent,
-					{ header: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY + " (" + frases.MINUTES + ")" },
-					React.createElement(ChartComponent, {
-						type: 'bar',
-						data: {
-							columns: this._getColumns(data, 'name', ['atfr'], { convert: 'minutes' })
-						},
-						options: {
-							bar: {
-								width: {
-									ratio: 0.5
-								}
-							}
-						}
-					})
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'col-sm-6' },
-				React.createElement(
-					PanelComponent,
-					{ header: frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME + " (" + frases.MINUTES + ")" },
-					React.createElement(ChartComponent, {
-						type: 'bar',
-						data: {
-							columns: this._getColumns(data, 'name', ['art'], { convert: 'minutes' })
-						},
-						options: {
-							bar: {
-								width: {
-									ratio: 0.5
-								}
-							}
-						}
-					})
-				)
-			)
-		);
-	}
-});
-
-ChannelTypeAnalyticsComponent = React.createFactory(ChannelTypeAnalyticsComponent);
-var GetAndRenderAnalyticsDataComponent = React.createClass({
-	displayName: "GetAndRenderAnalyticsDataComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		fetch: React.PropTypes.object,
-		method: React.PropTypes.string,
-		component: React.PropTypes.func,
-		onComponentLoad: React.PropTypes.func,
-		onComponentUpdate: React.PropTypes.func
-	},
-
-	getDefaultProps: function () {
-		return { fetch: {} };
-	},
-
-	getInitialState: function () {
-		return { data: null, fetching: false };
-	},
-
-	componentWillMount: function () {
-		this._getData(this.props.method, this.props.fetch);
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({ fetching: true });
-
-		this._getData(props.method, props.fetch, function (result) {
-			this.setState({ fetching: false });
-			this._setData(result);
-		}.bind(this));
-	},
-
-	shouldComponentUpdate: function () {
-		return !this.state.fetching;
-	},
-
-	_getData: function (method, params, callback) {
-		if (!method || !params.date) return;
-
-		json_rpc_async(method, {
-			begin: params.date.start,
-			end: params.date.end
-		}, callback);
-	},
-
-	_setData: function (data) {
-
-		this.setState({
-			data: data
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var data = this.state.data;
-		var Component = this.props.component;
-
-		return data ? React.createElement(Component, { frases: frases, data: data, onLoad: this.props.onComponentLoad, onUpdate: this.props.onComponentUpdate }) : null;
-	}
-});
-
-GetAndRenderAnalyticsDataComponent = React.createFactory(GetAndRenderAnalyticsDataComponent);
-var AnalyticsComponent = React.createClass({
-	displayName: 'AnalyticsComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		utils: React.PropTypes.object
-	},
-
-	getInitialState: function () {
-		return {
-			picker: {},
-			fetch: {},
-			showChartType: 'chatGroup'
-		};
-	},
-
-	componentDidMount: function () {
-		var picker = new Picker('chatstat-date-picker', { submitFunction: this._getData, buttonSize: 'md' });
-		this._getData({
-			date: picker.date
-		});
-	},
-
-	_getData: function (params) {
-		show_loading_panel();
-		this.setState({ fetch: params });
-	},
-
-	_onChartTypeSelect: function (e) {
-		var value = e.target.value;
-		this.setState({ showChartType: value });
-	},
-
-	_onComponentLoad: function () {
-		console.log('_onComponentLoad');
-		show_content();
-	},
-
-	_onComponentUpdate: function () {
-		console.log('_onComponentUpdate');
-		show_content();
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var showChartType = this.state.showChartType;
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'row', style: { margin: "20px 0" } },
-				React.createElement('div', { id: 'chatstat-date-picker', className: 'col-sm-4 cdropdown custom-dropdown' })
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(GetAndRenderAnalyticsDataComponent, {
-						component: ActivityAnalyticsComponent,
-						frases: this.props.frases,
-						fetch: this.state.fetch,
-						method: 'getActivityStatistics',
-						onComponentLoad: this._onComponentLoad,
-						onComponentUpdate: this._onComponentUpdate
-					})
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row', style: { margin: "20px 0" } },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'select',
-						{ className: 'form-control', onChange: this._onChartTypeSelect },
-						React.createElement(
-							'option',
-							{ value: 'chatGroup' },
-							frases.CHANNEL_STATISTICS.SHOW_BY.CHAT_GROUP
-						),
-						React.createElement(
-							'option',
-							{ value: 'channelName' },
-							frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_NAME
-						),
-						React.createElement(
-							'option',
-							{ value: 'channelType' },
-							frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_TYPE
-						)
-					)
-				)
-			),
-			showChartType === 'chatGroup' ? React.createElement(GetAndRenderAnalyticsDataComponent, {
-				component: ChannelTypeAnalyticsComponent,
-				frases: this.props.frases,
-				fetch: this.state.fetch,
-				method: 'getChatGroupStatistics'
-			}) : showChartType === 'channelName' ? React.createElement(GetAndRenderAnalyticsDataComponent, {
-				component: ChannelTypeAnalyticsComponent,
-				frases: this.props.frases,
-				fetch: this.state.fetch,
-				method: 'getChannelStatistics'
-			}) : React.createElement(GetAndRenderAnalyticsDataComponent, {
-				component: ChannelTypeAnalyticsComponent,
-				frases: this.props.frases,
-				fetch: this.state.fetch,
-				method: 'getChannelTypeStatistics'
-			})
-		);
-	}
-});
-
-AnalyticsComponent = React.createFactory(AnalyticsComponent);
-var SingleIndexAnalyticsComponent = React.createClass({
-	displayName: 'SingleIndexAnalyticsComponent',
-
-
-	propTypes: {
-		params: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			params: {}
-		};
-	},
-
-	// componentWillMount: function() {
-	// 	var picker = new Picker('chatstat-date-picker', {submitFunction: this._getData, buttonSize: 'md'});
-	// 	this._getData({
-	// 		date: picker.date
-	// 	});
-	// },
-
-	_formatTimeString: function (time, format) {
-		var h, m, s, newtime;
-		h = Math.floor(time / 3600);
-		time = time - h * 3600;
-		m = Math.floor(time / 60);
-		s = Math.floor(time - m * 60);
-
-		newtime = (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
-		if (!format || format == 'hh:mm:ss') {
-			newtime += ':' + (s < 10 ? '0' + s : s);
-		}
-		return newtime;
-	},
-
-	_formatIndex: function (value, format) {
-		var result = value;
-		if (format === 'ms') result = this._formatTimeString(result / 1000);
-
-		return result;
-	},
-
-	render: function () {
-		var params = this.props.params;
-		return React.createElement(
-			'div',
-			{ className: 'panel' },
-			React.createElement(
-				'div',
-				{ className: 'panel-body text-center' },
-				React.createElement(
-					'h3',
-					{ style: { margin: "5px 0" } },
-					this._formatIndex(params.index, params.format)
-				),
-				React.createElement('span', { style: { display: "inline-block", width: "50px", height: "1px", background: "#eee" } }),
-				React.createElement(
-					'h5',
-					null,
-					params.desc
-				)
-			)
-		);
-	}
-});
-
-SingleIndexAnalyticsComponent = React.createFactory(SingleIndexAnalyticsComponent);
-var ChannelRouteComponent = React.createClass({
-	displayName: 'ChannelRouteComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		type: React.PropTypes.string,
-		routes: React.PropTypes.array,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			options: {},
-			routes: null,
-			selectedRoute: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this._setRoutes(this.props);
-	},
-
-	componentWillReceiveProps: function (props) {
-		if (props.type !== this.props.type) {
-			this.setState({ routes: [] });
-			this._setRoutes(props);
-		}
-	},
-
-	_setRoutes: function (props) {
-		// var props = this.props;
-		var selectedRoute = {};
-
-		this._getAvailableRoutes(props.type, function (result) {
-			console.log('_getAvailableRoutes: ', result);
-
-			selectedRoute = props.routes && props.routes.length ? props.routes[0].target : result && result.length ? result[0] : {};
-
-			this.setState({
-				routes: result || [],
-				selectedRoute: selectedRoute
-			});
-
-			this.props.onChange(selectedRoute);
-		}.bind(this));
-	},
-
-	_selectRoute: function (e) {
-		var value = e.target.value;
-		var selectedRoute = {};
-		this.state.routes.forEach(function (item) {
-			if (item.oid === value) selectedRoute = item;
-		});
-
-		console.log('_selectRoute: ', selectedRoute);
-
-		this.setState({ selectedRoute: selectedRoute });
-		this.props.onChange(selectedRoute);
-	},
-
-	_getAvailableRoutes: function (type, callback) {
-		// var type = this.props.type;
-		console.log('_getAvailableRoutes: ', type);
-		var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
-
-		getObjects(groupType, function (result) {
-			callback(result);
-		});
-	},
-
-	_handleOnChange: function (e) {
-		var target = e.target;
-		var params = this.state.params;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : target.value;
-
-		params[target.name] = value;
-		this.setState({ options: params });
-	},
-
-	_createGroup: function () {},
-
-	render: function () {
-		var frases = this.props.frases;
-		var selectedRoute = this.state.selectedRoute;
-
-		return this.state.routes ? React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'label',
-				{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
-				frases.CHAT_TRUNK.SELECT_SERVICE_GROUP
-			),
-			this.state.routes.length ? React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					'select',
-					{ className: 'form-control', value: selectedRoute.oid, onChange: this._selectRoute },
-					this.state.routes.map(function (item) {
-						return React.createElement(
-							'option',
-							{ key: item.oid, value: item.oid },
-							item.name
-						);
-					})
-				)
-			) : React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					'p',
-					null,
-					'You don\'t have service groups yet.'
-				)
-			),
-			this.props.type === 'Telephony' ? React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					'a',
-					{ href: '#hunting/hunting', className: 'btn btn-link', onClick: this._createGroup },
-					React.createElement('i', { className: 'fa fa-plus-circle' }),
-					' Create Hunting group'
-				),
-				React.createElement(
-					'a',
-					{ href: '#icd/icd', className: 'btn btn-link', onClick: this._createGroup },
-					React.createElement('i', { className: 'fa fa-plus-circle' }),
-					' Create Hotline'
-				)
-			) : React.createElement(
-				'div',
-				{ className: 'col-sm-4' },
-				React.createElement(
-					'a',
-					{ href: '#chatchannel/chatchannel', className: 'btn btn-link', onClick: this._createGroup },
-					React.createElement('i', { className: 'fa fa-plus-circle' }),
-					' Create Service group'
-				)
-			)
-		) : React.createElement(Spinner, null);
-	}
-});
-
-ChannelRouteComponent = React.createFactory(ChannelRouteComponent);
-var ChatTrunkComponent = React.createClass({
-	displayName: 'ChatTrunkComponent',
-
-
-	propTypes: {
-		type: React.PropTypes.string,
-		services: React.PropTypes.array,
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		// routes: React.PropTypes.array,
-		getObjects: React.PropTypes.func,
-		onStateChange: React.PropTypes.func,
-		setObject: React.PropTypes.func,
-		removeObject: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			routes: null,
-			serivceInited: false,
-			selectedRoute: null,
-			properties: null
-		};
-	},
-
-	componentWillMount: function () {
-		var params = this.props.params;
-		var type = this.props.type;
-
-		this.setState({
-			routes: [],
-			type: type,
-			isNew: !params.pageid,
-			params: params || {},
-			properties: params.properties,
-			serivceInited: true
-		});
-
-		this._setService(type);
-	},
-
-	componentWillReceiveProps: function (props) {
-		var params = props.params;
-		this.setState({
-			type: props.type,
-			params: params || {},
-			properties: params.properties
-		});
-	},
-
-	_onStateChange: function (state, callback) {
-		var params = this.state.params;
-		params.enabled = state;
-		this.setState({ params: params });
-		this.props.onStateChange(state, function (err, result) {
-			if (callback) callback(err, result);
-		});
-	},
-
-	_onNameChange: function (value) {
-		var params = this.state.params;
-		params.name = value;
-		this.setState({ params: params });
-	},
-
-	_setObject: function () {
-		var params = {};
-		var selectedRoute = this.state.selectedRoute;
-		var properties = this.state.properties;
-
-		console.log('setObject: ', properties, selectedRoute, this.state.params);
-
-		if (!selectedRoute) return console.error('route is not selected');
-		if (!Object.keys(properties).length || !properties.id) {
-			return notify_about('info', 'Fill in all required fields');
-		}
-
-		Object.keys(this.state.params).forEach(function (key) {
-			params[key] = this.state.params[key];
-		}.bind(this));
-
-		// if(!pages || !pages.length) return console.error('page is not selected');;
-
-		params.type = this.state.type;
-		if (properties.id) params.pageid = properties.id;
-		params.pagename = properties.name || '';
-		params.properties = properties;
-		params.routes = [];
-		params.routes.push({
-			target: {
-				oid: selectedRoute.oid,
-				name: selectedRoute.name
-			},
-			priority: 1,
-			timeout: 86400
-		});
-
-		console.log('setObject params: ', params);
-
-		this.props.setObject(params, function (err, result) {
-			if (err) return;
-			this.setState({ params: params });
-		}.bind(this));
-	},
-
-	_removeObject: function () {
-		this.props.removeObject(this.state.type, this.state.properties);
-	},
-
-	_onPropsChange: function (properties) {
-		// var params = this.state.params;
-		// params.properties = properties;
-		this.setState({ properties: properties });
-	},
-
-	_onParamsChange: function (e) {
-		var target = e.target;
-		var params = this.state.params;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : target.value;
-
-		params[target.name] = value;
-		this.setState({ params: params });
-	},
-
-	// _selectRoute: function(e) {
-	// 	var value = e.target.value;
-	// 	var selectedRoute = {};
-	// 	this.state.routes.forEach(function(item) {
-	// 		if(item.oid === value) selectedRoute = item;
-	// 	});
-
-	// 	console.log('_selectRoute: ', selectedRoute);
-
-	// 	this.setState({ selectedRoute: selectedRoute });
-	// },
-
-	_selectRoute: function (route) {
-		console.log('_selectRoute: ', route);
-		this.setState({ selectedRoute: route });
-	},
-
-	_setService: function (type) {
-		var params = this.props.params;
-
-		// this._getAvailableRoutes(type, function(result) {
-		this.setState({
-			type: type,
-			properties: this.state.isNew ? {} : this.state.properties
-			// routes: result,
-			// selectedRoute: (params.routes && params.routes.length) ? params.routes[0].target : ((this.props.routes && this.props.routes.length) ? this.props.routes[0] : [])
-		});
-		// }.bind(this));
-	},
-
-	// _getAvailableRoutes: function(type, callback) {
-	// 	console.log('_getAvailableRoutes: ', type);
-	// 	var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
-	// 	var routes = [];
-
-	// 	getExtensions(function(result) {
-	// 		routes = result;
-	// 		this.props.getObjects(groupType, function(result) {
-	// 			routes = routes.concat(result);
-	// 			callback(routes);
-	// 		});
-	// 	}.bind(this));
-	// },
-
-	_getComponentName: function (type) {
-		var component = null;
-		if (type === 'FacebookMessenger' || type === 'Facebook') {
-			component = FacebookTrunkComponent;
-		} else if (type === 'Twitter') {
-			component = TwitterTrunkComponent;
-		} else if (type === 'Viber') {
-			component = ViberTrunkComponent;
-		} else if (type === 'Email') {
-			component = EmailTrunkComponent;
-		}
-
-		return component;
-	},
-
-	_getServiceParams: function (type) {
-		return this.props.services.reduce(function (prev, next) {
-			if (next.id === type) prev = next;
-			return prev;
-		}, {});
-	},
-
-	// _createGroup: function(e) {
-	// 	e.preventDefault();
-	// 	this.props.createGroup(this.state.type);
-	// },
-	// {
-	// 	this.state.routes ? (
-	// 		this.state.routes.length ? (
-	// 			<div className="form-group">
-	// 				<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_CHANNEL}</label>
-	// 				<div className="col-sm-4">
-	// 					<select className="form-control" id="ctc-select-2" value={this.state.selectedRoute.oid} onChange={this._selectRoute}>
-	// 						{
-	// 							this.state.routes.map(function(item) {
-	// 								return <option key={item.oid} value={item.oid}>{item.name}</option>
-	// 							})
-	// 						}
-	// 					</select>
-	// 				</div>
-	// 			</div>
-	// 		) : (
-	// 			<div className="form-group">
-	// 				<div className="col-sm-4 col-sm-offset-4">
-	// 					<button className="btn btn-primary" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create group</button>
-	// 				</div>
-	// 			</div>
-	// 		)
-	// 	) : (
-	// 		<Spinner/>
-	// 	)
-	// }
-
-	render: function () {
-		var params = this.state.params;
-		var frases = this.props.frases;
-		var type = this.state.type;
-		var serviceParams = this._getServiceParams(type);
-		var ServiceComponent = serviceParams.component;
-
-		console.log('ChatTrunkComponent: ', params, ServiceComponent);
-
-		if (!params) return null;
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(ObjectName, {
-				name: params.name,
-				frases: frases,
-				placeholder: frases.CHAT_TRUNK.OBJ_NAME_PLACEHOLDER,
-				enabled: params.enabled || false,
-				submitDisabled: this.state.submitDisabled,
-				onStateChange: this._onStateChange,
-				onChange: this._onNameChange,
-				onSubmit: this._setObject,
-				onCancel: this.state.params.pageid ? this._removeObject : null
-			}),
-			React.createElement(
-				PanelComponent,
-				null,
-				this.state.serivceInited ? React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-xs-12' },
-						React.createElement(
-							'form',
-							{ className: 'form-horizontal' },
-							React.createElement(
-								'div',
-								{ className: 'form-group' },
-								React.createElement(
-									'label',
-									{ className: 'col-sm-4 control-label' },
-									frases.CHAT_TRUNK.SELECT_SERVICE
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-8' },
-									this.props.services.map(function (item) {
-										return React.createElement(
-											'div',
-											{ key: item.id, className: 'text-center col-sm-2 col-xs-3', style: { padding: "20px 0" } },
-											React.createElement(TrunkServiceItemComponent, {
-												selected: item.id === type,
-												item: item,
-												onClick: this._setService,
-												disabled: params.pageid && item.id !== type
-											})
-										);
-									}.bind(this))
-								)
-							)
-						),
-						React.createElement('hr', null)
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-xs-12' },
-						React.createElement(
-							'div',
-							null,
-							React.createElement(ServiceComponent, {
-								frases: frases,
-								properties: this.state.params.properties,
-								serviceParams: serviceParams,
-								onChange: this._onPropsChange,
-								isNew: !this.state.params.pageid
-							}),
-							React.createElement('hr', { className: 'col-xs-12' }),
-							this.state.serivceInited && React.createElement(
-								'form',
-								{ className: 'form-horizontal' },
-								React.createElement(
-									'div',
-									{ className: 'form-group' },
-									React.createElement(ChannelRouteComponent, { frases: frases, type: type, routes: this.props.params.routes, onChange: this._selectRoute })
-								),
-								React.createElement('hr', null),
-								type !== 'Telephony' && React.createElement(
-									'div',
-									{ className: 'form-group' },
-									React.createElement(
-										'label',
-										{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
-										frases.CHAT_TRUNK.REPLY_TIMEOUT
-									),
-									React.createElement(
-										'div',
-										{ className: 'col-sm-4' },
-										React.createElement('input', { type: 'number', className: 'form-control', name: 'replytimeout', value: params.replytimeout, onChange: this._onParamsChange })
-									)
-								),
-								React.createElement(
-									'div',
-									{ className: 'form-group' },
-									React.createElement(
-										'label',
-										{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
-										frases.CHAT_TRUNK.SESSION_TIMEOUT
-									),
-									React.createElement(
-										'div',
-										{ className: 'col-sm-4' },
-										React.createElement('input', { type: 'number', className: 'form-control', name: 'sessiontimeout', value: params.sessiontimeout, onChange: this._onParamsChange })
-									)
-								)
-							)
-						)
-					)
-				) : React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-xs-12' },
-						React.createElement(Spinner, null)
-					)
-				)
-			)
-		);
-	}
-});
-
-ChatTrunkComponent = React.createFactory(ChatTrunkComponent);
-function TrunkServiceItemComponent(props) {
-
-	var itemStyles = {
-		display: 'block',
-		textDecoration: 'none',
-		opacity: props.disabled ? 0.5 : 1,
-		cursor: props.disabled ? 'default' : 'pointer'
-	};
-
-	function selectItem(e) {
-		e.preventDefault();
-		if (props.disabled) return;
-		props.onClick(props.item.id);
-	}
-
-	return React.createElement(
-		'a',
-		{
-			href: '#',
-			style: itemStyles,
-			onClick: selectItem,
-			className: props.disabled ? "disabled" : ""
-		},
-		React.createElement('img', {
-			src: props.item.icon,
-			alt: props.item.name + ' icon',
-			style: { width: "40px", height: "40px" }
-		}),
-		React.createElement(
-			'h5',
-			{ className: props.selected ? '' : 'hidden' },
-			props.item.name
-		)
-	);
-}
-var ChatchannelComponent = React.createClass({
-	displayName: 'ChatchannelComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		onNameChange: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
-		setObject: React.PropTypes.func,
-		removeObject: React.PropTypes.func,
-		onStateChange: React.PropTypes.func,
-		getInfoFromState: React.PropTypes.func,
+		members: React.PropTypes.array,
+		withGroups: React.PropTypes.bool,
 		getExtension: React.PropTypes.func,
-		deleteMember: React.PropTypes.func
-	},
-
-	// getDefaultProps: function() {
-	// 	return {
-	// 		sub: {}
-	// 	};
-	// },
-
-	getInitialState: function () {
-		return {
-			params: {},
-			filteredMembers: []
-		};
+		getAvailableUsers: React.PropTypes.func,
+		deleteMember: React.PropTypes.func,
+		sortable: React.PropTypes.bool,
+		onSort: React.PropTypes.func
 	},
 
 	componentWillMount: function () {
 		this.setState({
-			params: this.props.params || {},
-			removeObject: this.props.removeObject,
-			filteredMembers: this.props.params.members
+			filteredMembers: this.props.members || []
 		});
 	},
 
 	componentWillReceiveProps: function (props) {
 		this.setState({
-			params: props.params,
-			removeObject: props.removeObject,
-			filteredMembers: props.params.members
+			filteredMembers: props.members || []
 		});
 	},
 
-	_setObject: function () {
-		var params = this.state.params;
-		this.props.setObject(params);
+	_getInfoFromState: function (state, group) {
+		var status, className;
+
+		if (state == 1) {
+			className = 'success';
+		} else if (state == 8) {
+			className = 'connected';
+		} else if (state == 2 || state == 5) {
+			className = 'warning';
+		} else if (state == 0 || state == -1 && group) {
+			// state = '';
+			className = 'default';
+		} else if (state == 3) {
+			className = 'danger';
+		} else if (state == 6 || state == 7) {
+			className = 'info';
+		} else {
+			className = 'active';
+		}
+		status = PbxObject.frases.STATES[state] || '';
+
+		return {
+			rstatus: status,
+			rclass: 'bg-' + className,
+			className: className
+		};
 	},
 
-	_onStateChange: function (state) {
-		var params = this.state.params;
-		params.enabled = state;
-		this.setState({ params: params });
-		this.props.onStateChange(state);
-	},
+	_getKindIcon: function (kind) {
+		var icon = '';
 
-	_onNameChange: function (value) {
-		var params = this.state.params;
-		params.name = value;
-		this.setState({ params: params });
-		this.props.onNameChange(value);
+		if (kind === 'user') icon = 'fa-user';else if (kind === 'phone') icon = 'fa-fax';else if (kind === 'chatchannel') icon = 'fa-comments-o';else if (kind === 'hunting') icon = 'icon-find_replace';else if (kind === 'icd') icon = 'icon-headset_mic';else if (kind === 'selector') icon = 'fa-line-chart';else if (kind === 'attendant') icon = 'icon-room_service';else if (kind === 'trunk') icon = 'fa-cloud';else if (kind === 'chattrunk') icon = 'fa-whatsapp';else if (kind === 'timer') icon = 'fa-calendar';else if (kind === 'routes') icon = 'fa-arrows';else if (kind === 'channel') icon = 'fa-rss';else if (kind === 'conference') icon = 'icon-call_split';else if (kind === 'pickup') icon = 'icon-phone_missed';else if (kind === 'cli') icon = 'icon-fingerprint';
+
+		return icon;
 	},
 
 	_onFilter: function (items) {
-		console.log('_onFilter: ', items);
 		this.setState({
 			filteredMembers: items
 		});
 	},
 
-	_getAvailableUsers: function () {
-		this.props.getAvailableUsers();
+	_tableRef: function (el) {
+		console.log('_tableRef: ', el);
+		if (this.props.sortable) return new Sortable(el);
+	},
+
+	_reorderMembers: function (members, order) {
+		var newArray = [];
+		newArray.length = members.length;
+
+		members.forEach(function (item, index, array) {
+			newArray[order.indexOf(item.oid)] = item;
+			// newArray.splice(order.indexOf(item.oid), 0, newArray.splice(index, 1)[0]);
+		});
+
+		return newArray;
+	},
+
+	_onSortEnd: function (e) {
+		var target = e.currentTarget;
+		var order = [].slice.call(target.children).map(function (el, index) {
+			el = el.id;
+			return el;
+		});
+
+		this.props.onSort(this._reorderMembers(this.props.members, order));
 	},
 
 	render: function () {
 		var frases = this.props.frases;
-		var params = this.state.params;
-		var members = params.members || [];
+		var members = this.props.members;
 		var filteredMembers = this.state.filteredMembers || [];
-		var itemState = {};
-
-		console.log('remder: ', params.name);
 
 		return React.createElement(
 			'div',
-			null,
-			React.createElement(ObjectName, {
-				name: params.name,
-				frases: frases,
-				enabled: params.enabled,
-				onStateChange: this._onStateChange,
-				onChange: this._onNameChange,
-				onSubmit: this._setObject,
-				onCancel: this.state.removeObject
-			}),
-			React.createElement(GroupMembersComponent, { frases: frases, members: members, getExtension: this.props.getExtension, getAvailableUsers: this._getAvailableUsers, deleteMember: this.props.deleteMember })
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'col-xs-12' },
+				this.props.getAvailableUsers && React.createElement(
+					'button',
+					{ type: 'button', role: 'button', className: 'btn btn-primary', onClick: this.props.getAvailableUsers },
+					React.createElement('i', { className: 'fa fa-user-plus' }),
+					' ',
+					frases.CHAT_CHANNEL.ADD_MEMBERS
+				),
+				React.createElement(FilterInputComponent, { items: members, onChange: this._onFilter })
+			),
+			React.createElement(
+				'div',
+				{ className: 'col-xs-12' },
+				React.createElement(
+					'div',
+					{ className: 'panel' },
+					React.createElement(
+						'div',
+						{ className: 'panel-body', style: { padding: "0" } },
+						React.createElement(
+							'div',
+							{ className: 'table-responsive' },
+							React.createElement(
+								'table',
+								{ className: "table table-hover" + (filteredMembers.length && this.props.sortable ? "sortable" : ""), id: 'group-extensions', style: { marginBottom: "0" } },
+								React.createElement(
+									'tbody',
+									{ ref: this._tableRef, onTouchEnd: this._onSortEnd, onDragEnd: this._onSortEnd },
+									filteredMembers.length ? filteredMembers.map(function (item, index) {
+
+										item.icon = this._getKindIcon(item.kind);
+
+										return React.createElement(GroupMemberComponent, {
+											key: item.oid,
+											sortable: this.props.sortable,
+											item: item,
+											withGroup: this.props.withGroups,
+											itemState: this._getInfoFromState(item.state),
+											getExtension: this.props.getExtension,
+											deleteMember: this.props.deleteMember
+										});
+									}.bind(this)) : React.createElement(
+										'tr',
+										null,
+										React.createElement(
+											'td',
+											{ colSpan: '5' },
+											frases.CHAT_CHANNEL.NO_MEMBERS
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+			)
 		);
 	}
 });
 
-ChatchannelComponent = React.createFactory(ChatchannelComponent);
+GroupMembersComponent = React.createFactory(GroupMembersComponent);
+function GroupMemberComponent(props) {
+
+	var item = props.item;
+	var itemState = props.itemState;
+
+	function getExtension() {
+		if (!item.kind || item.kind === 'user' || item.kind === 'phone') {
+			props.getExtension(item.oid);
+		} else {
+			window.location.hash = '#' + item.kind + '/' + item.oid;
+		}
+	}
+
+	function deleteMember(e) {
+		e.stopPropagation();
+		props.deleteMember(item);
+	}
+
+	return React.createElement(
+		'tr',
+		{ id: item.oid, onClick: getExtension, style: { cursor: "pointer" } },
+		props.sortable && React.createElement(
+			'td',
+			{ className: 'draggable', style: { textAlign: "center" } },
+			React.createElement('i', { className: 'fa fa-ellipsis-v' })
+		),
+		React.createElement(
+			'td',
+			{ style: { textAlign: "center" } },
+			React.createElement('span', { className: "fa " + item.icon })
+		),
+		React.createElement(
+			'td',
+			{ 'data-cell': 'status', style: { "textAlign": "left" } },
+			React.createElement(
+				'span',
+				{ className: "label label-" + itemState.className },
+				itemState.rstatus
+			)
+		),
+		React.createElement(
+			'td',
+			{ 'data-cell': 'ext' },
+			item.number || item.ext
+		),
+		React.createElement(
+			'td',
+			{ 'data-cell': 'name' },
+			item.name
+		),
+		props.withGroup && React.createElement(
+			'td',
+			{ 'data-cell': 'group' },
+			item.group
+		),
+		React.createElement(
+			'td',
+			{ 'data-cell': 'reg' },
+			item.reg
+		),
+		React.createElement(
+			'td',
+			{ style: { "textAlign": "right" } },
+			React.createElement(
+				'button',
+				{ className: 'btn btn-link btn-danger btn-md', onClick: deleteMember },
+				React.createElement('i', { className: 'fa fa-trash' })
+			)
+		)
+	);
+}
+var ExtensionsComponent = React.createClass({
+	displayName: "ExtensionsComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		data: React.PropTypes.array,
+		getExtension: React.PropTypes.func,
+		deleteExtension: React.PropTypes.func
+	},
+
+	getDefaultProps: function () {
+		return {
+			data: []
+		};
+	},
+
+	// getInitialState: function() {
+	// 	return {
+	// 		data: []
+	// 	};
+	// },
+
+	// componentWillMount: function() {
+	// 	this.setState({ data: this.props.data });
+	// },
+
+	// _getData: function(params, callback) {
+	// 	json_rpc_async('getExtensions', null, callback);
+	// },
+
+	render: function () {
+		var frases = this.props.frases;
+		var data = this.props.data;
+		console.log('ExtensionsComponent: ', data);
+
+		return React.createElement(
+			"div",
+			{ className: "row" },
+			React.createElement(
+				"div",
+				{ className: "col-xs-12" },
+				React.createElement(GroupMembersComponent, { frases: frases, members: data, withGroups: true, getExtension: this.props.getExtension, deleteMember: this.props.deleteExtension })
+			)
+		);
+	}
+});
+
+ExtensionsComponent = React.createFactory(ExtensionsComponent);
 
 var AddCallGroup = React.createClass({
 	displayName: 'AddCallGroup',
@@ -3915,293 +4169,109 @@ var GsWidget = React.createClass({
 });
 
 GsWidget = React.createFactory(GsWidget);
-var ExtensionsComponent = React.createClass({
-	displayName: "ExtensionsComponent",
+var ChatchannelComponent = React.createClass({
+	displayName: 'ChatchannelComponent',
 
 
 	propTypes: {
 		frases: React.PropTypes.object,
-		data: React.PropTypes.array,
+		params: React.PropTypes.object,
+		onNameChange: React.PropTypes.func,
+		getAvailableUsers: React.PropTypes.func,
+		setObject: React.PropTypes.func,
+		removeObject: React.PropTypes.func,
+		onStateChange: React.PropTypes.func,
+		getInfoFromState: React.PropTypes.func,
 		getExtension: React.PropTypes.func,
-		deleteExtension: React.PropTypes.func
+		deleteMember: React.PropTypes.func
 	},
 
-	getDefaultProps: function () {
-		return {
-			data: []
-		};
-	},
-
-	// getInitialState: function() {
+	// getDefaultProps: function() {
 	// 	return {
-	// 		data: []
+	// 		sub: {}
 	// 	};
 	// },
 
-	// componentWillMount: function() {
-	// 	this.setState({ data: this.props.data });
-	// },
-
-	// _getData: function(params, callback) {
-	// 	json_rpc_async('getExtensions', null, callback);
-	// },
-
-	render: function () {
-		var frases = this.props.frases;
-		var data = this.props.data;
-		console.log('ExtensionsComponent: ', data);
-
-		return React.createElement(
-			"div",
-			{ className: "row" },
-			React.createElement(
-				"div",
-				{ className: "col-xs-12" },
-				React.createElement(GroupMembersComponent, { frases: frases, members: data, withGroups: true, getExtension: this.props.getExtension, deleteMember: this.props.deleteExtension })
-			)
-		);
-	}
-});
-
-ExtensionsComponent = React.createFactory(ExtensionsComponent);
-var GroupMembersComponent = React.createClass({
-	displayName: 'GroupMembersComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		members: React.PropTypes.array,
-		withGroups: React.PropTypes.bool,
-		getExtension: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
-		deleteMember: React.PropTypes.func,
-		sortable: React.PropTypes.bool,
-		onSort: React.PropTypes.func
+	getInitialState: function () {
+		return {
+			params: {},
+			filteredMembers: []
+		};
 	},
 
 	componentWillMount: function () {
 		this.setState({
-			filteredMembers: this.props.members || []
+			params: this.props.params || {},
+			removeObject: this.props.removeObject,
+			filteredMembers: this.props.params.members
 		});
 	},
 
 	componentWillReceiveProps: function (props) {
 		this.setState({
-			filteredMembers: props.members || []
+			params: props.params,
+			removeObject: props.removeObject,
+			filteredMembers: props.params.members
 		});
 	},
 
-	_getInfoFromState: function (state, group) {
-		var status, className;
-
-		if (state == 1) {
-			className = 'success';
-		} else if (state == 8) {
-			className = 'connected';
-		} else if (state == 2 || state == 5) {
-			className = 'warning';
-		} else if (state == 0 || state == -1 && group) {
-			// state = '';
-			className = 'default';
-		} else if (state == 3) {
-			className = 'danger';
-		} else if (state == 6 || state == 7) {
-			className = 'info';
-		} else {
-			className = 'active';
-		}
-		status = PbxObject.frases.STATES[state] || '';
-
-		return {
-			rstatus: status,
-			rclass: 'bg-' + className,
-			className: className
-		};
+	_setObject: function () {
+		var params = this.state.params;
+		this.props.setObject(params);
 	},
 
-	_getKindIcon: function (kind) {
-		var icon = '';
+	_onStateChange: function (state) {
+		var params = this.state.params;
+		params.enabled = state;
+		this.setState({ params: params });
+		this.props.onStateChange(state);
+	},
 
-		if (kind === 'user') icon = 'fa-user';else if (kind === 'phone') icon = 'fa-fax';else if (kind === 'chatchannel') icon = 'fa-comments-o';else if (kind === 'hunting') icon = 'icon-find_replace';else if (kind === 'icd') icon = 'icon-headset_mic';else if (kind === 'selector') icon = 'fa-line-chart';else if (kind === 'attendant') icon = 'icon-room_service';else if (kind === 'trunk') icon = 'fa-cloud';else if (kind === 'chattrunk') icon = 'fa-whatsapp';else if (kind === 'timer') icon = 'fa-calendar';else if (kind === 'routes') icon = 'fa-arrows';else if (kind === 'channel') icon = 'fa-rss';else if (kind === 'conference') icon = 'icon-call_split';else if (kind === 'pickup') icon = 'icon-phone_missed';else if (kind === 'cli') icon = 'icon-fingerprint';
-
-		return icon;
+	_onNameChange: function (value) {
+		var params = this.state.params;
+		params.name = value;
+		this.setState({ params: params });
+		this.props.onNameChange(value);
 	},
 
 	_onFilter: function (items) {
+		console.log('_onFilter: ', items);
 		this.setState({
 			filteredMembers: items
 		});
 	},
 
-	_tableRef: function (el) {
-		console.log('_tableRef: ', el);
-		if (this.props.sortable) return new Sortable(el);
-	},
-
-	_reorderMembers: function (members, order) {
-		var newArray = [];
-		newArray.length = members.length;
-
-		members.forEach(function (item, index, array) {
-			newArray[order.indexOf(item.oid)] = item;
-			// newArray.splice(order.indexOf(item.oid), 0, newArray.splice(index, 1)[0]);
-		});
-
-		return newArray;
-	},
-
-	_onSortEnd: function (e) {
-		var target = e.currentTarget;
-		var order = [].slice.call(target.children).map(function (el, index) {
-			el = el.id;
-			return el;
-		});
-
-		this.props.onSort(this._reorderMembers(this.props.members, order));
+	_getAvailableUsers: function () {
+		this.props.getAvailableUsers();
 	},
 
 	render: function () {
 		var frases = this.props.frases;
-		var members = this.props.members;
+		var params = this.state.params;
+		var members = params.members || [];
 		var filteredMembers = this.state.filteredMembers || [];
+		var itemState = {};
+
+		console.log('remder: ', params.name);
 
 		return React.createElement(
 			'div',
-			{ className: 'row' },
-			React.createElement(
-				'div',
-				{ className: 'col-xs-12' },
-				this.props.getAvailableUsers && React.createElement(
-					'button',
-					{ type: 'button', role: 'button', className: 'btn btn-default padding-lg', onClick: this.props.getAvailableUsers },
-					React.createElement('i', { className: 'fa fa-user-plus' }),
-					' ',
-					frases.CHAT_CHANNEL.ADD_MEMBERS
-				),
-				React.createElement(FilterInputComponent, { items: members, onChange: this._onFilter })
-			),
-			React.createElement(
-				'div',
-				{ className: 'col-xs-12' },
-				React.createElement(
-					'div',
-					{ className: 'panel' },
-					React.createElement(
-						'div',
-						{ className: 'panel-body', style: { padding: "0" } },
-						React.createElement(
-							'div',
-							{ className: 'table-responsive' },
-							React.createElement(
-								'table',
-								{ className: "table table-hover" + (filteredMembers.length && this.props.sortable ? "sortable" : ""), id: 'group-extensions', style: { marginBottom: "0" } },
-								React.createElement(
-									'tbody',
-									{ ref: this._tableRef, onTouchEnd: this._onSortEnd, onDragEnd: this._onSortEnd },
-									filteredMembers.length ? filteredMembers.map(function (item, index) {
-
-										item.icon = this._getKindIcon(item.kind);
-
-										return React.createElement(GroupMemberComponent, {
-											key: item.oid,
-											sortable: this.props.sortable,
-											item: item,
-											withGroup: this.props.withGroups,
-											itemState: this._getInfoFromState(item.state),
-											getExtension: this.props.getExtension,
-											deleteMember: this.props.deleteMember
-										});
-									}.bind(this)) : React.createElement(
-										'tr',
-										null,
-										React.createElement(
-											'td',
-											{ colSpan: '5' },
-											frases.CHAT_CHANNEL.NO_MEMBERS
-										)
-									)
-								)
-							)
-						)
-					)
-				)
-			)
+			null,
+			React.createElement(ObjectName, {
+				name: params.name,
+				frases: frases,
+				enabled: params.enabled,
+				onStateChange: this._onStateChange,
+				onChange: this._onNameChange,
+				onSubmit: this._setObject,
+				onCancel: this.state.removeObject
+			}),
+			React.createElement(GroupMembersComponent, { frases: frases, members: members, getExtension: this.props.getExtension, getAvailableUsers: this._getAvailableUsers, deleteMember: this.props.deleteMember })
 		);
 	}
 });
 
-GroupMembersComponent = React.createFactory(GroupMembersComponent);
-function GroupMemberComponent(props) {
-
-	var item = props.item;
-	var itemState = props.itemState;
-
-	function getExtension() {
-		if (!item.kind || item.kind === 'user' || item.kind === 'phone') {
-			props.getExtension(item.oid);
-		} else {
-			window.location.hash = '#' + item.kind + '/' + item.oid;
-		}
-	}
-
-	function deleteMember(e) {
-		e.stopPropagation();
-		props.deleteMember(item);
-	}
-
-	return React.createElement(
-		'tr',
-		{ id: item.oid, onClick: getExtension, style: { cursor: "pointer" } },
-		props.sortable && React.createElement(
-			'td',
-			{ className: 'draggable', style: { textAlign: "center" } },
-			React.createElement('i', { className: 'fa fa-ellipsis-v' })
-		),
-		React.createElement(
-			'td',
-			{ style: { textAlign: "center" } },
-			React.createElement('span', { className: "fa " + item.icon })
-		),
-		React.createElement(
-			'td',
-			{ 'data-cell': 'status', style: { "textAlign": "left" } },
-			React.createElement(
-				'span',
-				{ className: "label label-" + itemState.className },
-				itemState.rstatus
-			)
-		),
-		React.createElement(
-			'td',
-			{ 'data-cell': 'ext' },
-			item.number || item.ext
-		),
-		React.createElement(
-			'td',
-			{ 'data-cell': 'name' },
-			item.name
-		),
-		props.withGroup && React.createElement(
-			'td',
-			{ 'data-cell': 'group' },
-			item.group
-		),
-		React.createElement(
-			'td',
-			{ 'data-cell': 'reg' },
-			item.reg
-		),
-		React.createElement(
-			'td',
-			{ style: { "textAlign": "right" } },
-			React.createElement(
-				'button',
-				{ className: 'btn btn-link btn-danger btn-md', onClick: deleteMember },
-				React.createElement('i', { className: 'fa fa-trash' })
-			)
-		)
-	);
-}
+ChatchannelComponent = React.createFactory(ChatchannelComponent);
 var HuntingGroupComponent = React.createClass({
 	displayName: 'HuntingGroupComponent',
 
@@ -5152,6 +5222,819 @@ var IcdGroupComponent = React.createClass({
 });
 
 IcdGroupComponent = React.createFactory(IcdGroupComponent);
+var AvailableUsersModalComponent = React.createClass({
+	displayName: "AvailableUsersModalComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		groupid: React.PropTypes.string,
+		onSubmit: React.PropTypes.func,
+		modalId: React.PropTypes.string
+	},
+
+	getInitialState: function () {
+		return {
+			selectedUsers: []
+		};
+	},
+
+	_saveChanges: function () {
+		this.props.onSubmit(this.state.selectedUsers);
+	},
+
+	_onUsersSelected: function (users) {
+		this.setState({ selectedUsers: users });
+	},
+
+	_getBody: function () {
+		var frases = this.props.frases;
+		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected, groupid: this.props.groupid });
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var body = this._getBody();
+
+		return React.createElement(ModalComponent, {
+			size: "sm",
+			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
+			submitText: frases.ADD,
+			cancelText: frases.CANCEL,
+			submit: this._saveChanges,
+			body: body
+		});
+	}
+
+});
+
+AvailableUsersModalComponent = React.createFactory(AvailableUsersModalComponent);
+var CreateGroupModalComponent = React.createClass({
+	displayName: 'CreateGroupModalComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		type: React.PropTypes.string,
+		onSubmit: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			selectedUsers: []
+		};
+	},
+
+	_onUsersSelected: function (users) {
+		console.log('_onUsersSelected: ', users);
+		this.setState({ selectedUsers: users });
+	},
+
+	_onSubmit: function () {
+		console.log('_onSubmit');
+	},
+
+	_getBody: function () {
+		var frases = this.props.frases;
+		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected });
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var body = this._getBody();
+
+		return React.createElement(ModalComponent, {
+			size: 'sm',
+			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
+			submitText: frases.ADD,
+			cancelText: frases.CANCEL,
+			submit: this._onSubmit,
+			body: body
+		});
+	}
+
+});
+
+CreateGroupModalComponent = React.createFactory(CreateGroupModalComponent);
+var ServicesComponent = React.createClass({
+	displayName: "ServicesComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		services: React.PropTypes.array,
+		ldap: React.PropTypes.object,
+		saveOptions: React.PropTypes.func,
+		saveLdapOptions: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			services: [],
+			ldap: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			services: this.props.services || [],
+			ldap: this.props.ldap || {}
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			services: props.services || [],
+			ldap: props.ldap || {}
+		});
+	},
+
+	_saveOptions: function (index, props) {
+		this.props.saveOptions(props);
+	},
+
+	_saveLdapOptions: function (props) {
+		this.props.saveLdapOptions(props);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var services = this.state.services;
+		var ldap = this.state.ldap;
+
+		return React.createElement(
+			"div",
+			{ className: "row" },
+			React.createElement(
+				"div",
+				{ className: "col-xs-12" },
+				React.createElement(
+					PanelComponent,
+					null,
+					React.createElement(
+						"div",
+						{ className: "panel-group", id: "services-acc", role: "tablist", "aria-multiselectable": "true", style: { marginBottom: '10px', borderRadius: 0, cursor: 'pointer' } },
+						React.createElement(LdapOptionsComponent, { params: ldap, frases: frases, onSave: this._saveLdapOptions }),
+						services.map(function (item, index) {
+							return React.createElement(ServiceItemComponent, {
+								key: item.id,
+								index: index,
+								params: item,
+								frases: frases,
+								onSave: this._saveOptions.bind(this, index)
+							});
+						}.bind(this))
+					)
+				)
+			)
+		);
+	}
+});
+
+ServicesComponent = React.createFactory(ServicesComponent);
+var LdapOptionsComponent = React.createClass({
+	displayName: 'LdapOptionsComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		params: React.PropTypes.object,
+		onSave: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			params: this.props.params
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			params: props.params
+		});
+	},
+
+	_saveServiceProps: function () {
+		var params = this.state.params;
+		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
+
+		if (customPhoneAtt) {
+			params.props.directoryAttributePhone = params.props.customDirectoryAttributePhone;
+		}
+
+		delete params.props.customDirectoryAttributePhone;
+
+		this.props.onSave(params);
+	},
+
+	_onChange: function (e) {
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
+		var update = this.state.params;
+
+		update.props[target.name] = value !== null ? value : "";;
+
+		console.log('ServiceItemComponent _onChange', update);
+
+		this.setState({
+			params: update
+		});
+	},
+
+	_isCustomPhoneAttr: function (val) {
+		var regex = new RegExp('telephoneNumber|mobile|ipPhone');
+		return !regex.test(val);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var params = this.state.params;
+		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
+
+		if (customPhoneAtt && !params.props.customDirectoryAttributePhone) {
+			params.props.customDirectoryAttributePhone = params.props.directoryAttributePhone !== '0' ? params.props['directoryAttributePhone'] : '';
+		}
+
+		return React.createElement(
+			'div',
+			{ className: 'panel panel-default', style: { borderRadius: 0 } },
+			React.createElement(
+				'div',
+				{
+					className: 'panel-heading',
+					role: 'tab',
+					style: { backgroundColor: 'white' },
+					'data-parent': '#services-acc',
+					'data-toggle': 'collapse',
+					'data-target': "#acc-" + params.id,
+					'aria-expanded': 'true',
+					'aria-controls': 'collapseOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-sm-2 text-center' },
+						React.createElement('img', {
+							src: "/badmin/images/services/" + params.id + '.png',
+							alt: params.name,
+							style: { maxWidth: '100%', maxHeight: '65px' }
+						})
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-10' },
+						React.createElement(
+							'h4',
+							null,
+							params.name
+						),
+						React.createElement(
+							'h5',
+							null,
+							'Description'
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{
+					id: "acc-" + params.id,
+					className: 'panel-collapse collapse',
+					role: 'tabpanel',
+					'aria-labelledby': 'headingOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'panel-body' },
+					React.createElement(
+						'form',
+						{ className: 'form-horizontal', autoComplete: 'off' },
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_SERVER },
+								frases.LDAP.DIR_SERVER
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryServer', value: params.props.directoryServer, onChange: this._onChange })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'div',
+									{ className: 'checkbox' },
+									React.createElement(
+										'label',
+										null,
+										React.createElement('input', { type: 'checkbox', name: 'directorySSL', checked: params.props.directorySSL, onChange: this._onChange }),
+										' ',
+										frases.LDAP.DIR_SSL
+									)
+								)
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryAttributeUID', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_UID },
+								frases.LDAP.DIR_ATTR_UID
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement(
+									'select',
+									{ className: 'form-control', name: 'directoryAttributeUID', value: params.props.directoryAttributeUID, onChange: this._onChange },
+									React.createElement(
+										'option',
+										{ value: 'userPrincipalName' },
+										'userPrincipalName'
+									),
+									React.createElement(
+										'option',
+										{ value: 'sAMAccountName' },
+										'sAMAccountName'
+									),
+									React.createElement(
+										'option',
+										{ value: 'uid' },
+										'uid'
+									),
+									React.createElement(
+										'option',
+										{ value: 'name' },
+										'name'
+									),
+									React.createElement(
+										'option',
+										{ value: 'mail' },
+										'mail'
+									)
+								)
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryAttributePhone', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_PHONE },
+								frases.LDAP.DIR_ATTR_PHONE
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement(
+									'select',
+									{ className: 'form-control', name: 'directoryAttributePhone', value: customPhoneAtt ? '0' : params.props.directoryAttributePhone, onChange: this._onChange },
+									React.createElement(
+										'option',
+										{ value: 'telephoneNumber' },
+										'telephoneNumber'
+									),
+									React.createElement(
+										'option',
+										{ value: 'mobile' },
+										'mobile'
+									),
+									React.createElement(
+										'option',
+										{ value: 'ipPhone' },
+										'ipPhone'
+									),
+									React.createElement(
+										'option',
+										{ value: '0' },
+										frases.OTHER
+									)
+								)
+							)
+						),
+						customPhoneAtt && React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement('input', { type: 'text', className: 'form-control', name: 'customDirectoryAttributePhone', value: params.props.customDirectoryAttributePhone, onChange: this._onChange })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryAuth', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_AUTH },
+								frases.LDAP.DIR_AUTH
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement(
+									'select',
+									{ className: 'form-control', name: 'directoryAuth', value: params.props.directoryAuth, onChange: this._onChange },
+									React.createElement(
+										'option',
+										{ value: 'simple' },
+										'simple'
+									),
+									React.createElement(
+										'option',
+										{ value: 'DIGEST-MD5' },
+										'DIGEST-MD5'
+									),
+									React.createElement(
+										'option',
+										{ value: 'GSSAPI' },
+										'GSSAPI (Kerberos 5)'
+									)
+								)
+							)
+						),
+						params.props.directoryAuth === 'GSSAPI' && React.createElement(
+							'div',
+							null,
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'directoryKDC', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_KDC },
+									frases.LDAP.GSSAPI.DIR_KDC
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryKDC', value: params.props.directoryKDC, onChange: this._onChange })
+								)
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'directoryAdminServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ADMIN_SERVER },
+									frases.LDAP.GSSAPI.DIR_ADMIN_SERVER
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryAdminServer', value: params.props.directoryAdminServer, onChange: this._onChange })
+								)
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryDomains', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_DOMAINS },
+								frases.LDAP.GSSAPI.DIR_DOMAINS
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryDomains', value: params.props.directoryDomains, onChange: this._onChange })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
+									React.createElement('i', { className: 'fa fa-check fa-fw' }),
+									' ',
+									this.props.frases.SAVE
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	}
+
+});
+
+LdapOptionsComponent = React.createFactory(LdapOptionsComponent);
+var ServiceItemComponent = React.createClass({
+	displayName: 'ServiceItemComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		params: React.PropTypes.object,
+		onSave: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function () {
+		var params = this.props.params;
+		var state = {};
+
+		Object.keys(params).map(function (key) {
+			state[key] = params[key];
+			return key;
+		});
+
+		this.setState({
+			params: state
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		var params = props.params;
+		var state = {};
+
+		Object.keys(params).map(function (key) {
+			state[key] = params[key];
+			return key;
+		});
+
+		this.setState({
+			params: state
+		});
+	},
+
+	_saveServiceProps: function () {
+		console.log('ServiceItemComponent _saveServiceProps', this.state.params);
+		this.props.onSave(this.state.params);
+	},
+
+	_onChange: function (e) {
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
+		var update = this.state.params;
+
+		update[target.name] = value !== null ? value : "";;
+
+		console.log('ServiceItemComponent _onChange', update);
+
+		this.setState({
+			params: update
+		});
+	},
+
+	_onPropsChange: function (e) {
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
+		var update = this.state.params;
+
+		update.props[target.name] = value !== null ? value : "";;
+
+		this.setState({
+			params: update
+		});
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var params = this.state.params;
+		var props = Object.keys(params.props).map(function (key) {
+			return {
+				key: key,
+				value: params.props[key]
+			};
+		});
+
+		console.log('ServiceItemComponent render: ', this.state.params);
+
+		return React.createElement(
+			'div',
+			{ className: 'panel panel-default', style: { borderRadius: 0 } },
+			React.createElement(
+				'div',
+				{
+					className: 'panel-heading',
+					role: 'tab',
+					style: { backgroundColor: 'white' },
+					'data-parent': '#services-acc',
+					'data-toggle': 'collapse',
+					'data-target': "#acc-" + params.id,
+					'aria-expanded': 'true',
+					'aria-controls': 'collapseOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-sm-2 text-center' },
+						React.createElement('img', {
+							src: "/badmin/images/services/" + params.id + '.png',
+							alt: params.name,
+							style: { maxWidth: '100%', maxHeight: '65px' }
+						})
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-8' },
+						React.createElement(
+							'h4',
+							null,
+							params.name
+						),
+						React.createElement(
+							'h5',
+							null,
+							'Description'
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-2' },
+						React.createElement(
+							'span',
+							{
+								style: { fontSize: '12px' },
+								className: "label label-" + (this.props.params.state ? 'success' : 'default')
+							},
+							this.props.params.state ? 'enabled' : 'disabled'
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{
+					id: "acc-" + params.id,
+					className: 'panel-collapse collapse',
+					role: 'tabpanel',
+					'aria-labelledby': 'headingOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'panel-body' },
+					React.createElement(
+						'form',
+						{ className: 'form-horizontal' },
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'div',
+									{ className: 'checkbox' },
+									React.createElement(
+										'label',
+										{ 'data-toggle': 'tooltip', title: frases.ENABLE },
+										React.createElement('input', { type: 'checkbox', checked: params.state, name: 'state', onChange: this._onChange }),
+										' ',
+										frases.ENABLE
+									)
+								)
+							)
+						),
+						props.map(function (item) {
+							return React.createElement(ServicePropComponent, { key: item.key, params: item, onChange: this._onPropsChange });
+						}.bind(this)),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
+									React.createElement('i', { className: 'fa fa-check fa-fw' }),
+									' ',
+									this.props.frases.SAVE
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	}
+
+});
+
+ServiceItemComponent = React.createFactory(ServiceItemComponent);
+var ServicePropComponent = React.createClass({
+	displayName: 'ServicePropComponent',
+
+
+	propTypes: {
+		params: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			params: this.props.params || {}
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			params: props.params || {}
+		});
+	},
+
+	_onChange: function (e) {
+		this.props.onChange(e);
+	},
+
+	render: function () {
+		var params = this.state.params;
+		var type = typeof this.props.params.value;
+		var label = params.key.replace('_', ' ').replace('directory', '');
+
+		return React.createElement(
+			'div',
+			null,
+			type === 'boolean' ? React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4 col-sm-offset-4' },
+					React.createElement(
+						'div',
+						{ className: 'checkbox' },
+						React.createElement(
+							'label',
+							null,
+							React.createElement('input', { type: 'checkbox', checked: params.value, name: params.key, onChange: this._onChange }),
+							' ',
+							params.key
+						)
+					)
+				)
+			) : type === 'number' ? React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
+					label
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement('input', { type: 'number', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
+				)
+			) : React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
+					label
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement('input', { type: 'text', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
+				)
+			)
+		);
+	}
+});
+
+ServicePropComponent = React.createFactory(ServicePropComponent);
 var BranchOptionsComponent = React.createClass({
     displayName: 'BranchOptionsComponent',
 
@@ -7076,819 +7959,6 @@ var RecQosTable = React.createClass({
 });
 
 RecQosTable = React.createFactory(RecQosTable);
-var AvailableUsersModalComponent = React.createClass({
-	displayName: "AvailableUsersModalComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		groupid: React.PropTypes.string,
-		onSubmit: React.PropTypes.func,
-		modalId: React.PropTypes.string
-	},
-
-	getInitialState: function () {
-		return {
-			selectedUsers: []
-		};
-	},
-
-	_saveChanges: function () {
-		this.props.onSubmit(this.state.selectedUsers);
-	},
-
-	_onUsersSelected: function (users) {
-		this.setState({ selectedUsers: users });
-	},
-
-	_getBody: function () {
-		var frases = this.props.frases;
-		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected, groupid: this.props.groupid });
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var body = this._getBody();
-
-		return React.createElement(ModalComponent, {
-			size: "sm",
-			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
-			submitText: frases.ADD,
-			cancelText: frases.CANCEL,
-			submit: this._saveChanges,
-			body: body
-		});
-	}
-
-});
-
-AvailableUsersModalComponent = React.createFactory(AvailableUsersModalComponent);
-var CreateGroupModalComponent = React.createClass({
-	displayName: 'CreateGroupModalComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		type: React.PropTypes.string,
-		onSubmit: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			selectedUsers: []
-		};
-	},
-
-	_onUsersSelected: function (users) {
-		console.log('_onUsersSelected: ', users);
-		this.setState({ selectedUsers: users });
-	},
-
-	_onSubmit: function () {
-		console.log('_onSubmit');
-	},
-
-	_getBody: function () {
-		var frases = this.props.frases;
-		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected });
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var body = this._getBody();
-
-		return React.createElement(ModalComponent, {
-			size: 'sm',
-			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
-			submitText: frases.ADD,
-			cancelText: frases.CANCEL,
-			submit: this._onSubmit,
-			body: body
-		});
-	}
-
-});
-
-CreateGroupModalComponent = React.createFactory(CreateGroupModalComponent);
-var ServicesComponent = React.createClass({
-	displayName: "ServicesComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		services: React.PropTypes.array,
-		ldap: React.PropTypes.object,
-		saveOptions: React.PropTypes.func,
-		saveLdapOptions: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			services: [],
-			ldap: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			services: this.props.services || [],
-			ldap: this.props.ldap || {}
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			services: props.services || [],
-			ldap: props.ldap || {}
-		});
-	},
-
-	_saveOptions: function (index, props) {
-		this.props.saveOptions(props);
-	},
-
-	_saveLdapOptions: function (props) {
-		this.props.saveLdapOptions(props);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var services = this.state.services;
-		var ldap = this.state.ldap;
-
-		return React.createElement(
-			"div",
-			{ className: "row" },
-			React.createElement(
-				"div",
-				{ className: "col-xs-12" },
-				React.createElement(
-					PanelComponent,
-					null,
-					React.createElement(
-						"div",
-						{ className: "panel-group", id: "services-acc", role: "tablist", "aria-multiselectable": "true", style: { marginBottom: '10px', borderRadius: 0, cursor: 'pointer' } },
-						React.createElement(LdapOptionsComponent, { params: ldap, frases: frases, onSave: this._saveLdapOptions }),
-						services.map(function (item, index) {
-							return React.createElement(ServiceItemComponent, {
-								key: item.id,
-								index: index,
-								params: item,
-								frases: frases,
-								onSave: this._saveOptions.bind(this, index)
-							});
-						}.bind(this))
-					)
-				)
-			)
-		);
-	}
-});
-
-ServicesComponent = React.createFactory(ServicesComponent);
-var LdapOptionsComponent = React.createClass({
-	displayName: 'LdapOptionsComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		onSave: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			params: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			params: this.props.params
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			params: props.params
-		});
-	},
-
-	_saveServiceProps: function () {
-		var params = this.state.params;
-		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
-
-		if (customPhoneAtt) {
-			params.props.directoryAttributePhone = params.props.customDirectoryAttributePhone;
-		}
-
-		delete params.props.customDirectoryAttributePhone;
-
-		this.props.onSave(params);
-	},
-
-	_onChange: function (e) {
-		var target = e.target;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
-		var update = this.state.params;
-
-		update.props[target.name] = value !== null ? value : "";;
-
-		console.log('ServiceItemComponent _onChange', update);
-
-		this.setState({
-			params: update
-		});
-	},
-
-	_isCustomPhoneAttr: function (val) {
-		var regex = new RegExp('telephoneNumber|mobile|ipPhone');
-		return !regex.test(val);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var params = this.state.params;
-		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
-
-		if (customPhoneAtt && !params.props.customDirectoryAttributePhone) {
-			params.props.customDirectoryAttributePhone = params.props.directoryAttributePhone !== '0' ? params.props['directoryAttributePhone'] : '';
-		}
-
-		return React.createElement(
-			'div',
-			{ className: 'panel panel-default', style: { borderRadius: 0 } },
-			React.createElement(
-				'div',
-				{
-					className: 'panel-heading',
-					role: 'tab',
-					style: { backgroundColor: 'white' },
-					'data-parent': '#services-acc',
-					'data-toggle': 'collapse',
-					'data-target': "#acc-" + params.id,
-					'aria-expanded': 'true',
-					'aria-controls': 'collapseOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-sm-2 text-center' },
-						React.createElement('img', {
-							src: "/badmin/images/services/" + params.id + '.png',
-							alt: params.name,
-							style: { maxWidth: '100%', maxHeight: '65px' }
-						})
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-10' },
-						React.createElement(
-							'h4',
-							null,
-							params.name
-						),
-						React.createElement(
-							'h5',
-							null,
-							'Description'
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{
-					id: "acc-" + params.id,
-					className: 'panel-collapse collapse',
-					role: 'tabpanel',
-					'aria-labelledby': 'headingOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'panel-body' },
-					React.createElement(
-						'form',
-						{ className: 'form-horizontal', autoComplete: 'off' },
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_SERVER },
-								frases.LDAP.DIR_SERVER
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryServer', value: params.props.directoryServer, onChange: this._onChange })
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'div',
-									{ className: 'checkbox' },
-									React.createElement(
-										'label',
-										null,
-										React.createElement('input', { type: 'checkbox', name: 'directorySSL', checked: params.props.directorySSL, onChange: this._onChange }),
-										' ',
-										frases.LDAP.DIR_SSL
-									)
-								)
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryAttributeUID', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_UID },
-								frases.LDAP.DIR_ATTR_UID
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'directoryAttributeUID', value: params.props.directoryAttributeUID, onChange: this._onChange },
-									React.createElement(
-										'option',
-										{ value: 'userPrincipalName' },
-										'userPrincipalName'
-									),
-									React.createElement(
-										'option',
-										{ value: 'sAMAccountName' },
-										'sAMAccountName'
-									),
-									React.createElement(
-										'option',
-										{ value: 'uid' },
-										'uid'
-									),
-									React.createElement(
-										'option',
-										{ value: 'name' },
-										'name'
-									),
-									React.createElement(
-										'option',
-										{ value: 'mail' },
-										'mail'
-									)
-								)
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryAttributePhone', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_PHONE },
-								frases.LDAP.DIR_ATTR_PHONE
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'directoryAttributePhone', value: customPhoneAtt ? '0' : params.props.directoryAttributePhone, onChange: this._onChange },
-									React.createElement(
-										'option',
-										{ value: 'telephoneNumber' },
-										'telephoneNumber'
-									),
-									React.createElement(
-										'option',
-										{ value: 'mobile' },
-										'mobile'
-									),
-									React.createElement(
-										'option',
-										{ value: 'ipPhone' },
-										'ipPhone'
-									),
-									React.createElement(
-										'option',
-										{ value: '0' },
-										frases.OTHER
-									)
-								)
-							)
-						),
-						customPhoneAtt && React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement('input', { type: 'text', className: 'form-control', name: 'customDirectoryAttributePhone', value: params.props.customDirectoryAttributePhone, onChange: this._onChange })
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryAuth', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_AUTH },
-								frases.LDAP.DIR_AUTH
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'directoryAuth', value: params.props.directoryAuth, onChange: this._onChange },
-									React.createElement(
-										'option',
-										{ value: 'simple' },
-										'simple'
-									),
-									React.createElement(
-										'option',
-										{ value: 'DIGEST-MD5' },
-										'DIGEST-MD5'
-									),
-									React.createElement(
-										'option',
-										{ value: 'GSSAPI' },
-										'GSSAPI (Kerberos 5)'
-									)
-								)
-							)
-						),
-						params.props.directoryAuth === 'GSSAPI' && React.createElement(
-							'div',
-							null,
-							React.createElement(
-								'div',
-								{ className: 'form-group' },
-								React.createElement(
-									'label',
-									{ htmlFor: 'directoryKDC', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_KDC },
-									frases.LDAP.GSSAPI.DIR_KDC
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryKDC', value: params.props.directoryKDC, onChange: this._onChange })
-								)
-							),
-							React.createElement(
-								'div',
-								{ className: 'form-group' },
-								React.createElement(
-									'label',
-									{ htmlFor: 'directoryAdminServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ADMIN_SERVER },
-									frases.LDAP.GSSAPI.DIR_ADMIN_SERVER
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryAdminServer', value: params.props.directoryAdminServer, onChange: this._onChange })
-								)
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryDomains', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_DOMAINS },
-								frases.LDAP.GSSAPI.DIR_DOMAINS
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryDomains', value: params.props.directoryDomains, onChange: this._onChange })
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'button',
-									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
-									React.createElement('i', { className: 'fa fa-check fa-fw' }),
-									' ',
-									this.props.frases.SAVE
-								)
-							)
-						)
-					)
-				)
-			)
-		);
-	}
-
-});
-
-LdapOptionsComponent = React.createFactory(LdapOptionsComponent);
-var ServiceItemComponent = React.createClass({
-	displayName: 'ServiceItemComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		onSave: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			params: {}
-		};
-	},
-
-	componentWillMount: function () {
-		var params = this.props.params;
-		var state = {};
-
-		Object.keys(params).map(function (key) {
-			state[key] = params[key];
-			return key;
-		});
-
-		this.setState({
-			params: state
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		var params = props.params;
-		var state = {};
-
-		Object.keys(params).map(function (key) {
-			state[key] = params[key];
-			return key;
-		});
-
-		this.setState({
-			params: state
-		});
-	},
-
-	_saveServiceProps: function () {
-		console.log('ServiceItemComponent _saveServiceProps', this.state.params);
-		this.props.onSave(this.state.params);
-	},
-
-	_onChange: function (e) {
-		var target = e.target;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
-		var update = this.state.params;
-
-		update[target.name] = value !== null ? value : "";;
-
-		console.log('ServiceItemComponent _onChange', update);
-
-		this.setState({
-			params: update
-		});
-	},
-
-	_onPropsChange: function (e) {
-		var target = e.target;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
-		var update = this.state.params;
-
-		update.props[target.name] = value !== null ? value : "";;
-
-		this.setState({
-			params: update
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var params = this.state.params;
-		var props = Object.keys(params.props).map(function (key) {
-			return {
-				key: key,
-				value: params.props[key]
-			};
-		});
-
-		console.log('ServiceItemComponent render: ', this.state.params);
-
-		return React.createElement(
-			'div',
-			{ className: 'panel panel-default', style: { borderRadius: 0 } },
-			React.createElement(
-				'div',
-				{
-					className: 'panel-heading',
-					role: 'tab',
-					style: { backgroundColor: 'white' },
-					'data-parent': '#services-acc',
-					'data-toggle': 'collapse',
-					'data-target': "#acc-" + params.id,
-					'aria-expanded': 'true',
-					'aria-controls': 'collapseOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-sm-2 text-center' },
-						React.createElement('img', {
-							src: "/badmin/images/services/" + params.id + '.png',
-							alt: params.name,
-							style: { maxWidth: '100%', maxHeight: '65px' }
-						})
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-8' },
-						React.createElement(
-							'h4',
-							null,
-							params.name
-						),
-						React.createElement(
-							'h5',
-							null,
-							'Description'
-						)
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-2' },
-						React.createElement(
-							'span',
-							{
-								style: { fontSize: '12px' },
-								className: "label label-" + (this.props.params.state ? 'success' : 'default')
-							},
-							this.props.params.state ? 'enabled' : 'disabled'
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{
-					id: "acc-" + params.id,
-					className: 'panel-collapse collapse',
-					role: 'tabpanel',
-					'aria-labelledby': 'headingOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'panel-body' },
-					React.createElement(
-						'form',
-						{ className: 'form-horizontal' },
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'div',
-									{ className: 'checkbox' },
-									React.createElement(
-										'label',
-										{ 'data-toggle': 'tooltip', title: frases.ENABLE },
-										React.createElement('input', { type: 'checkbox', checked: params.state, name: 'state', onChange: this._onChange }),
-										' ',
-										frases.ENABLE
-									)
-								)
-							)
-						),
-						props.map(function (item) {
-							return React.createElement(ServicePropComponent, { key: item.key, params: item, onChange: this._onPropsChange });
-						}.bind(this)),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'button',
-									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
-									React.createElement('i', { className: 'fa fa-check fa-fw' }),
-									' ',
-									this.props.frases.SAVE
-								)
-							)
-						)
-					)
-				)
-			)
-		);
-	}
-
-});
-
-ServiceItemComponent = React.createFactory(ServiceItemComponent);
-var ServicePropComponent = React.createClass({
-	displayName: 'ServicePropComponent',
-
-
-	propTypes: {
-		params: React.PropTypes.object,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			params: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			params: this.props.params || {}
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			params: props.params || {}
-		});
-	},
-
-	_onChange: function (e) {
-		this.props.onChange(e);
-	},
-
-	render: function () {
-		var params = this.state.params;
-		var type = typeof this.props.params.value;
-		var label = params.key.replace('_', ' ').replace('directory', '');
-
-		return React.createElement(
-			'div',
-			null,
-			type === 'boolean' ? React.createElement(
-				'div',
-				{ className: 'form-group' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4 col-sm-offset-4' },
-					React.createElement(
-						'div',
-						{ className: 'checkbox' },
-						React.createElement(
-							'label',
-							null,
-							React.createElement('input', { type: 'checkbox', checked: params.value, name: params.key, onChange: this._onChange }),
-							' ',
-							params.key
-						)
-					)
-				)
-			) : type === 'number' ? React.createElement(
-				'div',
-				{ className: 'form-group' },
-				React.createElement(
-					'label',
-					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
-					label
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement('input', { type: 'number', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
-				)
-			) : React.createElement(
-				'div',
-				{ className: 'form-group' },
-				React.createElement(
-					'label',
-					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
-					label
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement('input', { type: 'text', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
-				)
-			)
-		);
-	}
-});
-
-ServicePropComponent = React.createFactory(ServicePropComponent);
 
 var TrunkIncRoutes = React.createClass({
 	displayName: 'TrunkIncRoutes',
@@ -8865,491 +8935,47 @@ var TrunksQosTable = React.createClass({
 });
 
 TrunksQosTable = React.createFactory(TrunksQosTable);
-
-var DiscountsComponent = React.createClass({
-	displayName: 'DiscountsComponent',
-
-
-	propTypes: {
-		items: React.PropTypes.array,
-		frases: React.PropTypes.object,
-		addCoupon: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			items: [],
-			coupon: ''
-		};
-	},
-
-	componentDidMount: function () {
-		this.setState({
-			items: this.props.items
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			items: props.items
-		});
-	},
-
-	_addCoupon: function () {
-		var coupon = this.state.coupon;
-		if (!coupon) return;
-		this.props.addCoupon(coupon);
-	},
-
-	_handleOnChange: function (e) {
-		var value = e.target.value;
-		this.setState({
-			coupon: value
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		console.log('DiscountsComponent: ', this.state.items);
-
-		return React.createElement(
-			'div',
-			{ className: 'panel' },
-			React.createElement(
-				'div',
-				{ className: 'panel-header' },
-				React.createElement(
-					'span',
-					null,
-					frases.BILLING.DISCOUNTS.DISCOUNTS
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'panel-body' },
-				React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-xs-12' },
-						React.createElement(
-							'div',
-							{ className: 'input-group' },
-							React.createElement('input', { type: 'text', className: 'form-control', placeholder: 'Promo code', value: this.state.coupon, onChange: this._handleOnChange }),
-							React.createElement(
-								'span',
-								{ className: 'input-group-btn' },
-								React.createElement(
-									'button',
-									{ type: 'button', className: 'btn btn-success', onClick: this._addCoupon },
-									frases.BILLING.DISCOUNTS.ACTIVATE_BTN
-								)
-							)
-						),
-						React.createElement('br', null),
-						React.createElement(
-							'h5',
-							{ className: this.state.items.length ? '' : 'hidden' },
-							frases.BILLING.DISCOUNTS.ACTIVE_DISCOUNTS
-						),
-						this.state.items.map(function (item) {
-							return React.createElement(
-								'h3',
-								{ key: item._id },
-								React.createElement(
-									'b',
-									null,
-									item.name
-								),
-								' ',
-								React.createElement(
-									'small',
-									null,
-									item.coupon.description
-								)
-							);
-						})
-					)
-				)
-			)
-		);
-	}
-});
-
-DiscountsComponent = React.createFactory(DiscountsComponent);
-
-var InvoicesComponent = React.createClass({
-	displayName: "InvoicesComponent",
-
-
-	propTypes: {
-		items: React.PropTypes.array,
-		frases: React.PropTypes.object
-	},
-
-	getInitialState: function () {
-		return {
-			items: [],
-			hideRows: true
-		};
-	},
-
-	componentDidMount: function () {
-		this.setState({
-			items: this.props.items
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			items: props.items
-		});
-	},
-
-	_showMore: function () {
-		this.setState({
-			hideRows: !this.state.hideRows
-		});
-	},
-
-	render: function () {
-		var items = this.state.items;
-		var frases = this.props.frases;
-		var hideRows = this.state.hideRows;
-
-		console.log('InvoicesComponent: ', this.state.items);
-
-		return React.createElement(
-			"div",
-			{ className: "panel" },
-			React.createElement(
-				"div",
-				{ className: "panel-header" },
-				React.createElement(
-					"span",
-					null,
-					frases.BILLING.INVOICES.INVOICES
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "panel-body" },
-				!this.state.items.length ? React.createElement(
-					"p",
-					null,
-					frases.BILLING.INVOICES.NO_INVOICES
-				) : React.createElement(
-					"div",
-					{ className: "row" },
-					React.createElement(
-						"div",
-						{ className: "col-xs-12" },
-						React.createElement(
-							"table",
-							{ className: "table" },
-							React.createElement(
-								"tbody",
-								null,
-								this.state.items.map(function (item, index) {
-									if (hideRows && index > 2) {
-										return null;
-									}
-
-									return React.createElement(InvoiceComponent, { invoice: item, key: index });
-								})
-							)
-						),
-						React.createElement(
-							"button",
-							{
-								type: "button",
-								className: "btn btn-link btn-block",
-								onClick: this._showMore
-							},
-							hideRows ? 'Show more' : 'Show less'
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-InvoicesComponent = React.createFactory(InvoicesComponent);
-function InvoiceComponent(props) {
-
-	var invoice = props.invoice;
-	var item = props.invoice.items[0];
-	var cellStyle = {
-		borderTop: 'none'
-	};
+function DidRestrictionsComponent(props) {
 
 	return React.createElement(
-		'tr',
-		null,
+		"div",
+		{ className: "alert alert-warning", role: "alert" },
 		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'small',
-				{ className: "label " + (invoice.status === 'paid' ? 'label-success' : 'label-warning') },
-				invoice.status
-			)
+			"p",
+			null,
+			props.frases.CHAT_TRUNK.DID.RESTRICTIONS_MSG1,
+			":"
 		),
 		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'b',
-				null,
-				invoice.currency,
-				' ',
-				invoice.paidAmount || item.amount,
-				' '
-			)
+			"ol",
+			null,
+			props.list.map(function (item, index) {
+				return React.createElement(
+					"li",
+					{ key: index },
+					props.frases.CHAT_TRUNK.DID.RESTRICTIONS[item]
+				);
+			})
 		),
 		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'span',
-				null,
-				item.description,
-				' '
-			)
+			"p",
+			null,
+			props.frases.CHAT_TRUNK.DID.RESTRICTIONS_MSG2
 		),
 		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'span',
-				{ className: 'text-muted' },
-				' ',
-				new Date(invoice.createdAt).toLocaleDateString(),
-				' '
-			)
+			"p",
+			null,
+			props.frases.CHAT_TRUNK.DID.RESTRICTIONS_MSG3
+		),
+		React.createElement(
+			"p",
+			null,
+			props.frases.CHAT_TRUNK.DID.RESTRICTIONS_MSG4
 		)
 	);
 }
-var FacebookTrunkComponent = React.createClass({
-	displayName: 'FacebookTrunkComponent',
 
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		properties: React.PropTypes.object,
-		serviceParams: React.PropTypes.object,
-		onChange: React.PropTypes.func,
-		isNew: React.PropTypes.bool
-	},
-
-	getInitialState: function () {
-		return {
-			selectedPage: {},
-			pages: null,
-			userAccessToken: null,
-			init: false
-		};
-	},
-
-	componentWillMount: function () {
-		console.log('FacebookTrunkComponent props: ', this.props);
-
-		this._initService();
-
-		// this.setState({
-		// 	selectedPage: this.props.properties || {}
-		// });		
-	},
-
-	// shouldComponentUpdate: function(nextProps, nextState){
-	// 	console.log('FacebookTrunkComponent shouldComponentUpdate: ', nextProps);
-	//     // return a boolean value
-	//     return !this.state.init && nextProps.isNew;
-	// },
-
-	_initService: function () {
-		var props = this.props.properties;
-
-		console.log('_initService: ', props);
-
-		if (props && props.id) {
-			this.setState({ init: true });
-		} else if (window.FB) {
-			window.FB.getLoginStatus(this._updateStatusCallback);
-		} else {
-			this._getFacebookSDK(function () {
-				window.FB.init({
-					appId: this.props.serviceParams.params.appId,
-					autoLogAppEvents: true,
-					status: true,
-					version: 'v2.10'
-				});
-				window.FB.getLoginStatus(this._updateStatusCallback);
-			}.bind(this));
-		}
-	},
-
-	_getFacebookSDK: function (cb) {
-		$.ajaxSetup({ cache: true });
-		$.getScript('//connect.facebook.net/en_US/sdk.js', cb);
-	},
-
-	_updateStatusCallback: function (result) {
-		console.log('updateStatusCallback: ', result);
-		if (result.status === 'connected') {
-
-			// get Facebook pages
-			window.FB.api('/me/accounts', function (response) {
-				this.setState({
-					pages: response.data,
-					userAccessToken: result.authResponse.accessToken,
-					init: true
-				});
-
-				this._selectPage(this.props.properties.id || (response.data.length ? response.data[0].id : null));
-			}.bind(this));
-		} else {
-			this.setState({
-				init: true
-			});
-		}
-	},
-
-	_getSubscriptions: function () {
-		var appId = this.props.serviceParams.params.appId;
-		window.FB.api('/' + appId + '/subscriptions', function (response) {
-			console.log('_getSubscriptions: ', response);
-		}.bind(this));
-	},
-
-	_login: function () {
-		window.FB.login(function (response) {
-			console.log('window.FB.login: ', response);
-			this._updateStatusCallback(response);
-		}.bind(this), { scope: 'email, manage_pages, read_page_mailboxes, pages_messaging' });
-	},
-
-	_selectPage: function (value) {
-		var selectedPage = {};
-
-		this.state.pages.forEach(function (item) {
-			if (item.id === value) selectedPage = item;
-		});
-
-		// send user access token instead of page token
-		selectedPage.access_token = this.state.userAccessToken;
-
-		this.setState({ selectedPage: selectedPage });
-		this.props.onChange(selectedPage);
-	},
-
-	_onChange: function (e) {
-		console.log('_selectwindow.FBPage: ', e);
-		var value = e.target.value;
-		this._selectPage(value);
-	},
-
-	render: function () {
-		var pages = this.state.pages;
-		var frases = this.props.frases;
-
-		console.log('FacebookTrunkComponent render: ', this.props.properties, this.props.serviceParams, pages);
-
-		return React.createElement(
-			'div',
-			null,
-			!this.state.init ? React.createElement(
-				'h3',
-				{ className: 'text-center' },
-				React.createElement('i', { className: 'fa fa-fw fa-spinner fa-spin' })
-			) : this.props.properties && !this.props.isNew ? React.createElement(
-				'form',
-				{ className: 'form-horizontal' },
-				React.createElement(
-					'div',
-					{ className: 'form-group' },
-					React.createElement(
-						'label',
-						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
-						frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-4' },
-						React.createElement(
-							'p',
-							{ className: 'form-control-static' },
-							this.props.properties.name
-						)
-					)
-				)
-			) : !pages ? React.createElement(
-				'div',
-				{ className: 'text-center' },
-				React.createElement(
-					'p',
-					null,
-					frases.CHAT_TRUNK.FACEBOOK.LOGIN_MSG
-				),
-				React.createElement(
-					'button',
-					{ className: 'btn btn-lg btn-primary', onClick: this._login },
-					React.createElement('i', { className: 'fa fa-fw fa-facebook' }),
-					' Login with Facebook'
-				)
-			) : !pages.length ? React.createElement(
-				'div',
-				{ className: 'text-center' },
-				frases.CHAT_TRUNK.FACEBOOK.NO_PAGES_MSG,
-				' ',
-				React.createElement(
-					'a',
-					{ href: '#' },
-					frases.CHAT_TRUNK.FACEBOOK.LEARN_MORE
-				),
-				' '
-			) : React.createElement(
-				'form',
-				{ className: 'form-horizontal' },
-				React.createElement(
-					'div',
-					{ className: 'form-group' },
-					React.createElement(
-						'label',
-						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
-						frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-4' },
-						React.createElement(
-							'select',
-							{
-								className: 'form-control',
-								id: 'ctc-select-1',
-								value: this.state.selectedPage.id,
-								onChange: this._onChange
-							},
-							pages.map(function (item) {
-
-								return React.createElement(
-									'option',
-									{ key: item.id, value: item.id },
-									item.name
-								);
-							})
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-FacebookTrunkComponent = React.createFactory(FacebookTrunkComponent);
+DidRestrictionsComponent = React.createFactory(DidRestrictionsComponent);
 var DidTrunkComponent = React.createClass({
 	displayName: 'DidTrunkComponent',
 
@@ -9364,12 +8990,13 @@ var DidTrunkComponent = React.createClass({
 
 	getInitialState: function () {
 		return {
-			data: {},
+			init: false,
+			fetch: true,
 			sub: null,
-			newDid: null,
 			cycleDays: 0,
 			proratedDays: 0,
-			// number: "",
+			totalAmount: 0,
+			chargeAmount: 0,
 			numbers: null,
 			countries: [],
 			locations: [],
@@ -9379,7 +9006,9 @@ var DidTrunkComponent = React.createClass({
 			selectedPriceObject: {},
 			selectedType: 'Local',
 			selectedNumber: {},
-			showNewDidSettings: false
+			limitReached: false,
+			showNewDidSettings: false,
+			fetchingCountries: false
 		};
 	},
 
@@ -9391,79 +9020,61 @@ var DidTrunkComponent = React.createClass({
 			var sub = response.result;
 			var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 			var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
-			var number = "";
 
 			this.setState({
-				data: this.props.properties || {},
+				init: true,
 				sub: response.result,
 				cycleDays: cycleDays,
 				proratedDays: proratedDays
 			});
 
-			this._getAssignedDids(function (err, response) {
-				if (err) return notify_about('error', err);
+			if (this.props.properties && this.props.properties.number) {
+				this.setState({ fetch: false });
 
-				if (this.props.isNew) {
-					number = response.result && response.result.length ? response.result[0].number : {};
-				} else {
-					number = this.props.properties.number;
-				}
-
-				this.setState({
-					numbers: response.result || []
-				});
-
-				this._setSelectedNumber(number);
-			}.bind(this));
+				this._getDid(this.props.properties.number, function (err, response) {
+					if (err) return notify_about('error', err);
+					this.setState({
+						selectedNumber: response.result
+					});
+				}.bind(this));
+			}
 		}.bind(this));
 	},
 
 	componentWillReceiveProps: function (props) {
-		this.setState({
-			data: props.properties || {}
-		});
-	},
 
-	_onChange: function (e) {
-		var target = e.target;
-		var state = this.state;
-		var data = this.state.data;
-		var value = target.type === 'checkbox' ? target.checked : target.type === 'number' ? parseFloat(target.value) : target.value;
+		console.log('DidTrunkComponent componentWillReceiveProps', props);
 
-		console.log('DidTrunkComponent onChange: ', target.name, value);
+		if (this.state.fetch && props.properties && props.properties.number) {
+			this.setState({ fetch: false });
 
-		data[target.name] = value;
-
-		this.setState({
-			data: data
-		});
-
-		this.props.onChange(data);
-	},
-
-	_onNumberSelect: function (e) {
-		var value = e.target.value;
-		var state = this.state;
-		var number = "";
-
-		if (value && value !== 'other') {
-			number = value;
+			this._getDid(props.properties.number, function (err, response) {
+				if (err) return notify_about('error', err);
+				this.setState({ selectedNumber: response.result });
+			}.bind(this));
 		}
-
-		this._setSelectedNumber(number);
 	},
 
-	_setSelectedNumber: function (number) {
-		var data = this.state.data;
-		var selectedNumber = this.state.numbers.filter(function (item) {
-			return item.number === number;
-		})[0];
+	_onChange: function () {
+		var params = {
+			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
+			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
+			chargeAmount: this.state.chargeAmount,
+			currency: this.state.sub.plan.currency
+		};
 
-		data.number = data.id = number;
-
-		this.setState({ data: data, selectedNumber: selectedNumber });
-		this.props.onChange(data);
+		this.props.onChange(params);
 	},
+
+	// _setSelectedNumber: function(number) {
+	// 	// var data = this.state.data;
+	// 	var selectedNumber = this.state.numbers.filter(function(item) { return item.number === number })[0];
+	// 	// data.number = data.id = number;
+
+	// 	// this.setState({ data: data, selectedNumber: selectedNumber });
+	// 	this.setState({ selectedNumber: selectedNumber });
+	// 	// this.props.onChange(data);
+	// },
 
 	_onCountrySelect: function (e) {
 		var value = e.target.value;
@@ -9490,26 +9101,46 @@ var DidTrunkComponent = React.createClass({
 		var value = e.target.value;
 		var state = this.state;
 
-		state.selectedPriceObject = {};
+		var selectedLocation = {};
+		var selectedPriceObject = {};
 
 		if (value) {
-			state.selectedLocation = state.locations.filter(function (item) {
+			selectedLocation = state.locations.filter(function (item) {
 				return item._id === value;
 			})[0];
-		} else {
-			state.selectedLocation = {};
 		}
+
+		state.selectedLocation = selectedLocation;
+		state.selectedPriceObject = selectedPriceObject;
 
 		this.setState(state);
 
 		billingRequest('getDidPrice', { iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function (err, response) {
 			if (err) return notify_about('error', err);
-			this.setState({ selectedPriceObject: response.result || {} });
+			this._setDidPrice(response.result);
 		}.bind(this));
+	},
+
+	_setDidPrice: function (priceObj) {
+		var sub = this.state.sub;
+		var amount = this._getDidAmount(sub.plan.billingPeriodUnit, priceObj);
+		var proratedAmount = (amount * (this.state.proratedDays / this.state.cycleDays)).toFixed(2);
+
+		this.setState({
+			selectedPriceObject: priceObj,
+			totalAmount: amount,
+			chargeAmount: proratedAmount
+		});
+
+		this._onChange();
 	},
 
 	_getAssignedDids: function (callback) {
 		billingRequest('getAssignedDids', null, callback);
+	},
+
+	_getDid: function (number, callback) {
+		billingRequest('getDid', { number: number }, callback);
 	},
 
 	_getDidCountries: function (callback) {
@@ -9520,239 +9151,67 @@ var DidTrunkComponent = React.createClass({
 		billingRequest('getDidLocations', params, callback);
 	},
 
-	_showNewDidSettings: function (e) {
-		e.preventDefault();
-		var show = this.state.showNewDidSettings;
-
-		if (!show && !this.state.countries.length) this._getDidCountries(function (err, response) {
-			if (err) return notify_about('error', err);
-			this.setState({ countries: response.result });
-		}.bind(this));
-
-		this.setState({ showNewDidSettings: !this.state.showNewDidSettings });
-	},
-
-	_buyDidNumber: function (e) {
-		e.preventDefault();
-		show_loading_panel();
-
-		var params = {
-			poid: this.state.selectedPriceObject._id,
-			dgid: this.state.selectedLocation._id
-		};
-
-		billingRequest('orderDid', params, function (err, response) {
-			console.log('_buyDidNumber: ', err, response);
-			remove_loading_panel();
-
-			if (err) return notify_about('error', err);
-			if (!response.success && response.error.name === 'ENOENT') {
-				return notify_about('Number is not available');
-			}
-
-			var state = this.state;
-			state.numbers.push(response.result);
-			state.showNewDidSettings = false;
-			state.selectedNumber = response.result;
-
-			this.setState(state);
-			this.props.onChange(state.data);
-
-			set_object_success();
-		}.bind(this));
-	},
-
-	_extendProps: function (toObj, fromObj) {
-		for (var key in fromObj) {
-			toObj[key] = fromObj[key];
-		}
-
-		return toObj;
-	},
-
 	_getDidAmount: function (billingPeriodUnit, priceObj) {
 		var state = this.state;
-		if (!billingPeriodUnit || !priceObj) return null;
-		return billingPeriodUnit === 'years' ? priceObj.annualPrice : priceObj.monthlyPrice;
+		var amount = null;
+		if (!billingPeriodUnit || !priceObj) return amount;
+		amount = billingPeriodUnit === 'years' ? priceObj.annualPrice : priceObj.monthlyPrice;
+		return amount ? parseFloat(amount) : null;
+	},
+
+	_showNewDidSettings: function (e) {
+		e.preventDefault();
+		this.setState({ showNewDidSettings: !this.state.showNewDidSettings, fetchingCountries: true });
+
+		var sub = this.state.sub;
+		var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
+
+		billingRequest('hasDids', null, function (err, count) {
+			if (err) return notify_about('error', err);
+
+			if (maxdids >= count) {
+				this.setState({ limitReached: true, countries: [], fetchingCountries: false });
+				return;
+			}
+
+			if (!this.state.countries.length) {
+				this._getDidCountries(function (err, response) {
+					if (err) return notify_about('error', err);
+					this.setState({ countries: response.result, fetchingCountries: false });
+				}.bind(this));
+			}
+		}.bind(this));
 	},
 
 	render: function () {
 		var state = this.state;
 		var frases = this.props.frases;
-		var data = state.data;
+		// var data = state.data;
 		var sub = state.sub;
 		var selectedCountry = state.selectedCountry;
 		var selectedLocation = state.selectedLocation;
 		var selectedPriceObject = state.selectedPriceObject;
-		var amount = 0,
-		    proratedAmount = 0;
-		var maxdids = null;
-		var maxReached = false;
+		var amount = this.state.totalAmount;
+		var proratedAmount = this.state.chargeAmount;
 
-		if (sub) {
-			amount = this._getDidAmount(sub.plan.billingPeriodUnit, selectedPriceObject);
-			proratedAmount = (amount * (state.proratedDays / state.cycleDays)).toFixed(2);
-			maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
-		}
+		// if(sub && selectedPriceObject) {
+		// 	amount = this._getDidAmount(sub.plan.billingPeriodUnit, selectedPriceObject);
+		// 	proratedAmount = (amount * (state.proratedDays / state.cycleDays)).toFixed(2);
+		// 	maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
+		// }
 
-		console.log('DidTrunkComponent render: ', state.data, this.props.serviceParams);
+		console.log('DidTrunkComponent render: ', this.state);
 
 		return React.createElement(
 			'form',
 			{ className: 'form-horizontal', autoComplete: 'off' },
-			this.state.numbers ? this.state.showNewDidSettings ? React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'div',
-					{ className: 'form-group' },
-					React.createElement(
-						'div',
-						{ className: 'col-sm-4 col-sm-offset-4' },
-						React.createElement(
-							'a',
-							{ href: '', onClick: this._showNewDidSettings },
-							React.createElement('i', { className: 'fa fa-arrow-left' }),
-							' Cancel'
-						)
-					)
-				),
-				maxdids && maxdids <= state.numbers.length ? React.createElement(
-					'div',
-					{ className: 'col-sm-8 col-sm-offset-4' },
-					React.createElement(
-						'p',
-						null,
-						'You can only have one number during your tria period.'
-					),
-					React.createElement(
-						'p',
-						null,
-						'You can ',
-						React.createElement(
-							'a',
-							{ href: '#billing' },
-							'change plan'
-						),
-						' to add more numbers.'
-					)
-				) : React.createElement(
-					'div',
-					null,
-					React.createElement(
-						'div',
-						{ className: 'form-group' },
-						React.createElement(
-							'label',
-							{ htmlFor: 'country', className: 'col-sm-4 control-label' },
-							'Select Country'
-						),
-						React.createElement(
-							'div',
-							{ className: 'col-sm-4' },
-							this.state.countries.length ? React.createElement(
-								'select',
-								{ className: 'form-control', name: 'country', value: selectedCountry.id || "", onChange: this._onCountrySelect },
-								React.createElement(
-									'option',
-									{ value: '' },
-									'Select country'
-								),
-								this.state.countries.map(function (item) {
-									return React.createElement(
-										'option',
-										{ key: item.id, value: item.id },
-										item.attributes.name + " (" + item.attributes.prefix + ")"
-									);
-								})
-							) : React.createElement(Spinner, null)
-						)
-					),
-					selectedCountry.id && React.createElement(
-						'div',
-						{ className: 'form-group' },
-						React.createElement(
-							'label',
-							{ htmlFor: 'location', className: 'col-sm-4 control-label' },
-							'Select Location'
-						),
-						React.createElement(
-							'div',
-							{ className: 'col-sm-4' },
-							this.state.locations.length ? React.createElement(
-								'select',
-								{ className: 'form-control', name: 'location', value: selectedLocation._id, onChange: this._onLocationSelect, autoComplete: 'off', required: true },
-								React.createElement(
-									'option',
-									{ value: '' },
-									'Select location'
-								),
-								this.state.locations.map(function (item) {
-									return React.createElement(
-										'option',
-										{ key: item._id, value: item._id },
-										item.areaName + " (" + item.areaCode + ")"
-									);
-								})
-							) : React.createElement(Spinner, null)
-						)
-					),
-					selectedLocation._id && React.createElement(
-						'div',
-						{ className: 'form-group' },
-						selectedPriceObject._id ? React.createElement(
-							'div',
-							{ className: 'col-sm-8 col-sm-offset-4' },
-							React.createElement(
-								'p',
-								null,
-								'Adding local number adds ',
-								React.createElement(
-									'strong',
-									null,
-									'\u20AC',
-									amount
-								),
-								' to your ',
-								sub.plan.billingPeriodUnit === 'years' ? "annual" : "monthly",
-								' bill. Today you will be charged ',
-								React.createElement(
-									'strong',
-									null,
-									'\u20AC',
-									proratedAmount
-								),
-								' plus applicable taxes and fees for the prorated cost of adding this number.'
-							),
-							React.createElement(
-								'p',
-								null,
-								'Your new subscription amount will be ',
-								React.createElement(
-									'strong',
-									null,
-									'\u20AC',
-									parseFloat(sub.amount) + amount
-								),
-								' plus applicable taxes and fees.'
-							),
-							React.createElement(
-								'button',
-								{ className: 'btn btn-primary', onClick: this._buyDidNumber },
-								'Buy number (\u20AC',
-								proratedAmount,
-								')'
-							)
-						) : React.createElement(Spinner, null)
-					)
-				)
-			) : React.createElement(
+			this.state.init ? React.createElement(
 				'div',
 				null,
 				this.props.isNew ? React.createElement(
 					'div',
 					null,
-					React.createElement(
+					!this.state.showNewDidSettings ? React.createElement(
 						'div',
 						{ className: 'form-group' },
 						React.createElement(
@@ -9762,168 +9221,296 @@ var DidTrunkComponent = React.createClass({
 								'button',
 								{ className: 'btn btn-primary', onClick: this._showNewDidSettings },
 								React.createElement('i', { className: 'fa fa-plus-circle' }),
-								' Add new local number'
+								' ',
+								frases.CHAT_TRUNK.DID.ADD_NUMBER_BTN
 							)
 						)
-					),
-					this.state.numbers.length && React.createElement(
+					) : React.createElement(
 						'div',
 						null,
-						React.createElement(
+						this.state.fetchingCountries ? React.createElement(Spinner, null) : React.createElement(
 							'div',
-							{ className: 'form-group' },
-							React.createElement(
+							null,
+							this.state.limitReached ? React.createElement(
 								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
+								{ className: 'form-group' },
 								React.createElement(
-									'p',
-									null,
-									'or'
+									'div',
+									{ className: 'col-sm-8 col-sm-offset-4' },
+									React.createElement(
+										'p',
+										null,
+										frases.CHAT_TRUNK.DID.LIMIT_REACHED.MAIN_MSG
+									),
+									React.createElement(
+										'p',
+										null,
+										React.createElement(
+											'a',
+											{ href: '#billing' },
+											frases.CHAT_TRUNK.DID.LIMIT_REACHED.CHANGE_PLAN_LINK
+										),
+										' ',
+										frases.CHAT_TRUNK.DID.LIMIT_REACHED.CHANGE_PLAN_MSG
+									)
+								)
+							) : React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'country', className: 'col-sm-4 control-label' },
+									frases.CHAT_TRUNK.DID.SELECT_COUNTRY
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement(
+										'select',
+										{ className: 'form-control', name: 'country', value: selectedCountry.id || "", onChange: this._onCountrySelect },
+										React.createElement(
+											'option',
+											{ value: '' },
+											'----------'
+										),
+										this.state.countries.map(function (item) {
+											return React.createElement(
+												'option',
+												{ key: item.id, value: item.id },
+												item.attributes.name + " (" + item.attributes.prefix + ")"
+											);
+										})
+									)
 								)
 							)
 						),
-						React.createElement(
+						selectedCountry.id && React.createElement(
 							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
-								'Select number'
-							),
+							null,
 							React.createElement(
 								'div',
-								{ className: 'col-sm-4' },
+								{ className: 'form-group' },
 								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'number', value: this.state.selectedNumber.number, onChange: this._onNumberSelect },
-									this.state.numbers.map(function (item) {
-										return React.createElement(
+									'label',
+									{ htmlFor: 'location', className: 'col-sm-4 control-label' },
+									frases.CHAT_TRUNK.DID.SELECT_LOCATION
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									this.state.locations.length ? React.createElement(
+										'select',
+										{ className: 'form-control', name: 'location', value: selectedLocation._id, onChange: this._onLocationSelect, autoComplete: 'off', required: true },
+										React.createElement(
 											'option',
-											{ key: item._id, value: item.number },
-											item.formatted
-										);
-									})
+											{ value: '' },
+											'----------'
+										),
+										this.state.locations.map(function (item) {
+											return React.createElement(
+												'option',
+												{ key: item._id, value: item._id },
+												item.areaName + " (" + item.areaCode + ")"
+											);
+										})
+									) : React.createElement(Spinner, null)
 								)
+							),
+							selectedLocation._id && React.createElement(
+								'div',
+								{ className: 'form-group' },
+								selectedPriceObject && selectedPriceObject._id ? React.createElement(
+									'div',
+									{ className: 'col-sm-8 col-sm-offset-4' },
+									React.createElement(
+										'p',
+										null,
+										frases.BILLING.CONFIRM_PAYMENT.ADD_NUMBER_NEW_AMOUNT,
+										' ',
+										React.createElement(
+											'strong',
+											null,
+											'\u20AC',
+											amount
+										),
+										'. ',
+										frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG,
+										' ',
+										React.createElement(
+											'strong',
+											null,
+											'\u20AC',
+											proratedAmount
+										),
+										' ',
+										frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES,
+										'.'
+									),
+									React.createElement(
+										'p',
+										null,
+										frases.BILLING.CONFIRM_PAYMENT.NEW_SUB_AMOUNT,
+										' ',
+										React.createElement(
+											'strong',
+											null,
+											'\u20AC',
+											parseFloat(sub.amount) + amount
+										),
+										' ',
+										frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES,
+										'.'
+									),
+									selectedPriceObject.restrictions && React.createElement(DidRestrictionsComponent, { frases: frases, list: selectedPriceObject.restrictions.split(',') })
+								) : !selectedPriceObject ? React.createElement(
+									'div',
+									{ className: 'col-sm-8 col-sm-offset-4' },
+									React.createElement(
+										'p',
+										null,
+										frases.CHAT_TRUNK.DID.CHECK_AVAILABILITY_MSG
+									)
+								) : React.createElement(Spinner, null)
 							)
 						)
 					)
-				) : React.createElement(
-					'div',
-					{ className: 'form-group' },
-					React.createElement(
-						'label',
-						{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
-						'Selected number'
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-4' },
-						React.createElement(
-							'p',
-							{ className: 'form-control-static' },
-							this.state.selectedNumber.formatted
-						)
-					)
-				)
+				) : this.state.selectedNumber && this.state.selectedNumber._id ? React.createElement(SelectedDidNumberComponent, { frases: frases, number: this.state.selectedNumber }) : React.createElement(Spinner, null)
 			) : React.createElement(Spinner, null)
 		);
 	}
 });
 
 DidTrunkComponent = React.createFactory(DidTrunkComponent);
-var ChartComponent = React.createClass({
-	displayName: 'ChartComponent',
+var SelectedDidNumberComponent = React.createClass({
+	displayName: 'SelectedDidNumberComponent',
 
 
 	propTypes: {
-		type: React.PropTypes.string,
-		data: React.PropTypes.object,
-		options: React.PropTypes.object
+		frases: React.PropTypes.object,
+		number: React.PropTypes.object
 	},
 
 	getInitialState: function () {
 		return {
-			chart: {}
+			number: {},
+			fetchingStatus: false,
+			fetchingRegistration: false
 		};
 	},
 
-	componentDidMount: function () {
-		var el = ReactDOM.findDOMNode(this);
-		var options = this.props.options;
-		var data = this.props.data;
-		var chartOptions = {
-			bindto: el,
-			data: this.props.data
+	componentWillMount: function () {
+		var state = {
+			number: this.props.number
 		};
-		var chart = {};
 
-		if (options) {
-			for (var key in options) {
-				chartOptions[key] = options[key];
-			}
+		if (this.props.number.status !== 'active') {
+			billingRequest('updateDidStatus', { number: this.props.number.number }, function (err, response) {
+				if (err) return notify_about('error', err);
+				this._updateStatus(response.result.status);
+			}.bind(this));
+			state.fetchingStatus = true;
 		}
 
-		data.type = this.props.type;
-		chart = c3.generate(chartOptions);
+		if (this.props.number.awaitingRegistration) {
+			billingRequest('updateDidRegistration', { number: this.props.number.number }, function (err, response) {
+				if (err) return notify_about('error', err);
+				this._updateRegistration(response.result.awaitingRegistration);
+			}.bind(this));
+			state.fetchingRegistration = true;
+		}
 
-		this.setState({ chart: chart });
+		this.setState(state);
 	},
 
-	componentWillReceiveProps: function (props) {
-		console.log('ChartsComponent componentWillReceiveProps: ', props);
-		this._updateChart(props.data);
+	_updateStatus: function (status) {
+		var state = this.state;
+		state.number.status = status;
+		state.fetchingStatus = false;
+		this.setState(state);
 	},
 
-	componentWillUnmount: function () {
-		console.log('ChartsComponent componentWillUnmount');
-	},
-
-	shouldComponentUpdate: function () {
-		return false;
-	},
-
-	_getIds: function () {
-		var chart = this.state.chart;
-		return chart.data().reduce(function (init, next) {
-			init.push(next.id);
-			return init;
-		}, []);
-	},
-
-	_excludeIds: function (fromArray, indexArray) {
-		return fromArray.reduce(function (init, next) {
-			if (indexArray.indexOf(next) < 0) init.push(next);
-			return init;
-		}, []);
-	},
-
-	_updateChart: function (data) {
-		var chart = this.state.chart;
-		// var chartIds = this._getIds();
-		// var dataIds = data.columns.reduce(function(init, next) {
-		// 	init.push(next[0]);
-		// 	return init;
-		// }, []);
-		// var unloadIds = this._excludeIds(chartIds, dataIds);
-
-		// data.done = function() {
-		// 	chart.unload(unloadIds);
-		// };
-
-		chart.unload();
-
-		setTimeout(function () {
-			chart.load(data);
-		}, 500);
+	_updateRegistration: function (awaitingRegistration) {
+		var state = this.state;
+		state.number.awaitingRegistration = awaitingRegistration;
+		state.fetchingRegistration = false;
+		this.setState(state);
 	},
 
 	render: function () {
-		console.log('ChartsComponent render: ', this.state);
-		return React.createElement('div');
+		var frases = this.props.frases;
+		var selectedNumber = this.state.number;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ className: 'col-sm-4 control-label' },
+					frases.CHAT_TRUNK.DID.LOCATION
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						'p',
+						{ className: 'form-control-static' },
+						selectedNumber.country + ", " + selectedNumber.areaName
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ className: 'col-sm-4 control-label' },
+					frases.CHAT_TRUNK.DID.NUMBER
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						'p',
+						{ className: 'form-control-static' },
+						selectedNumber.formatted
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ className: 'col-sm-4 control-label' },
+					frases.CHAT_TRUNK.DID.STATUS
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					!this.state.fetchingStatus ? React.createElement(
+						'span',
+						{
+							className: "label label-" + (selectedNumber.status === 'active' && !selectedNumber.awaitingRegistration ? 'success' : 'warning')
+						},
+						selectedNumber.awaitingRegistration ? 'awaiting registration' : selectedNumber.status
+					) : React.createElement(Spinner, null)
+				)
+			),
+			selectedNumber.awaitingRegistration && React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-8 col-sm-offset-4' },
+					React.createElement(DidRestrictionsComponent, { frases: frases, list: selectedNumber.restrictions.split(',') })
+				)
+			)
+		);
 	}
 });
-
-ChartComponent = React.createFactory(ChartComponent);
 var EmailTrunkComponent = React.createClass({
 	displayName: 'EmailTrunkComponent',
 
@@ -10195,6 +9782,938 @@ var EmailTrunkComponent = React.createClass({
 });
 
 EmailTrunkComponent = React.createFactory(EmailTrunkComponent);
+var TwitterTrunkComponent = React.createClass({
+	displayName: 'TwitterTrunkComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object
+	},
+
+	// getInitialState: function() {
+	// 	return {
+	// 		params: {}
+	// 	};
+	// },
+
+	componentWillMount: function () {
+		this.setState({
+			logedIn: false
+		});
+	},
+
+	// componentWillReceiveProps: function(props) {
+	// 	this.setState({
+	// 		selectedPage: props.properties || {}
+	// 	});		
+	// },
+
+	_login: function () {
+		console.log('Login');
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		console.log('TwitterTrunkComponent: ');
+
+		return React.createElement(
+			'div',
+			null,
+			!this.state.logedIn ? React.createElement(
+				'div',
+				{ className: 'text-center' },
+				React.createElement(
+					'button',
+					{ className: 'btn btn-lg btn-primary', onClick: this._login },
+					React.createElement('i', { className: 'fa fa-fw fa-twitter' }),
+					' Login with Twitter'
+				)
+			) : React.createElement(
+				'form',
+				{ className: 'form-horizontal' },
+				React.createElement(
+					'div',
+					{ className: 'form-group' },
+					React.createElement(
+						'label',
+						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
+						'Select Facebook Page'
+					),
+					React.createElement('div', { className: 'col-sm-4' })
+				)
+			)
+		);
+	}
+});
+
+TwitterTrunkComponent = React.createFactory(TwitterTrunkComponent);
+var FacebookTrunkComponent = React.createClass({
+	displayName: 'FacebookTrunkComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		properties: React.PropTypes.object,
+		serviceParams: React.PropTypes.object,
+		onChange: React.PropTypes.func,
+		isNew: React.PropTypes.bool
+	},
+
+	getInitialState: function () {
+		return {
+			selectedPage: {},
+			pages: null,
+			userAccessToken: null,
+			init: false
+		};
+	},
+
+	componentWillMount: function () {
+		console.log('FacebookTrunkComponent props: ', this.props);
+
+		this._initService();
+
+		// this.setState({
+		// 	selectedPage: this.props.properties || {}
+		// });		
+	},
+
+	// shouldComponentUpdate: function(nextProps, nextState){
+	// 	console.log('FacebookTrunkComponent shouldComponentUpdate: ', nextProps);
+	//     // return a boolean value
+	//     return !this.state.init && nextProps.isNew;
+	// },
+
+	_initService: function () {
+		var props = this.props.properties;
+
+		console.log('_initService: ', props);
+
+		if (props && props.id) {
+			this.setState({ init: true });
+		} else if (window.FB) {
+			window.FB.getLoginStatus(this._updateStatusCallback);
+		} else {
+			this._getFacebookSDK(function () {
+				window.FB.init({
+					appId: this.props.serviceParams.params.appId,
+					autoLogAppEvents: true,
+					status: true,
+					version: 'v2.10'
+				});
+				window.FB.getLoginStatus(this._updateStatusCallback);
+			}.bind(this));
+		}
+	},
+
+	_getFacebookSDK: function (cb) {
+		$.ajaxSetup({ cache: true });
+		$.getScript('//connect.facebook.net/en_US/sdk.js', cb);
+	},
+
+	_updateStatusCallback: function (result) {
+		console.log('updateStatusCallback: ', result);
+		if (result.status === 'connected') {
+
+			// get Facebook pages
+			window.FB.api('/me/accounts', function (response) {
+				this.setState({
+					pages: response.data,
+					userAccessToken: result.authResponse.accessToken,
+					init: true
+				});
+
+				this._selectPage(this.props.properties.id || (response.data.length ? response.data[0].id : null));
+			}.bind(this));
+		} else {
+			this.setState({
+				init: true
+			});
+		}
+	},
+
+	_getSubscriptions: function () {
+		var appId = this.props.serviceParams.params.appId;
+		window.FB.api('/' + appId + '/subscriptions', function (response) {
+			console.log('_getSubscriptions: ', response);
+		}.bind(this));
+	},
+
+	_login: function () {
+		window.FB.login(function (response) {
+			console.log('window.FB.login: ', response);
+			this._updateStatusCallback(response);
+		}.bind(this), { scope: 'email, manage_pages, read_page_mailboxes, pages_messaging' });
+	},
+
+	_selectPage: function (value) {
+		var selectedPage = {};
+
+		this.state.pages.forEach(function (item) {
+			if (item.id === value) selectedPage = item;
+		});
+
+		// send user access token instead of page token
+		selectedPage.access_token = this.state.userAccessToken;
+
+		this.setState({ selectedPage: selectedPage });
+		this.props.onChange(selectedPage);
+	},
+
+	_onChange: function (e) {
+		console.log('_selectwindow.FBPage: ', e);
+		var value = e.target.value;
+		this._selectPage(value);
+	},
+
+	render: function () {
+		var pages = this.state.pages;
+		var frases = this.props.frases;
+
+		console.log('FacebookTrunkComponent render: ', this.props.properties, this.props.serviceParams, pages);
+
+		return React.createElement(
+			'div',
+			null,
+			!this.state.init ? React.createElement(
+				'h3',
+				{ className: 'text-center' },
+				React.createElement('i', { className: 'fa fa-fw fa-spinner fa-spin' })
+			) : this.props.properties && !this.props.isNew ? React.createElement(
+				'form',
+				{ className: 'form-horizontal' },
+				React.createElement(
+					'div',
+					{ className: 'form-group' },
+					React.createElement(
+						'label',
+						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
+						frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-4' },
+						React.createElement(
+							'p',
+							{ className: 'form-control-static' },
+							this.props.properties.name
+						)
+					)
+				)
+			) : !pages ? React.createElement(
+				'div',
+				{ className: 'text-center' },
+				React.createElement(
+					'p',
+					null,
+					frases.CHAT_TRUNK.FACEBOOK.LOGIN_MSG
+				),
+				React.createElement(
+					'button',
+					{ className: 'btn btn-lg btn-primary', onClick: this._login },
+					React.createElement('i', { className: 'fa fa-fw fa-facebook' }),
+					' Login with Facebook'
+				)
+			) : !pages.length ? React.createElement(
+				'div',
+				{ className: 'text-center' },
+				frases.CHAT_TRUNK.FACEBOOK.NO_PAGES_MSG,
+				' ',
+				React.createElement(
+					'a',
+					{ href: '#' },
+					frases.CHAT_TRUNK.FACEBOOK.LEARN_MORE
+				),
+				' '
+			) : React.createElement(
+				'form',
+				{ className: 'form-horizontal' },
+				React.createElement(
+					'div',
+					{ className: 'form-group' },
+					React.createElement(
+						'label',
+						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
+						frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-4' },
+						React.createElement(
+							'select',
+							{
+								className: 'form-control',
+								id: 'ctc-select-1',
+								value: this.state.selectedPage.id,
+								onChange: this._onChange
+							},
+							pages.map(function (item) {
+
+								return React.createElement(
+									'option',
+									{ key: item.id, value: item.id },
+									item.name
+								);
+							})
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+FacebookTrunkComponent = React.createFactory(FacebookTrunkComponent);
+var ViberTrunkComponent = React.createClass({
+	displayName: 'ViberTrunkComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		properties: React.PropTypes.object,
+		serviceParams: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			init: true
+		};
+	},
+
+	componentWillMount: function () {
+		this._initService();
+	},
+
+	// componentWillReceiveProps: function(props) {
+	// 	this.setState({
+	// 		selectedPage: props.properties || {}
+	// 	});		
+	// },
+
+	_initService: function () {
+		this.setState({
+			access_token: this.props.properties.access_token || ''
+		});
+	},
+
+	_onChange: function (e) {
+		var value = e.target.value;
+		var props = {
+			access_token: value
+		};
+
+		console.log('Viber _onChange: ', value);
+
+		this.setState(props);
+		this.props.onChange(props);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'form',
+				{ className: 'form-horizontal' },
+				React.createElement(
+					'div',
+					{ className: 'form-group' },
+					React.createElement(
+						'label',
+						{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
+						'App Key'
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-6' },
+						React.createElement('input', {
+							id: 'ctc-select-2',
+							className: 'form-control',
+							value: this.state.access_token,
+							onChange: this._onChange,
+							placeholder: 'e.g. 445da6az1s345z78-dazcczb2542zv51a-e0vc5fva17480im9'
+						})
+					)
+				)
+			)
+		);
+	}
+});
+
+ViberTrunkComponent = React.createFactory(ViberTrunkComponent);
+var AvCodecRowComponent = React.createClass({
+	displayName: 'AvCodecRowComponent',
+
+
+	propTypes: {
+		params: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	_onChange: function (e) {
+		var target = e.target;
+		var params = this.props.params;
+		var value = target.type === 'checkbox' ? target.checked : target.type === 'number' ? parseFloat(target.value) : target.value;
+
+		params[target.name] = value;
+		this.props.onChange(params);
+	},
+
+	render: function () {
+		var params = this.props.params;
+
+		return React.createElement(
+			'tr',
+			null,
+			React.createElement(
+				'td',
+				{ className: 'draggable' },
+				React.createElement('i', { className: 'fa fa-ellipsis-v' })
+			),
+			React.createElement(
+				'td',
+				{ className: 'codec-name', 'data-codec': params.codec },
+				params.codec
+			),
+			React.createElement(
+				'td',
+				null,
+				React.createElement('input', { type: 'number', name: 'frame', className: 'form-control codec-frames', value: params.frame, onChange: this._onChange })
+			),
+			React.createElement(
+				'td',
+				null,
+				React.createElement('input', { type: 'checkbox', name: 'enabled', checked: params.enabled, className: 'codec-enabled', onChange: this._onChange })
+			)
+		);
+	}
+
+});
+
+AvCodecRowComponent = React.createFactory(AvCodecRowComponent);
+var AvCodecsTableComponent = React.createClass({
+	displayName: 'AvCodecsTableComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		model: React.PropTypes.string,
+		availableCodecs: React.PropTypes.array,
+		enabledCodecs: React.PropTypes.array,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			codecs: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			codecs: this._getCodecsArray(this.props)
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			codecs: this._getCodecsArray(props)
+		});
+	},
+
+	_onChange: function (index, update) {
+		var codecs = this.state.codecs;
+		codecs[index] = update;
+
+		this.props.onChange({
+			model: this.props.model,
+			codecs: codecs
+		});
+	},
+
+	_getCodecsArray: function (props) {
+		var codecs = [];
+		var availableCodecs = [].concat(props.availableCodecs);
+		var enabledCodecs = props.enabledCodecs ? [].concat(props.enabledCodecs) : [];
+		var codec = {};
+
+		codecs = enabledCodecs.map(function (item) {
+			availableCodecs.splice(availableCodecs.indexOf(item.codec), 1);
+
+			codec = {
+				codec: item.codec,
+				frame: item.frame,
+				enabled: true
+			};
+			return codec;
+		});
+
+		availableCodecs.forEach(function (item) {
+			codecs.push({ codec: item, frame: 30 });
+		});
+
+		// codecs = codecs.map(function(codec) {
+		// 	codec = { codec: codec, frame: 30 };
+
+		// 	enabledCodecs.map(function(item) {
+		// 		if(codec.codec === item.codec) {
+		// 			codec.frame = item.frame;
+		// 			codec.enabled = true;
+		// 		}
+
+		// 		return item;
+		// 	})
+
+		// 	return codec;
+		// });
+
+		return codecs;
+	},
+
+	_tableRef: function (el) {
+		console.log('_tableRef: ', el);
+		return new Sortable(el);
+	},
+
+	_onSortEnd: function (e) {
+		var target = e.currentTarget;
+		var codecsLength = this.props.availableCodecs.length;
+		var codecsOrder = [].slice.call(target.children).map(function (el, index) {
+			el = el.children[1].getAttribute('data-codec');
+			return el;
+		});
+
+		codecsOrder.length = codecsLength;
+		this._reorderCodecs(codecsOrder);
+	},
+
+	_reorderCodecs: function (order) {
+		var codecs = this.state.codecs;
+		var newOrder = [].concat(order);
+		var newIndex;
+
+		codecs = codecs.map(function (item, index, array) {
+			newIndex = order.indexOf(item.codec);
+			newOrder[newIndex] = item;
+			return item;
+		});
+
+		this.props.onChange({
+			model: this.props.model,
+			codecs: newOrder
+		});
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var codecs = this.state.codecs;
+
+		return React.createElement(
+			'table',
+			{ className: 'table' },
+			React.createElement(
+				'thead',
+				null,
+				React.createElement(
+					'tr',
+					null,
+					React.createElement('th', null),
+					React.createElement(
+						'th',
+						null,
+						frases.AUDIOCODECS
+					),
+					React.createElement(
+						'th',
+						null,
+						frases.FRAMES,
+						'(ms)'
+					),
+					React.createElement(
+						'th',
+						null,
+						React.createElement('i', { className: 'fa fa-check' })
+					)
+				)
+			),
+			React.createElement(
+				'tbody',
+				{ ref: this._tableRef, onTouchEnd: this._onSortEnd, onDragEnd: this._onSortEnd },
+				codecs.map(function (item, index) {
+					return React.createElement(AvCodecRowComponent, { key: item.codec, params: item, onChange: this._onChange.bind(this, index) });
+				}.bind(this))
+			)
+		);
+	}
+
+});
+
+AvCodecsTableComponent = React.createFactory(AvCodecsTableComponent);
+
+var DiscountsComponent = React.createClass({
+	displayName: 'DiscountsComponent',
+
+
+	propTypes: {
+		items: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		addCoupon: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			items: [],
+			coupon: ''
+		};
+	},
+
+	componentDidMount: function () {
+		this.setState({
+			items: this.props.items
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			items: props.items
+		});
+	},
+
+	_addCoupon: function () {
+		var coupon = this.state.coupon;
+		if (!coupon) return;
+		this.props.addCoupon(coupon);
+	},
+
+	_handleOnChange: function (e) {
+		var value = e.target.value;
+		this.setState({
+			coupon: value
+		});
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		console.log('DiscountsComponent: ', this.state.items);
+
+		return React.createElement(
+			'div',
+			{ className: 'panel' },
+			React.createElement(
+				'div',
+				{ className: 'panel-header' },
+				React.createElement(
+					'span',
+					null,
+					frases.BILLING.DISCOUNTS.DISCOUNTS
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'panel-body' },
+				React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-xs-12' },
+						React.createElement(
+							'div',
+							{ className: 'input-group' },
+							React.createElement('input', { type: 'text', className: 'form-control', placeholder: 'Promo code', value: this.state.coupon, onChange: this._handleOnChange }),
+							React.createElement(
+								'span',
+								{ className: 'input-group-btn' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-success', onClick: this._addCoupon },
+									frases.BILLING.DISCOUNTS.ACTIVATE_BTN
+								)
+							)
+						),
+						React.createElement('br', null),
+						React.createElement(
+							'h5',
+							{ className: this.state.items.length ? '' : 'hidden' },
+							frases.BILLING.DISCOUNTS.ACTIVE_DISCOUNTS
+						),
+						this.state.items.map(function (item) {
+							return React.createElement(
+								'h3',
+								{ key: item._id },
+								React.createElement(
+									'b',
+									null,
+									item.name
+								),
+								' ',
+								React.createElement(
+									'small',
+									null,
+									item.coupon.description
+								)
+							);
+						})
+					)
+				)
+			)
+		);
+	}
+});
+
+DiscountsComponent = React.createFactory(DiscountsComponent);
+var ChartComponent = React.createClass({
+	displayName: 'ChartComponent',
+
+
+	propTypes: {
+		type: React.PropTypes.string,
+		data: React.PropTypes.object,
+		options: React.PropTypes.object
+	},
+
+	getInitialState: function () {
+		return {
+			chart: {}
+		};
+	},
+
+	componentDidMount: function () {
+		var el = ReactDOM.findDOMNode(this);
+		var options = this.props.options;
+		var data = this.props.data;
+		var chartOptions = {
+			bindto: el,
+			data: this.props.data
+		};
+		var chart = {};
+
+		if (options) {
+			for (var key in options) {
+				chartOptions[key] = options[key];
+			}
+		}
+
+		data.type = this.props.type;
+		chart = c3.generate(chartOptions);
+
+		this.setState({ chart: chart });
+	},
+
+	componentWillReceiveProps: function (props) {
+		console.log('ChartsComponent componentWillReceiveProps: ', props);
+		this._updateChart(props.data);
+	},
+
+	componentWillUnmount: function () {
+		console.log('ChartsComponent componentWillUnmount');
+	},
+
+	shouldComponentUpdate: function () {
+		return false;
+	},
+
+	_getIds: function () {
+		var chart = this.state.chart;
+		return chart.data().reduce(function (init, next) {
+			init.push(next.id);
+			return init;
+		}, []);
+	},
+
+	_excludeIds: function (fromArray, indexArray) {
+		return fromArray.reduce(function (init, next) {
+			if (indexArray.indexOf(next) < 0) init.push(next);
+			return init;
+		}, []);
+	},
+
+	_updateChart: function (data) {
+		var chart = this.state.chart;
+		// var chartIds = this._getIds();
+		// var dataIds = data.columns.reduce(function(init, next) {
+		// 	init.push(next[0]);
+		// 	return init;
+		// }, []);
+		// var unloadIds = this._excludeIds(chartIds, dataIds);
+
+		// data.done = function() {
+		// 	chart.unload(unloadIds);
+		// };
+
+		chart.unload();
+
+		setTimeout(function () {
+			chart.load(data);
+		}, 500);
+	},
+
+	render: function () {
+		console.log('ChartsComponent render: ', this.state);
+		return React.createElement('div');
+	}
+});
+
+ChartComponent = React.createFactory(ChartComponent);
+
+var InvoicesComponent = React.createClass({
+	displayName: "InvoicesComponent",
+
+
+	propTypes: {
+		items: React.PropTypes.array,
+		frases: React.PropTypes.object
+	},
+
+	getInitialState: function () {
+		return {
+			items: [],
+			hideRows: true
+		};
+	},
+
+	componentDidMount: function () {
+		this.setState({
+			items: this.props.items
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			items: props.items
+		});
+	},
+
+	_showMore: function () {
+		this.setState({
+			hideRows: !this.state.hideRows
+		});
+	},
+
+	render: function () {
+		var items = this.state.items;
+		var frases = this.props.frases;
+		var hideRows = this.state.hideRows;
+
+		console.log('InvoicesComponent: ', this.state.items);
+
+		return React.createElement(
+			"div",
+			{ className: "panel" },
+			React.createElement(
+				"div",
+				{ className: "panel-header" },
+				React.createElement(
+					"span",
+					null,
+					frases.BILLING.INVOICES.INVOICES
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "panel-body" },
+				!this.state.items.length ? React.createElement(
+					"p",
+					null,
+					frases.BILLING.INVOICES.NO_INVOICES
+				) : React.createElement(
+					"div",
+					{ className: "row" },
+					React.createElement(
+						"div",
+						{ className: "col-xs-12" },
+						React.createElement(
+							"table",
+							{ className: "table" },
+							React.createElement(
+								"tbody",
+								null,
+								this.state.items.map(function (item, index) {
+									if (hideRows && index > 2) {
+										return null;
+									}
+
+									return React.createElement(InvoiceComponent, { invoice: item, key: index });
+								})
+							)
+						),
+						React.createElement(
+							"button",
+							{
+								type: "button",
+								className: "btn btn-link btn-block",
+								onClick: this._showMore
+							},
+							hideRows ? 'Show more' : 'Show less'
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+InvoicesComponent = React.createFactory(InvoicesComponent);
+function InvoiceComponent(props) {
+
+	var invoice = props.invoice;
+	var item = props.invoice.items[0];
+	var cellStyle = {
+		borderTop: 'none'
+	};
+
+	return React.createElement(
+		'tr',
+		null,
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'small',
+				{ className: "label " + (invoice.status === 'paid' ? 'label-success' : 'label-warning') },
+				invoice.status
+			)
+		),
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'b',
+				null,
+				invoice.currency,
+				' ',
+				invoice.paidAmount || item.amount,
+				' '
+			)
+		),
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'span',
+				null,
+				item.description,
+				' '
+			)
+		),
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'span',
+				{ className: 'text-muted' },
+				' ',
+				new Date(invoice.createdAt).toLocaleDateString(),
+				' '
+			)
+		)
+	);
+}
 var SecurityOptionsComponent = React.createClass({
 	displayName: 'SecurityOptionsComponent',
 
@@ -10496,357 +11015,3 @@ var IpTable = React.createClass({
 });
 
 IpTable = React.createFactory(IpTable);
-var TwitterTrunkComponent = React.createClass({
-	displayName: 'TwitterTrunkComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object
-	},
-
-	// getInitialState: function() {
-	// 	return {
-	// 		params: {}
-	// 	};
-	// },
-
-	componentWillMount: function () {
-		this.setState({
-			logedIn: false
-		});
-	},
-
-	// componentWillReceiveProps: function(props) {
-	// 	this.setState({
-	// 		selectedPage: props.properties || {}
-	// 	});		
-	// },
-
-	_login: function () {
-		console.log('Login');
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		console.log('TwitterTrunkComponent: ');
-
-		return React.createElement(
-			'div',
-			null,
-			!this.state.logedIn ? React.createElement(
-				'div',
-				{ className: 'text-center' },
-				React.createElement(
-					'button',
-					{ className: 'btn btn-lg btn-primary', onClick: this._login },
-					React.createElement('i', { className: 'fa fa-fw fa-twitter' }),
-					' Login with Twitter'
-				)
-			) : React.createElement(
-				'form',
-				{ className: 'form-horizontal' },
-				React.createElement(
-					'div',
-					{ className: 'form-group' },
-					React.createElement(
-						'label',
-						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
-						'Select Facebook Page'
-					),
-					React.createElement('div', { className: 'col-sm-4' })
-				)
-			)
-		);
-	}
-});
-
-TwitterTrunkComponent = React.createFactory(TwitterTrunkComponent);
-var ViberTrunkComponent = React.createClass({
-	displayName: 'ViberTrunkComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		properties: React.PropTypes.object,
-		serviceParams: React.PropTypes.object,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			init: true
-		};
-	},
-
-	componentWillMount: function () {
-		this._initService();
-	},
-
-	// componentWillReceiveProps: function(props) {
-	// 	this.setState({
-	// 		selectedPage: props.properties || {}
-	// 	});		
-	// },
-
-	_initService: function () {
-		this.setState({
-			access_token: this.props.properties.access_token || ''
-		});
-	},
-
-	_onChange: function (e) {
-		var value = e.target.value;
-		var props = {
-			access_token: value
-		};
-
-		console.log('Viber _onChange: ', value);
-
-		this.setState(props);
-		this.props.onChange(props);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'form',
-				{ className: 'form-horizontal' },
-				React.createElement(
-					'div',
-					{ className: 'form-group' },
-					React.createElement(
-						'label',
-						{ htmlFor: 'ctc-select-2', className: 'col-sm-4 control-label' },
-						'App Key'
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-6' },
-						React.createElement('input', {
-							id: 'ctc-select-2',
-							className: 'form-control',
-							value: this.state.access_token,
-							onChange: this._onChange,
-							placeholder: 'e.g. 445da6az1s345z78-dazcczb2542zv51a-e0vc5fva17480im9'
-						})
-					)
-				)
-			)
-		);
-	}
-});
-
-ViberTrunkComponent = React.createFactory(ViberTrunkComponent);
-var AvCodecRowComponent = React.createClass({
-	displayName: 'AvCodecRowComponent',
-
-
-	propTypes: {
-		params: React.PropTypes.object,
-		onChange: React.PropTypes.func
-	},
-
-	_onChange: function (e) {
-		var target = e.target;
-		var params = this.props.params;
-		var value = target.type === 'checkbox' ? target.checked : target.type === 'number' ? parseFloat(target.value) : target.value;
-
-		params[target.name] = value;
-		this.props.onChange(params);
-	},
-
-	render: function () {
-		var params = this.props.params;
-
-		return React.createElement(
-			'tr',
-			null,
-			React.createElement(
-				'td',
-				{ className: 'draggable' },
-				React.createElement('i', { className: 'fa fa-ellipsis-v' })
-			),
-			React.createElement(
-				'td',
-				{ className: 'codec-name', 'data-codec': params.codec },
-				params.codec
-			),
-			React.createElement(
-				'td',
-				null,
-				React.createElement('input', { type: 'number', name: 'frame', className: 'form-control codec-frames', value: params.frame, onChange: this._onChange })
-			),
-			React.createElement(
-				'td',
-				null,
-				React.createElement('input', { type: 'checkbox', name: 'enabled', checked: params.enabled, className: 'codec-enabled', onChange: this._onChange })
-			)
-		);
-	}
-
-});
-
-AvCodecRowComponent = React.createFactory(AvCodecRowComponent);
-var AvCodecsTableComponent = React.createClass({
-	displayName: 'AvCodecsTableComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		model: React.PropTypes.string,
-		availableCodecs: React.PropTypes.array,
-		enabledCodecs: React.PropTypes.array,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			codecs: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			codecs: this._getCodecsArray(this.props)
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			codecs: this._getCodecsArray(props)
-		});
-	},
-
-	_onChange: function (index, update) {
-		var codecs = this.state.codecs;
-		codecs[index] = update;
-
-		this.props.onChange({
-			model: this.props.model,
-			codecs: codecs
-		});
-	},
-
-	_getCodecsArray: function (props) {
-		var codecs = [];
-		var availableCodecs = [].concat(props.availableCodecs);
-		var enabledCodecs = props.enabledCodecs ? [].concat(props.enabledCodecs) : [];
-		var codec = {};
-
-		codecs = enabledCodecs.map(function (item) {
-			availableCodecs.splice(availableCodecs.indexOf(item.codec), 1);
-
-			codec = {
-				codec: item.codec,
-				frame: item.frame,
-				enabled: true
-			};
-			return codec;
-		});
-
-		availableCodecs.forEach(function (item) {
-			codecs.push({ codec: item, frame: 30 });
-		});
-
-		// codecs = codecs.map(function(codec) {
-		// 	codec = { codec: codec, frame: 30 };
-
-		// 	enabledCodecs.map(function(item) {
-		// 		if(codec.codec === item.codec) {
-		// 			codec.frame = item.frame;
-		// 			codec.enabled = true;
-		// 		}
-
-		// 		return item;
-		// 	})
-
-		// 	return codec;
-		// });
-
-		return codecs;
-	},
-
-	_tableRef: function (el) {
-		console.log('_tableRef: ', el);
-		return new Sortable(el);
-	},
-
-	_onSortEnd: function (e) {
-		var target = e.currentTarget;
-		var codecsLength = this.props.availableCodecs.length;
-		var codecsOrder = [].slice.call(target.children).map(function (el, index) {
-			el = el.children[1].getAttribute('data-codec');
-			return el;
-		});
-
-		codecsOrder.length = codecsLength;
-		this._reorderCodecs(codecsOrder);
-	},
-
-	_reorderCodecs: function (order) {
-		var codecs = this.state.codecs;
-		var newOrder = [].concat(order);
-		var newIndex;
-
-		codecs = codecs.map(function (item, index, array) {
-			newIndex = order.indexOf(item.codec);
-			newOrder[newIndex] = item;
-			return item;
-		});
-
-		this.props.onChange({
-			model: this.props.model,
-			codecs: newOrder
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var codecs = this.state.codecs;
-
-		return React.createElement(
-			'table',
-			{ className: 'table' },
-			React.createElement(
-				'thead',
-				null,
-				React.createElement(
-					'tr',
-					null,
-					React.createElement('th', null),
-					React.createElement(
-						'th',
-						null,
-						frases.AUDIOCODECS
-					),
-					React.createElement(
-						'th',
-						null,
-						frases.FRAMES,
-						'(ms)'
-					),
-					React.createElement(
-						'th',
-						null,
-						React.createElement('i', { className: 'fa fa-check' })
-					)
-				)
-			),
-			React.createElement(
-				'tbody',
-				{ ref: this._tableRef, onTouchEnd: this._onSortEnd, onDragEnd: this._onSortEnd },
-				codecs.map(function (item, index) {
-					return React.createElement(AvCodecRowComponent, { key: item.codec, params: item, onChange: this._onChange.bind(this, index) });
-				}.bind(this))
-			)
-		);
-	}
-
-});
-
-AvCodecsTableComponent = React.createFactory(AvCodecsTableComponent);

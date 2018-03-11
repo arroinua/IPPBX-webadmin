@@ -315,13 +315,6 @@ table.table > tbody > tr > td {
   transform: rotate(-45deg);
 }
 
-.object-name .input-group-addon {
-  border-radius: 0;
-  border: none;
-  background-color: #fff;
-  padding: 6px 10px 6px 0;
-}
-
 .rd-container {
   color: #333;
   z-index: 2000;
@@ -1393,6 +1386,31 @@ input.cmn-toggle-round:checked + label:before {
   }
 }
 
+.object-name-cont #objname {
+  font-size: 1.5em;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  height: auto;
+}
+.object-name-cont #objname:focus {
+  outline: 0;
+  border: none;
+}
+.object-name-cont #objname[readonly="readonly"] {
+  background-color: #fff;
+}
+.object-name-cont .input-group-addon {
+  border-radius: 0;
+  border: none;
+  background-color: #fff;
+  padding: 6px 10px 6px 0;
+}
+.object-name-cont .panel-footer {
+  border-top: none;
+}
+
 .Select3 {
   position: relative;
   box-sizing: border-box;
@@ -1575,27 +1593,6 @@ input[type="checkbox"]:checked + .help-block {
   overflow: visible;
 }
 
-/*.object-name {
-    margin-bottom: 15px;
-}*/
-.object-name #objname {
-  font-size: 2.5em;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  outline: none;
-  height: auto;
-}
-
-.object-name #objname:focus {
-  outline: 0;
-  border: none;
-}
-
-.object-name #objname[readonly="readonly"] {
-  background-color: #fff;
-}
-
 .control-icons i {
   display: block;
 }
@@ -1646,7 +1643,6 @@ input[type="checkbox"]:checked + .help-block {
   height: 100vh;
   background-color: rgba(243, 248, 249, 0.7);
   z-index: 1000;
-  overflow: hidden;
 }
 
 .loader {

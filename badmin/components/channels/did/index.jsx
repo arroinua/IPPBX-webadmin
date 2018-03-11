@@ -10,12 +10,13 @@ var DidTrunkComponent = React.createClass({
 
 	getInitialState: function() {
 		return {
-			data: {},
+			init: false,
+			fetch: true,
 			sub: null,
-			newDid: null,
 			cycleDays: 0,
 			proratedDays: 0,
-			// number: "",
+			totalAmount: 0,
+			chargeAmount: 0,
 			numbers: null,
 			countries: [],
 			locations: [],
@@ -25,7 +26,9 @@ var DidTrunkComponent = React.createClass({
 			selectedPriceObject: {},
 			selectedType: 'Local',
 			selectedNumber: {},
-			showNewDidSettings: false
+			limitReached: false,
+			showNewDidSettings: false,
+			fetchingCountries: false
 		};
 	},
 
@@ -37,82 +40,66 @@ var DidTrunkComponent = React.createClass({
 			var sub = response.result;
 			var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 			var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
-			var number = "";
 
 			this.setState({ 
-				data: this.props.properties || {},
+				init: true,
 				sub: response.result,
 				cycleDays: cycleDays,
 				proratedDays: proratedDays
 			});
 
-			this._getAssignedDids(function(err, response) {
-				if(err) return notify_about('error', err);
+			if(this.props.properties && this.props.properties.number) {
+				this.setState({ fetch: false });
 
-				if(this.props.isNew) {
-					number = (response.result && response.result.length) ? response.result[0].number : {};
-				} else {
-					number = this.props.properties.number;
-				}
+				this._getDid(this.props.properties.number, function(err, response) {
+					if(err) return notify_about('error', err);
+					this.setState({
+						selectedNumber: response.result
+					});
 
-				this.setState({
-					numbers: response.result || [],
-				});
-
-				this._setSelectedNumber(number);
-
-			}.bind(this));
+				}.bind(this));
+			}
 
 		}.bind(this));
 
 	},
 
 	componentWillReceiveProps: function(props) {
-		this.setState({
-			data: props.properties || {}
-		});		
-	},
 
-	_onChange: function(e) {
-		var target = e.target;
-		var state = this.state;
-		var data = this.state.data;
-		var value = target.type === 'checkbox' ? target.checked : (target.type === 'number' ? parseFloat(target.value) : target.value);
-		
-		console.log('DidTrunkComponent onChange: ', target.name, value);
+		console.log('DidTrunkComponent componentWillReceiveProps', props);
 
-		data[target.name] = value;
+		if(this.state.fetch && props.properties && props.properties.number) {
+			this.setState({ fetch: false });
 
-		this.setState({
-			data: data
-		});
+			this._getDid(props.properties.number, function(err, response) {
+				if(err) return notify_about('error', err);
+				this.setState({ selectedNumber: response.result });
 
-		this.props.onChange(data);
-
-	},
-
-	_onNumberSelect: function(e) {
-		var value = e.target.value;
-		var state = this.state;
-		var number = "";
-
-		if(value && value !== 'other') {
-			number = value;
+			}.bind(this));
 		}
-
-		this._setSelectedNumber(number);
-
+				
 	},
 
-	_setSelectedNumber: function(number) {
-		var data = this.state.data;
-		var selectedNumber = this.state.numbers.filter(function(item) { return item.number === number })[0];
+	_onChange: function() {
+		var params = {
+			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
+			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
+			chargeAmount: this.state.chargeAmount,
+			currency: this.state.sub.plan.currency
+		};
 		
-		data.number = data.id = number;
-
-		this.setState({ data: data, selectedNumber: selectedNumber });
-		this.props.onChange(data);
+		this.props.onChange(params);
 	},
+
+	// _setSelectedNumber: function(number) {
+	// 	// var data = this.state.data;
+	// 	var selectedNumber = this.state.numbers.filter(function(item) { return item.number === number })[0];
+	// 	// data.number = data.id = number;
+
+	// 	// this.setState({ data: data, selectedNumber: selectedNumber });
+	// 	this.setState({ selectedNumber: selectedNumber });
+	// 	// this.props.onChange(data);
+	// },
 
 	_onCountrySelect: function(e) {
 		var value = e.target.value;
@@ -138,25 +125,46 @@ var DidTrunkComponent = React.createClass({
 		var value = e.target.value;
 		var state = this.state;
 
-		state.selectedPriceObject = {};
+		var selectedLocation = {};
+		var selectedPriceObject = {};
 
 		if(value) {
-			state.selectedLocation = state.locations.filter(function(item) { return item._id === value; })[0];
-		} else {
-			state.selectedLocation = {};
+			selectedLocation = state.locations.filter(function(item) { return item._id === value; })[0];
 		}
+
+		state.selectedLocation = selectedLocation;
+		state.selectedPriceObject = selectedPriceObject;
 
 		this.setState(state);
 
 		billingRequest('getDidPrice', { iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
 			if(err) return notify_about('error', err);
-			this.setState({ selectedPriceObject: response.result || {} });
+			this._setDidPrice(response.result);
+			
 		}.bind(this));
 
 	},
 
+	_setDidPrice: function(priceObj) {
+		var sub = this.state.sub;
+		var amount = this._getDidAmount(sub.plan.billingPeriodUnit, priceObj);
+		var proratedAmount = (amount * (this.state.proratedDays / this.state.cycleDays)).toFixed(2);
+
+		this.setState({
+			selectedPriceObject: priceObj,
+			totalAmount: amount,
+			chargeAmount: proratedAmount
+		});
+
+		this._onChange();
+	},
+
 	_getAssignedDids: function(callback) {
 		billingRequest('getAssignedDids', null, callback);
+	},
+
+	_getDid: function(number, callback) {
+		billingRequest('getDid', { number: number }, callback);
 	},
 
 	_getDidCountries: function(callback) {
@@ -167,215 +175,178 @@ var DidTrunkComponent = React.createClass({
 		billingRequest('getDidLocations', params, callback);
 	},
 
-	_showNewDidSettings: function(e) {
-		e.preventDefault();
-		var show = this.state.showNewDidSettings;
-		
-		if(!show && !this.state.countries.length) this._getDidCountries(function(err, response) {
-			if(err) return notify_about('error', err);
-			this.setState({ countries: response.result });
-		}.bind(this));
-
-		this.setState({ showNewDidSettings: !this.state.showNewDidSettings });
-	},
-
-	_buyDidNumber: function(e) {
-		e.preventDefault();
-		show_loading_panel();
-
-		var params = {
-			poid: this.state.selectedPriceObject._id,
-			dgid: this.state.selectedLocation._id
-		};
-
-		billingRequest('orderDid', params, function(err, response) {
-			console.log('_buyDidNumber: ', err, response);
-			remove_loading_panel();
-
-			if(err) return notify_about('error', err);
-			if(!response.success && response.error.name === 'ENOENT') {
-				return notify_about('Number is not available');
-			}
-
-			var state = this.state;
-			state.numbers.push(response.result);
-			state.showNewDidSettings = false;
-			state.selectedNumber = response.result;
-
-			this.setState(state);
-			this.props.onChange(state.data);
-
-			set_object_success();
-
-		}.bind(this));
-	},
-
-	_extendProps: function(toObj, fromObj) {
-		for(var key in fromObj) {
-			toObj[key] = fromObj[key];
-		}
-
-		return toObj;
-	},
-
 	_getDidAmount: function(billingPeriodUnit, priceObj) {
 		var state = this.state;
-		if(!billingPeriodUnit || !priceObj) return null;
-		return billingPeriodUnit === 'years' ? priceObj.annualPrice : priceObj.monthlyPrice;
+		var amount = null;
+		if(!billingPeriodUnit || !priceObj) return amount;
+		amount = (billingPeriodUnit === 'years' ? priceObj.annualPrice : priceObj.monthlyPrice);
+		return amount ? parseFloat(amount) : null;
+	},
+
+	_showNewDidSettings: function(e) {
+		e.preventDefault();
+		this.setState({ showNewDidSettings: !this.state.showNewDidSettings, fetchingCountries: true });
+
+		var sub = this.state.sub;
+		var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
+
+		billingRequest('hasDids', null, function(err, count) {
+			if(err) return notify_about('error', err);
+
+			if(maxdids >= count) {
+				this.setState({ limitReached: true, countries: [], fetchingCountries: false });
+				return;
+			}
+
+			if(!this.state.countries.length) {
+				this._getDidCountries(function(err, response) {
+					if(err) return notify_about('error', err);
+					this.setState({ countries: response.result, fetchingCountries: false });
+				}.bind(this));
+			}
+		}.bind(this));
+				
 	},
 
 	render: function() {
 		var state = this.state;
 		var frases = this.props.frases;
-		var data = state.data;
+		// var data = state.data;
 		var sub = state.sub;
 		var selectedCountry = state.selectedCountry;
 		var selectedLocation = state.selectedLocation;
 		var selectedPriceObject = state.selectedPriceObject;
-		var amount = 0, proratedAmount = 0;
-		var maxdids = null;
-		var maxReached = false;
+		var amount = this.state.totalAmount;
+		var proratedAmount = this.state.chargeAmount;
 
-		if(sub) {
-			amount = this._getDidAmount(sub.plan.billingPeriodUnit, selectedPriceObject);
-			proratedAmount = (amount * (state.proratedDays / state.cycleDays)).toFixed(2);
-			maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
-		}
+		// if(sub && selectedPriceObject) {
+		// 	amount = this._getDidAmount(sub.plan.billingPeriodUnit, selectedPriceObject);
+		// 	proratedAmount = (amount * (state.proratedDays / state.cycleDays)).toFixed(2);
+		// 	maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
+		// }
 
-		console.log('DidTrunkComponent render: ', state.data, this.props.serviceParams);
+		console.log('DidTrunkComponent render: ', this.state);
 
 		return (
 			<form className="form-horizontal" autoComplete='off'>
 				{
-					this.state.numbers ? (
-						!this.state.showNewDidSettings ? (
-							<div>
-								{
-									this.props.isNew ? (
-										<div>
-											<div className="form-group">
-												<div className="col-sm-4 col-sm-offset-4">
-													<button className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> Add new local number</button>
+					this.state.init ? (
+						<div>
+							{
+								this.props.isNew ? (
+									<div>
+										{
+											!this.state.showNewDidSettings ? (
+												<div className="form-group">
+													<div className="col-sm-4 col-sm-offset-4">
+														<button className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.DID.ADD_NUMBER_BTN}</button>
+													</div>
 												</div>
-											</div>
-
-											{
-												this.state.numbers.length && (
-													<div>
-														<div className="form-group">
-															<div className="col-sm-4 col-sm-offset-4">
-																<p>or</p>
-															</div>
-														</div>
-														<div className="form-group">
-															<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Select number</label>
-															<div className="col-sm-4">
-																<select className="form-control" name="number" value={this.state.selectedNumber.number} onChange={this._onNumberSelect}>
-																	{
-																		this.state.numbers.map(function(item) {
-																			return <option key={item._id} value={item.number}>{item.formatted}</option>
-																		})
-																	}
-																</select>
-															</div>
-														</div>
-													</div>
-												)
-											}
-										</div>
-									) : (
-										<div className="form-group">
-											<label htmlFor="ctc-select-2" className="col-sm-4 control-label">Selected number</label>
-											<div className="col-sm-4">
-												<p className="form-control-static">{this.state.selectedNumber.formatted}</p>
-											</div>
-										</div>
-									)
-								}
-							</div>
-						) : (
-							<div>
-								<div className="form-group">
-									<div className="col-sm-4 col-sm-offset-4">
-										<a href="" onClick={this._showNewDidSettings}><i className="fa fa-arrow-left"></i> Cancel</a>
-									</div>
-								</div>
-
-								{
-									(maxdids && (maxdids <= state.numbers.length)) ? (
-										<div className="col-sm-8 col-sm-offset-4">
-											<p>You can only have one number during your tria period.</p> 
-											<p>You can <a href="#billing">change plan</a> to add more numbers.</p>
-										</div>
-									) : (
-										<div>
-											<div className="form-group">
-											    <label htmlFor="country" className="col-sm-4 control-label">Select Country</label>
-											    <div className="col-sm-4">
-											    	{
-											    		this.state.countries.length ? (
-											    			<select className="form-control" name="country" value={selectedCountry.id || ""} onChange={this._onCountrySelect}>
-											    				<option value="">Select country</option>
-											    				{
-											    					this.state.countries.map(function(item) {
-											    						return <option key={item.id} value={item.id}>{item.attributes.name + " ("+item.attributes.prefix+")"}</option>
-											    					})
-											    				}
-											    			</select>
-											    		) : (
+											) : (
+												<div>
+													{
+														this.state.fetchingCountries ? (
 															<Spinner />
-											    		)
-											    	}
-													    	
-											    </div>
-											</div>
+														) : (
 
-											{
-												selectedCountry.id && (
-													<div className="form-group">
-													    <label htmlFor="location" className="col-sm-4 control-label">Select Location</label>
-													    <div className="col-sm-4">
-													    	{
-													    		this.state.locations.length ? (
-													    			<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
-													    				<option value="">Select location</option>
-													    				{
-													    					this.state.locations.map(function(item) {
-													    						return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
-													    					})
-													    				}
-													    			</select>
-													    		) : (
-													    			<Spinner />
-													    		)
-													    	}
-													    </div>
-													</div>
-												)
-											}
+															<div>
+																{
+																	this.state.limitReached ? (
+																		<div className="form-group">
+																			<div className="col-sm-8 col-sm-offset-4">
+																				<p>{frases.CHAT_TRUNK.DID.LIMIT_REACHED.MAIN_MSG}</p> 
+																				<p><a href="#billing">{frases.CHAT_TRUNK.DID.LIMIT_REACHED.CHANGE_PLAN_LINK}</a> {frases.CHAT_TRUNK.DID.LIMIT_REACHED.CHANGE_PLAN_MSG}</p>
+																			</div>
+																		</div>
+																	) : (
+																		<div className="form-group">
+																			<label htmlFor="country" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_COUNTRY}</label>
+																			<div className="col-sm-4">
+																    			<select className="form-control" name="country" value={selectedCountry.id || ""} onChange={this._onCountrySelect}>
+																    				<option value="">----------</option>
+																    				{
+																    					this.state.countries.map(function(item) {
+																    						return <option key={item.id} value={item.id}>{item.attributes.name + " ("+item.attributes.prefix+")"}</option>
+																    					})
+																    				}
+																    			</select>
+																			</div>
+																		</div>
+																	)
+																}
+															</div>
 
-											{
-												selectedLocation._id && (
-													<div className="form-group">
-														{
-															selectedPriceObject._id ? (
-																<div className="col-sm-8 col-sm-offset-4">
-																	<p>Adding local number adds <strong>€{ amount }</strong> to your { sub.plan.billingPeriodUnit === 'years' ? "annual" : "monthly"} bill. Today you will be charged <strong>€{ proratedAmount }</strong> plus applicable taxes and fees for the prorated cost of adding this number.</p>
-																	<p>Your new subscription amount will be <strong>€{ parseFloat(sub.amount) + amount }</strong> plus applicable taxes and fees.</p>
-																	<button className="btn btn-primary" onClick={this._buyDidNumber}>Buy number (€{ proratedAmount })</button>
+														)
+													}
+
+													{
+														selectedCountry.id && (
+															<div>
+																<div className="form-group">
+																    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_LOCATION}</label>
+																    <div className="col-sm-4">
+																    	{
+																    		this.state.locations.length ? (
+																    			<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
+																    				<option value="">----------</option>
+																    				{
+																    					this.state.locations.map(function(item) {
+																    						return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
+																    					})
+																    				}
+																    			</select>
+																    		) : (
+																    			<Spinner />
+																    		)
+																    	}
+																    </div>
 																</div>
-															) : (
-																<Spinner />
-															)
-														}
-													</div>
-												)
-											}
-										</div>
+
+																{
+																	selectedLocation._id && (
+																		<div className="form-group">
+																			{
+																				(selectedPriceObject && selectedPriceObject._id) ? (
+																					<div className="col-sm-8 col-sm-offset-4">
+																						<p>{frases.BILLING.CONFIRM_PAYMENT.ADD_NUMBER_NEW_AMOUNT} <strong>€{ amount }</strong>. {frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG} <strong>€{ proratedAmount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
+																						<p>{frases.BILLING.CONFIRM_PAYMENT.NEW_SUB_AMOUNT} <strong>€{ parseFloat(sub.amount) + amount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
+																						{
+																							selectedPriceObject.restrictions && (
+																								<DidRestrictionsComponent frases={frases} list={selectedPriceObject.restrictions.split(',')} />
+																							) 
+																						}
+																					</div>
+																				) : !selectedPriceObject ? (
+																					<div className="col-sm-8 col-sm-offset-4">
+																						<p>{frases.CHAT_TRUNK.DID.CHECK_AVAILABILITY_MSG}</p>
+																					</div>
+																				) : (
+																					<Spinner />
+																				)
+																			}
+																		</div>
+																	)
+																}
+																
+															</div>
+														)
+													}
+
+
+												</div>
+											)
+										}
+										
+									</div>
+								) : (
+									(this.state.selectedNumber && this.state.selectedNumber._id) ? (
+										<SelectedDidNumberComponent frases={frases} number={this.state.selectedNumber} />
+									) : (
+										<Spinner />
 									)
-								}
-							</div>
-						)
+								)
+							}
+						</div>
 					) : (
 						<Spinner />
 					)

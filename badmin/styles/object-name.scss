@@ -1,0 +1,31 @@
+.object-name-cont {
+
+	#objname {
+	    font-size: 1.5em;
+	    border: none;
+	    border-radius: 0;
+	    box-shadow: none;
+	    outline: none;
+	    height: auto;
+	}
+
+	#objname:focus {
+	    outline: 0;
+	    border: none;
+	}
+
+	#objname[readonly="readonly"] {
+	    background-color: #fff;
+	}
+
+	.input-group-addon {
+	    border-radius: 0;
+	    border: none;
+	    background-color: #fff;
+	    padding: 6px 10px 6px 0;
+	}
+
+	.panel-footer {
+		border-top: none;
+	}
+}

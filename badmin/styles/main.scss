@@ -34,6 +34,7 @@ $global-radius: 10px;
 @import 'get-started';
 @import 'record-qos';
 @import 'object-route';
+@import 'object-name';
 @import 'Select3';
 
 html,body{
@@ -157,24 +158,6 @@ input[type="checkbox"]:checked + .help-block {
 }
 .data-container .panel-body{
     overflow: visible;
-}
-/*.object-name {
-    margin-bottom: 15px;
-}*/
-.object-name #objname{
-    font-size: 2.5em;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    outline: none;
-    height: auto;
-}
-.object-name #objname:focus{
-    outline: 0;
-    border: none;
-}
-.object-name #objname[readonly="readonly"]{
-    background-color: #fff;
 }
 
 .control-icons i{

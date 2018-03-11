@@ -117,7 +117,7 @@
 		    	<div className="col-xs-12">
 		    		{
 		    			this.props.getAvailableUsers && (
-				    		<button type="button" role="button" className="btn btn-default padding-lg" onClick={this.props.getAvailableUsers}><i className="fa fa-user-plus"></i> {frases.CHAT_CHANNEL.ADD_MEMBERS}</button>
+				    		<button type="button" role="button" className="btn btn-primary" onClick={this.props.getAvailableUsers}><i className="fa fa-user-plus"></i> {frases.CHAT_CHANNEL.ADD_MEMBERS}</button>
 		    			)
 		    		}
 				    <FilterInputComponent items={members} onChange={this._onFilter} />

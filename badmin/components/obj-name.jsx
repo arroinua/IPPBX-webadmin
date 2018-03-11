@@ -73,12 +73,12 @@ var ObjectName = React.createClass({
 			<div>
 				{
 					props.onSubmit ?
-					<button type="button" style={{ marginRight: "5px" }} className="btn btn-success btn-md" onClick={props.onSubmit} disabled={state.submitDisabled}><i className="fa fa-check fa-fw"></i> {frases.SAVE}</button>
+					<button type="button" style={{ marginRight: "5px" }} className="btn btn-success" onClick={props.onSubmit} disabled={state.submitDisabled}><i className="fa fa-check fa-fw"></i> {frases.SAVE}</button>
 					: ""
 				}
 				{
 					props.onCancel ?
-					<button type="button" className="btn btn-danger btn-md" onClick={props.onCancel}><i className="fa fa-trash fa-fw"></i> {frases.DELETE}</button>
+					<button type="button" className="btn btn-link btn-danger pull-right" onClick={props.onCancel}><i className="fa fa-trash fa-fw"></i> {frases.DELETE}</button>
 					: ""
 				}
 			</div>
@@ -94,7 +94,7 @@ var ObjectName = React.createClass({
 		console.log('ObjectName render: ', state);
 
 		return (
-			<PanelComponent footer={Footer}>
+			<PanelComponent classname="object-name-cont" footer={Footer}>
 				<div className="input-group object-name">
 				    <input 
 				    	id="objname"
@@ -108,7 +108,7 @@ var ObjectName = React.createClass({
 				    />
 				    { props.routes && <span className="input-group-addon object-route view-1"></span> }
 				    <span className="input-group-addon">
-				        <div className="switch switch-lg">
+				        <div className="switch switch-md">
 				            <input 
 				            	className="cmn-toggle cmn-toggle-round" 
 				            	type="checkbox" 

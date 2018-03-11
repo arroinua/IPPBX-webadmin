@@ -8,7 +8,9 @@ function DeleteObjectModalComponent(props) {
 				<h4>{frases.DELETE} <strong>{ props.name }</strong>?</h4>
 				{
 					props.warning && (
-						<p className="text-danger">{props.warning}</p>
+						<div className="alert alert-warning" role="alert">
+							<p>{props.warning}</p>
+						</div>
 					)
 				}
 			</div>

@@ -104,19 +104,19 @@ var ChannelRouteComponent = React.createClass({
 							</div>
 						) : (
 							<div className="col-sm-4">
-								<p>You don't have service groups yet.</p>
+								<p>{frases.CHAT_TRUNK.NO_SERVICE_GROUP}</p>
 							</div>
 						)
 					}
 					{
 						this.props.type === 'Telephony' ? (
 							<div className="col-sm-4">
-								<a href="#hunting/hunting" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create Hunting group</a>
-								<a href="#icd/icd" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create Hotline</a>
+								<a href="#hunting/hunting" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_HUNTING_GROUP}</a>
+								<a href="#icd/icd" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_ICD_GROUP}</a>
 							</div>
 						) : (
 							<div className="col-sm-4">
-								<a href="#chatchannel/chatchannel" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> Create Service group</a>
+								<a href="#chatchannel/chatchannel" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_SERVICE_GROUP}</a>
 							</div>
 						)
 					}
