@@ -2,98 +2,169 @@ var AddLicensesComponent = React.createClass({
 
 	propTypes: {
 		frases: React.PropTypes.object,
-		sub: React.PropTypes.object,
+		subscription: React.PropTypes.object,
+		minUsers: React.PropTypes.number,
+		minStorage: React.PropTypes.number,
 		addLicenses: React.PropTypes.func
 	},
 
 	getInitialState: function() {
 		return {
-			users: '',
-			lines: '',
-			storage: '',
-			amount: 0
+			quantity: 0,
+			addOns: {},
+			minUsers: 0,
+			minStorage: 0,
+			quantityDiff: 0
 		};
 	},
 
-	_currState: {
-		users: 0,
-		lines: 0,
-		storage: 0
+	componentWillMount: function() {
+		this._init();
 	},
 
-	_addLicenses: function() {
-		this.props.addLicenses(this._currState);
+	_init: function() {
+		var sub = this.props.subscription;
+		var addOns = {};
+
+		sub.addOns.forEach(function(item) {
+			addOns[item.name] = item;
+		});
+
+		this.setState({
+			quantity: sub.quantity,
+			addOns: addOns,
+			minUsers: this.props.minUsers,
+			minStorage: this.props.minStorage,
+			quantityDiff: 0
+		});
 	},
 
-	_setAmount: function() {
+	_setQuantity: function(params) {
+		console.log('_setQuantity:', params);
+
+		var state = this.state;
+		var addonName = params.name;
+		var quantity = params.quantity;
+		var totalQuantity = 0;
+
+		if(addonName === 'users') {
+			totalQuantity = state.quantity;			
+			totalQuantity += quantity;
+			if(totalQuantity < state.minUsers || totalQuantity < 0) return;
+			state.quantity = totalQuantity;
+
+		} else {
+			if(!state.addOns[addonName]) return;
+			totalQuantity = state.addOns[addonName].quantity;
+			totalQuantity += quantity;
+			if(totalQuantity < 0) return;
+			if(addonName === 'storage' && totalQuantity < state.minStorage) return; 
+			state.addOns[addonName].quantity = totalQuantity;
+		}
+
+		this.setState(state);
+		this._getQuantityDiff();
 		
 	},
 
-	_setTo: function(event) {
-		var targ = event.target;
-		var value = parseFloat(targ.value);
-		if(!targ.value || targ.value < 0) value = 0;
-		this._currState[targ.name] = value;
-		this.setAmount();
-		this.setState(this._currState);
+	_getQuantityDiff: function() {
+		var sub = this.props.subscription;
+		var initQuantity = sub.quantity;
+		var newQuantity = this.state.quantity;
+		var state = this.state;
+		var diff = 0;
+
+		sub.addOns.forEach(function(item) {
+			initQuantity += item.quantity;
+		});
+
+		Object.keys(state.addOns).forEach(function(key) {
+			initQuantity += state.addOns[key].quantity;
+		});
+
+		diff = initQuantity - newQuantity;
+
+		console.log('_getQuantityDiff: ', diff);
+
+		this.setState({ quantityDiff: diff });
 	},
 
-	_addTo: function(item, step) {
-		this._currState[item] += parseInt(step, 10);
-		this.setState(this._currState);
+	_updateLicenses: function() {
+		var state = this.state;
+		var addOns = Object.keys(state.addOns).map(function(key) {
+			return state.addOns[key];
+		});
+
+		if(state.quantityDiff === 0) return;
+
+		this.props.addLicenses({
+			quantity: this.state.quantity,
+			addOns: addOns
+		});
 	},
 
-	_removeFrom: function(item, step) {
-		if(this._currState[item] <= 0) return;
-		this._currState[item] -= parseInt(step, 10);
-		this.setState(this._currState);
+	_cancelEditLicenses: function() {
+		this._init();
 	},
 
 	render: function() {
 		var frases = this.props.frases;
+		var state = this.state;
+
+		console.log('AddLicensesComponent render: ', this.state);
 
 		return (
-			<div style={{ padding: '20px 0' }}>
-				<div className="row">
-					<div className="col-sm-4">
-						<div className="input-group">
-							<span className="input-group-btn">
-								<button className="btn btn-default" type="button"><i className="fa fa-minus" onClick={this._removeFrom.bind(this, 'users', 1)}></i></button>
-							</span>
-							<input type="number" className="form-control" name="users" value={this.state.users} onChange={this._setTo} placeholder="Number of users to add" />
-							<span className="input-group-btn">
-								<button className="btn btn-default" type="button" onClick={this._addTo.bind(this, 'users', 1)}><i className="fa fa-plus"></i></button>
-							</span>
-						</div>
-					</div>
-					<div className="col-sm-4">
-						<div className="input-group">
-							<span className="input-group-btn">
-								<button className="btn btn-default" type="button" onClick={this._removeFrom.bind(this, 'storage', 5)}><i className="fa fa-minus"></i></button>
-							</span>
-							<input type="number" className="form-control" name="storage" value={this.state.storage} onChange={this._setTo} placeholder="Storage size to add" />
-							<span className="input-group-btn">
-								<button className="btn btn-default" type="button" onClick={this._addTo.bind(this, 'storage', 5)}><i className="fa fa-plus"></i></button>
-							</span>
-						</div>
-					</div>
-					<div className="col-sm-4">
-						<div className="input-group">
-							<span className="input-group-btn">
-								<button className="btn btn-default" type="button" onClick={this._removeFrom.bind(this, 'lines', 2)}><i className="fa fa-minus"></i></button>
-							</span>
-							<input type="number" className="form-control" name="lines" value={this.state.lines} onChange={this._setTo} placeholder="Number of lines to add" />
-							<span className="input-group-btn">
-								<button className="btn btn-default" type="button" onClick={this._addTo.bind(this, 'lines', 2)}><i className="fa fa-plus"></i></button>
-							</span>
-						</div>
-					</div>
-				</div>
-				<div className="row">
-					<hr className="col-xs-12" />
-					<div className="col-xs-12 text-center">
-						<button className="btn btn-primary btn-lg" onClick={this._addLicenses}>Buy licenses</button>
-					</div>
+			<div>
+				<div className="row" style={{ textAlign: "center" }}>
+			        <div className="col-sm-4">
+			        	<AddLicenseItemComponent 
+			        		onMinus={this._setQuantity.bind(this, { name: 'users', quantity: -1 })} 
+			        		onPlus={this._setQuantity.bind(this, { name: 'users', quantity: 1 })}
+			        		quantity={this.state.quantity}
+			        		label={frases.BILLING.AVAILABLE_LICENSES.USERS}
+			        	/>
+			        </div>
+			    	{
+			        	this.props.subscription.addOns.map(function(item, index) {
+
+			        		return (
+
+	        			        <div className="col-sm-4" key={item.name}>
+	        			        	<AddLicenseItemComponent 
+	        			        		onMinus={this._setQuantity.bind(this, { name: item.name, quantity: ( item.name === 'storage' ? -5 : -2 ) })} 
+	        			        		onPlus={this._setQuantity.bind(this, { name: item.name, quantity: ( item.name === 'storage' ? 5 : 2 ) })}
+	        			        		quantity={this.state.addOns[item.name].quantity}
+	        			        		label={frases.BILLING.AVAILABLE_LICENSES[item.name.toUpperCase()]}
+	        			        	/>
+	        			        </div>
+
+			        		);
+
+			        	}.bind(this))
+			        }
+			    </div>
+			    <div className="row">
+				    {
+				    	this.state.quantityDiff !== 0 && (
+				    		<div className="row">
+				    			<div className="col-xs-12 text-center">
+			    					<hr/>
+			    					<button 
+			    						className="btn btn-default" 
+			    						style={{ margin: "5px" }} 
+			    						onClick={this._cancelEditLicenses}>
+			    							{ frases.BILLING.CANCEL_LICENSE_UPDATE }
+			    					</button>
+			    					<button 
+			    						className="btn btn-primary" 
+			    						style={{ margin: "5px" }} 
+			    						onClick={this._updateLicenses}>
+			    							{ frases.BILLING.UPDATE_LICENSES } 
+			    						</button>
+				    			</div>
+				    		</div>
+				    	)
+				    }
 				</div>
 			</div>
 		);

@@ -156,7 +156,7 @@ function billingRequest(path, params, cb) {
     request(
         'POST',
         // 'https://api-web.ringotel.net/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
-        'https://03c82274.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        'https://e4a736dd.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
         function(err, result) {
@@ -319,6 +319,7 @@ function getTranslations(language, callback){
             logout();
         } else if(e.target.status === 200) {
             var data = JSON.parse(xhr.responseText);
+            PbxObject.frases = data;
             callback(null, data);
         } else {
             callback('ERROR_OCCURED');
@@ -431,7 +432,10 @@ function getPbxOptions(callback) {
     if(cache) {
         callback(JSON.parse(cache));
     } else {
-        json_rpc_async('getPbxOptions', null, callback);
+        json_rpc_async('getPbxOptions', null, function(result) {
+            PbxObject.options = options;
+            callback(result);
+        });
     }
 }
 
@@ -445,7 +449,7 @@ function setupPage() {
 
     getPbxOptions(function(options) {
 
-        PbxObject.options = options;
+        // PbxObject.options = options;
 
         language = options.lang || 'en';
         moment.locale(language);
@@ -454,7 +458,7 @@ function setupPage() {
 
             if(err) return notify_about('error', err);
 
-            PbxObject.frases = translations;
+            // PbxObject.frases = translations;
 
             billingRequest('getProfile', null, function(err, response) {
                 console.log('getProfile: ', err, response);

@@ -2444,33 +2444,25 @@ function load_billing() {
 	var cont = document.getElementById('el-loaded-content');
 	var profile = PbxObject.profile;
 	var sub = {};
-	var plans = [];
+	var dids = [];
 	var invoices = [];
 	var discounts = [];
-	// var stripeToken;
-	// var stripeHandler;
-
 	var methods = {
 		changePlan: changePlan,
 		updateLicenses: updateLicenses
 	}
-
-	// loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		// billingRequest('getProfile', null, function(err, response) {
-		// 	console.log('getProfile: ', err, response);
-		// 	if(err) return notify_about('error' , err.message);
-
-		getPlans(profile.currency, function(err, result) {
-			if(err) return notify_about('error', err.message);
-			plans = result;
+		billingRequest('getAssignedDids', null, function(err, response) {
+			if(err) return notify_about('error' , err.message);
+			dids = response.result;
 
 			init();
+			show_content();
 
 			getDiscounts(function(err, response) {
 				if(err) return notify_about('error', err.message);
@@ -2489,52 +2481,17 @@ function load_billing() {
 				});
 			});
 
-				
-
-			// set_page();
-			show_content();
 		});
 
-		// });
-
 	});
-
-	// function loadStripeJs() {
-	// 	if(window.StripeCheckout) return configureStripe();
-
-	// 	$.ajaxSetup({ cache: true });
-	// 	$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
-	// }
-
-	// function configureStripe() {
-	// 	stripeHandler = StripeCheckout.configure({
-	// 		// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-	// 		key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-	// 		image: '/badmin/images/Ringotel_emblem_new.png',
-	// 		billingAddress: true,
-	// 		// email: profile.email,
-	// 		// name: 'Ringotel',
-	// 		// zipCode: true,
-	// 		// locale: 'auto',
-	// 		token: function(token) {
-	// 			console.log('stripe token: ', token);
-	// 			stripeToken = token;
-	// 		}
-	// 	});
-
-	// 	// Close Checkout on page navigation:
-	// 	window.addEventListener('popstate', function() {
-	// 	  stripeHandler.close();
-	// 	});
-	// }
 
 	function init() {
 		ReactDOM.render(BillingComponent({
 		    options: PbxObject.options,
 		    profile: profile,
 		    sub: sub,
+		    dids: dids,
 		    frases: PbxObject.frases,
-		    plans: plans,
 		    invoices: invoices,
 		    discounts: discounts,
 		    addCard: addCard,
@@ -2543,22 +2500,12 @@ function load_billing() {
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: onUpdateLicenses,
 		    extend: deepExtend,
-		    addCoupon: addCoupon
+		    addCoupon: addCoupon,
+		    utils: {
+		    	convertBytes: convertBytes
+		    }
 		}), cont);
 	}
-
-	// function openStripeWindow(onCLoseHandler) {
-	// 	stripeHandler.open({
-	// 		email: profile.email,
-	// 		name: 'Ringotel',
-	// 		zipCode: true,
-	// 		allowRememberMe: false,
-	// 		panelLabel: "Add card",
-	// 		// currency: 'eur',
-	// 		// amount: plan.amount*100,
-	// 		closed: onCLoseHandler
-	// 	});
-	// }
 
 	function addCard(callback) {
 		PbxObject.stripeHandler.open({
@@ -2786,14 +2733,6 @@ function load_billing() {
 			set_object_success();
 			
 			init();
-		});
-	}
-
-	function getPlans(currency, callback) {
-		billingRequest('getPlans', { currency: currency }, function(err, response) {
-			console.log('getPlans response: ', err, currency, response);
-			if(err) return callback(err);
-			if(callback) callback(null, response.result || [])
 		});
 	}
 
@@ -6252,7 +6191,7 @@ function billingRequest(path, params, cb) {
     request(
         'POST',
         // 'https://api-web.ringotel.net/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
-        'https://03c82274.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
+        'https://e4a736dd.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
         (params || null),
         null,
         function(err, result) {
@@ -11111,96 +11050,6 @@ function getTotalStorage(callback){
 		if(callback) callback(result);
 	});
 }
-
-// function createStorageRow(params){
-// 	var row = document.createElement('tr'),
-// 		cell, a, button;
-
-// 	cell = row.insertCell(0);
-// 	cell.classList.add((params.state === 1 || params.state === 2) ? 'success' : 'danger');
-	
-// 	cell = row.insertCell(1);
-// 	cell.textContent = getFriendlyStorageState(params.state);
-
-// 	cell = row.insertCell(2);
-// 	cell.textContent = params.path;
-
-// 	cell = row.insertCell(3);
-// 	cell.textContent = convertBytes(params.freespace, 'Byte', 'GB').toFixed(2);
-
-// 	cell = row.insertCell(4);
-// 	cell.textContent = convertBytes(params.usedsize, 'Byte', 'GB').toFixed(2);
-
-// 	cell = row.insertCell(5);
-// 	cell.textContent = convertBytes(params.maxsize, 'Byte', 'GB').toFixed(2);
-
-// 	cell = row.insertCell(6);
-// 	if(params.created) cell.textContent = formatDateString(params.created);
-
-// 	cell = row.insertCell(7);
-// 	if(params.updated) cell.textContent = formatDateString(params.updated);
-	
-// 	cell = row.insertCell(8);
-//     button = document.createElement('button');
-//     button.className = 'btn btn-default btn-sm';
-//     button.innerHTML = '<i class="fa fa-edit"></i>';
-//     addEvent(button, 'click', function(){
-//         editStorage(params);
-//     });
-//     cell.appendChild(button);
-
-// 	row.setAttribute('data-id', params.id);
-
-// 	return row;
-// }
-
-
-
-// function saveStorage(){
-// 	var form = document.getElementById('storageForm');
-// 	var formData = retrieveFormData(form);
-
-// 	if(formData && Object.keys(formData).length !== 0){
-// 		if(formData.maxsize > 0) formData.maxsize = convertBytes(formData.maxsize, 'GB', 'Byte');
-// 		if(!formData.id) delete formData.id;
-// 	    json_rpc_async('setFileStore', formData, function(result){
-// 			if(result){
-// 				getStorages(function (result){
-// 					var table = document.querySelector('#storages tbody');
-// 					clearTable(table);
-// 					fillTable(table, result, createStorageRow);
-// 				});
-// 				getTotalStore(function (result){
-// 					setTotalStore(result);
-// 				});
-// 				$('#storageModal').modal('hide');
-// 			}
-// 		});
-// 	}
-// }
-
-// function editStorage(params){
-
-// 	openModal({
-// 		tempName: 'storage_settings',
-// 		modalId: 'storageModal',
-// 		data : params
-// 	}, function (){
-// 		if(params) {
-// 			var maxsize = document.querySelector('#storageForm input[name="maxsize"]'),
-// 				states = document.querySelector('#storageForm select[name="state"]'),
-// 				state = params.state.toString();
-
-// 			if(maxsize.value > 0) maxsize.value = convertBytes(maxsize.value, 'Byte', 'GB').toFixed(2);
-
-// 			[].slice.call(states.options).forEach(function (option, index){
-// 				if(option.value === state) {
-// 					states.selectedIndex = index;
-// 				}
-// 			});
-// 		}
-// 	});
-// }
 
 function setUserStoreLimit(oid, limit, input){
 	json_rpc_async('setStoreLimit', { oid: oid, limit: convertBytes(parseFloat(limit), 'GB', 'Byte') }, function (result){

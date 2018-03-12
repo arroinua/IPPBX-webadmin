@@ -159,9 +159,9 @@ var DidTrunkComponent = React.createClass({
 		this._onChange();
 	},
 
-	_getAssignedDids: function(callback) {
-		billingRequest('getAssignedDids', null, callback);
-	},
+	// _getAssignedDids: function(callback) {
+	// 	billingRequest('getAssignedDids', null, callback);
+	// },
 
 	_getDid: function(number, callback) {
 		billingRequest('getDid', { number: number }, callback);

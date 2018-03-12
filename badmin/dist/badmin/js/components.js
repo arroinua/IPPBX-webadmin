@@ -1481,55 +1481,6 @@ var SingleIndexAnalyticsComponent = React.createClass({
 });
 
 SingleIndexAnalyticsComponent = React.createFactory(SingleIndexAnalyticsComponent);
-var ExtensionsComponent = React.createClass({
-	displayName: "ExtensionsComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		data: React.PropTypes.array,
-		getExtension: React.PropTypes.func,
-		deleteExtension: React.PropTypes.func
-	},
-
-	getDefaultProps: function () {
-		return {
-			data: []
-		};
-	},
-
-	// getInitialState: function() {
-	// 	return {
-	// 		data: []
-	// 	};
-	// },
-
-	// componentWillMount: function() {
-	// 	this.setState({ data: this.props.data });
-	// },
-
-	// _getData: function(params, callback) {
-	// 	json_rpc_async('getExtensions', null, callback);
-	// },
-
-	render: function () {
-		var frases = this.props.frases;
-		var data = this.props.data;
-		console.log('ExtensionsComponent: ', data);
-
-		return React.createElement(
-			"div",
-			{ className: "row" },
-			React.createElement(
-				"div",
-				{ className: "col-xs-12" },
-				React.createElement(GroupMembersComponent, { frases: frases, members: data, withGroups: true, getExtension: this.props.getExtension, deleteMember: this.props.deleteExtension })
-			)
-		);
-	}
-});
-
-ExtensionsComponent = React.createFactory(ExtensionsComponent);
 var ChannelRouteComponent = React.createClass({
 	displayName: 'ChannelRouteComponent',
 
@@ -2135,6 +2086,1179 @@ function TrunkServiceItemComponent(props) {
 		)
 	);
 }
+function AddLicenseItemComponent(props) {
+
+	return React.createElement(
+		"div",
+		null,
+		React.createElement(
+			"div",
+			{ className: "input-group" },
+			React.createElement(
+				"span",
+				{ className: "input-group-btn" },
+				React.createElement(
+					"button",
+					{ className: "btn btn-default", type: "button", onClick: props.onMinus },
+					React.createElement("i", { className: "fa fa-minus" })
+				)
+			),
+			React.createElement(
+				"h3",
+				{ className: "data-model" },
+				props.quantity
+			),
+			React.createElement(
+				"span",
+				{ className: "input-group-btn" },
+				React.createElement(
+					"button",
+					{ className: "btn btn-default", type: "button", onClick: props.onPlus },
+					React.createElement("i", { className: "fa fa-plus" })
+				)
+			)
+		),
+		React.createElement(
+			"p",
+			null,
+			props.label
+		)
+	);
+}
+
+AddLicenseItemComponent = React.createFactory(AddLicenseItemComponent);
+var AddLicensesComponent = React.createClass({
+	displayName: 'AddLicensesComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		subscription: React.PropTypes.object,
+		minUsers: React.PropTypes.number,
+		minStorage: React.PropTypes.number,
+		addLicenses: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			quantity: 0,
+			addOns: {},
+			minUsers: 0,
+			minStorage: 0,
+			quantityDiff: 0
+		};
+	},
+
+	componentWillMount: function () {
+		this._init();
+	},
+
+	_init: function () {
+		var sub = this.props.subscription;
+		var addOns = {};
+
+		sub.addOns.forEach(function (item) {
+			addOns[item.name] = item;
+		});
+
+		this.setState({
+			quantity: sub.quantity,
+			addOns: addOns,
+			minUsers: this.props.minUsers,
+			minStorage: this.props.minStorage,
+			quantityDiff: 0
+		});
+	},
+
+	_setQuantity: function (params) {
+		console.log('_setQuantity:', params);
+
+		var state = this.state;
+		var addonName = params.name;
+		var quantity = params.quantity;
+		var totalQuantity = 0;
+
+		if (addonName === 'users') {
+			totalQuantity = state.quantity;
+			totalQuantity += quantity;
+			if (totalQuantity < state.minUsers || totalQuantity < 0) return;
+			state.quantity = totalQuantity;
+		} else {
+			if (!state.addOns[addonName]) return;
+			totalQuantity = state.addOns[addonName].quantity;
+			totalQuantity += quantity;
+			if (totalQuantity < 0) return;
+			if (addonName === 'storage' && totalQuantity < state.minStorage) return;
+			state.addOns[addonName].quantity = totalQuantity;
+		}
+
+		this.setState(state);
+		this._getQuantityDiff();
+	},
+
+	_getQuantityDiff: function () {
+		var sub = this.props.subscription;
+		var initQuantity = sub.quantity;
+		var newQuantity = this.state.quantity;
+		var state = this.state;
+		var diff = 0;
+
+		sub.addOns.forEach(function (item) {
+			initQuantity += item.quantity;
+		});
+
+		Object.keys(state.addOns).forEach(function (key) {
+			initQuantity += state.addOns[key].quantity;
+		});
+
+		diff = initQuantity - newQuantity;
+
+		console.log('_getQuantityDiff: ', diff);
+
+		this.setState({ quantityDiff: diff });
+	},
+
+	_updateLicenses: function () {
+		var state = this.state;
+		var addOns = Object.keys(state.addOns).map(function (key) {
+			return state.addOns[key];
+		});
+
+		if (state.quantityDiff === 0) return;
+
+		this.props.addLicenses({
+			quantity: this.state.quantity,
+			addOns: addOns
+		});
+	},
+
+	_cancelEditLicenses: function () {
+		this._init();
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var state = this.state;
+
+		console.log('AddLicensesComponent render: ', this.state);
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row', style: { textAlign: "center" } },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(AddLicenseItemComponent, {
+						onMinus: this._setQuantity.bind(this, { name: 'users', quantity: -1 }),
+						onPlus: this._setQuantity.bind(this, { name: 'users', quantity: 1 }),
+						quantity: this.state.quantity,
+						label: frases.BILLING.AVAILABLE_LICENSES.USERS
+					})
+				),
+				this.props.subscription.addOns.map(function (item, index) {
+
+					return React.createElement(
+						'div',
+						{ className: 'col-sm-4', key: item.name },
+						React.createElement(AddLicenseItemComponent, {
+							onMinus: this._setQuantity.bind(this, { name: item.name, quantity: item.name === 'storage' ? -5 : -2 }),
+							onPlus: this._setQuantity.bind(this, { name: item.name, quantity: item.name === 'storage' ? 5 : 2 }),
+							quantity: this.state.addOns[item.name].quantity,
+							label: frases.BILLING.AVAILABLE_LICENSES[item.name.toUpperCase()]
+						})
+					);
+				}.bind(this))
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				this.state.quantityDiff !== 0 && React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-xs-12 text-center' },
+						React.createElement('hr', null),
+						React.createElement(
+							'button',
+							{
+								className: 'btn btn-default',
+								style: { margin: "5px" },
+								onClick: this._cancelEditLicenses },
+							frases.BILLING.CANCEL_LICENSE_UPDATE
+						),
+						React.createElement(
+							'button',
+							{
+								className: 'btn btn-primary',
+								style: { margin: "5px" },
+								onClick: this._updateLicenses },
+							frases.BILLING.UPDATE_LICENSES
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+AddLicensesComponent = React.createFactory(AddLicensesComponent);
+
+var BillingComponent = React.createClass({
+	displayName: 'BillingComponent',
+
+
+	propTypes: {
+		options: React.PropTypes.object,
+		profile: React.PropTypes.object,
+		sub: React.PropTypes.object,
+		dids: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		invoices: React.PropTypes.array,
+		addCard: React.PropTypes.func,
+		editCard: React.PropTypes.func,
+		onPlanSelect: React.PropTypes.func,
+		updateLicenses: React.PropTypes.func,
+		renewSub: React.PropTypes.func,
+		extend: React.PropTypes.func,
+		addCoupon: React.PropTypes.func,
+		utils: React.PropTypes.object
+	},
+
+	getInitialState: function () {
+		return {
+			sub: {
+				plan: {},
+				addOns: []
+			},
+			plans: [],
+			invoices: []
+			// changePlanOpened: false,
+			// addLicenseOpened: false
+		};
+	},
+
+	componentWillMount: function () {
+		var options = this.props.options;
+		var sub = JSON.parse(JSON.stringify(this.props.sub));
+		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
+		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
+
+		this.setState({
+			profile: this.props.profile,
+			sub: sub,
+			options: this.props.options,
+			cycleDays: cycleDays,
+			proratedDays: proratedDays,
+			minUsers: options.users,
+			minStorage: options.storesize
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		console.log('componentWillReceiveProps: ', props);
+
+		var sub = props.sub ? JSON.parse(JSON.stringify(props.sub)) : {};
+		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
+		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
+
+		this.setState({
+			sub: sub,
+			options: props.options,
+			profile: props.profile,
+			cycleDays: cycleDays,
+			proratedDays: proratedDays,
+			invoices: props.invoices,
+			discounts: props.discounts,
+			stateChanged: true
+		});
+	},
+
+	_extendAddons: function (addOns, array) {
+		var newItem;
+		return addOns.map(function (addon) {
+			newItem = {};
+			array.forEach(function (item) {
+				if (addon.name === item.name) {
+					newItem = deepExtend(newItem, addon);
+					newItem.quantity = item.quantity;
+				}
+			});
+			return newItem;
+		});
+	},
+
+	_countSubAmount: function (sub) {
+		var amount = sub.quantity * sub.plan.price;
+		var priceProp = sub.plan.billingPeriodUnit === 'years' ? 'annualPrice' : 'monthlyPrice';
+
+		if (sub.addOns && sub.addOns.length) {
+			sub.addOns.forEach(function (item) {
+				if (item.quantity) amount += item.price * item.quantity;
+			});
+		}
+
+		if (sub.hasDids) {
+			this.props.dids.forEach(function (item) {
+				amount += item.included ? 0 : parseFloat(item[priceProp]);
+			});
+		}
+
+		return amount.toFixed(2);
+	},
+
+	_countNewPlanAmount: function (currsub, newsub) {
+		var currAmount = currsub.amount;
+		var newAmount = newsub.amount;
+		var chargeAmount = 0;
+		var prorationRatio = 1;
+		var proratedAmount = 0;
+
+		console.log('_countPayAmount: ', currsub, newsub);
+
+		// if new plan with different billing period
+		if (currsub.plan.trialPeriod || newsub.plan.billingPeriod !== currsub.plan.billingPeriod || newsub.plan.billingPeriodUnit !== currsub.plan.billingPeriodUnit) {
+			newsub.nextBillingDate = moment().add(newsub.plan.billingPeriod, newsub.plan.billingPeriodUnit).valueOf();
+			newsub.prevBillingDate = Date.now();
+		} else {
+			prorationRatio = this.state.proratedDays / this.state.cycleDays;
+		}
+
+		currAmount = currAmount * prorationRatio;
+		chargeAmount = newAmount * prorationRatio;
+
+		if (chargeAmount >= currAmount) {
+			chargeAmount = chargeAmount - currAmount;
+		} else {
+			proratedAmount = currAmount - chargeAmount;
+			chargeAmount = 0;
+		}
+
+		console.log('_countPayAmount: ', currAmount, newAmount, chargeAmount, proratedAmount);
+		return { totalAmount: newAmount, chargeAmount: chargeAmount };
+	},
+
+	_setUpdate: function (item) {
+		console.log('_setUpdate:', item);
+		var params = this.state;
+		if (item.min !== undefined && item.value < item.min) return;
+		if (item.max !== undefined && item.value > item.max) return;
+		params[item.key] = item.value;
+		this._checkUpdate(params);
+	},
+
+	_addCard: function (e) {
+		if (e) e.preventDefault();
+
+		var profile = this.state.profile;
+
+		this.props.addCard(function (result) {
+			if (!result) return;
+
+			profile.billingMethod = {
+				params: result.card
+			};
+
+			this.setState({ profile: profile });
+		}.bind(this));
+	},
+
+	_editCard: function (e) {
+		e.preventDefault();
+
+		var profile = this.state.profile;
+
+		this.props.editCard(function (result) {
+			if (!result) return;
+
+			profile.billingMethod = {
+				params: result.card
+			};
+
+			this.setState({ profile: profile });
+		}.bind(this));
+	},
+
+	// _openPlans: function(e) {
+	// 	if(e) e.preventDefault();
+	// 	// this.setState({ changePlanOpened: !this.state.changePlanOpened });
+
+	// 	if(!this.state.plans.length) {
+	// 		billingRequest('getPlans', { currency: this.props.sub.plan.currency }, function(err, response) {
+	// 			if(err) return;
+	// 			this.setState({ plans: response.result });
+	// 		}.bind(this));
+	// 	}
+	// },
+
+	// _openLicenses: function() {
+	// 	this.setState({ addLicenseOpened: !this.state.addLicenseOpened });
+	// },
+
+	_onPlanSelect: function (plan) {
+		console.log('_onPlanSelect 1: ', plan, this.state.sub);
+		var profile = this.props.profile;
+		var paymentMethod = profile.billingMethod;
+
+		var sub = JSON.parse(JSON.stringify(this.props.sub));
+		sub.plan = plan;
+		sub.addOns = this._extendAddons(plan.addOns, sub.addOns);
+
+		console.log('_onPlanSelect 2: ', plan, sub);
+
+		sub.amount = this._countSubAmount(sub);
+
+		var amounts = this._countNewPlanAmount(this.props.sub, sub);
+
+		this.props.onPlanSelect({
+			plan: plan,
+			annually: plan.billingPeriodUnit === 'years',
+			payment: {
+				currency: plan.currency,
+				totalAmount: amounts.totalAmount,
+				discounts: this.props.discounts,
+				chargeAmount: amounts.chargeAmount.toFixed(2)
+			}
+		});
+
+		// sub.plan = JSON.parse(JSON.stringify(this.props.sub.plan));
+		// sub.addOns = JSON.parse(JSON.stringify(this.props.sub.addOns));
+		// sub.amount = this._countSubAmount(sub);
+	},
+
+	_updateLicenses: function (params) {
+
+		console.log('_updateLicenses: ', params);
+
+		var sub = this.state.sub;
+		sub.quantity = params.quantity;
+		sub.addOns = params.addOns;
+		sub.amount = this._countSubAmount(sub);
+
+		var chargeAmount = sub.amount - this.props.sub.amount;
+
+		if (chargeAmount < 0) chargeAmount = 0;else chargeAmount = chargeAmount * (this.state.proratedDays / this.state.cycleDays);
+
+		this.props.updateLicenses({
+			addOns: sub.addOns,
+			quantity: sub.quantity,
+			payment: {
+				currency: sub.plan.currency,
+				totalAmount: sub.amount,
+				discounts: this.props.discounts,
+				chargeAmount: chargeAmount.toFixed(2)
+			}
+		});
+	},
+
+	_updateAndRenewSub: function (e) {
+		if (e) e.preventDefault();
+		this.props.editCard(function (result) {
+			if (!result) return;
+
+			var profile = this.state.profile;
+			profile.billingMethod = {
+				params: result.card
+			};
+
+			this.setState({ profile: profile });
+
+			this.props.renewSub(function (err) {
+				if (err) return;
+				var sub = this.state.sub;
+				sub.state = 'active';
+				this.setState({ sub: sub });
+			});
+		}.bind(this));
+	},
+
+	_renewSub: function (e) {
+		if (e) e.preventDefault();
+		this.props.renewSub(function (err) {
+			if (err) return;
+			var sub = this.state.sub;
+			sub.state = 'active';
+			this.setState({ sub: sub });
+		}.bind(this));
+	},
+
+	_addCoupon: function (coupon) {
+		this.props.addCoupon(coupon);
+	},
+
+	// _currencyNameToSymbol: function(name) {
+	// 	var symbol = "";
+
+	// 	switch(name) {
+	// 		case "eur":
+	// 			symbol = "€";
+	// 			break;
+	// 		case "usd":
+	// 			symbol = "$";
+	// 			break;
+	// 		default:
+	// 			symbol = "€";
+	// 			break;
+	// 	}
+
+	// 	return symbol;
+	// },
+
+	render: function () {
+		var frases = this.props.frases;
+		var profile = this.props.profile;
+		var paymentMethod = profile.billingMethod;
+		var sub = this.state.sub;
+		var discounts = this.props.discounts;
+		var options = this.props.options;
+		var plans = this.state.plans;
+		var column = plans.length ? 12 / plans.length : 12;
+		var trial = sub.plan.planId === 'trial' || sub.state === 'past_due';
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					sub.status === 'past_due' ? React.createElement(
+						'div',
+						{ className: 'alert alert-warning', role: 'alert' },
+						'We were not able to receive subscription payment. You may not use all available features on your subscription plan. Please, ensure that your payment method is valid and has sufficient funds and ',
+						React.createElement(
+							'a',
+							{ href: '#', onClick: this._renewSub, className: 'alert-link' },
+							'renew subscription'
+						),
+						' or ',
+						React.createElement(
+							'a',
+							{ href: '#', onClick: this._updateAndRenewSub, className: 'alert-link' },
+							'update your payment method'
+						),
+						'.'
+					) : sub.plan.planId === 'trial' && sub.status === 'expired' ? React.createElement(
+						'div',
+						{ className: 'alert alert-warning', role: 'alert' },
+						'Your trial period has been expired. ',
+						React.createElement(
+							'a',
+							{ href: '#plansCollapse', 'data-toggle': 'collapse', 'aria-expanded': 'false', 'aria-controls': 'plansCollapse', onClick: this._openPlans, className: 'alert-link' },
+							'Upgrade your subscription plan'
+						),
+						' and use all available features.'
+					) : ''
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-8' },
+					React.createElement(
+						PanelComponent,
+						null,
+						React.createElement(SubscriptionPriceComponent, {
+							frases: frases,
+							subscription: sub,
+							discounts: discounts,
+							dids: this.props.dids
+						}),
+						React.createElement('br', null),
+						React.createElement(SubscriptionPlanComponent, {
+							frases: frases,
+							subscription: sub,
+							plans: plans,
+							renewSub: this._renewSub,
+							onPlanSelect: this._onPlanSelect
+						})
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(
+						PanelComponent,
+						null,
+						React.createElement(ManagePaymentMethodComponent, {
+							paymentMethod: paymentMethod,
+							onClick: paymentMethod ? this._editCard : this._addCard,
+							buttonText: paymentMethod ? frases.BILLING.EDIT_PAYMENT_METHOD : frases.BILLING.ADD_CREDIT_CARD
+						})
+					)
+				)
+			),
+			React.createElement(
+				PanelComponent,
+				{ header: frases.USAGE.PANEL_TITLE },
+				React.createElement(StorageUsageComponent, {
+					frases: frases,
+					stateChanged: this.state.stateChanged,
+					subscription: sub,
+					updateLicenses: this._updateLicenses,
+					utils: this.props.utils
+				})
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-8' },
+					React.createElement(InvoicesComponent, { items: this.state.invoices, frases: frases })
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement(DiscountsComponent, { items: discounts, addCoupon: this._addCoupon, frases: frases })
+				)
+			)
+		);
+	}
+});
+
+BillingComponent = React.createFactory(BillingComponent);
+function ManagePaymentMethodComponent(props) {
+
+	function _isCardExpired(expMonth, expYear) {
+		var date = new Date();
+		var month = date.getMonth() + 1;
+		var year = date.getFullYear();
+
+		return expMonth < month && expYear <= year;
+	}
+
+	function _cardWillExpiredSoon(expMonth, expYear) {
+		var date = new Date();
+		var month = date.getMonth() + 1;
+		var year = date.getFullYear();
+
+		return expMonth - month < 1 && expYear - year < 1;
+	}
+
+	var paymentMethod = props.paymentMethod;
+
+	return React.createElement(
+		"div",
+		{ className: "text-center" },
+		React.createElement(
+			"h3",
+			null,
+			React.createElement("i", { className: "fa fa-credit-card" })
+		),
+		React.createElement(
+			"a",
+			{ href: "#", onClick: props.onClick, className: "text-uppercase" },
+			props.buttonText
+		),
+		paymentMethod && React.createElement(
+			"div",
+			null,
+			React.createElement(
+				"p",
+				{ className: "text-muted", style: { userSelect: 'none' } },
+				React.createElement(
+					"b",
+					null,
+					paymentMethod.params.brand
+				),
+				" \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ",
+				paymentMethod.params.last4,
+				React.createElement("br", null),
+				paymentMethod.params.exp_month,
+				"/",
+				paymentMethod.params.exp_year
+			),
+			_isCardExpired(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? React.createElement(
+				"div",
+				{ className: "alert alert-warning", role: "alert" },
+				"Your payment method has been expired. Please ",
+				React.createElement(
+					"a",
+					{ href: "#", onClick: props.onClick, className: "alert-link" },
+					"add a valid payment method"
+				),
+				" to avoid service interruption."
+			) : _cardWillExpiredSoon(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? React.createElement(
+				"div",
+				{ className: "alert alert-warning", role: "alert" },
+				"Your payment method will expire soon. Please ",
+				React.createElement(
+					"a",
+					{ href: "#", onClick: props.onClick, className: "alert-link" },
+					"update your payment method"
+				),
+				" to avoid service interruption."
+			) : ''
+		)
+	);
+}
+
+ManagePaymentMethodComponent = React.createFactory(ManagePaymentMethodComponent);
+
+var PlanComponent = React.createClass({
+	displayName: 'PlanComponent',
+
+
+	propTypes: {
+		plan: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		currentPlan: React.PropTypes.bool,
+		onSelect: React.PropTypes.func
+	},
+
+	getDefaultProps: function () {
+		return {
+			plan: {}
+		};
+	},
+
+	_selectPlan: function () {
+		this.props.onSelect(this.props.plan);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var plan = this.props.plan;
+		var period = plan.billingPeriodUnit;
+		var attributes = plan.attributes || plan.customData;
+
+		return React.createElement(
+			'div',
+			{ className: 'panel', style: { border: '1px solid #54c3f0', boxShadow: 'none', textAlign: 'center' } },
+			React.createElement(
+				'div',
+				{ className: 'panel-header', style: { color: '#55c3f0' } },
+				plan.name
+			),
+			React.createElement(
+				'div',
+				{ className: 'panel-body' },
+				React.createElement(
+					'ul',
+					{ style: { padding: '0', listStyle: 'none' } },
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'strong',
+							null,
+							period === 'months' ? plan.price : plan.price / 12
+						),
+						plan.currency,
+						' ',
+						frases.BILLING.PLANS.PER_USER,
+						'/',
+						frases.BILLING.PLANS.PER_MONTH
+					),
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'strong',
+							null,
+							attributes.storageperuser
+						),
+						'GB ',
+						frases.BILLING.PLANS.PER_USER
+					),
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'strong',
+							null,
+							attributes.linesperuser
+						),
+						' ',
+						frases.BILLING.AVAILABLE_LICENSES.LINES,
+						' ',
+						frases.BILLING.PLANS.PER_USER
+					)
+				),
+				React.createElement(
+					'a',
+					{ href: 'https://ringotel.co/pricing/', target: '_blanc' },
+					frases.BILLING.PLANS.SHOW_ALL_FEATURES
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'panel-footer', style: { padding: 0, background: 'none', borderTop: 'none' } },
+				this.props.currentPlan ? React.createElement(
+					'p',
+					{ style: { padding: "15px 0" }, className: 'text-muted text-uppercase' },
+					frases.BILLING.PLANS.CURRENT_PLAN
+				) : React.createElement(
+					'button',
+					{ className: 'btn btn-link text-uppercase', style: { width: "100%", padding: "15px 0" }, onClick: this._selectPlan },
+					frases.BILLING.PLANS.SELECT_PLAN
+				)
+			)
+		);
+	}
+});
+
+PlanComponent = React.createFactory(PlanComponent);
+
+var PlansComponent = React.createClass({
+	displayName: 'PlansComponent',
+
+
+	propTypes: {
+		plans: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		currentPlan: React.PropTypes.object,
+		onPlanSelect: React.PropTypes.func
+	},
+
+	getDefaultProps: function () {
+		return {
+			plans: []
+		};
+	},
+
+	getInitialState: function () {
+		return {
+			showMonthlyPlans: false
+		};
+	},
+
+	componentDidMount: function () {
+
+		console.log('PlansComponent: ', this.props.currentPlan);
+
+		this.setState({
+			showMonthlyPlans: this.props.currentPlan.billingPeriodUnit === 'months'
+		});
+	},
+
+	_togglePlans: function (annually) {
+		console.log('_togglePlans: ', annually);
+		this.setState({ showMonthlyPlans: !annually });
+	},
+
+	_filterPlans: function (plan) {
+		var showMonthlyPlans = this.state.showMonthlyPlans;
+		if (showMonthlyPlans && plan.billingPeriodUnit === 'months') {
+			return plan;
+		} else if (!showMonthlyPlans && plan.billingPeriodUnit === 'years') {
+			return plan;
+		} else if (this.props.currentPlan.planId === 'trial' && plan.planId === 'trial') {
+			return plan;
+		} else {
+			return null;
+		}
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var plans = this.props.plans.filter(this._filterPlans);
+
+		return React.createElement(
+			'div',
+			{ className: 'panel-body', style: { background: 'none' } },
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 text-center', style: { marginBottom: "20px" } },
+					React.createElement(
+						'div',
+						{ className: 'btn-group btn-group-custom', 'data-toggle': 'buttons' },
+						React.createElement(
+							'label',
+							{ className: "btn btn-primary " + (!this.state.showMonthlyPlans ? 'active' : ''), onClick: this._togglePlans.bind(this, true) },
+							React.createElement('input', { type: 'radio', name: 'billing-period', autoComplete: 'off', checked: !this.state.showMonthlyPlans }),
+							' ',
+							frases.BILLING.PLANS.ANNUAL_PLANS
+						),
+						React.createElement(
+							'label',
+							{ className: "btn btn-primary " + (this.state.showMonthlyPlans ? 'active' : ''), onClick: this._togglePlans.bind(this, false) },
+							React.createElement('input', { type: 'radio', name: 'billing-period', autoComplete: 'off', checked: this.state.showMonthlyPlans }),
+							' ',
+							frases.BILLING.PLANS.MONTHLY_PLANS
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				plans.map(function (plan, index) {
+
+					return React.createElement(
+						'div',
+						{ className: 'col-xs-12 col-sm-6 col-lg-4 text-center', key: plan.planId },
+						React.createElement(PlanComponent, { plan: plan, frases: frases, onSelect: this.props.onPlanSelect, currentPlan: this.props.currentPlan.planId === plan.planId })
+					);
+				}.bind(this))
+			)
+		);
+	}
+});
+
+PlansComponent = React.createFactory(PlansComponent);
+var SubscriptionPlanComponent = React.createClass({
+	displayName: "SubscriptionPlanComponent",
+
+
+	propTypes: {
+		subscription: React.PropTypes.object,
+		frases: React.PropTypes.object,
+		openPlans: React.PropTypes.func,
+		renewSub: React.PropTypes.func,
+		onPlanSelect: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			plans: []
+		};
+	},
+
+	_openPlans: function (e) {
+		if (e) e.preventDefault();
+		// this.setState({ changePlanOpened: !this.state.changePlanOpened });
+
+		if (!this.state.plans.length) {
+			billingRequest('getPlans', { currency: this.props.subscription.plan.currency }, function (err, response) {
+				if (err) return;
+				this.setState({ plans: response.result });
+			}.bind(this));
+		}
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var sub = this.props.subscription;
+		var plans = this.state.plans;
+
+		return React.createElement(
+			"div",
+			null,
+			React.createElement(
+				"div",
+				{ className: "pull-left" },
+				React.createElement(
+					"h3",
+					{ style: { margin: 0 } },
+					React.createElement(
+						"small",
+						null,
+						frases.BILLING.CURRENT_PLAN,
+						" "
+					),
+					React.createElement(
+						"span",
+						null,
+						sub.plan.name,
+						" "
+					)
+				),
+				sub.plan.trialPeriod && React.createElement(
+					"p",
+					{ className: "text-muted" },
+					frases.BILLING.TRIAL_EXPIRES,
+					" ",
+					React.createElement(
+						"b",
+						null,
+						window.moment(sub.trialExpires).format('DD MMMM YYYY')
+					)
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "pull-right" },
+				sub.state === 'past_due' ? React.createElement(
+					"a",
+					{ href: "#", className: "text-uppercase", style: { fontSize: "14px" }, onClick: this.props.renewSub },
+					"Renew"
+				) : React.createElement(
+					"a",
+					{
+						href: "#",
+						className: "text-uppercase",
+						style: { fontSize: "14px" },
+						role: "button",
+						onClick: this._openPlans,
+						"data-toggle": "collapse",
+						href: "#plansCollapse",
+						"aria-expanded": "false",
+						"aria-controls": "plansCollapse"
+					},
+					frases.BILLING.UPGRADE_PLAN
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "col-xs-12" },
+					React.createElement(
+						"div",
+						{ className: "collapse", id: "plansCollapse" },
+						plans.length ? React.createElement(PlansComponent, { plans: plans, frases: frases, onPlanSelect: this.props.onPlanSelect, currentPlan: sub.plan }) : React.createElement(Spinner, null)
+					),
+					React.createElement("p", null)
+				)
+			)
+		);
+	}
+});
+
+SubscriptionPlanComponent = React.createFactory(SubscriptionPlanComponent);
+
+var SubscriptionPriceComponent = React.createClass({
+	displayName: "SubscriptionPriceComponent",
+
+
+	propTypes: {
+		subscription: React.PropTypes.object,
+		discounts: React.PropTypes.array,
+		dids: React.PropTypes.array,
+		frases: React.PropTypes.object
+	},
+
+	_currencyNameToSymbol: function (name) {
+		var symbol = "";
+
+		switch (name) {
+			case "eur":
+				symbol = "€";
+				break;
+			case "usd":
+				symbol = "$";
+				break;
+			default:
+				symbol = "€";
+				break;
+		}
+
+		return symbol;
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var sub = this.props.subscription;
+		var discounts = this.props.discounts;
+		var subAmount = sub.amount;
+		var propString = sub.plan.billingPeriodUnit === 'years' ? 'annualPrice' : 'monthlyPrice';
+		var currencySymbol = this._currencyNameToSymbol(sub.plan.currency);
+		var addonsPrice = sub.addOns.reduce(function (amount, item) {
+			amount += parseFloat(item.price) * item.quantity;
+			return amount;
+		}, 0);
+		var didsPrice = this.props.dids.reduce(function (amount, item) {
+			amount += parseFloat(item[propString]);
+			return amount;
+		}, 0);
+
+		// apply discounts
+		if (discounts.length) {
+			subAmount = subAmount * discounts[0].coupon.percent / 100;
+		}
+
+		return React.createElement(
+			"div",
+			null,
+			React.createElement(
+				"h5",
+				null,
+				React.createElement(
+					"span",
+					null,
+					sub.quantity,
+					" x Users"
+				),
+				React.createElement(
+					"strong",
+					null,
+					" ",
+					currencySymbol,
+					(parseFloat(sub.plan.price) * sub.quantity).toFixed(2),
+					" "
+				)
+			),
+			didsPrice !== 0 && React.createElement(
+				"h5",
+				null,
+				React.createElement(
+					"span",
+					null,
+					this.props.dids.length,
+					" x Numbers"
+				),
+				React.createElement(
+					"strong",
+					null,
+					" ",
+					currencySymbol,
+					didsPrice.toFixed(2),
+					" "
+				)
+			),
+			addonsPrice !== 0 && React.createElement(
+				"h5",
+				null,
+				React.createElement(
+					"span",
+					null,
+					"Addons"
+				),
+				React.createElement(
+					"strong",
+					null,
+					" ",
+					currencySymbol,
+					addonsPrice.toFixed(2),
+					" "
+				)
+			),
+			React.createElement(
+				"h3",
+				{ style: { margin: 0 } },
+				React.createElement(
+					"small",
+					null,
+					sub.plan.billingPeriodUnit === 'years' ? frases.BILLING.ANNUALLY_TOTAL : frases.BILLING.MONTHLY_TOTAL
+				),
+				React.createElement(
+					"span",
+					null,
+					" ",
+					currencySymbol,
+					parseFloat(subAmount).toFixed(2),
+					" "
+				)
+			),
+			!sub.plan.trialPeriod && React.createElement(
+				"p",
+				{ className: "text-muted" },
+				frases.BILLING.NEXT_CHARGE,
+				" ",
+				React.createElement(
+					"b",
+					null,
+					window.moment(sub.nextBillingDate).format('DD MMMM YYYY')
+				)
+			)
+		);
+	}
+});
+
+SubscriptionPriceComponent = React.createFactory(SubscriptionPriceComponent);
 var ChatchannelComponent = React.createClass({
 	displayName: 'ChatchannelComponent',
 
@@ -2238,1896 +3362,6 @@ var ChatchannelComponent = React.createClass({
 });
 
 ChatchannelComponent = React.createFactory(ChatchannelComponent);
-var AddLicensesComponent = React.createClass({
-	displayName: 'AddLicensesComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		sub: React.PropTypes.object,
-		addLicenses: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			users: '',
-			lines: '',
-			storage: '',
-			amount: 0
-		};
-	},
-
-	_currState: {
-		users: 0,
-		lines: 0,
-		storage: 0
-	},
-
-	_addLicenses: function () {
-		this.props.addLicenses(this._currState);
-	},
-
-	_setAmount: function () {},
-
-	_setTo: function (event) {
-		var targ = event.target;
-		var value = parseFloat(targ.value);
-		if (!targ.value || targ.value < 0) value = 0;
-		this._currState[targ.name] = value;
-		this.setAmount();
-		this.setState(this._currState);
-	},
-
-	_addTo: function (item, step) {
-		this._currState[item] += parseInt(step, 10);
-		this.setState(this._currState);
-	},
-
-	_removeFrom: function (item, step) {
-		if (this._currState[item] <= 0) return;
-		this._currState[item] -= parseInt(step, 10);
-		this.setState(this._currState);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			'div',
-			{ style: { padding: '20px 0' } },
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button' },
-								React.createElement('i', { className: 'fa fa-minus', onClick: this._removeFrom.bind(this, 'users', 1) })
-							)
-						),
-						React.createElement('input', { type: 'number', className: 'form-control', name: 'users', value: this.state.users, onChange: this._setTo, placeholder: 'Number of users to add' }),
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'users', 1) },
-								React.createElement('i', { className: 'fa fa-plus' })
-							)
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._removeFrom.bind(this, 'storage', 5) },
-								React.createElement('i', { className: 'fa fa-minus' })
-							)
-						),
-						React.createElement('input', { type: 'number', className: 'form-control', name: 'storage', value: this.state.storage, onChange: this._setTo, placeholder: 'Storage size to add' }),
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'storage', 5) },
-								React.createElement('i', { className: 'fa fa-plus' })
-							)
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(
-						'div',
-						{ className: 'input-group' },
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._removeFrom.bind(this, 'lines', 2) },
-								React.createElement('i', { className: 'fa fa-minus' })
-							)
-						),
-						React.createElement('input', { type: 'number', className: 'form-control', name: 'lines', value: this.state.lines, onChange: this._setTo, placeholder: 'Number of lines to add' }),
-						React.createElement(
-							'span',
-							{ className: 'input-group-btn' },
-							React.createElement(
-								'button',
-								{ className: 'btn btn-default', type: 'button', onClick: this._addTo.bind(this, 'lines', 2) },
-								React.createElement('i', { className: 'fa fa-plus' })
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement('hr', { className: 'col-xs-12' }),
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 text-center' },
-					React.createElement(
-						'button',
-						{ className: 'btn btn-primary btn-lg', onClick: this._addLicenses },
-						'Buy licenses'
-					)
-				)
-			)
-		);
-	}
-});
-
-AddLicensesComponent = React.createFactory(AddLicensesComponent);
-
-var BillingComponent = React.createClass({
-	displayName: 'BillingComponent',
-
-
-	propTypes: {
-		options: React.PropTypes.object,
-		profile: React.PropTypes.object,
-		sub: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		plans: React.PropTypes.array,
-		invoices: React.PropTypes.array,
-		addCard: React.PropTypes.func,
-		editCard: React.PropTypes.func,
-		onPlanSelect: React.PropTypes.func,
-		updateLicenses: React.PropTypes.func,
-		renewSub: React.PropTypes.func,
-		extend: React.PropTypes.func,
-		addCoupon: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			sub: {
-				plan: {},
-				addOns: []
-			},
-			invoices: [],
-			changePlanOpened: false,
-			addLicenseOpened: false
-		};
-	},
-
-	componentWillReceiveProps: function (props) {
-		console.log('componentWillReceiveProps: ', props);
-
-		var sub = props.sub ? JSON.parse(JSON.stringify(props.sub)) : {};
-		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
-		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
-
-		this.setState({
-			sub: sub,
-			profile: props.profile,
-			cycleDays: cycleDays,
-			proratedDays: proratedDays,
-			invoices: props.invoices,
-			discounts: props.discounts
-		});
-	},
-
-	componentDidMount: function () {
-		var options = this.props.options;
-		var sub = JSON.parse(JSON.stringify(this.props.sub));
-		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
-		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
-
-		// Convert subscription addOns from array to object
-		// if(sub.addOns.length) {
-		// 	addOns = sub.addOns.reduce(function(result, item) {
-		// 		result[item.name] = item;
-		// 		return result;
-		// 	}, {});
-		// }
-
-		this.setState({
-			profile: this.props.profile,
-			sub: sub,
-			cycleDays: cycleDays,
-			proratedDays: proratedDays,
-			minUsers: options.users,
-			minStorage: options.storesize
-		});
-	},
-
-	_convertBytes: function (value, fromUnits, toUnits) {
-		var coefficients = {
-			'Byte': 1,
-			'KB': 1000,
-			'MB': 1000000,
-			'GB': 1000000000
-		};
-		return value * coefficients[fromUnits] / coefficients[toUnits];
-	},
-
-	_setUsersQuantity: function (params) {
-		console.log('_setUsers:', params);
-		var sub = this.state.sub;
-		var total = sub.quantity + params.quantity;
-		if (total < this.state.minUsers) return;
-		sub.quantity = total;
-
-		sub.amount = this._countSubAmount(sub);
-		this.setState({ sub: sub });
-	},
-
-	_setAddonQuantity: function (params) {
-		console.log('_setAddonQuantity:', params, this.state.sub.addOns);
-		var sub = this.state.sub;
-		var addon = sub.addOns[params.index];
-		var newQuantity = addon.quantity + params.quantity;
-
-		if (newQuantity < 0) return;
-		if (addon.name === 'storage' && addon.quantity > this.state.minStorage && newQuantity < this.state.minStorage) return;
-
-		addon.quantity = newQuantity;
-		sub.addOns[params.index] = addon;
-		sub.amount = this._countSubAmount(sub);
-		this.setState({ sub: sub });
-	},
-
-	_extendAddons: function (addOns, array) {
-		var newItem;
-		return addOns.map(function (addon) {
-			newItem = {};
-			array.forEach(function (item) {
-				if (addon.name === item.name) {
-					newItem = deepExtend(newItem, addon);
-					newItem.quantity = item.quantity;
-				}
-			});
-			return newItem;
-		});
-	},
-
-	_countSubAmount: function (sub) {
-		var amount = sub.quantity * sub.plan.price;
-
-		if (sub.addOns && sub.addOns.length) {
-			sub.addOns.forEach(function (item) {
-				if (item.quantity) amount += item.price * item.quantity;
-			});
-		}
-
-		return amount.toFixed(2);
-	},
-
-	_countNewPlanAmount: function (currsub, newsub) {
-		var currAmount = currsub.amount;
-		var newAmount = newsub.amount;
-		var chargeAmount = 0;
-		var prorationRatio = 1;
-		var proratedAmount = 0;
-
-		console.log('_countPayAmount: ', currsub, newsub);
-
-		// if new plan with different billing period
-		if (currsub.plan.trialPeriod || newsub.plan.billingPeriod !== currsub.plan.billingPeriod || newsub.plan.billingPeriodUnit !== currsub.plan.billingPeriodUnit) {
-			newsub.nextBillingDate = moment().add(newsub.plan.billingPeriod, newsub.plan.billingPeriodUnit).valueOf();
-			newsub.prevBillingDate = Date.now();
-		} else {
-			prorationRatio = this.state.proratedDays / this.state.cycleDays;
-		}
-
-		currAmount = currAmount * prorationRatio;
-		chargeAmount = newAmount * prorationRatio;
-
-		if (chargeAmount >= currAmount) {
-			chargeAmount = chargeAmount - currAmount;
-		} else {
-			proratedAmount = currAmount - chargeAmount;
-			chargeAmount = 0;
-		}
-
-		console.log('_countPayAmount: ', currAmount, newAmount, chargeAmount, proratedAmount);
-		return { totalAmount: newAmount, chargeAmount: chargeAmount };
-	},
-
-	_setUpdate: function (item) {
-		console.log('_setUpdate:', item);
-		var params = this.state;
-		if (item.min !== undefined && item.value < item.min) return;
-		if (item.max !== undefined && item.value > item.max) return;
-		params[item.key] = item.value;
-		this._checkUpdate(params);
-	},
-
-	_addCard: function (e) {
-		if (e) e.preventDefault();
-
-		var profile = this.state.profile;
-
-		this.props.addCard(function (result) {
-			if (!result) return;
-
-			// profile.billingDetails = profile.billingDetails || [];
-			// profile.billingDetails.push(result.card);
-			// profile.defaultBillingMethod = {
-			// 	params: result.card
-			// };
-
-			profile.billingMethod = {
-				params: result.card
-			};
-
-			this.setState({ profile: profile });
-		}.bind(this));
-	},
-
-	_editCard: function (e) {
-		e.preventDefault();
-
-		var profile = this.state.profile;
-
-		this.props.editCard(function (result) {
-			if (!result) return;
-
-			// profile.billingDetails = profile.billingDetails || [];
-			// profile.billingDetails.push(result.card);
-			// profile.defaultBillingMethod = {
-			// 	params: result.card
-			// };
-
-			profile.billingMethod = {
-				params: result.card
-			};
-
-			this.setState({ profile: profile });
-		}.bind(this));
-	},
-
-	// _getPaymentMethod: function(sources) {
-	// 	if(!sources || !sources.length) return null;
-	// 	return sources.reduce(function(prev, next) {
-	// 		if(next.default) return prev = next;
-	// 	}, null);
-	// },
-
-	_openPlans: function (e) {
-		if (e) e.preventDefault();
-		this.setState({ changePlanOpened: !this.state.changePlanOpened });
-
-		// this.props.getPlans(this.props.sub.currency, function(result) {
-		// 	console.log('BillingComponent getPlans: ', result);
-		// 	this.setState({ plans: result });
-		// }.bind(this));
-	},
-
-	_openLicenses: function () {
-		this.setState({ addLicenseOpened: !this.state.addLicenseOpened });
-	},
-
-	_onPlanSelect: function (plan) {
-		console.log('_onPlanSelect 1: ', plan, this.state.sub);
-		var profile = this.props.profile;
-		// var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
-		var paymentMethod = profile.billingMethod;
-		// if(!paymentMethod) return this._addCard();
-
-		var sub = JSON.parse(JSON.stringify(this.props.sub));
-		sub.plan = plan;
-		sub.addOns = this._extendAddons(plan.addOns, sub.addOns);
-
-		console.log('_onPlanSelect 2: ', plan, sub);
-
-		sub.amount = this._countSubAmount(sub);
-
-		var amounts = this._countNewPlanAmount(this.props.sub, sub);
-
-		this.props.onPlanSelect({
-			plan: plan,
-			annually: plan.billingPeriodUnit === 'years',
-			payment: {
-				currency: plan.currency,
-				totalAmount: amounts.totalAmount,
-				discounts: this.props.discounts,
-				chargeAmount: amounts.chargeAmount.toFixed(2)
-			}
-		});
-
-		sub.plan = JSON.parse(JSON.stringify(this.props.sub.plan));
-		sub.addOns = JSON.parse(JSON.stringify(this.props.sub.addOns));
-		sub.amount = this._countSubAmount(sub);
-	},
-
-	_updateLicenses: function () {
-		var sub = this.state.sub;
-		var chargeAmount = sub.amount - this.props.sub.amount;
-
-		if (chargeAmount < 0) chargeAmount = 0;else chargeAmount = chargeAmount * (this.state.proratedDays / this.state.cycleDays);
-
-		this.props.updateLicenses({
-			addOns: sub.addOns,
-			quantity: sub.quantity,
-			payment: {
-				currency: sub.plan.currency,
-				totalAmount: sub.amount,
-				discounts: this.props.discounts,
-				chargeAmount: chargeAmount.toFixed(2)
-			}
-		});
-	},
-
-	_updateAndRenewSub: function (e) {
-		if (e) e.preventDefault();
-		this.props.editCard(function (result) {
-			if (!result) return;
-
-			var profile = this.state.profile;
-			profile.billingMethod = {
-				params: result.card
-			};
-
-			this.setState({ profile: profile });
-
-			this.props.renewSub(function (err) {
-				if (err) return;
-				var sub = this.state.sub;
-				sub.state = 'active';
-				this.setState({ sub: sub });
-			});
-		}.bind(this));
-	},
-
-	_renewSub: function (e) {
-		if (e) e.preventDefault();
-		this.props.renewSub(function (err) {
-			if (err) return;
-			var sub = this.state.sub;
-			sub.state = 'active';
-			this.setState({ sub: sub });
-		}.bind(this));
-	},
-
-	_cancelEditLicenses: function () {
-		var sub = JSON.parse(JSON.stringify(this.props.sub));
-		this.setState({
-			sub: sub
-		});
-	},
-
-	_isCardExpired: function (expMonth, expYear) {
-		var date = new Date();
-		var month = date.getMonth() + 1;
-		var year = date.getFullYear();
-
-		return expMonth < month && expYear <= year;
-	},
-
-	_cardWillExpiredSoon: function (expMonth, expYear) {
-		var date = new Date();
-		var month = date.getMonth() + 1;
-		var year = date.getFullYear();
-
-		return expMonth - month < 1 && expYear - year < 1;
-	},
-
-	_addCoupon: function (coupon) {
-		this.props.addCoupon(coupon);
-	},
-
-	_currencyNameToSymbol: function (name) {
-		var symbol = "";
-
-		switch (name) {
-			case "eur":
-				symbol = "€";
-				break;
-			case "usd":
-				symbol = "$";
-				break;
-			default:
-				symbol = "€";
-				break;
-		}
-
-		return symbol;
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var profile = this.props.profile;
-		// var paymentMethod = profile.defaultBillingMethod || this._getPaymentMethod(profile.billingDetails);
-		var paymentMethod = profile.billingMethod;
-		var sub = this.props.sub;
-		var discounts = this.props.discounts;
-		var currSub = this.state.sub;
-		var options = this.props.options;
-		var plans = this.props.plans;
-		var column = plans.length ? 12 / plans.length : 12;
-		var onPlanSelect = this._onPlanSelect;
-		var trial = sub.plan.planId === 'trial' || sub.state === 'past_due';
-		var subAmount = sub.amount;
-
-		// apply discounts
-		if (discounts.length) {
-			subAmount = subAmount * discounts[0].coupon.percent / 100;
-		}
-
-		console.log('billing render component: ', sub, currSub, discounts, subAmount);
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					!paymentMethod ? React.createElement(
-						'div',
-						{ className: 'alert alert-info', role: 'alert', style: { display: "none" } },
-						frases.BILLING.PAYMENT_METHOD_WARNING_P1,
-						' ',
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._addCard, className: 'alert-link' },
-							frases.BILLING.ADD_CREDIT_CARD
-						),
-						' ',
-						frases.BILLING.PAYMENT_METHOD_WARNING_P2
-					) : this._isCardExpired(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? React.createElement(
-						'div',
-						{ className: 'alert alert-warning', role: 'alert' },
-						'Your payment method has been expired. Please ',
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._editCard, className: 'alert-link' },
-							'add a valid payment method'
-						),
-						' to avoid service interruption.'
-					) : this._cardWillExpiredSoon(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? React.createElement(
-						'div',
-						{ className: 'alert alert-warning', role: 'alert' },
-						'Your payment method will expire soon. Please ',
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._editCard, className: 'alert-link' },
-							'update your payment method'
-						),
-						' to avoid service interruption.'
-					) : '',
-					sub.state === 'past_due' ? React.createElement(
-						'div',
-						{ className: 'alert alert-warning', role: 'alert' },
-						'We were not able to receive subscription payment. You may not use all available features on your subscription plan. Please, ensure that your payment method is valid and has sufficient funds and ',
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._renewSub, className: 'alert-link' },
-							'renew subscription'
-						),
-						' or ',
-						React.createElement(
-							'a',
-							{ href: '#', onClick: this._updateAndRenewSub, className: 'alert-link' },
-							'update your payment method'
-						),
-						'.'
-					) : sub.plan.planId === 'trial' && sub.state === 'expired' ? React.createElement(
-						'div',
-						{ className: 'alert alert-warning', role: 'alert' },
-						'Your trial period has been expired. ',
-						React.createElement(
-							'a',
-							{ href: '#plansCollapse', 'data-toggle': 'collapse', 'aria-expanded': 'false', 'aria-controls': 'plansCollapse', onClick: this._openPlans, className: 'alert-link' },
-							'Upgrade your subscription plan'
-						),
-						' and use all available features.'
-					) : ''
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-12' },
-					React.createElement(
-						'div',
-						{ className: 'panel' },
-						React.createElement(
-							'div',
-							{ className: 'panel-body' },
-							React.createElement(
-								'div',
-								{ className: 'pull-left' },
-								React.createElement(
-									'h2',
-									{ style: { margin: 0 } },
-									React.createElement(
-										'small',
-										null,
-										sub.plan.billingPeriodUnit === 'years' ? frases.BILLING.ANNUALLY_TOTAL : frases.BILLING.MONTHLY_TOTAL,
-										' '
-									),
-									React.createElement(
-										'span',
-										null,
-										this._currencyNameToSymbol(sub.plan.currency),
-										parseFloat(subAmount).toFixed(2),
-										' '
-									)
-								),
-								!sub.plan.trialPeriod && React.createElement(
-									'p',
-									{ className: 'text-muted' },
-									frases.BILLING.NEXT_CHARGE,
-									' ',
-									React.createElement(
-										'b',
-										null,
-										window.moment(this.state.sub.nextBillingDate).format('DD MMMM YYYY')
-									)
-								)
-							),
-							React.createElement(
-								'div',
-								{ className: 'pull-right', style: { textAlign: "right" } },
-								React.createElement(
-									'p',
-									null,
-									paymentMethod ? React.createElement(
-										'a',
-										{ href: '#', onClick: sub.state === 'past_due' ? this._updateAndRenewSub : this._editCard, className: 'text-uppercase' },
-										frases.BILLING.EDIT_PAYMENT_METHOD
-									) : React.createElement(
-										'a',
-										{ href: '#', className: 'text-uppercase', onClick: this._addCard },
-										frases.BILLING.ADD_CREDIT_CARD
-									)
-								),
-								paymentMethod && React.createElement(
-									'p',
-									{ className: 'text-muted', style: { userSelect: 'none' } },
-									React.createElement(
-										'b',
-										null,
-										paymentMethod.params.brand
-									),
-									' \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ',
-									paymentMethod.params.last4,
-									React.createElement('br', null),
-									paymentMethod.params.exp_month,
-									'/',
-									paymentMethod.params.exp_year
-								)
-							)
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-12' },
-					React.createElement(
-						'div',
-						{ className: 'panel' },
-						React.createElement(
-							'div',
-							{ className: 'panel-body' },
-							React.createElement(
-								'div',
-								{ className: 'pull-left' },
-								React.createElement(
-									'h2',
-									{ style: { margin: 0 } },
-									React.createElement(
-										'small',
-										null,
-										frases.BILLING.CURRENT_PLAN,
-										' '
-									),
-									React.createElement(
-										'span',
-										null,
-										sub.plan.name,
-										' '
-									)
-								),
-								sub.plan.trialPeriod && React.createElement(
-									'p',
-									{ className: 'text-muted' },
-									frases.BILLING.TRIAL_EXPIRES,
-									' ',
-									React.createElement(
-										'b',
-										null,
-										window.moment(this.state.sub.trialExpires).format('DD MMMM YYYY')
-									)
-								)
-							),
-							React.createElement(
-								'div',
-								{ className: 'pull-right' },
-								sub.state === 'past_due' ? React.createElement(
-									'a',
-									{ href: '#', className: 'text-uppercase', style: { fontSize: "14px" }, onClick: this._renewSub },
-									'Renew'
-								) : React.createElement(
-									'a',
-									{
-										href: '#',
-										className: 'text-uppercase',
-										style: { fontSize: "14px" },
-										role: 'button',
-										onClick: this._openPlans,
-										'data-toggle': 'collapse',
-										href: '#plansCollapse',
-										'aria-expanded': 'false',
-										'aria-controls': 'plansCollapse'
-									},
-									frases.BILLING.UPGRADE_PLAN
-								)
-							),
-							React.createElement(
-								'div',
-								{ className: 'row' },
-								React.createElement(
-									'div',
-									{ className: 'col-xs-12 col-custom' },
-									React.createElement(
-										'div',
-										{ className: 'collapse', id: 'plansCollapse' },
-										React.createElement(PlansComponent, { plans: plans, frases: frases, onPlanSelect: onPlanSelect, currentPlan: sub.plan })
-									),
-									React.createElement('p', null)
-								)
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					React.createElement(
-						'div',
-						{ className: 'panel' },
-						React.createElement(
-							'div',
-							{ className: 'panel-header' },
-							React.createElement(
-								'span',
-								null,
-								frases.BILLING.AVAILABLE_LICENSES.AVAILABLE_LICENSES
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'panel-body' },
-							React.createElement(
-								'div',
-								{ className: 'row', style: { textAlign: "center" } },
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement(
-										'div',
-										{ className: 'input-group' },
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUsersQuantity.bind(this, { quantity: -1 }) },
-												React.createElement('i', { className: 'fa fa-minus' })
-											)
-										),
-										React.createElement(
-											'h3',
-											{ className: 'data-model' },
-											currSub.quantity
-										),
-										React.createElement(
-											'span',
-											{ className: 'input-group-btn' },
-											React.createElement(
-												'button',
-												{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setUsersQuantity.bind(this, { quantity: 1 }) },
-												React.createElement('i', { className: 'fa fa-plus' })
-											)
-										)
-									),
-									React.createElement(
-										'p',
-										null,
-										frases.BILLING.AVAILABLE_LICENSES.USERS
-									)
-								),
-								currSub.addOns.map(function (item, index) {
-
-									return React.createElement(
-										'div',
-										{ className: 'col-sm-4', key: item.name },
-										React.createElement(
-											'div',
-											{ className: 'input-group' },
-											React.createElement(
-												'span',
-												{ className: 'input-group-btn' },
-												React.createElement(
-													'button',
-													{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setAddonQuantity.bind(this, { index: index, quantity: item.name === 'storage' ? -5 : -2 }) },
-													React.createElement('i', { className: 'fa fa-minus' })
-												)
-											),
-											React.createElement(
-												'h3',
-												{ className: 'data-model' },
-												item.quantity
-											),
-											React.createElement(
-												'span',
-												{ className: 'input-group-btn' },
-												React.createElement(
-													'button',
-													{ className: 'btn btn-default', type: 'button', disabled: trial, onClick: this._setAddonQuantity.bind(this, { index: index, quantity: item.name === 'storage' ? 5 : 2 }) },
-													React.createElement('i', { className: 'fa fa-plus' })
-												)
-											)
-										),
-										React.createElement(
-											'p',
-											null,
-											frases.BILLING.AVAILABLE_LICENSES[item.name.toUpperCase()]
-										)
-									);
-								}.bind(this))
-							),
-							React.createElement(
-								'div',
-								{ className: 'row' },
-								React.createElement(
-									'div',
-									{ className: 'col-xs-12' },
-									React.createElement(
-										'div',
-										{ className: "alert alert-info " + (paymentMethod && trial ? 'hidden' : 'hidden'), role: 'alert' },
-										'To add more licenses, please ',
-										React.createElement(
-											'a',
-											{ href: '#', onClick: this._openPlans, className: 'alert-link' },
-											'upgrade your plan'
-										)
-									),
-									React.createElement(
-										'div',
-										{ className: "text-center " + (sub.amount !== currSub.amount ? '' : 'hidden') },
-										React.createElement('hr', null),
-										React.createElement(
-											'button',
-											{ className: 'btn btn-default btn-lg', style: { marginRight: "5px" }, onClick: this._cancelEditLicenses },
-											frases.BILLING.CANCEL_LICENSE_UPDATE
-										),
-										React.createElement(
-											'span',
-											null,
-											'  '
-										),
-										React.createElement(
-											'button',
-											{ className: 'btn btn-primary btn-lg', onClick: this._updateLicenses },
-											frases.BILLING.UPDATE_LICENSES,
-											' '
-										)
-									)
-								)
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-8' },
-					React.createElement(InvoicesComponent, { items: this.state.invoices, frases: frases })
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement(DiscountsComponent, { items: discounts, addCoupon: this._addCoupon, frases: frases })
-				)
-			)
-		);
-	}
-});
-
-BillingComponent = React.createFactory(BillingComponent);
-
-var PlanComponent = React.createClass({
-	displayName: 'PlanComponent',
-
-
-	propTypes: {
-		plan: React.PropTypes.object,
-		frases: React.PropTypes.object,
-		currentPlan: React.PropTypes.object,
-		onSelect: React.PropTypes.func
-	},
-
-	getDefaultProps: function () {
-		return {
-			plan: {}
-		};
-	},
-
-	_selectPlan: function () {
-		this.props.onSelect(this.props.plan);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var plan = this.props.plan;
-		var period = plan.billingPeriodUnit;
-		var attributes = plan.attributes || plan.customData;
-
-		return React.createElement(
-			'div',
-			{ className: 'panel', style: { border: '1px solid #54c3f0', boxShadow: 'none', textAlign: 'center' } },
-			React.createElement(
-				'div',
-				{ className: 'panel-header', style: { color: '#55c3f0' } },
-				plan.name
-			),
-			React.createElement(
-				'div',
-				{ className: 'panel-body' },
-				React.createElement(
-					'ul',
-					{ style: { padding: '0', listStyle: 'none' } },
-					React.createElement(
-						'li',
-						null,
-						React.createElement(
-							'strong',
-							null,
-							period === 'months' ? plan.price : plan.price / 12
-						),
-						plan.currency,
-						' ',
-						frases.BILLING.PLANS.PER_USER,
-						'/',
-						frases.BILLING.PLANS.PER_MONTH
-					),
-					React.createElement(
-						'li',
-						null,
-						React.createElement(
-							'strong',
-							null,
-							attributes.storageperuser
-						),
-						'GB ',
-						frases.BILLING.PLANS.PER_USER
-					),
-					React.createElement(
-						'li',
-						null,
-						React.createElement(
-							'strong',
-							null,
-							attributes.linesperuser
-						),
-						' ',
-						frases.BILLING.AVAILABLE_LICENSES.LINES,
-						' ',
-						frases.BILLING.PLANS.PER_USER
-					)
-				),
-				React.createElement(
-					'a',
-					{ href: 'https://ringotel.co/pricing/', target: '_blanc' },
-					frases.BILLING.PLANS.SHOW_ALL_FEATURES
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'panel-footer', style: { padding: 0, background: 'none', borderTop: 'none' } },
-				this.props.currentPlan.planId === plan.planId ? React.createElement(
-					'p',
-					{ style: { padding: "15px 0" }, className: 'text-muted text-uppercase' },
-					frases.BILLING.PLANS.CURRENT_PLAN
-				) : React.createElement(
-					'button',
-					{ className: 'btn btn-link text-uppercase', style: { width: "100%", padding: "15px 0" }, onClick: this._selectPlan },
-					frases.BILLING.PLANS.SELECT_PLAN
-				)
-			)
-		);
-	}
-});
-
-PlanComponent = React.createFactory(PlanComponent);
-
-var PlansComponent = React.createClass({
-	displayName: 'PlansComponent',
-
-
-	propTypes: {
-		plans: React.PropTypes.array,
-		frases: React.PropTypes.object,
-		currentPlan: React.PropTypes.object,
-		onPlanSelect: React.PropTypes.func
-	},
-
-	getDefaultProps: function () {
-		return {
-			plans: []
-		};
-	},
-
-	getInitialState: function () {
-		return {
-			showMonthlyPlans: false
-		};
-	},
-
-	componentDidMount: function () {
-
-		console.log('PlansComponent: ', this.props.currentPlan);
-
-		this.setState({
-			showMonthlyPlans: this.props.currentPlan.billingPeriodUnit === 'months'
-		});
-	},
-
-	_togglePlans: function (annually) {
-		console.log('_togglePlans: ', annually);
-		this.setState({ showMonthlyPlans: !annually });
-	},
-
-	_filterPlans: function (plan) {
-		var showMonthlyPlans = this.state.showMonthlyPlans;
-		if (showMonthlyPlans && plan.billingPeriodUnit === 'months') {
-			return plan;
-		} else if (!showMonthlyPlans && plan.billingPeriodUnit === 'years') {
-			return plan;
-		} else {
-			return null;
-		}
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var plans = this.props.plans.filter(this._filterPlans);
-		// var column = plans.length ? (12/plans.length) : 12;
-
-		return React.createElement(
-			'div',
-			{ className: 'panel-body', style: { background: 'none' } },
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 text-center', style: { marginBottom: "20px" } },
-					React.createElement(
-						'div',
-						{ className: 'btn-group btn-group-custom', 'data-toggle': 'buttons' },
-						React.createElement(
-							'label',
-							{ className: "btn btn-primary " + (!this.state.showMonthlyPlans ? 'active' : ''), onClick: this._togglePlans.bind(this, true) },
-							React.createElement('input', { type: 'radio', name: 'billing-period', autoComplete: 'off', checked: !this.state.showMonthlyPlans }),
-							' ',
-							frases.BILLING.PLANS.ANNUAL_PLANS
-						),
-						React.createElement(
-							'label',
-							{ className: "btn btn-primary " + (this.state.showMonthlyPlans ? 'active' : ''), onClick: this._togglePlans.bind(this, false) },
-							React.createElement('input', { type: 'radio', name: 'billing-period', autoComplete: 'off', checked: this.state.showMonthlyPlans }),
-							' ',
-							frases.BILLING.PLANS.MONTHLY_PLANS
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				plans.map(function (plan, index) {
-
-					return React.createElement(
-						'div',
-						{ className: "col-xs-12 col-sm-4", key: plan.planId },
-						React.createElement(PlanComponent, { plan: plan, frases: frases, onSelect: this.props.onPlanSelect, currentPlan: this.props.currentPlan })
-					);
-				}.bind(this))
-			)
-		);
-	}
-});
-
-PlansComponent = React.createFactory(PlansComponent);
-
-var AddCallGroup = React.createClass({
-	displayName: 'AddCallGroup',
-
-
-	propTypes: {
-		step: React.PropTypes.object,
-		frases: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			step: {}
-		};
-	},
-
-	getInitialState: function () {
-		return {};
-	},
-
-	_chooseGroup: function (type) {
-		window.location.hash = '#' + type + '/' + type;
-		console.log('close Modal: ', this.props.step.name, $('#' + this.props.step.name));
-		$('#' + this.props.step.name).modal('hide');
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-6 text-center' },
-					React.createElement(
-						'div',
-						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'hunting') },
-						React.createElement(
-							'h3',
-							null,
-							React.createElement('i', { className: 'icon-find_replace' })
-						),
-						React.createElement(
-							'h3',
-							null,
-							frases.GET_STARTED.STEPS.B.MODAL.OPTION_1.TITLE
-						),
-						React.createElement(
-							'p',
-							null,
-							frases.GET_STARTED.STEPS.B.MODAL.OPTION_1.DESC
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-6 text-center' },
-					React.createElement(
-						'div',
-						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'icd') },
-						React.createElement(
-							'h3',
-							null,
-							React.createElement('i', { className: 'icon-headset_mic' })
-						),
-						React.createElement(
-							'h3',
-							null,
-							frases.GET_STARTED.STEPS.B.MODAL.OPTION_2.TITLE
-						),
-						React.createElement(
-							'p',
-							null,
-							frases.GET_STARTED.STEPS.B.MODAL.OPTION_2.DESC
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-AddCallGroup = React.createFactory(AddCallGroup);
-
-var AddExtGroup = React.createClass({
-	displayName: "AddExtGroup",
-
-	render: function () {
-		return React.createElement(
-			"div",
-			{ className: "text-center" },
-			React.createElement(
-				"h1",
-				null,
-				React.createElement("i", { className: "fa fa-user" })
-			),
-			React.createElement(
-				"h4",
-				null,
-				"Add extensions for company employees. Users could be registered with Ringotel's apps. Create Equipment group, in order to connect third-party SIP softphones, IP phones, etc."
-			)
-		);
-	}
-});
-
-AddExtGroup = React.createFactory(AddExtGroup);
-
-var AddExtensions = React.createClass({
-	displayName: 'AddExtensions',
-
-
-	propTypes: {
-		step: React.PropTypes.object,
-		frases: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		step: {}
-	},
-
-	getInitialState: function () {
-		return {
-			extensions: []
-		};
-	},
-
-	_chooseGroup: function (type) {
-		window.location.hash = '#' + type + '/' + type;
-		console.log('close Modal: ', this.props.step.name, $('#' + this.props.step.name));
-		$('#' + this.props.step.name).modal('hide');
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'row ' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-6 text-center' },
-					React.createElement(
-						'div',
-						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'users') },
-						React.createElement(
-							'h3',
-							null,
-							React.createElement('i', { className: 'fa fa-user' })
-						),
-						React.createElement(
-							'h3',
-							null,
-							frases.GET_STARTED.STEPS.A.MODAL.OPTION_1.TITLE
-						),
-						React.createElement(
-							'p',
-							null,
-							frases.GET_STARTED.STEPS.A.MODAL.OPTION_1.DESC
-						)
-					)
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-6 text-center' },
-					React.createElement(
-						'div',
-						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'equipment') },
-						React.createElement(
-							'h3',
-							null,
-							React.createElement('i', { className: 'fa fa-fax' })
-						),
-						React.createElement(
-							'h3',
-							null,
-							frases.GET_STARTED.STEPS.A.MODAL.OPTION_2.TITLE
-						),
-						React.createElement(
-							'p',
-							null,
-							frases.GET_STARTED.STEPS.A.MODAL.OPTION_2.DESC
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-AddExtensions = React.createFactory(AddExtensions);
-
-var AddTrunk = React.createClass({
-	displayName: 'AddTrunk',
-
-
-	propTypes: {
-		step: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			step: {}
-		};
-	},
-
-	getInitialState: function () {
-		return {};
-	},
-
-	_addNewTrunk: function () {
-		window.location.hash = '#trunk/trunk';
-		$('#' + this.props.step.name).modal('hide');
-	},
-
-	render: function () {
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 text-center' },
-					React.createElement(
-						'h4',
-						null,
-						this.props.step.title
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12 text-center' },
-					React.createElement(
-						'button',
-						{ onClick: this._addNewTrunk, className: 'btn btn-primary btn-xl' },
-						React.createElement('i', { className: 'fa fa-cloud' }),
-						' Add Trunk'
-					),
-					React.createElement('br', null),
-					React.createElement('br', null)
-				)
-			)
-		);
-	}
-});
-
-AddTrunk = React.createFactory(AddTrunk);
-
-var NewExtensions = React.createClass({
-	displayName: "NewExtensions",
-
-
-	propTypes: {},
-
-	getDefaultProps: function () {},
-
-	getInitialState: function () {
-		return {
-			extensions: {}
-		};
-	},
-
-	_getAvailableExtensions: function () {},
-
-	_addExtension: function () {
-		console.log('addExtension: ');
-	},
-
-	render: function () {
-		return React.createElement(
-			"div",
-			null,
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "col-xs-12" },
-					React.createElement(
-						"div",
-						{ className: "text-center" },
-						React.createElement(
-							"h1",
-							null,
-							React.createElement("i", { className: "fa fa-user" })
-						),
-						React.createElement(
-							"h4",
-							null,
-							"Add extensions for company employees. Users could be registered with Ringotel's apps. Create Equipment group, in order to connect third-party SIP softphones, IP phones, etc."
-						)
-					),
-					React.createElement("hr", null)
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "col-sm-6" },
-					React.createElement(
-						"div",
-						{ className: "form-group" },
-						React.createElement(
-							"label",
-							{ htmlFor: "available-users", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__EXTENSION}}" },
-							"NUMBER"
-						),
-						React.createElement(
-							"div",
-							{ className: "col-lg-4" },
-							React.createElement("select", { id: "available-users", className: "form-control select2" })
-						)
-					)
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "form-group" },
-					React.createElement(
-						"label",
-						{ htmlFor: "user-name", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__NAME}}" },
-						"NAME"
-					),
-					React.createElement(
-						"div",
-						{ className: "col-lg-8" },
-						React.createElement("input", { type: "text", className: "form-control", id: "user-name", placeholder: "{{NAME}}" })
-					)
-				),
-				React.createElement(
-					"div",
-					{ className: "form-group" },
-					React.createElement(
-						"label",
-						{ htmlFor: "user-dname", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__DISPLAY_NAME}}" },
-						"DISPLAY"
-					),
-					React.createElement(
-						"div",
-						{ className: "col-lg-8" },
-						React.createElement(
-							"div",
-							{ className: "input-group" },
-							React.createElement("input", { type: "text", className: "form-control", id: "user-alias", placeholder: "{{ DISPLAY}}" }),
-							React.createElement(
-								"span",
-								{ className: "input-group-btn" },
-								React.createElement(
-									"button",
-									{ type: "button", className: "btn btn-default" },
-									React.createElement("i", { className: "fa fa-exchange", "data-toggle": "tooltip", title: "{{COPY}}" })
-								)
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "form-group" },
-					React.createElement(
-						"label",
-						{ htmlFor: "user-pass", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__PASSWORD}}" },
-						"PASSWORD"
-					),
-					React.createElement(
-						"div",
-						{ className: "col-lg-8" },
-						React.createElement(
-							"div",
-							{ className: "input-group" },
-							React.createElement("input", { type: "password", name: "trunk", className: "form-control", id: "user-pass", placeholder: "{{PASSWORD}}" }),
-							React.createElement(
-								"span",
-								{ className: "input-group-btn" },
-								React.createElement(
-									"button",
-									{ type: "button", className: "btn btn-default" },
-									React.createElement("i", { className: "fa fa-eye", "data-toggle": "tooltip", title: "{{REVEAL_PWD}}" })
-								),
-								React.createElement(
-									"button",
-									{ type: "button", className: "btn btn-default" },
-									React.createElement("i", { className: "fa fa-refresh", "data-toggle": "tooltip", title: "{{GENERATE_PWD}}" })
-								)
-							)
-						)
-					)
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"div",
-					{ className: "col-xs-12" },
-					React.createElement(
-						"button",
-						{ className: "btn btn-primary", onClick: this._addExtension },
-						"Add extensiosn"
-					)
-				)
-			)
-		);
-	}
-});
-
-NewExtensions = React.createFactory(NewExtensions);
-
-var GsStep = React.createClass({
-	displayName: 'GsStep',
-
-
-	propTypes: {
-		step: React.PropTypes.object,
-		frases: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			step: {}
-		};
-	},
-
-	getInitialState: function () {
-		return {
-			done: false
-		};
-	},
-
-	_loadStep: function () {
-		var step = this.props.step;
-		var frases = this.props.frases;
-		var stepCont = document.createElement('div');
-		var Step = function () {
-			var comp;
-			switch (step.component) {
-				case 'AddExtensions':
-					comp = React.createElement(AddExtensions, { step: step, frases: frases });
-					break;
-				case 'AddCallGroup':
-					comp = React.createElement(AddCallGroup, { step: step, frases: frases });
-					break;
-				// case 'AddTrunk':
-				// 	comp = <AddTrunk step={step} />;
-				// 	break;
-			};
-
-			console.log('loadStep: ', step, comp);
-
-			if (!comp) return null;else {
-				return React.createElement(ModalComponent, {
-					id: step.name,
-					title: step.title,
-					size: 'lg',
-					body: comp
-					// submit={ this._stepDone }
-				});
-			}
-		};
-
-		document.body.appendChild(stepCont);
-
-		ReactDOM.render(React.createFactory(Step)({
-			step: step
-		}), stepCont);
-
-		$('#' + step.name).modal();
-	},
-
-	_stepDone: function () {
-		this.setState({
-			done: true
-		});
-	},
-
-	render: function () {
-		var stepDone = this.props.step.done;
-		return React.createElement(
-			'li',
-			{ className: "gs-item " + (stepDone ? "gs-done" : ""), onClick: this.props.step.onClick ? this.props.step.onClick : this._loadStep },
-			React.createElement(
-				'div',
-				{ className: 'gs-item-header' },
-				React.createElement('i', { className: this.props.step.icon }),
-				' ',
-				this.props.step.title,
-				React.createElement(
-					'span',
-					{ className: stepDone ? "fa-stack" : "hidden", style: { position: 'absolute', top: '5px', right: '5px' } },
-					React.createElement('i', { className: 'fa fa-circle fa-stack-2x text-success' }),
-					React.createElement('i', { className: 'fa fa-check fa-stack-1x text-white' })
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'gs-item-body' },
-				React.createElement(
-					'p',
-					null,
-					this.props.step.desc
-				)
-			)
-		);
-	}
-});
-
-GsStep = React.createFactory(GsStep);
-
-var WelcomeModal = React.createClass({
-	displayName: 'WelcomeModal',
-
-
-	propTypes: {
-		startTour: React.PropTypes.func,
-		modalId: React.PropTypes.string,
-		frases: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			modalId: 'welcome-modal'
-		};
-	},
-
-	// getInitialState: function() {
-	// 	return {};
-	// },
-
-	_startTour: function () {
-		console.log('_startTour: ', this.props.startTour);
-		this.props.startTour();
-		this._dismissModal();
-	},
-
-	_dismissModal: function () {
-		$('#' + this.props.modalId).modal('hide');
-	},
-
-	_getModalBody: function () {
-		return React.createElement(
-			'div',
-			{ className: 'row' },
-			React.createElement(
-				'div',
-				{ className: 'col-xs-12 text-center' },
-				React.createElement(
-					'h1',
-					null,
-					React.createElement(
-						'span',
-						{ className: 'fa-stack' },
-						React.createElement('i', { className: 'fa fa-circle fa-stack-2x text-success' }),
-						React.createElement('i', { className: 'fa fa-check fa-stack-1x text-white' })
-					)
-				),
-				React.createElement(
-					'h1',
-					null,
-					this.props.frases.GET_STARTED.WELCOME_MSG
-				),
-				React.createElement(
-					'h4',
-					null,
-					this.props.frases.GET_STARTED.TOUR_OFFER
-				),
-				React.createElement('hr', null),
-				React.createElement(
-					'div',
-					null,
-					React.createElement(
-						'button',
-						{ className: 'btn btn-primary', onClick: this._startTour },
-						this.props.frases.GET_STARTED.START_TOUR
-					),
-					React.createElement(
-						'span',
-						null,
-						' '
-					),
-					React.createElement(
-						'button',
-						{ className: 'btn btn-default', onClick: this._dismissModal },
-						this.props.frases.GET_STARTED.DISMISS_TOUR
-					)
-				)
-			)
-		);
-	},
-
-	render: function () {
-		var body = this._getModalBody();
-
-		return React.createElement(ModalComponent, { id: this.props.modalId, size: 'lg', body: body });
-	}
-});
-
-WelcomeModal = React.createFactory(WelcomeModal);
-var GsWidget = React.createClass({
-	displayName: "GsWidget",
-
-
-	propTypes: {
-		steps: React.PropTypes.array,
-		frases: React.PropTypes.object
-	},
-
-	getDefaultProps: function () {
-		return {
-			steps: []
-		};
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		return React.createElement(
-			"div",
-			{ className: "gs-items-cont" },
-			React.createElement(
-				"ul",
-				{ className: "gs-items" },
-				this.props.steps.map(function (item) {
-					return React.createElement(GsStep, { step: item, frases: frases, key: item.name });
-				}, this)
-			)
-		);
-	}
-});
-
-GsWidget = React.createFactory(GsWidget);
-var AvailableUsersModalComponent = React.createClass({
-	displayName: "AvailableUsersModalComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		groupid: React.PropTypes.string,
-		onSubmit: React.PropTypes.func,
-		modalId: React.PropTypes.string
-	},
-
-	getInitialState: function () {
-		return {
-			selectedUsers: []
-		};
-	},
-
-	_saveChanges: function () {
-		this.props.onSubmit(this.state.selectedUsers);
-	},
-
-	_onUsersSelected: function (users) {
-		this.setState({ selectedUsers: users });
-	},
-
-	_getBody: function () {
-		var frases = this.props.frases;
-		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected, groupid: this.props.groupid });
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var body = this._getBody();
-
-		return React.createElement(ModalComponent, {
-			size: "sm",
-			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
-			submitText: frases.ADD,
-			cancelText: frases.CANCEL,
-			submit: this._saveChanges,
-			body: body
-		});
-	}
-
-});
-
-AvailableUsersModalComponent = React.createFactory(AvailableUsersModalComponent);
-var CreateGroupModalComponent = React.createClass({
-	displayName: 'CreateGroupModalComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		type: React.PropTypes.string,
-		onSubmit: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			selectedUsers: []
-		};
-	},
-
-	_onUsersSelected: function (users) {
-		console.log('_onUsersSelected: ', users);
-		this.setState({ selectedUsers: users });
-	},
-
-	_onSubmit: function () {
-		console.log('_onSubmit');
-	},
-
-	_getBody: function () {
-		var frases = this.props.frases;
-		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected });
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var body = this._getBody();
-
-		return React.createElement(ModalComponent, {
-			size: 'sm',
-			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
-			submitText: frases.ADD,
-			cancelText: frases.CANCEL,
-			submit: this._onSubmit,
-			body: body
-		});
-	}
-
-});
-
-CreateGroupModalComponent = React.createFactory(CreateGroupModalComponent);
 var GroupMembersComponent = React.createClass({
 	displayName: 'GroupMembersComponent',
 
@@ -5317,6 +4551,706 @@ var IcdGroupComponent = React.createClass({
 
 IcdGroupComponent = React.createFactory(IcdGroupComponent);
 
+var AddCallGroup = React.createClass({
+	displayName: 'AddCallGroup',
+
+
+	propTypes: {
+		step: React.PropTypes.object,
+		frases: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			step: {}
+		};
+	},
+
+	getInitialState: function () {
+		return {};
+	},
+
+	_chooseGroup: function (type) {
+		window.location.hash = '#' + type + '/' + type;
+		console.log('close Modal: ', this.props.step.name, $('#' + this.props.step.name));
+		$('#' + this.props.step.name).modal('hide');
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-6 text-center' },
+					React.createElement(
+						'div',
+						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'hunting') },
+						React.createElement(
+							'h3',
+							null,
+							React.createElement('i', { className: 'icon-find_replace' })
+						),
+						React.createElement(
+							'h3',
+							null,
+							frases.GET_STARTED.STEPS.B.MODAL.OPTION_1.TITLE
+						),
+						React.createElement(
+							'p',
+							null,
+							frases.GET_STARTED.STEPS.B.MODAL.OPTION_1.DESC
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-6 text-center' },
+					React.createElement(
+						'div',
+						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'icd') },
+						React.createElement(
+							'h3',
+							null,
+							React.createElement('i', { className: 'icon-headset_mic' })
+						),
+						React.createElement(
+							'h3',
+							null,
+							frases.GET_STARTED.STEPS.B.MODAL.OPTION_2.TITLE
+						),
+						React.createElement(
+							'p',
+							null,
+							frases.GET_STARTED.STEPS.B.MODAL.OPTION_2.DESC
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+AddCallGroup = React.createFactory(AddCallGroup);
+
+var AddExtGroup = React.createClass({
+	displayName: "AddExtGroup",
+
+	render: function () {
+		return React.createElement(
+			"div",
+			{ className: "text-center" },
+			React.createElement(
+				"h1",
+				null,
+				React.createElement("i", { className: "fa fa-user" })
+			),
+			React.createElement(
+				"h4",
+				null,
+				"Add extensions for company employees. Users could be registered with Ringotel's apps. Create Equipment group, in order to connect third-party SIP softphones, IP phones, etc."
+			)
+		);
+	}
+});
+
+AddExtGroup = React.createFactory(AddExtGroup);
+
+var AddExtensions = React.createClass({
+	displayName: 'AddExtensions',
+
+
+	propTypes: {
+		step: React.PropTypes.object,
+		frases: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		step: {}
+	},
+
+	getInitialState: function () {
+		return {
+			extensions: []
+		};
+	},
+
+	_chooseGroup: function (type) {
+		window.location.hash = '#' + type + '/' + type;
+		console.log('close Modal: ', this.props.step.name, $('#' + this.props.step.name));
+		$('#' + this.props.step.name).modal('hide');
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row ' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-6 text-center' },
+					React.createElement(
+						'div',
+						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'users') },
+						React.createElement(
+							'h3',
+							null,
+							React.createElement('i', { className: 'fa fa-user' })
+						),
+						React.createElement(
+							'h3',
+							null,
+							frases.GET_STARTED.STEPS.A.MODAL.OPTION_1.TITLE
+						),
+						React.createElement(
+							'p',
+							null,
+							frases.GET_STARTED.STEPS.A.MODAL.OPTION_1.DESC
+						)
+					)
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-6 text-center' },
+					React.createElement(
+						'div',
+						{ className: 'gs-item', onClick: this._chooseGroup.bind(this, 'equipment') },
+						React.createElement(
+							'h3',
+							null,
+							React.createElement('i', { className: 'fa fa-fax' })
+						),
+						React.createElement(
+							'h3',
+							null,
+							frases.GET_STARTED.STEPS.A.MODAL.OPTION_2.TITLE
+						),
+						React.createElement(
+							'p',
+							null,
+							frases.GET_STARTED.STEPS.A.MODAL.OPTION_2.DESC
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+AddExtensions = React.createFactory(AddExtensions);
+
+var AddTrunk = React.createClass({
+	displayName: 'AddTrunk',
+
+
+	propTypes: {
+		step: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			step: {}
+		};
+	},
+
+	getInitialState: function () {
+		return {};
+	},
+
+	_addNewTrunk: function () {
+		window.location.hash = '#trunk/trunk';
+		$('#' + this.props.step.name).modal('hide');
+	},
+
+	render: function () {
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 text-center' },
+					React.createElement(
+						'h4',
+						null,
+						this.props.step.title
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(
+					'div',
+					{ className: 'col-xs-12 text-center' },
+					React.createElement(
+						'button',
+						{ onClick: this._addNewTrunk, className: 'btn btn-primary btn-xl' },
+						React.createElement('i', { className: 'fa fa-cloud' }),
+						' Add Trunk'
+					),
+					React.createElement('br', null),
+					React.createElement('br', null)
+				)
+			)
+		);
+	}
+});
+
+AddTrunk = React.createFactory(AddTrunk);
+
+var NewExtensions = React.createClass({
+	displayName: "NewExtensions",
+
+
+	propTypes: {},
+
+	getDefaultProps: function () {},
+
+	getInitialState: function () {
+		return {
+			extensions: {}
+		};
+	},
+
+	_getAvailableExtensions: function () {},
+
+	_addExtension: function () {
+		console.log('addExtension: ');
+	},
+
+	render: function () {
+		return React.createElement(
+			"div",
+			null,
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "col-xs-12" },
+					React.createElement(
+						"div",
+						{ className: "text-center" },
+						React.createElement(
+							"h1",
+							null,
+							React.createElement("i", { className: "fa fa-user" })
+						),
+						React.createElement(
+							"h4",
+							null,
+							"Add extensions for company employees. Users could be registered with Ringotel's apps. Create Equipment group, in order to connect third-party SIP softphones, IP phones, etc."
+						)
+					),
+					React.createElement("hr", null)
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "col-sm-6" },
+					React.createElement(
+						"div",
+						{ className: "form-group" },
+						React.createElement(
+							"label",
+							{ htmlFor: "available-users", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__EXTENSION}}" },
+							"NUMBER"
+						),
+						React.createElement(
+							"div",
+							{ className: "col-lg-4" },
+							React.createElement("select", { id: "available-users", className: "form-control select2" })
+						)
+					)
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "form-group" },
+					React.createElement(
+						"label",
+						{ htmlFor: "user-name", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__NAME}}" },
+						"NAME"
+					),
+					React.createElement(
+						"div",
+						{ className: "col-lg-8" },
+						React.createElement("input", { type: "text", className: "form-control", id: "user-name", placeholder: "{{NAME}}" })
+					)
+				),
+				React.createElement(
+					"div",
+					{ className: "form-group" },
+					React.createElement(
+						"label",
+						{ htmlFor: "user-dname", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__DISPLAY_NAME}}" },
+						"DISPLAY"
+					),
+					React.createElement(
+						"div",
+						{ className: "col-lg-8" },
+						React.createElement(
+							"div",
+							{ className: "input-group" },
+							React.createElement("input", { type: "text", className: "form-control", id: "user-alias", placeholder: "{{ DISPLAY}}" }),
+							React.createElement(
+								"span",
+								{ className: "input-group-btn" },
+								React.createElement(
+									"button",
+									{ type: "button", className: "btn btn-default" },
+									React.createElement("i", { className: "fa fa-exchange", "data-toggle": "tooltip", title: "{{COPY}}" })
+								)
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "form-group" },
+					React.createElement(
+						"label",
+						{ htmlFor: "user-pass", className: "col-lg-4 control-label", "data-toggle": "tooltip", title: "{{EXT_SETTS__PASSWORD}}" },
+						"PASSWORD"
+					),
+					React.createElement(
+						"div",
+						{ className: "col-lg-8" },
+						React.createElement(
+							"div",
+							{ className: "input-group" },
+							React.createElement("input", { type: "password", name: "trunk", className: "form-control", id: "user-pass", placeholder: "{{PASSWORD}}" }),
+							React.createElement(
+								"span",
+								{ className: "input-group-btn" },
+								React.createElement(
+									"button",
+									{ type: "button", className: "btn btn-default" },
+									React.createElement("i", { className: "fa fa-eye", "data-toggle": "tooltip", title: "{{REVEAL_PWD}}" })
+								),
+								React.createElement(
+									"button",
+									{ type: "button", className: "btn btn-default" },
+									React.createElement("i", { className: "fa fa-refresh", "data-toggle": "tooltip", title: "{{GENERATE_PWD}}" })
+								)
+							)
+						)
+					)
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "row" },
+				React.createElement(
+					"div",
+					{ className: "col-xs-12" },
+					React.createElement(
+						"button",
+						{ className: "btn btn-primary", onClick: this._addExtension },
+						"Add extensiosn"
+					)
+				)
+			)
+		);
+	}
+});
+
+NewExtensions = React.createFactory(NewExtensions);
+
+var GsStep = React.createClass({
+	displayName: 'GsStep',
+
+
+	propTypes: {
+		step: React.PropTypes.object,
+		frases: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			step: {}
+		};
+	},
+
+	getInitialState: function () {
+		return {
+			done: false
+		};
+	},
+
+	_loadStep: function () {
+		var step = this.props.step;
+		var frases = this.props.frases;
+		var stepCont = document.createElement('div');
+		var Step = function () {
+			var comp;
+			switch (step.component) {
+				case 'AddExtensions':
+					comp = React.createElement(AddExtensions, { step: step, frases: frases });
+					break;
+				case 'AddCallGroup':
+					comp = React.createElement(AddCallGroup, { step: step, frases: frases });
+					break;
+				// case 'AddTrunk':
+				// 	comp = <AddTrunk step={step} />;
+				// 	break;
+			};
+
+			console.log('loadStep: ', step, comp);
+
+			if (!comp) return null;else {
+				return React.createElement(ModalComponent, {
+					id: step.name,
+					title: step.title,
+					size: 'lg',
+					body: comp
+					// submit={ this._stepDone }
+				});
+			}
+		};
+
+		document.body.appendChild(stepCont);
+
+		ReactDOM.render(React.createFactory(Step)({
+			step: step
+		}), stepCont);
+
+		$('#' + step.name).modal();
+	},
+
+	_stepDone: function () {
+		this.setState({
+			done: true
+		});
+	},
+
+	render: function () {
+		var stepDone = this.props.step.done;
+		return React.createElement(
+			'li',
+			{ className: "gs-item " + (stepDone ? "gs-done" : ""), onClick: this.props.step.onClick ? this.props.step.onClick : this._loadStep },
+			React.createElement(
+				'div',
+				{ className: 'gs-item-header' },
+				React.createElement('i', { className: this.props.step.icon }),
+				' ',
+				this.props.step.title,
+				React.createElement(
+					'span',
+					{ className: stepDone ? "fa-stack" : "hidden", style: { position: 'absolute', top: '5px', right: '5px' } },
+					React.createElement('i', { className: 'fa fa-circle fa-stack-2x text-success' }),
+					React.createElement('i', { className: 'fa fa-check fa-stack-1x text-white' })
+				)
+			),
+			React.createElement(
+				'div',
+				{ className: 'gs-item-body' },
+				React.createElement(
+					'p',
+					null,
+					this.props.step.desc
+				)
+			)
+		);
+	}
+});
+
+GsStep = React.createFactory(GsStep);
+
+var WelcomeModal = React.createClass({
+	displayName: 'WelcomeModal',
+
+
+	propTypes: {
+		startTour: React.PropTypes.func,
+		modalId: React.PropTypes.string,
+		frases: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			modalId: 'welcome-modal'
+		};
+	},
+
+	// getInitialState: function() {
+	// 	return {};
+	// },
+
+	_startTour: function () {
+		console.log('_startTour: ', this.props.startTour);
+		this.props.startTour();
+		this._dismissModal();
+	},
+
+	_dismissModal: function () {
+		$('#' + this.props.modalId).modal('hide');
+	},
+
+	_getModalBody: function () {
+		return React.createElement(
+			'div',
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'col-xs-12 text-center' },
+				React.createElement(
+					'h1',
+					null,
+					React.createElement(
+						'span',
+						{ className: 'fa-stack' },
+						React.createElement('i', { className: 'fa fa-circle fa-stack-2x text-success' }),
+						React.createElement('i', { className: 'fa fa-check fa-stack-1x text-white' })
+					)
+				),
+				React.createElement(
+					'h1',
+					null,
+					this.props.frases.GET_STARTED.WELCOME_MSG
+				),
+				React.createElement(
+					'h4',
+					null,
+					this.props.frases.GET_STARTED.TOUR_OFFER
+				),
+				React.createElement('hr', null),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'button',
+						{ className: 'btn btn-primary', onClick: this._startTour },
+						this.props.frases.GET_STARTED.START_TOUR
+					),
+					React.createElement(
+						'span',
+						null,
+						' '
+					),
+					React.createElement(
+						'button',
+						{ className: 'btn btn-default', onClick: this._dismissModal },
+						this.props.frases.GET_STARTED.DISMISS_TOUR
+					)
+				)
+			)
+		);
+	},
+
+	render: function () {
+		var body = this._getModalBody();
+
+		return React.createElement(ModalComponent, { id: this.props.modalId, size: 'lg', body: body });
+	}
+});
+
+WelcomeModal = React.createFactory(WelcomeModal);
+var GsWidget = React.createClass({
+	displayName: "GsWidget",
+
+
+	propTypes: {
+		steps: React.PropTypes.array,
+		frases: React.PropTypes.object
+	},
+
+	getDefaultProps: function () {
+		return {
+			steps: []
+		};
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		return React.createElement(
+			"div",
+			{ className: "gs-items-cont" },
+			React.createElement(
+				"ul",
+				{ className: "gs-items" },
+				this.props.steps.map(function (item) {
+					return React.createElement(GsStep, { step: item, frases: frases, key: item.name });
+				}, this)
+			)
+		);
+	}
+});
+
+GsWidget = React.createFactory(GsWidget);
+var ExtensionsComponent = React.createClass({
+	displayName: "ExtensionsComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		data: React.PropTypes.array,
+		getExtension: React.PropTypes.func,
+		deleteExtension: React.PropTypes.func
+	},
+
+	getDefaultProps: function () {
+		return {
+			data: []
+		};
+	},
+
+	// getInitialState: function() {
+	// 	return {
+	// 		data: []
+	// 	};
+	// },
+
+	// componentWillMount: function() {
+	// 	this.setState({ data: this.props.data });
+	// },
+
+	// _getData: function(params, callback) {
+	// 	json_rpc_async('getExtensions', null, callback);
+	// },
+
+	render: function () {
+		var frases = this.props.frases;
+		var data = this.props.data;
+		console.log('ExtensionsComponent: ', data);
+
+		return React.createElement(
+			"div",
+			{ className: "row" },
+			React.createElement(
+				"div",
+				{ className: "col-xs-12" },
+				React.createElement(GroupMembersComponent, { frases: frases, members: data, withGroups: true, getExtension: this.props.getExtension, deleteMember: this.props.deleteExtension })
+			)
+		);
+	}
+});
+
+ExtensionsComponent = React.createFactory(ExtensionsComponent);
+
 var RecQosTable = React.createClass({
 	displayName: "RecQosTable",
 
@@ -5699,6 +5633,819 @@ var RecQosTable = React.createClass({
 });
 
 RecQosTable = React.createFactory(RecQosTable);
+var ServicesComponent = React.createClass({
+	displayName: "ServicesComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		services: React.PropTypes.array,
+		ldap: React.PropTypes.object,
+		saveOptions: React.PropTypes.func,
+		saveLdapOptions: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			services: [],
+			ldap: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			services: this.props.services || [],
+			ldap: this.props.ldap || {}
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			services: props.services || [],
+			ldap: props.ldap || {}
+		});
+	},
+
+	_saveOptions: function (index, props) {
+		this.props.saveOptions(props);
+	},
+
+	_saveLdapOptions: function (props) {
+		this.props.saveLdapOptions(props);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var services = this.state.services;
+		var ldap = this.state.ldap;
+
+		return React.createElement(
+			"div",
+			{ className: "row" },
+			React.createElement(
+				"div",
+				{ className: "col-xs-12" },
+				React.createElement(
+					PanelComponent,
+					null,
+					React.createElement(
+						"div",
+						{ className: "panel-group", id: "services-acc", role: "tablist", "aria-multiselectable": "true", style: { marginBottom: '10px', borderRadius: 0, cursor: 'pointer' } },
+						React.createElement(LdapOptionsComponent, { params: ldap, frases: frases, onSave: this._saveLdapOptions }),
+						services.map(function (item, index) {
+							return React.createElement(ServiceItemComponent, {
+								key: item.id,
+								index: index,
+								params: item,
+								frases: frases,
+								onSave: this._saveOptions.bind(this, index)
+							});
+						}.bind(this))
+					)
+				)
+			)
+		);
+	}
+});
+
+ServicesComponent = React.createFactory(ServicesComponent);
+var LdapOptionsComponent = React.createClass({
+	displayName: 'LdapOptionsComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		params: React.PropTypes.object,
+		onSave: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			params: this.props.params
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			params: props.params
+		});
+	},
+
+	_saveServiceProps: function () {
+		var params = this.state.params;
+		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
+
+		if (customPhoneAtt) {
+			params.props.directoryAttributePhone = params.props.customDirectoryAttributePhone;
+		}
+
+		delete params.props.customDirectoryAttributePhone;
+
+		this.props.onSave(params);
+	},
+
+	_onChange: function (e) {
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
+		var update = this.state.params;
+
+		update.props[target.name] = value !== null ? value : "";;
+
+		console.log('ServiceItemComponent _onChange', update);
+
+		this.setState({
+			params: update
+		});
+	},
+
+	_isCustomPhoneAttr: function (val) {
+		var regex = new RegExp('telephoneNumber|mobile|ipPhone');
+		return !regex.test(val);
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var params = this.state.params;
+		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
+
+		if (customPhoneAtt && !params.props.customDirectoryAttributePhone) {
+			params.props.customDirectoryAttributePhone = params.props.directoryAttributePhone !== '0' ? params.props['directoryAttributePhone'] : '';
+		}
+
+		return React.createElement(
+			'div',
+			{ className: 'panel panel-default', style: { borderRadius: 0 } },
+			React.createElement(
+				'div',
+				{
+					className: 'panel-heading',
+					role: 'tab',
+					style: { backgroundColor: 'white' },
+					'data-parent': '#services-acc',
+					'data-toggle': 'collapse',
+					'data-target': "#acc-" + params.id,
+					'aria-expanded': 'true',
+					'aria-controls': 'collapseOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-sm-2 text-center' },
+						React.createElement('img', {
+							src: "/badmin/images/services/" + params.id + '.png',
+							alt: params.name,
+							style: { maxWidth: '100%', maxHeight: '65px' }
+						})
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-10' },
+						React.createElement(
+							'h4',
+							null,
+							params.name
+						),
+						React.createElement(
+							'h5',
+							null,
+							'Description'
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{
+					id: "acc-" + params.id,
+					className: 'panel-collapse collapse',
+					role: 'tabpanel',
+					'aria-labelledby': 'headingOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'panel-body' },
+					React.createElement(
+						'form',
+						{ className: 'form-horizontal', autoComplete: 'off' },
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_SERVER },
+								frases.LDAP.DIR_SERVER
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryServer', value: params.props.directoryServer, onChange: this._onChange })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'div',
+									{ className: 'checkbox' },
+									React.createElement(
+										'label',
+										null,
+										React.createElement('input', { type: 'checkbox', name: 'directorySSL', checked: params.props.directorySSL, onChange: this._onChange }),
+										' ',
+										frases.LDAP.DIR_SSL
+									)
+								)
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryAttributeUID', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_UID },
+								frases.LDAP.DIR_ATTR_UID
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement(
+									'select',
+									{ className: 'form-control', name: 'directoryAttributeUID', value: params.props.directoryAttributeUID, onChange: this._onChange },
+									React.createElement(
+										'option',
+										{ value: 'userPrincipalName' },
+										'userPrincipalName'
+									),
+									React.createElement(
+										'option',
+										{ value: 'sAMAccountName' },
+										'sAMAccountName'
+									),
+									React.createElement(
+										'option',
+										{ value: 'uid' },
+										'uid'
+									),
+									React.createElement(
+										'option',
+										{ value: 'name' },
+										'name'
+									),
+									React.createElement(
+										'option',
+										{ value: 'mail' },
+										'mail'
+									)
+								)
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryAttributePhone', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_PHONE },
+								frases.LDAP.DIR_ATTR_PHONE
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement(
+									'select',
+									{ className: 'form-control', name: 'directoryAttributePhone', value: customPhoneAtt ? '0' : params.props.directoryAttributePhone, onChange: this._onChange },
+									React.createElement(
+										'option',
+										{ value: 'telephoneNumber' },
+										'telephoneNumber'
+									),
+									React.createElement(
+										'option',
+										{ value: 'mobile' },
+										'mobile'
+									),
+									React.createElement(
+										'option',
+										{ value: 'ipPhone' },
+										'ipPhone'
+									),
+									React.createElement(
+										'option',
+										{ value: '0' },
+										frases.OTHER
+									)
+								)
+							)
+						),
+						customPhoneAtt && React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement('input', { type: 'text', className: 'form-control', name: 'customDirectoryAttributePhone', value: params.props.customDirectoryAttributePhone, onChange: this._onChange })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryAuth', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_AUTH },
+								frases.LDAP.DIR_AUTH
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement(
+									'select',
+									{ className: 'form-control', name: 'directoryAuth', value: params.props.directoryAuth, onChange: this._onChange },
+									React.createElement(
+										'option',
+										{ value: 'simple' },
+										'simple'
+									),
+									React.createElement(
+										'option',
+										{ value: 'DIGEST-MD5' },
+										'DIGEST-MD5'
+									),
+									React.createElement(
+										'option',
+										{ value: 'GSSAPI' },
+										'GSSAPI (Kerberos 5)'
+									)
+								)
+							)
+						),
+						params.props.directoryAuth === 'GSSAPI' && React.createElement(
+							'div',
+							null,
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'directoryKDC', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_KDC },
+									frases.LDAP.GSSAPI.DIR_KDC
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryKDC', value: params.props.directoryKDC, onChange: this._onChange })
+								)
+							),
+							React.createElement(
+								'div',
+								{ className: 'form-group' },
+								React.createElement(
+									'label',
+									{ htmlFor: 'directoryAdminServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ADMIN_SERVER },
+									frases.LDAP.GSSAPI.DIR_ADMIN_SERVER
+								),
+								React.createElement(
+									'div',
+									{ className: 'col-sm-4' },
+									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryAdminServer', value: params.props.directoryAdminServer, onChange: this._onChange })
+								)
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'label',
+								{ htmlFor: 'directoryDomains', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_DOMAINS },
+								frases.LDAP.GSSAPI.DIR_DOMAINS
+							),
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4' },
+								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryDomains', value: params.props.directoryDomains, onChange: this._onChange })
+							)
+						),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
+									React.createElement('i', { className: 'fa fa-check fa-fw' }),
+									' ',
+									this.props.frases.SAVE
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	}
+
+});
+
+LdapOptionsComponent = React.createFactory(LdapOptionsComponent);
+var ServiceItemComponent = React.createClass({
+	displayName: 'ServiceItemComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		params: React.PropTypes.object,
+		onSave: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function () {
+		var params = this.props.params;
+		var state = {};
+
+		Object.keys(params).map(function (key) {
+			state[key] = params[key];
+			return key;
+		});
+
+		this.setState({
+			params: state
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		var params = props.params;
+		var state = {};
+
+		Object.keys(params).map(function (key) {
+			state[key] = params[key];
+			return key;
+		});
+
+		this.setState({
+			params: state
+		});
+	},
+
+	_saveServiceProps: function () {
+		console.log('ServiceItemComponent _saveServiceProps', this.state.params);
+		this.props.onSave(this.state.params);
+	},
+
+	_onChange: function (e) {
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
+		var update = this.state.params;
+
+		update[target.name] = value !== null ? value : "";;
+
+		console.log('ServiceItemComponent _onChange', update);
+
+		this.setState({
+			params: update
+		});
+	},
+
+	_onPropsChange: function (e) {
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
+		var update = this.state.params;
+
+		update.props[target.name] = value !== null ? value : "";;
+
+		this.setState({
+			params: update
+		});
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var params = this.state.params;
+		var props = Object.keys(params.props).map(function (key) {
+			return {
+				key: key,
+				value: params.props[key]
+			};
+		});
+
+		console.log('ServiceItemComponent render: ', this.state.params);
+
+		return React.createElement(
+			'div',
+			{ className: 'panel panel-default', style: { borderRadius: 0 } },
+			React.createElement(
+				'div',
+				{
+					className: 'panel-heading',
+					role: 'tab',
+					style: { backgroundColor: 'white' },
+					'data-parent': '#services-acc',
+					'data-toggle': 'collapse',
+					'data-target': "#acc-" + params.id,
+					'aria-expanded': 'true',
+					'aria-controls': 'collapseOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'row' },
+					React.createElement(
+						'div',
+						{ className: 'col-sm-2 text-center' },
+						React.createElement('img', {
+							src: "/badmin/images/services/" + params.id + '.png',
+							alt: params.name,
+							style: { maxWidth: '100%', maxHeight: '65px' }
+						})
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-8' },
+						React.createElement(
+							'h4',
+							null,
+							params.name
+						),
+						React.createElement(
+							'h5',
+							null,
+							'Description'
+						)
+					),
+					React.createElement(
+						'div',
+						{ className: 'col-sm-2' },
+						React.createElement(
+							'span',
+							{
+								style: { fontSize: '12px' },
+								className: "label label-" + (this.props.params.state ? 'success' : 'default')
+							},
+							this.props.params.state ? 'enabled' : 'disabled'
+						)
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				{
+					id: "acc-" + params.id,
+					className: 'panel-collapse collapse',
+					role: 'tabpanel',
+					'aria-labelledby': 'headingOne'
+				},
+				React.createElement(
+					'div',
+					{ className: 'panel-body' },
+					React.createElement(
+						'form',
+						{ className: 'form-horizontal' },
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'div',
+									{ className: 'checkbox' },
+									React.createElement(
+										'label',
+										{ 'data-toggle': 'tooltip', title: frases.ENABLE },
+										React.createElement('input', { type: 'checkbox', checked: params.state, name: 'state', onChange: this._onChange }),
+										' ',
+										frases.ENABLE
+									)
+								)
+							)
+						),
+						props.map(function (item) {
+							return React.createElement(ServicePropComponent, { key: item.key, params: item, onChange: this._onPropsChange });
+						}.bind(this)),
+						React.createElement(
+							'div',
+							{ className: 'form-group' },
+							React.createElement(
+								'div',
+								{ className: 'col-sm-4 col-sm-offset-4' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
+									React.createElement('i', { className: 'fa fa-check fa-fw' }),
+									' ',
+									this.props.frases.SAVE
+								)
+							)
+						)
+					)
+				)
+			)
+		);
+	}
+
+});
+
+ServiceItemComponent = React.createFactory(ServiceItemComponent);
+var ServicePropComponent = React.createClass({
+	displayName: 'ServicePropComponent',
+
+
+	propTypes: {
+		params: React.PropTypes.object,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			params: {}
+		};
+	},
+
+	componentWillMount: function () {
+		this.setState({
+			params: this.props.params || {}
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			params: props.params || {}
+		});
+	},
+
+	_onChange: function (e) {
+		this.props.onChange(e);
+	},
+
+	render: function () {
+		var params = this.state.params;
+		var type = typeof this.props.params.value;
+		var label = params.key.replace('_', ' ').replace('directory', '');
+
+		return React.createElement(
+			'div',
+			null,
+			type === 'boolean' ? React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4 col-sm-offset-4' },
+					React.createElement(
+						'div',
+						{ className: 'checkbox' },
+						React.createElement(
+							'label',
+							null,
+							React.createElement('input', { type: 'checkbox', checked: params.value, name: params.key, onChange: this._onChange }),
+							' ',
+							params.key
+						)
+					)
+				)
+			) : type === 'number' ? React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
+					label
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement('input', { type: 'number', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
+				)
+			) : React.createElement(
+				'div',
+				{ className: 'form-group' },
+				React.createElement(
+					'label',
+					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
+					label
+				),
+				React.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					React.createElement('input', { type: 'text', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
+				)
+			)
+		);
+	}
+});
+
+ServicePropComponent = React.createFactory(ServicePropComponent);
+var AvailableUsersModalComponent = React.createClass({
+	displayName: "AvailableUsersModalComponent",
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		groupid: React.PropTypes.string,
+		onSubmit: React.PropTypes.func,
+		modalId: React.PropTypes.string
+	},
+
+	getInitialState: function () {
+		return {
+			selectedUsers: []
+		};
+	},
+
+	_saveChanges: function () {
+		this.props.onSubmit(this.state.selectedUsers);
+	},
+
+	_onUsersSelected: function (users) {
+		this.setState({ selectedUsers: users });
+	},
+
+	_getBody: function () {
+		var frases = this.props.frases;
+		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected, groupid: this.props.groupid });
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var body = this._getBody();
+
+		return React.createElement(ModalComponent, {
+			size: "sm",
+			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
+			submitText: frases.ADD,
+			cancelText: frases.CANCEL,
+			submit: this._saveChanges,
+			body: body
+		});
+	}
+
+});
+
+AvailableUsersModalComponent = React.createFactory(AvailableUsersModalComponent);
+var CreateGroupModalComponent = React.createClass({
+	displayName: 'CreateGroupModalComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		type: React.PropTypes.string,
+		onSubmit: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			selectedUsers: []
+		};
+	},
+
+	_onUsersSelected: function (users) {
+		console.log('_onUsersSelected: ', users);
+		this.setState({ selectedUsers: users });
+	},
+
+	_onSubmit: function () {
+		console.log('_onSubmit');
+	},
+
+	_getBody: function () {
+		var frases = this.props.frases;
+		return React.createElement(AvailableUsersComponent, { frases: frases, onChange: this._onUsersSelected });
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var body = this._getBody();
+
+		return React.createElement(ModalComponent, {
+			size: 'sm',
+			title: frases.CHAT_CHANNEL.AVAILABLE_USERS,
+			submitText: frases.ADD,
+			cancelText: frases.CANCEL,
+			submit: this._onSubmit,
+			body: body
+		});
+	}
+
+});
+
+CreateGroupModalComponent = React.createFactory(CreateGroupModalComponent);
 var BranchOptionsComponent = React.createClass({
     displayName: 'BranchOptionsComponent',
 
@@ -7289,15 +8036,6 @@ var UsageComponent = React.createClass({
 				React.createElement(
 					'div',
 					{ className: 'col-xs-12' },
-					React.createElement(StorageUsageComponent, { frases: this.props.frases, data: this.props.options, utils: this.props.utils })
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'row' },
-				React.createElement(
-					'div',
-					{ className: 'col-xs-12' },
 					React.createElement(UsersStorageComponent, { frases: frases, data: this.props.storageInfo })
 				)
 			)
@@ -7623,29 +8361,54 @@ var StoragesComponent = React.createClass({
 });
 
 StoragesComponent = React.createFactory(StoragesComponent);
-function StorageUsageComponent(props) {
+var StorageUsageComponent = React.createClass({
+	displayName: 'StorageUsageComponent',
 
-	var frases = props.frases;
-	var data = props.data;
-	var storesize = props.utils.convertBytes(props.data.storesize, 'Byte', 'GB');
-	var storelimit = props.utils.convertBytes(props.data.storelimit, 'Byte', 'GB');
 
-	return React.createElement(
-		'div',
-		{ className: 'panel' },
-		React.createElement(
+	propTypes: {
+		frases: React.PropTypes.object,
+		subscription: React.PropTypes.object,
+		utils: React.PropTypes.object,
+		updateLicenses: React.PropTypes.func
+	},
+
+	getInitialState: function () {
+		return {
+			data: null
+		};
+	},
+
+	componentWillMount: function () {
+		getPbxOptions(function (result) {
+			this.setState({ data: result });
+		}.bind(this));
+	},
+
+	componentWillReceiveProps: function () {
+		this.setState({ data: null });
+
+		getPbxOptions(function (result) {
+			this.setState({ data: result });
+		}.bind(this));
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+		var data = this.state.data;
+		var plan = this.props.subscription.plan;
+		var isTrial = plan.planId === 'trial' || plan.numId === 0;
+		var storesize;
+		var storelimit;
+
+		if (data) {
+			storesize = this.props.utils.convertBytes(this.state.data.storesize, 'Byte', 'GB');
+			storelimit = this.props.utils.convertBytes(this.state.data.storelimit, 'Byte', 'GB');
+		}
+
+		return React.createElement(
 			'div',
-			{ className: 'panel-header' },
-			React.createElement(
-				'span',
-				null,
-				frases.USAGE.PANEL_TITLE
-			)
-		),
-		React.createElement(
-			'div',
-			{ className: 'panel-body' },
-			React.createElement(
+			null,
+			this.state.data ? React.createElement(
 				'div',
 				{ className: 'row', style: { textAlign: "center" } },
 				React.createElement(
@@ -7732,11 +8495,48 @@ function StorageUsageComponent(props) {
 						null,
 						frases.USAGE.LINES.USAGE_ITEM
 					)
+				),
+				!isTrial && React.createElement(
+					'div',
+					{ className: 'text-center col-xs-12' },
+					React.createElement('hr', null),
+					React.createElement(
+						'a',
+						{
+							href: '#',
+							className: 'text-uppercase',
+							style: { fontSize: "14px" },
+							role: 'button',
+							'data-toggle': 'collapse',
+							href: '#licensesCollapse',
+							'aria-expanded': 'false',
+							'aria-controls': 'licensesCollapse'
+						},
+						'Add/Remove Licenses'
+					),
+					React.createElement('br', null),
+					React.createElement(
+						'div',
+						{ className: 'collapse', id: 'licensesCollapse' },
+						React.createElement(AddLicensesComponent, {
+							frases: frases,
+							subscription: this.props.subscription,
+							minUsers: data.users,
+							minStorage: data.storesize,
+							addLicenses: this.props.updateLicenses
+						})
+					)
 				)
+			) : React.createElement(
+				'div',
+				{ className: 'row' },
+				React.createElement(Spinner, null)
 			)
-		)
-	);
-}
+		);
+	}
+});
+
+StorageUsageComponent = React.createFactory(StorageUsageComponent);
 function UserStorageComponent(props) {
 
 	return React.createElement(
@@ -7855,725 +8655,6 @@ var UsersStorageComponent = React.createClass({
 });
 
 UsersStorageComponent = React.createFactory(UsersStorageComponent);
-var ServicesComponent = React.createClass({
-	displayName: "ServicesComponent",
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		services: React.PropTypes.array,
-		ldap: React.PropTypes.object,
-		saveOptions: React.PropTypes.func,
-		saveLdapOptions: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			services: [],
-			ldap: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			services: this.props.services || [],
-			ldap: this.props.ldap || {}
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			services: props.services || [],
-			ldap: props.ldap || {}
-		});
-	},
-
-	_saveOptions: function (index, props) {
-		this.props.saveOptions(props);
-	},
-
-	_saveLdapOptions: function (props) {
-		this.props.saveLdapOptions(props);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var services = this.state.services;
-		var ldap = this.state.ldap;
-
-		return React.createElement(
-			"div",
-			{ className: "row" },
-			React.createElement(
-				"div",
-				{ className: "col-xs-12" },
-				React.createElement(
-					PanelComponent,
-					null,
-					React.createElement(
-						"div",
-						{ className: "panel-group", id: "services-acc", role: "tablist", "aria-multiselectable": "true", style: { marginBottom: '10px', borderRadius: 0, cursor: 'pointer' } },
-						React.createElement(LdapOptionsComponent, { params: ldap, frases: frases, onSave: this._saveLdapOptions }),
-						services.map(function (item, index) {
-							return React.createElement(ServiceItemComponent, {
-								key: item.id,
-								index: index,
-								params: item,
-								frases: frases,
-								onSave: this._saveOptions.bind(this, index)
-							});
-						}.bind(this))
-					)
-				)
-			)
-		);
-	}
-});
-
-ServicesComponent = React.createFactory(ServicesComponent);
-var LdapOptionsComponent = React.createClass({
-	displayName: 'LdapOptionsComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		onSave: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			params: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			params: this.props.params
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			params: props.params
-		});
-	},
-
-	_saveServiceProps: function () {
-		var params = this.state.params;
-		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
-
-		if (customPhoneAtt) {
-			params.props.directoryAttributePhone = params.props.customDirectoryAttributePhone;
-		}
-
-		delete params.props.customDirectoryAttributePhone;
-
-		this.props.onSave(params);
-	},
-
-	_onChange: function (e) {
-		var target = e.target;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
-		var update = this.state.params;
-
-		update.props[target.name] = value !== null ? value : "";;
-
-		console.log('ServiceItemComponent _onChange', update);
-
-		this.setState({
-			params: update
-		});
-	},
-
-	_isCustomPhoneAttr: function (val) {
-		var regex = new RegExp('telephoneNumber|mobile|ipPhone');
-		return !regex.test(val);
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var params = this.state.params;
-		var customPhoneAtt = this._isCustomPhoneAttr(params.props.directoryAttributePhone);
-
-		if (customPhoneAtt && !params.props.customDirectoryAttributePhone) {
-			params.props.customDirectoryAttributePhone = params.props.directoryAttributePhone !== '0' ? params.props['directoryAttributePhone'] : '';
-		}
-
-		return React.createElement(
-			'div',
-			{ className: 'panel panel-default', style: { borderRadius: 0 } },
-			React.createElement(
-				'div',
-				{
-					className: 'panel-heading',
-					role: 'tab',
-					style: { backgroundColor: 'white' },
-					'data-parent': '#services-acc',
-					'data-toggle': 'collapse',
-					'data-target': "#acc-" + params.id,
-					'aria-expanded': 'true',
-					'aria-controls': 'collapseOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-sm-2 text-center' },
-						React.createElement('img', {
-							src: "/badmin/images/services/" + params.id + '.png',
-							alt: params.name,
-							style: { maxWidth: '100%', maxHeight: '65px' }
-						})
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-10' },
-						React.createElement(
-							'h4',
-							null,
-							params.name
-						),
-						React.createElement(
-							'h5',
-							null,
-							'Description'
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{
-					id: "acc-" + params.id,
-					className: 'panel-collapse collapse',
-					role: 'tabpanel',
-					'aria-labelledby': 'headingOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'panel-body' },
-					React.createElement(
-						'form',
-						{ className: 'form-horizontal', autoComplete: 'off' },
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_SERVER },
-								frases.LDAP.DIR_SERVER
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryServer', value: params.props.directoryServer, onChange: this._onChange })
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'div',
-									{ className: 'checkbox' },
-									React.createElement(
-										'label',
-										null,
-										React.createElement('input', { type: 'checkbox', name: 'directorySSL', checked: params.props.directorySSL, onChange: this._onChange }),
-										' ',
-										frases.LDAP.DIR_SSL
-									)
-								)
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryAttributeUID', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_UID },
-								frases.LDAP.DIR_ATTR_UID
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'directoryAttributeUID', value: params.props.directoryAttributeUID, onChange: this._onChange },
-									React.createElement(
-										'option',
-										{ value: 'userPrincipalName' },
-										'userPrincipalName'
-									),
-									React.createElement(
-										'option',
-										{ value: 'sAMAccountName' },
-										'sAMAccountName'
-									),
-									React.createElement(
-										'option',
-										{ value: 'uid' },
-										'uid'
-									),
-									React.createElement(
-										'option',
-										{ value: 'name' },
-										'name'
-									),
-									React.createElement(
-										'option',
-										{ value: 'mail' },
-										'mail'
-									)
-								)
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryAttributePhone', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ATTR_PHONE },
-								frases.LDAP.DIR_ATTR_PHONE
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'directoryAttributePhone', value: customPhoneAtt ? '0' : params.props.directoryAttributePhone, onChange: this._onChange },
-									React.createElement(
-										'option',
-										{ value: 'telephoneNumber' },
-										'telephoneNumber'
-									),
-									React.createElement(
-										'option',
-										{ value: 'mobile' },
-										'mobile'
-									),
-									React.createElement(
-										'option',
-										{ value: 'ipPhone' },
-										'ipPhone'
-									),
-									React.createElement(
-										'option',
-										{ value: '0' },
-										frases.OTHER
-									)
-								)
-							)
-						),
-						customPhoneAtt && React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement('input', { type: 'text', className: 'form-control', name: 'customDirectoryAttributePhone', value: params.props.customDirectoryAttributePhone, onChange: this._onChange })
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryAuth', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_AUTH },
-								frases.LDAP.DIR_AUTH
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement(
-									'select',
-									{ className: 'form-control', name: 'directoryAuth', value: params.props.directoryAuth, onChange: this._onChange },
-									React.createElement(
-										'option',
-										{ value: 'simple' },
-										'simple'
-									),
-									React.createElement(
-										'option',
-										{ value: 'DIGEST-MD5' },
-										'DIGEST-MD5'
-									),
-									React.createElement(
-										'option',
-										{ value: 'GSSAPI' },
-										'GSSAPI (Kerberos 5)'
-									)
-								)
-							)
-						),
-						params.props.directoryAuth === 'GSSAPI' && React.createElement(
-							'div',
-							null,
-							React.createElement(
-								'div',
-								{ className: 'form-group' },
-								React.createElement(
-									'label',
-									{ htmlFor: 'directoryKDC', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_KDC },
-									frases.LDAP.GSSAPI.DIR_KDC
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryKDC', value: params.props.directoryKDC, onChange: this._onChange })
-								)
-							),
-							React.createElement(
-								'div',
-								{ className: 'form-group' },
-								React.createElement(
-									'label',
-									{ htmlFor: 'directoryAdminServer', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_ADMIN_SERVER },
-									frases.LDAP.GSSAPI.DIR_ADMIN_SERVER
-								),
-								React.createElement(
-									'div',
-									{ className: 'col-sm-4' },
-									React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryAdminServer', value: params.props.directoryAdminServer, onChange: this._onChange })
-								)
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'label',
-								{ htmlFor: 'directoryDomains', className: 'col-sm-4 control-label', 'data-toggle': 'tooltip', title: frases.LDAP__DIR_DOMAINS },
-								frases.LDAP.GSSAPI.DIR_DOMAINS
-							),
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4' },
-								React.createElement('input', { type: 'text', className: 'form-control', name: 'directoryDomains', value: params.props.directoryDomains, onChange: this._onChange })
-							)
-						),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'button',
-									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
-									React.createElement('i', { className: 'fa fa-check fa-fw' }),
-									' ',
-									this.props.frases.SAVE
-								)
-							)
-						)
-					)
-				)
-			)
-		);
-	}
-
-});
-
-LdapOptionsComponent = React.createFactory(LdapOptionsComponent);
-var ServiceItemComponent = React.createClass({
-	displayName: 'ServiceItemComponent',
-
-
-	propTypes: {
-		frases: React.PropTypes.object,
-		params: React.PropTypes.object,
-		onSave: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			params: {}
-		};
-	},
-
-	componentWillMount: function () {
-		var params = this.props.params;
-		var state = {};
-
-		Object.keys(params).map(function (key) {
-			state[key] = params[key];
-			return key;
-		});
-
-		this.setState({
-			params: state
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		var params = props.params;
-		var state = {};
-
-		Object.keys(params).map(function (key) {
-			state[key] = params[key];
-			return key;
-		});
-
-		this.setState({
-			params: state
-		});
-	},
-
-	_saveServiceProps: function () {
-		console.log('ServiceItemComponent _saveServiceProps', this.state.params);
-		this.props.onSave(this.state.params);
-	},
-
-	_onChange: function (e) {
-		var target = e.target;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
-		var update = this.state.params;
-
-		update[target.name] = value !== null ? value : "";;
-
-		console.log('ServiceItemComponent _onChange', update);
-
-		this.setState({
-			params: update
-		});
-	},
-
-	_onPropsChange: function (e) {
-		var target = e.target;
-		var type = target.getAttribute('data-type') || target.type;
-		var value = type === 'checkbox' ? target.checked : type === 'number' ? parseFloat(target.value) : target.value;
-		var update = this.state.params;
-
-		update.props[target.name] = value !== null ? value : "";;
-
-		this.setState({
-			params: update
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-		var params = this.state.params;
-		var props = Object.keys(params.props).map(function (key) {
-			return {
-				key: key,
-				value: params.props[key]
-			};
-		});
-
-		console.log('ServiceItemComponent render: ', this.state.params);
-
-		return React.createElement(
-			'div',
-			{ className: 'panel panel-default', style: { borderRadius: 0 } },
-			React.createElement(
-				'div',
-				{
-					className: 'panel-heading',
-					role: 'tab',
-					style: { backgroundColor: 'white' },
-					'data-parent': '#services-acc',
-					'data-toggle': 'collapse',
-					'data-target': "#acc-" + params.id,
-					'aria-expanded': 'true',
-					'aria-controls': 'collapseOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-sm-2 text-center' },
-						React.createElement('img', {
-							src: "/badmin/images/services/" + params.id + '.png',
-							alt: params.name,
-							style: { maxWidth: '100%', maxHeight: '65px' }
-						})
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-8' },
-						React.createElement(
-							'h4',
-							null,
-							params.name
-						),
-						React.createElement(
-							'h5',
-							null,
-							'Description'
-						)
-					),
-					React.createElement(
-						'div',
-						{ className: 'col-sm-2' },
-						React.createElement(
-							'span',
-							{
-								style: { fontSize: '12px' },
-								className: "label label-" + (this.props.params.state ? 'success' : 'default')
-							},
-							this.props.params.state ? 'enabled' : 'disabled'
-						)
-					)
-				)
-			),
-			React.createElement(
-				'div',
-				{
-					id: "acc-" + params.id,
-					className: 'panel-collapse collapse',
-					role: 'tabpanel',
-					'aria-labelledby': 'headingOne'
-				},
-				React.createElement(
-					'div',
-					{ className: 'panel-body' },
-					React.createElement(
-						'form',
-						{ className: 'form-horizontal' },
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'div',
-									{ className: 'checkbox' },
-									React.createElement(
-										'label',
-										{ 'data-toggle': 'tooltip', title: frases.ENABLE },
-										React.createElement('input', { type: 'checkbox', checked: params.state, name: 'state', onChange: this._onChange }),
-										' ',
-										frases.ENABLE
-									)
-								)
-							)
-						),
-						props.map(function (item) {
-							return React.createElement(ServicePropComponent, { key: item.key, params: item, onChange: this._onPropsChange });
-						}.bind(this)),
-						React.createElement(
-							'div',
-							{ className: 'form-group' },
-							React.createElement(
-								'div',
-								{ className: 'col-sm-4 col-sm-offset-4' },
-								React.createElement(
-									'button',
-									{ type: 'button', className: 'btn btn-success btn-md', onClick: this._saveServiceProps },
-									React.createElement('i', { className: 'fa fa-check fa-fw' }),
-									' ',
-									this.props.frases.SAVE
-								)
-							)
-						)
-					)
-				)
-			)
-		);
-	}
-
-});
-
-ServiceItemComponent = React.createFactory(ServiceItemComponent);
-var ServicePropComponent = React.createClass({
-	displayName: 'ServicePropComponent',
-
-
-	propTypes: {
-		params: React.PropTypes.object,
-		onChange: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			params: {}
-		};
-	},
-
-	componentWillMount: function () {
-		this.setState({
-			params: this.props.params || {}
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			params: props.params || {}
-		});
-	},
-
-	_onChange: function (e) {
-		this.props.onChange(e);
-	},
-
-	render: function () {
-		var params = this.state.params;
-		var type = typeof this.props.params.value;
-		var label = params.key.replace('_', ' ').replace('directory', '');
-
-		return React.createElement(
-			'div',
-			null,
-			type === 'boolean' ? React.createElement(
-				'div',
-				{ className: 'form-group' },
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4 col-sm-offset-4' },
-					React.createElement(
-						'div',
-						{ className: 'checkbox' },
-						React.createElement(
-							'label',
-							null,
-							React.createElement('input', { type: 'checkbox', checked: params.value, name: params.key, onChange: this._onChange }),
-							' ',
-							params.key
-						)
-					)
-				)
-			) : type === 'number' ? React.createElement(
-				'div',
-				{ className: 'form-group' },
-				React.createElement(
-					'label',
-					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
-					label
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement('input', { type: 'number', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
-				)
-			) : React.createElement(
-				'div',
-				{ className: 'form-group' },
-				React.createElement(
-					'label',
-					{ htmlFor: params.key, className: 'col-sm-4 control-label' },
-					label
-				),
-				React.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					React.createElement('input', { type: 'text', name: params.key, className: 'form-control', value: params.value, onChange: this._onChange })
-				)
-			)
-		);
-	}
-});
-
-ServicePropComponent = React.createFactory(ServicePropComponent);
 
 var TrunksQosTable = React.createClass({
 	displayName: "TrunksQosTable",
@@ -8935,6 +9016,99 @@ var TrunkIncRoutes = React.createClass({
 });
 
 TrunkIncRoutes = React.createFactory(TrunkIncRoutes);
+var ChartComponent = React.createClass({
+	displayName: 'ChartComponent',
+
+
+	propTypes: {
+		type: React.PropTypes.string,
+		data: React.PropTypes.object,
+		options: React.PropTypes.object
+	},
+
+	getInitialState: function () {
+		return {
+			chart: {}
+		};
+	},
+
+	componentDidMount: function () {
+		var el = ReactDOM.findDOMNode(this);
+		var options = this.props.options;
+		var data = this.props.data;
+		var chartOptions = {
+			bindto: el,
+			data: this.props.data
+		};
+		var chart = {};
+
+		if (options) {
+			for (var key in options) {
+				chartOptions[key] = options[key];
+			}
+		}
+
+		data.type = this.props.type;
+		chart = c3.generate(chartOptions);
+
+		this.setState({ chart: chart });
+	},
+
+	componentWillReceiveProps: function (props) {
+		console.log('ChartsComponent componentWillReceiveProps: ', props);
+		this._updateChart(props.data);
+	},
+
+	componentWillUnmount: function () {
+		console.log('ChartsComponent componentWillUnmount');
+	},
+
+	shouldComponentUpdate: function () {
+		return false;
+	},
+
+	_getIds: function () {
+		var chart = this.state.chart;
+		return chart.data().reduce(function (init, next) {
+			init.push(next.id);
+			return init;
+		}, []);
+	},
+
+	_excludeIds: function (fromArray, indexArray) {
+		return fromArray.reduce(function (init, next) {
+			if (indexArray.indexOf(next) < 0) init.push(next);
+			return init;
+		}, []);
+	},
+
+	_updateChart: function (data) {
+		var chart = this.state.chart;
+		// var chartIds = this._getIds();
+		// var dataIds = data.columns.reduce(function(init, next) {
+		// 	init.push(next[0]);
+		// 	return init;
+		// }, []);
+		// var unloadIds = this._excludeIds(chartIds, dataIds);
+
+		// data.done = function() {
+		// 	chart.unload(unloadIds);
+		// };
+
+		chart.unload();
+
+		setTimeout(function () {
+			chart.load(data);
+		}, 500);
+	},
+
+	render: function () {
+		console.log('ChartsComponent render: ', this.state);
+		return React.createElement('div');
+	}
+});
+
+ChartComponent = React.createFactory(ChartComponent);
 function DidRestrictionsComponent(props) {
 
 	return React.createElement(
@@ -9135,9 +9309,9 @@ var DidTrunkComponent = React.createClass({
 		this._onChange();
 	},
 
-	_getAssignedDids: function (callback) {
-		billingRequest('getAssignedDids', null, callback);
-	},
+	// _getAssignedDids: function(callback) {
+	// 	billingRequest('getAssignedDids', null, callback);
+	// },
 
 	_getDid: function (number, callback) {
 		billingRequest('getDid', { number: number }, callback);
@@ -9523,99 +9697,6 @@ var SelectedDidNumberComponent = React.createClass({
 		);
 	}
 });
-var ChartComponent = React.createClass({
-	displayName: 'ChartComponent',
-
-
-	propTypes: {
-		type: React.PropTypes.string,
-		data: React.PropTypes.object,
-		options: React.PropTypes.object
-	},
-
-	getInitialState: function () {
-		return {
-			chart: {}
-		};
-	},
-
-	componentDidMount: function () {
-		var el = ReactDOM.findDOMNode(this);
-		var options = this.props.options;
-		var data = this.props.data;
-		var chartOptions = {
-			bindto: el,
-			data: this.props.data
-		};
-		var chart = {};
-
-		if (options) {
-			for (var key in options) {
-				chartOptions[key] = options[key];
-			}
-		}
-
-		data.type = this.props.type;
-		chart = c3.generate(chartOptions);
-
-		this.setState({ chart: chart });
-	},
-
-	componentWillReceiveProps: function (props) {
-		console.log('ChartsComponent componentWillReceiveProps: ', props);
-		this._updateChart(props.data);
-	},
-
-	componentWillUnmount: function () {
-		console.log('ChartsComponent componentWillUnmount');
-	},
-
-	shouldComponentUpdate: function () {
-		return false;
-	},
-
-	_getIds: function () {
-		var chart = this.state.chart;
-		return chart.data().reduce(function (init, next) {
-			init.push(next.id);
-			return init;
-		}, []);
-	},
-
-	_excludeIds: function (fromArray, indexArray) {
-		return fromArray.reduce(function (init, next) {
-			if (indexArray.indexOf(next) < 0) init.push(next);
-			return init;
-		}, []);
-	},
-
-	_updateChart: function (data) {
-		var chart = this.state.chart;
-		// var chartIds = this._getIds();
-		// var dataIds = data.columns.reduce(function(init, next) {
-		// 	init.push(next[0]);
-		// 	return init;
-		// }, []);
-		// var unloadIds = this._excludeIds(chartIds, dataIds);
-
-		// data.done = function() {
-		// 	chart.unload(unloadIds);
-		// };
-
-		chart.unload();
-
-		setTimeout(function () {
-			chart.load(data);
-		}, 500);
-	},
-
-	render: function () {
-		console.log('ChartsComponent render: ', this.state);
-		return React.createElement('div');
-	}
-});
-
-ChartComponent = React.createFactory(ChartComponent);
 var FacebookTrunkComponent = React.createClass({
 	displayName: 'FacebookTrunkComponent',
 
@@ -9833,6 +9914,72 @@ var FacebookTrunkComponent = React.createClass({
 });
 
 FacebookTrunkComponent = React.createFactory(FacebookTrunkComponent);
+var TwitterTrunkComponent = React.createClass({
+	displayName: 'TwitterTrunkComponent',
+
+
+	propTypes: {
+		frases: React.PropTypes.object
+	},
+
+	// getInitialState: function() {
+	// 	return {
+	// 		params: {}
+	// 	};
+	// },
+
+	componentWillMount: function () {
+		this.setState({
+			logedIn: false
+		});
+	},
+
+	// componentWillReceiveProps: function(props) {
+	// 	this.setState({
+	// 		selectedPage: props.properties || {}
+	// 	});		
+	// },
+
+	_login: function () {
+		console.log('Login');
+	},
+
+	render: function () {
+		var frases = this.props.frases;
+
+		console.log('TwitterTrunkComponent: ');
+
+		return React.createElement(
+			'div',
+			null,
+			!this.state.logedIn ? React.createElement(
+				'div',
+				{ className: 'text-center' },
+				React.createElement(
+					'button',
+					{ className: 'btn btn-lg btn-primary', onClick: this._login },
+					React.createElement('i', { className: 'fa fa-fw fa-twitter' }),
+					' Login with Twitter'
+				)
+			) : React.createElement(
+				'form',
+				{ className: 'form-horizontal' },
+				React.createElement(
+					'div',
+					{ className: 'form-group' },
+					React.createElement(
+						'label',
+						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
+						'Select Facebook Page'
+					),
+					React.createElement('div', { className: 'col-sm-4' })
+				)
+			)
+		);
+	}
+});
+
+TwitterTrunkComponent = React.createFactory(TwitterTrunkComponent);
 var EmailTrunkComponent = React.createClass({
 	displayName: 'EmailTrunkComponent',
 
@@ -10184,72 +10331,274 @@ var ViberTrunkComponent = React.createClass({
 });
 
 ViberTrunkComponent = React.createFactory(ViberTrunkComponent);
-var TwitterTrunkComponent = React.createClass({
-	displayName: 'TwitterTrunkComponent',
+
+var DiscountsComponent = React.createClass({
+	displayName: 'DiscountsComponent',
 
 
 	propTypes: {
-		frases: React.PropTypes.object
+		items: React.PropTypes.array,
+		frases: React.PropTypes.object,
+		addCoupon: React.PropTypes.func
 	},
 
-	// getInitialState: function() {
-	// 	return {
-	// 		params: {}
-	// 	};
-	// },
+	getInitialState: function () {
+		return {
+			items: [],
+			coupon: ''
+		};
+	},
 
-	componentWillMount: function () {
+	componentDidMount: function () {
 		this.setState({
-			logedIn: false
+			items: this.props.items
 		});
 	},
 
-	// componentWillReceiveProps: function(props) {
-	// 	this.setState({
-	// 		selectedPage: props.properties || {}
-	// 	});		
-	// },
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			items: props.items
+		});
+	},
 
-	_login: function () {
-		console.log('Login');
+	_addCoupon: function () {
+		var coupon = this.state.coupon;
+		if (!coupon) return;
+		this.props.addCoupon(coupon);
+	},
+
+	_handleOnChange: function (e) {
+		var value = e.target.value;
+		this.setState({
+			coupon: value
+		});
 	},
 
 	render: function () {
 		var frases = this.props.frases;
 
-		console.log('TwitterTrunkComponent: ');
+		console.log('DiscountsComponent: ', this.state.items);
 
 		return React.createElement(
 			'div',
-			null,
-			!this.state.logedIn ? React.createElement(
+			{ className: 'panel' },
+			React.createElement(
 				'div',
-				{ className: 'text-center' },
+				{ className: 'panel-header' },
 				React.createElement(
-					'button',
-					{ className: 'btn btn-lg btn-primary', onClick: this._login },
-					React.createElement('i', { className: 'fa fa-fw fa-twitter' }),
-					' Login with Twitter'
+					'span',
+					null,
+					frases.BILLING.DISCOUNTS.DISCOUNTS
 				)
-			) : React.createElement(
-				'form',
-				{ className: 'form-horizontal' },
+			),
+			React.createElement(
+				'div',
+				{ className: 'panel-body' },
 				React.createElement(
 					'div',
-					{ className: 'form-group' },
+					{ className: 'row' },
 					React.createElement(
-						'label',
-						{ htmlFor: 'ctc-select-1', className: 'col-sm-4 control-label' },
-						'Select Facebook Page'
-					),
-					React.createElement('div', { className: 'col-sm-4' })
+						'div',
+						{ className: 'col-xs-12' },
+						React.createElement(
+							'div',
+							{ className: 'input-group' },
+							React.createElement('input', { type: 'text', className: 'form-control', placeholder: 'Promo code', value: this.state.coupon, onChange: this._handleOnChange }),
+							React.createElement(
+								'span',
+								{ className: 'input-group-btn' },
+								React.createElement(
+									'button',
+									{ type: 'button', className: 'btn btn-success', onClick: this._addCoupon },
+									frases.BILLING.DISCOUNTS.ACTIVATE_BTN
+								)
+							)
+						),
+						React.createElement('br', null),
+						React.createElement(
+							'h5',
+							{ className: this.state.items.length ? '' : 'hidden' },
+							frases.BILLING.DISCOUNTS.ACTIVE_DISCOUNTS
+						),
+						this.state.items.map(function (item) {
+							return React.createElement(
+								'h3',
+								{ key: item._id },
+								React.createElement(
+									'b',
+									null,
+									item.name
+								),
+								' ',
+								React.createElement(
+									'small',
+									null,
+									item.coupon.description
+								)
+							);
+						})
+					)
 				)
 			)
 		);
 	}
 });
 
-TwitterTrunkComponent = React.createFactory(TwitterTrunkComponent);
+DiscountsComponent = React.createFactory(DiscountsComponent);
+
+var InvoicesComponent = React.createClass({
+	displayName: "InvoicesComponent",
+
+
+	propTypes: {
+		items: React.PropTypes.array,
+		frases: React.PropTypes.object
+	},
+
+	getInitialState: function () {
+		return {
+			items: [],
+			hideRows: true
+		};
+	},
+
+	componentDidMount: function () {
+		this.setState({
+			items: this.props.items
+		});
+	},
+
+	componentWillReceiveProps: function (props) {
+		this.setState({
+			items: props.items
+		});
+	},
+
+	_showMore: function () {
+		this.setState({
+			hideRows: !this.state.hideRows
+		});
+	},
+
+	render: function () {
+		var items = this.state.items;
+		var frases = this.props.frases;
+		var hideRows = this.state.hideRows;
+
+		console.log('InvoicesComponent: ', this.state.items);
+
+		return React.createElement(
+			"div",
+			{ className: "panel" },
+			React.createElement(
+				"div",
+				{ className: "panel-header" },
+				React.createElement(
+					"span",
+					null,
+					frases.BILLING.INVOICES.INVOICES
+				)
+			),
+			React.createElement(
+				"div",
+				{ className: "panel-body" },
+				!this.state.items.length ? React.createElement(
+					"p",
+					null,
+					frases.BILLING.INVOICES.NO_INVOICES
+				) : React.createElement(
+					"div",
+					{ className: "row" },
+					React.createElement(
+						"div",
+						{ className: "col-xs-12" },
+						React.createElement(
+							"table",
+							{ className: "table" },
+							React.createElement(
+								"tbody",
+								null,
+								this.state.items.map(function (item, index) {
+									if (hideRows && index > 2) {
+										return null;
+									}
+
+									return React.createElement(InvoiceComponent, { invoice: item, key: index });
+								})
+							)
+						),
+						React.createElement(
+							"button",
+							{
+								type: "button",
+								className: "btn btn-link btn-block",
+								onClick: this._showMore
+							},
+							hideRows ? 'Show more' : 'Show less'
+						)
+					)
+				)
+			)
+		);
+	}
+});
+
+InvoicesComponent = React.createFactory(InvoicesComponent);
+function InvoiceComponent(props) {
+
+	var invoice = props.invoice;
+	var item = props.invoice.items[0];
+	var cellStyle = {
+		borderTop: 'none'
+	};
+
+	return React.createElement(
+		'tr',
+		null,
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'small',
+				{ className: "label " + (invoice.status === 'paid' ? 'label-success' : 'label-warning') },
+				invoice.status
+			)
+		),
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'b',
+				null,
+				invoice.currency,
+				' ',
+				invoice.paidAmount || item.amount,
+				' '
+			)
+		),
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'span',
+				null,
+				item.description,
+				' '
+			)
+		),
+		React.createElement(
+			'td',
+			{ style: cellStyle },
+			React.createElement(
+				'span',
+				{ className: 'text-muted' },
+				' ',
+				new Date(invoice.createdAt).toLocaleDateString(),
+				' '
+			)
+		)
+	);
+}
 var AvCodecRowComponent = React.createClass({
 	displayName: 'AvCodecRowComponent',
 
@@ -10759,271 +11108,3 @@ var IpTable = React.createClass({
 });
 
 IpTable = React.createFactory(IpTable);
-
-var DiscountsComponent = React.createClass({
-	displayName: 'DiscountsComponent',
-
-
-	propTypes: {
-		items: React.PropTypes.array,
-		frases: React.PropTypes.object,
-		addCoupon: React.PropTypes.func
-	},
-
-	getInitialState: function () {
-		return {
-			items: [],
-			coupon: ''
-		};
-	},
-
-	componentDidMount: function () {
-		this.setState({
-			items: this.props.items
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			items: props.items
-		});
-	},
-
-	_addCoupon: function () {
-		var coupon = this.state.coupon;
-		if (!coupon) return;
-		this.props.addCoupon(coupon);
-	},
-
-	_handleOnChange: function (e) {
-		var value = e.target.value;
-		this.setState({
-			coupon: value
-		});
-	},
-
-	render: function () {
-		var frases = this.props.frases;
-
-		console.log('DiscountsComponent: ', this.state.items);
-
-		return React.createElement(
-			'div',
-			{ className: 'panel' },
-			React.createElement(
-				'div',
-				{ className: 'panel-header' },
-				React.createElement(
-					'span',
-					null,
-					frases.BILLING.DISCOUNTS.DISCOUNTS
-				)
-			),
-			React.createElement(
-				'div',
-				{ className: 'panel-body' },
-				React.createElement(
-					'div',
-					{ className: 'row' },
-					React.createElement(
-						'div',
-						{ className: 'col-xs-12' },
-						React.createElement(
-							'div',
-							{ className: 'input-group' },
-							React.createElement('input', { type: 'text', className: 'form-control', placeholder: 'Promo code', value: this.state.coupon, onChange: this._handleOnChange }),
-							React.createElement(
-								'span',
-								{ className: 'input-group-btn' },
-								React.createElement(
-									'button',
-									{ type: 'button', className: 'btn btn-success', onClick: this._addCoupon },
-									frases.BILLING.DISCOUNTS.ACTIVATE_BTN
-								)
-							)
-						),
-						React.createElement('br', null),
-						React.createElement(
-							'h5',
-							{ className: this.state.items.length ? '' : 'hidden' },
-							frases.BILLING.DISCOUNTS.ACTIVE_DISCOUNTS
-						),
-						this.state.items.map(function (item) {
-							return React.createElement(
-								'h3',
-								{ key: item._id },
-								React.createElement(
-									'b',
-									null,
-									item.name
-								),
-								' ',
-								React.createElement(
-									'small',
-									null,
-									item.coupon.description
-								)
-							);
-						})
-					)
-				)
-			)
-		);
-	}
-});
-
-DiscountsComponent = React.createFactory(DiscountsComponent);
-
-var InvoicesComponent = React.createClass({
-	displayName: "InvoicesComponent",
-
-
-	propTypes: {
-		items: React.PropTypes.array,
-		frases: React.PropTypes.object
-	},
-
-	getInitialState: function () {
-		return {
-			items: [],
-			hideRows: true
-		};
-	},
-
-	componentDidMount: function () {
-		this.setState({
-			items: this.props.items
-		});
-	},
-
-	componentWillReceiveProps: function (props) {
-		this.setState({
-			items: props.items
-		});
-	},
-
-	_showMore: function () {
-		this.setState({
-			hideRows: !this.state.hideRows
-		});
-	},
-
-	render: function () {
-		var items = this.state.items;
-		var frases = this.props.frases;
-		var hideRows = this.state.hideRows;
-
-		console.log('InvoicesComponent: ', this.state.items);
-
-		return React.createElement(
-			"div",
-			{ className: "panel" },
-			React.createElement(
-				"div",
-				{ className: "panel-header" },
-				React.createElement(
-					"span",
-					null,
-					frases.BILLING.INVOICES.INVOICES
-				)
-			),
-			React.createElement(
-				"div",
-				{ className: "panel-body" },
-				!this.state.items.length ? React.createElement(
-					"p",
-					null,
-					frases.BILLING.INVOICES.NO_INVOICES
-				) : React.createElement(
-					"div",
-					{ className: "row" },
-					React.createElement(
-						"div",
-						{ className: "col-xs-12" },
-						React.createElement(
-							"table",
-							{ className: "table" },
-							React.createElement(
-								"tbody",
-								null,
-								this.state.items.map(function (item, index) {
-									if (hideRows && index > 2) {
-										return null;
-									}
-
-									return React.createElement(InvoiceComponent, { invoice: item, key: index });
-								})
-							)
-						),
-						React.createElement(
-							"button",
-							{
-								type: "button",
-								className: "btn btn-link btn-block",
-								onClick: this._showMore
-							},
-							hideRows ? 'Show more' : 'Show less'
-						)
-					)
-				)
-			)
-		);
-	}
-});
-
-InvoicesComponent = React.createFactory(InvoicesComponent);
-function InvoiceComponent(props) {
-
-	var invoice = props.invoice;
-	var item = props.invoice.items[0];
-	var cellStyle = {
-		borderTop: 'none'
-	};
-
-	return React.createElement(
-		'tr',
-		null,
-		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'small',
-				{ className: "label " + (invoice.status === 'paid' ? 'label-success' : 'label-warning') },
-				invoice.status
-			)
-		),
-		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'b',
-				null,
-				invoice.currency,
-				' ',
-				invoice.paidAmount || item.amount,
-				' '
-			)
-		),
-		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'span',
-				null,
-				item.description,
-				' '
-			)
-		),
-		React.createElement(
-			'td',
-			{ style: cellStyle },
-			React.createElement(
-				'span',
-				{ className: 'text-muted' },
-				' ',
-				new Date(invoice.createdAt).toLocaleDateString(),
-				' '
-			)
-		)
-	);
-}

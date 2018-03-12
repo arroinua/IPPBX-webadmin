@@ -170,7 +170,7 @@
 		"FUNCSETTINGS" : "PBX Features",
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
-		"USAGE_SETTINGS" : "License usage",
+		"USAGE_SETTINGS" : "Storage usage",
 		"BILLING": "Billing",
 		"REC_MODE" : {
 			"REC_MODE" : "Recording mode",

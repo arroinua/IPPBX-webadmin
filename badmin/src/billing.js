@@ -6,33 +6,25 @@ function load_billing() {
 	var cont = document.getElementById('el-loaded-content');
 	var profile = PbxObject.profile;
 	var sub = {};
-	var plans = [];
+	var dids = [];
 	var invoices = [];
 	var discounts = [];
-	// var stripeToken;
-	// var stripeHandler;
-
 	var methods = {
 		changePlan: changePlan,
 		updateLicenses: updateLicenses
 	}
-
-	// loadStripeJs();
 
 	billingRequest('getSubscription', null, function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		// billingRequest('getProfile', null, function(err, response) {
-		// 	console.log('getProfile: ', err, response);
-		// 	if(err) return notify_about('error' , err.message);
-
-		getPlans(profile.currency, function(err, result) {
-			if(err) return notify_about('error', err.message);
-			plans = result;
+		billingRequest('getAssignedDids', null, function(err, response) {
+			if(err) return notify_about('error' , err.message);
+			dids = response.result;
 
 			init();
+			show_content();
 
 			getDiscounts(function(err, response) {
 				if(err) return notify_about('error', err.message);
@@ -51,52 +43,17 @@ function load_billing() {
 				});
 			});
 
-				
-
-			// set_page();
-			show_content();
 		});
 
-		// });
-
 	});
-
-	// function loadStripeJs() {
-	// 	if(window.StripeCheckout) return configureStripe();
-
-	// 	$.ajaxSetup({ cache: true });
-	// 	$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
-	// }
-
-	// function configureStripe() {
-	// 	stripeHandler = StripeCheckout.configure({
-	// 		// key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-	// 		key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-	// 		image: '/badmin/images/Ringotel_emblem_new.png',
-	// 		billingAddress: true,
-	// 		// email: profile.email,
-	// 		// name: 'Ringotel',
-	// 		// zipCode: true,
-	// 		// locale: 'auto',
-	// 		token: function(token) {
-	// 			console.log('stripe token: ', token);
-	// 			stripeToken = token;
-	// 		}
-	// 	});
-
-	// 	// Close Checkout on page navigation:
-	// 	window.addEventListener('popstate', function() {
-	// 	  stripeHandler.close();
-	// 	});
-	// }
 
 	function init() {
 		ReactDOM.render(BillingComponent({
 		    options: PbxObject.options,
 		    profile: profile,
 		    sub: sub,
+		    dids: dids,
 		    frases: PbxObject.frases,
-		    plans: plans,
 		    invoices: invoices,
 		    discounts: discounts,
 		    addCard: addCard,
@@ -105,7 +62,10 @@ function load_billing() {
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: onUpdateLicenses,
 		    extend: deepExtend,
-		    addCoupon: addCoupon
+		    addCoupon: addCoupon,
+		    utils: {
+		    	convertBytes: convertBytes
+		    }
 		}), cont);
 	}
 
@@ -335,14 +295,6 @@ function load_billing() {
 			set_object_success();
 			
 			init();
-		});
-	}
-
-	function getPlans(currency, callback) {
-		billingRequest('getPlans', { currency: currency }, function(err, response) {
-			console.log('getPlans response: ', err, currency, response);
-			if(err) return callback(err);
-			if(callback) callback(null, response.result || [])
 		});
 	}
 

@@ -170,7 +170,7 @@
 		"FUNCSETTINGS" : "Функции АТС",
 		"REC_SETTINGS" : "Записи разговоров",
 		"STORAGE_SETTINGS" : "Хранилище",
-		"USAGE_SETTINGS" : "Использование лицензий",
+		"USAGE_SETTINGS" : "Использование хранилища",
 		"BILLING" : "Биллинг",
 		"REC_MODE" : {
 			"REC_MODE" : "Режим записи",

@@ -40,6 +40,8 @@ var PlansComponent = React.createClass({
 			return plan;
 		} else if(!showMonthlyPlans && plan.billingPeriodUnit === 'years') {
 			return plan;
+		} else if(this.props.currentPlan.planId === 'trial' && plan.planId === 'trial') {
+			return plan;
 		} else {
 			return null;
 		}
@@ -48,7 +50,6 @@ var PlansComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var plans = this.props.plans.filter(this._filterPlans);
-		// var column = plans.length ? (12/plans.length) : 12;
 
 		return (
 		    <div className="panel-body" style={{ background: 'none' }}>
@@ -68,8 +69,8 @@ var PlansComponent = React.createClass({
 			    	{ plans.map(function(plan, index) {
 
 			    		return (
-			    			<div className={"col-xs-12 col-sm-4"} key={plan.planId}>
-			    				<PlanComponent plan={plan} frases={frases} onSelect={this.props.onPlanSelect} currentPlan={this.props.currentPlan} />
+			    			<div className="col-xs-12 col-sm-6 col-lg-4 text-center" key={plan.planId}>
+			    				<PlanComponent plan={plan} frases={frases} onSelect={this.props.onPlanSelect} currentPlan={this.props.currentPlan.planId === plan.planId} />
 			    			</div>
 			    		);
 

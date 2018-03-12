@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 .selectable-cont div ul li:hover {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
   color: #333;
 }
 .selectable-cont .glyphicon {
@@ -129,7 +129,7 @@ table.table > tbody > tr > td {
   padding: 0;
   min-width: 200px;
   max-width: 320px;
-  border: 1px solid #33C3F0;
+  border: 1px solid #54c3f0;
   border-radius: 4px;
 }
 
@@ -191,6 +191,15 @@ table.table > tbody > tr > td {
 
 .timer-dates-wrapper.no-years .flatpickr-current-month .numInputWrapper {
   display: none;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+  background-color: #54c3f0;
+  border-color: #54c3f0;
+  color: #fff;
 }
 
 .btn-link.btn-primary,
@@ -325,7 +334,7 @@ table.table > tbody > tr > td {
 }
 
 .rd-day-selected {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
 }
 
 .select2-container .select2-selection--single {
@@ -735,7 +744,7 @@ input.cmn-toggle-round:checked + label:before {
   height: 50px;
   margin: auto;
   overflow: hidden;
-  background-color: #33C3F0;
+  background-color: #54c3f0;
   border-radius: 10px;
 }
 .nav-logo a {
@@ -794,7 +803,7 @@ input.cmn-toggle-round:checked + label:before {
   color: #333;
 }
 .pbx-options .panel-body {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
 }
 .pbx-options .panel-header {
   border-top: 1px solid #eee;
@@ -1137,7 +1146,7 @@ input.cmn-toggle-round:checked + label:before {
   padding: 1px;
   text-align: center;
   border-top: 1px solid #eee;
-  background-color: #33C3F0;
+  background-color: #54c3f0;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
@@ -1259,7 +1268,7 @@ input.cmn-toggle-round:checked + label:before {
 }
 
 .tree li.active > a {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
   color: #333;
 }
 

@@ -4,7 +4,7 @@ var PlanComponent = React.createClass({
 	propTypes: {
 		plan: React.PropTypes.object,
 		frases: React.PropTypes.object,
-		currentPlan: React.PropTypes.object,
+		currentPlan: React.PropTypes.bool,
 		onSelect: React.PropTypes.func
 	},
 
@@ -37,7 +37,7 @@ var PlanComponent = React.createClass({
 				</div>
 				<div className="panel-footer" style={{ padding: 0, background: 'none', borderTop: 'none' }}>
 						{ 
-							(this.props.currentPlan.planId === plan.planId) ? 
+							(this.props.currentPlan) ? 
 								(<p style={{ padding: "15px 0" }} className="text-muted text-uppercase">{ frases.BILLING.PLANS.CURRENT_PLAN }</p>) : 
 								(<button className="btn btn-link text-uppercase" style={{ width: "100%", padding: "15px 0" }} onClick={this._selectPlan}>{ frases.BILLING.PLANS.SELECT_PLAN }</button>)
 						}
