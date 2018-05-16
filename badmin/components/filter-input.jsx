@@ -1,6 +1,7 @@
  var FilterInputComponent = React.createClass({
 
 	propTypes: {
+		frases: React.PropTypes.object, 
 		items: React.PropTypes.array,
 		onChange: React.PropTypes.func
 	},
@@ -29,7 +30,7 @@
 
 		return (
 		    <div className="form-group has-feedback pull-right">
-                <input type="text" className="form-control" placeholder="Search" onChange={this._filter} />
+                <input type="text" className="form-control" placeholder={frases ? frases.SEARCH : "Search"} onChange={this._filter} />
                 <i className="fa fa-search fa-fw form-control-feedback"></i>
             </div>
 		);

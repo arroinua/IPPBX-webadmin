@@ -1,6 +1,15 @@
 function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
+	console.log('window parent: ', window.opener);
+	var frases = PbxObject.frases;
+	var driver = new Driver({
+		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	});
+	var driverSteps = [];
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
@@ -61,6 +70,11 @@ function load_chattrunk(params) {
 		icon: '/badmin/images/channels/viber.ico',
 		component: ViberTrunkComponent
 	}, {
+		id: 'Telegram',
+		name: "Telegram",
+		icon: '/badmin/images/channels/telegram.png',
+		component: TelegramTrunkComponent
+	}, {
 		id: 'Telephony',
 		name: 'Number',
 		icon: '/badmin/images/channels/did.png',
@@ -91,6 +105,24 @@ function load_chattrunk(params) {
 		document.body.appendChild(modalCont);
 	}
 
+	var query = window.location.href;
+	var search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
+	var queryParams = getQueryParams(search);
+	var selectedService = queryParams.channel;
+
+	if(window.opener && window.onTokenReceived) {
+		var userAccessToken = search ? queryParams.access_token : null;
+		return window.onTokenReceived(userAccessToken);
+	}
+
+	if(PbxObject.userAccessToken) {
+		services = services.map(function(item) {
+			console.log('load_chattrunk services:', item);
+			if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
+			return item;
+		});
+	}
+
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
@@ -111,6 +143,8 @@ function load_chattrunk(params) {
 	function setObject(params, cb) {
 
 		console.log('setObject: ', params);
+		
+		driver.reset();
 
 	    show_loading_panel();
 
@@ -129,6 +163,7 @@ function load_chattrunk(params) {
 
 			render(params.type, params);
 			remove_loading_panel();
+
 		});
     	
 	}
@@ -170,7 +205,7 @@ function load_chattrunk(params) {
 
 				show_loading_panel();
 
-				billingRequest('updateBalance', reqParams, function(err, response) {
+				BillingApi.updateBalance(reqParams, function(err, response) {
 
 					console.log('updateBalance: ', err, response);
 
@@ -192,8 +227,55 @@ function load_chattrunk(params) {
 		});
 	}
 
+	function confirmPayment(params, callback) {
+		console.log('confirmPayment params:', params);
+		showModal('confirm_payment_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			$(modal).modal('toggle');
+
+			callback(params);
+
+		});
+	}
+
 	function removeObject() {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+	}
+
+	function addSteps(stepParams) {
+		driverSteps = driverSteps.concat(stepParams);
+	}
+
+	function nextStep(stepParams) {
+		driver.moveNext();
+	}
+
+	function highlightStep(stepParams) {
+		driver.highlight(stepParams);
+	}
+
+	function initSteps() {
+		if(!PbxObject.tourStarted) return;
+
+		driverSteps.push({
+			element: '.object-name-cont .btn-success',
+			popover: {
+				title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
+				description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
+				position: 'bottom'
+			}
+		});
+
+		setTimeout(function() {
+			console.log('initSteps: ', driverSteps);
+			driver.defineSteps(driverSteps);
+			driver.start();
+		}, 500);
+	}
+
+	function onTokenReceived(token) {
+		PbxObject.userAccessToken = token;
 	}
 
 	function render(type, params) {
@@ -202,12 +284,19 @@ function load_chattrunk(params) {
 			services: services,
 			frases: PbxObject.frases,
 		    params: params,
+		    selected: selectedService,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
 		    updateBalance: updateBalance,
 		    confirmRemoveObject: confirmRemoveObject,
-		    removeObject: removeObject
+		    removeObject: removeObject,
+		    confirmPayment: confirmPayment,
+		    initSteps: initSteps,
+		    addSteps: addSteps,
+		    nextStep: nextStep,
+		    highlightStep: highlightStep,
+		    onTokenReceived: onTokenReceived
 		};
 
 		console.log('render: ', componentParams);

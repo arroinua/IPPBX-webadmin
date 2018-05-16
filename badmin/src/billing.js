@@ -11,15 +11,16 @@ function load_billing() {
 	var discounts = [];
 	var methods = {
 		changePlan: changePlan,
-		updateLicenses: updateLicenses
+		updateLicenses: updateLicenses,
+		addCredits: addCredits
 	}
 
-	billingRequest('getSubscription', null, function(err, response) {
+	BillingApi.getSubscription(function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		billingRequest('getAssignedDids', null, function(err, response) {
+		BillingApi.getAssignedDids(function(err, response) {
 			if(err) return notify_about('error' , err.message);
 			dids = response.result;
 
@@ -61,6 +62,7 @@ function load_billing() {
 		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: onUpdateLicenses,
+		    addCredits: addCredits,
 		    extend: deepExtend,
 		    addCoupon: addCoupon,
 		    utils: {
@@ -88,7 +90,7 @@ function load_billing() {
 					card: PbxObject.stripeToken.card
 				};
 
-				billingRequest('addCard', reqParams, function(err, response) {
+				BillingApi.addCard(reqParams, function(err, response) {
 					console.log('saveCard response: ', err, PbxObject.stripeToken, response);
 					
 					if(err || response.error) {
@@ -126,7 +128,7 @@ function load_billing() {
 					card: PbxObject.stripeToken.card
 				};
 
-				billingRequest('updateCard', reqParams, function(err, response) {
+				BillingApi.updateCard(reqParams, function(err, response) {
 					console.log('updateCard response: ', err, PbxObject.stripeToken, response);				
 					
 					if(err || response.error) {
@@ -148,7 +150,7 @@ function load_billing() {
 
 		show_loading_panel();
 
-		billingRequest('renewSubscription', { subId: sub._id }, function(err, response) {
+		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
 			console.log('renewSubscription response: ', err, response);
 
 			show_content();
@@ -185,7 +187,7 @@ function load_billing() {
 					token: PbxObject.stripeToken.id
 				};
 
-				billingRequest('updateBalance', reqParams, function(err, response) {
+				BillingApi.updateBalance(reqParams, function(err, response) {
 
 					console.log('updateBalance: ', err, response);
 
@@ -207,7 +209,7 @@ function load_billing() {
 	}
 
 	function addCoupon(string) {
-		billingRequest('addCoupon', { coupon: string }, function(err, response) {
+		BillingApi.addCoupon({ coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
 			discounts.push(response);
@@ -235,7 +237,7 @@ function load_billing() {
 	function changePlan(params, callback) {
 		show_loading_panel();
 
-		billingRequest('changePlan', {
+		BillingApi.changePlan({
 			subId: sub._id,
 			planId: params.plan.planId
 		}, function(err, response) {
@@ -275,7 +277,7 @@ function load_billing() {
 	function updateLicenses(params) {
 		show_loading_panel();
 
-		billingRequest('updateSubscription', {
+		BillingApi.updateSubscription({
 			subId: sub._id,
 			addOns: params.addOns,
 			quantity: params.quantity
@@ -298,8 +300,33 @@ function load_billing() {
 		});
 	}
 
+	function addCredits(params) {
+		showModal('confirm_add_credits_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
+			console.log('confirm_add_credits_modal submit:', result);
+
+			$(modal).modal('toggle');
+		
+
+			show_loading_panel();
+
+			BillingApi.addCredits({ amount: params.chargeAmount }, function(err, response) {
+				remove_loading_panel();
+				
+				if(err) {
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'addCredits');
+					else notify_about('error', err.message);
+					return;
+				}
+
+				set_object_success();
+				init();
+
+			});
+		});
+	}
+
 	function getInvoices(callback) {
-		billingRequest('getInvoices', null, function(err, response) {
+		BillingApi.getInvoices(function(err, response) {
 			console.log('getInvoices response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
@@ -307,7 +334,7 @@ function load_billing() {
 	}
 
 	function getDiscounts(callback) {
-		billingRequest('getDiscounts', null, function(err, response) {
+		BillingApi.getDiscounts(function(err, response) {
 			console.log('getDiscounts response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])

@@ -8,7 +8,9 @@ var ModalComponent = React.createClass({
 		title: React.PropTypes.string,
 		submitText: React.PropTypes.string,
 		cancelText: React.PropTypes.string,
+		closeOnSubmit: React.PropTypes.bool,
 		submit: React.PropTypes.func,
+		onClose: React.PropTypes.func,
 		body: React.PropTypes.element,
 		children: React.PropTypes.array
 	},
@@ -16,11 +18,26 @@ var ModalComponent = React.createClass({
 	el: null,
 
 	componentDidMount: function() {
-		this._openModal();		
+		if(this.props.open === true || this.props.open === undefined) {
+			this._openModal();
+		}
+
+		if(this.props.onClose) 
+			$(this.el).on('hidden.bs.modal', this.props.onClose)
 	},
 
 	componentDidUpdate: function() {
-		this._openModal();
+		if(this.props.open === true || this.props.open === undefined) {
+			this._openModal();
+		}
+	},
+
+	componentWillReceiveProps: function(props) {
+		if(props.open === false) {
+			this._closeModal();
+		} else if(props.open === true) {
+			this._openModal();
+		}
 	},
 
 	_openModal: function() {
@@ -35,7 +52,7 @@ var ModalComponent = React.createClass({
 
 	_submitModal: function(e) {
 		this.props.submit();
-		this._closeModal();
+		if(this.props.closeOnSubmit) this._closeModal();
 	},
 
 	_onRef: function(el) {

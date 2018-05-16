@@ -5,12 +5,19 @@
 		services: React.PropTypes.array,
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
+		selected: React.PropTypes.string,
 		getObjects: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
 		setObject: React.PropTypes.func,
 		updateBalance: React.PropTypes.func,
 		confirmRemoveObject: React.PropTypes.func,
-		removeObject: React.PropTypes.func
+		removeObject: React.PropTypes.func,
+		confirmPayment: React.PropTypes.func,
+		addSteps: React.PropTypes.func,
+		nextStep: React.PropTypes.func,
+		highlightStep: React.PropTypes.func,
+		onTokenReceived: React.PropTypes.func,
+		initSteps: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -32,7 +39,22 @@
 			serivceInited: true
 		});
 
-		this._setService(type);
+		this._setService(this.props.selected || type);
+	},
+
+	componentDidMount: function() {
+		if(this.props.addSteps && !this.props.params.pageid) {
+			// this.props.addSteps([{
+			// 	element: '.sessiontimeout',
+			// 	popover: {
+			// 		title: 'Session timeout',
+			// 		description: 'Set how long does the requests be allocated to the assigned user before it goes to the unified queue.',
+			// 		position: 'top'
+			// 	}
+			// }]);
+
+			this.props.initSteps();
+		}
 	},
 
 	componentWillReceiveProps: function(props) {
@@ -103,37 +125,73 @@
 
 	_buyDidNumber(params, callback) {
 		console.log('_buyDidNumber: ', params);
-
 	    if(!params.dgid || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
 
 	    var thisObj = this;
 
-	    show_loading_panel();
+	    this.props.confirmPayment(params, function(result) {
 
-		billingRequest('orderDid', params, function(err, response) {
-			console.log('_buyDidNumber: ', err, response, params);
+	    	show_loading_panel();
 
-			remove_loading_panel();
+	    	BillingApi.orderDid(params, function(err, response) {
+	    		console.log('_buyDidNumber: ', err, response, params);
 
-			if(err) {
-				if(err.name === 'NO_PAYMENT_SOURCE') {
-					thisObj.props.updateBalance({ chargeAmount: params.chargeAmount, currency: params.currency }, function(err, result) {
-						thisObj._buyDidNumber(params, callback);
-					});
-					return;
-				} else {
-					return callback(err);
-				}
-			}
+	    		remove_loading_panel();
 
-			if(!response.success && response.error.name === 'ENOENT') {
-				return callback(this.props.frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
-			}
+	    		if(err) {
+	    			if(err.name === 'NO_PAYMENT_SOURCE') {
+	    				thisObj.props.updateBalance({ chargeAmount: params.chargeAmount, currency: params.currency }, function(err, result) {
+	    					thisObj._buyDidNumber(params, callback);
+	    				});
+	    				return;
+	    			} else {
+	    				return callback(err);
+	    			}
+	    		}
 
-			callback(null, response.result.number);
+	    		if(!response.success && response.error.name === 'ENOENT') {
+	    			return callback(this.props.frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
+	    		}
 
-		});
+	    		callback(null, response.result.number);
+
+	    	});
+	    });
 	},
+
+	// _buyDidNumber(params, callback) {
+	// 	console.log('_buyDidNumber: ', params);
+
+	//     if(!params.dgid || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
+
+	//     var thisObj = this;
+
+	//     show_loading_panel();
+
+	// 	BillingApi.orderDid(params, function(err, response) {
+	// 		console.log('_buyDidNumber: ', err, response, params);
+
+	// 		remove_loading_panel();
+
+	// 		if(err) {
+	// 			if(err.name === 'NO_PAYMENT_SOURCE') {
+	// 				thisObj.props.updateBalance({ chargeAmount: params.chargeAmount, currency: params.currency }, function(err, result) {
+	// 					thisObj._buyDidNumber(params, callback);
+	// 				});
+	// 				return;
+	// 			} else {
+	// 				return callback(err);
+	// 			}
+	// 		}
+
+	// 		if(!response.success && response.error.name === 'ENOENT') {
+	// 			return callback(this.props.frases.CHAT_TRUNK.DID.NOTIFY_NO_AVAILABLE_NUMBERS);
+	// 		}
+
+	// 		callback(null, response.result.number);
+
+	// 	});
+	// },
 
 	_removeObject: function() {
 		var state = this.state;
@@ -146,7 +204,8 @@
 			if(type === 'Telephony') {
 				if(!state.params.properties.number) return console.error('number is not defined');
 				
-				billingRequest('unassignDid', { number: state.params.properties.number }, function(err, response) {
+				BillingApi.unassignDid({ number: state.params.properties.number }, function(err, response) {
+					if(err) return notify_about('error', err.message);
 					removeObject();
 					remove_loading_panel();
 				});
@@ -310,6 +369,7 @@
 					onChange={this._onNameChange}
 					onSubmit={this._setObject}
 					onCancel={this.state.params.pageid ? this._removeObject : null}
+					addSteps={this.props.addSteps}
 				/>
 				<PanelComponent>
 					{
@@ -346,14 +406,24 @@
 											properties={this.state.params.properties}
 											serviceParams={serviceParams}
 											onChange={this._onPropsChange}
+											onTokenReceived={this.props.onTokenReceived}
 											isNew={!this.state.params.pageid}
+											addSteps={this.props.addSteps}
+											nextStep={this.props.nextStep}
+											highlightStep={this.props.highlightStep}
 										/>
 
 										<hr className="col-xs-12"/>
 
 										<form className="form-horizontal">
 											<div className="form-group">
-												<ChannelRouteComponent frases={frases} type={type} routes={this.props.params.routes} onChange={this._selectRoute} />
+												<ChannelRouteComponent 
+													frases={frases} 
+													type={type} 
+													routes={this.props.params.routes} 
+													onChange={this._selectRoute} 
+													addSteps={this.props.addSteps} 
+												/>
 											</div>
 
 											<hr />
@@ -363,7 +433,7 @@
 													<div className="form-group">
 														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
 														<div className="col-sm-4">
-															<input type="number" className="form-control" name="replytimeout" value={this._toMinutes(params.replytimeout)} onChange={this._onParamsChange} />
+															<input type="number" className="form-control replytimeout" name="replytimeout" value={this._toMinutes(params.replytimeout)} onChange={this._onParamsChange} />
 														</div>
 													</div>
 												)
@@ -371,7 +441,7 @@
 											<div className="form-group">
 												<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SESSION_TIMEOUT}</label>
 												<div className="col-sm-4">
-													<input type="number" className="form-control" name="sessiontimeout" value={this._toMinutes(params.sessiontimeout)} onChange={this._onParamsChange} />
+													<input type="number" className="form-control sessiontimeout" name="sessiontimeout" value={this._toMinutes(params.sessiontimeout)} onChange={this._onParamsChange} />
 												</div>
 											</div>
 										</form>

@@ -8,6 +8,21 @@ function Ldap(options){
     console.log('new LDAP: ', options);
 
     var prevValue, newValue, userIndex, obj = {};
+    // var loc = window.location;
+    // var lastURL = window.location.href;
+    var serviceParams = { id: options.service_id, type: options.service_type };
+    // var newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
+
+    return {
+        options: options,
+        getUsers: getUsers,
+        getExternalUsers: getExternalUsers,
+        setUsers: setUsers,
+        setExternalUsers: setExternalUsers,
+        showUsers: showUsers,
+        auth: openAuthModal,
+        close: closeModal
+    };
 
     function getUsers(authData, cb){
         json_rpc_async('getDirectoryUsers', authData, function(result) {
@@ -16,18 +31,16 @@ function Ldap(options){
         });
     }
 
-    function getExternalUsers(authData, cb){
-        var params = {
-            url: '/services/'+options.service_id+'/Users'
+    function getExternalUsers(cb){
+        // var params = {
+            // url: '/services/'+options.service_id+'/Users'
             // method: 'GET'
-        };
+        // };
         // if(authData) {
         //     params.method = 'POST';
         //     // params.data = {username: authData.username, password: authData.password};
         //     params.data = 'username='+authData.username+'&password='+authData.password;
         // }
-
-        console.log('getExternalUsers params: ', params);
         
         // request(params.method, params.url, params.data, null, function(err, data) {
         //     if(err) {
@@ -47,9 +60,17 @@ function Ldap(options){
         //         else showUsers(data.result);
         //     }
         // })
+        console.log('getExternalUsers');
 
-        $.ajax(params).then(function(data){
+        $.ajax({
+            url: '/services/'+options.service_id+'/Users'
+        }).then(function(data){
             console.log('getExternalUsers: ', data);
+            if(data.result.location) {
+                // window.sessionStorage.setItem('lastURL', lastURL);
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
+                return window.location = data.result.location;
+            }
             if(cb) cb(data.result);
             else showUsers(data.result);
 
@@ -57,17 +78,15 @@ function Ldap(options){
             var error = err.responseJSON.error;
             console.log('getExternalUsers error: ', error);
             if(error && error.redirection) {
-                var loc = window.location,
-                newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
-                window.sessionStorage.setItem('lastURL', newhref);
+                // window.sessionStorage.setItem('lastURL', lastURL);
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 window.location = error.redirection;
             // } else if(error && error.code === 401) {
             //     options.external = true;
             //     openAuthModal();
             } else {
-                var loc = window.location,
-                newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
-                window.sessionStorage.setItem('lastURL', newhref);
+                // window.sessionStorage.setItem('lastURL', lastURL);
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 window.location = loc.origin + '/services/'+options.service_id+'/Users';
             }
         });
@@ -269,15 +288,4 @@ function Ldap(options){
     function closeModal(){
         $(modal).modal('hide');
     }
-
-    return {
-        options: options,
-        getUsers: getUsers,
-        getExternalUsers: getExternalUsers,
-        setUsers: setUsers,
-        setExternalUsers: setExternalUsers,
-        showUsers: showUsers,
-        auth: openAuthModal,
-        close: closeModal
-    };
 }

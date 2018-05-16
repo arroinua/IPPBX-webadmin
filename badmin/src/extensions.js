@@ -350,7 +350,7 @@ function load_extension(result){
 
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
         result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
-        result.storefree = result.storefree ? convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = result.storelimit - result.storesize;
         // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
         // if(result.storelimit) {
         //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
@@ -496,6 +496,7 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     var login = d.getElementById("extlogin").textContent;
+    var password = d.getElementById("extpassword").value;
     // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
@@ -514,7 +515,7 @@ function set_extension(kind){
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     // jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
     if(login) jprms += '\"login\":\"'+login+'\",';
-    jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
+    if(password) jprms += '\"password\":\"'+password+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {
         storelimit = convertBytes(storelimit.value, 'GB', 'Byte').toFixed();

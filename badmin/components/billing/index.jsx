@@ -12,6 +12,7 @@ var BillingComponent = React.createClass({
 		editCard: React.PropTypes.func,
 		onPlanSelect: React.PropTypes.func,
 		updateLicenses: React.PropTypes.func,
+		addCredits: React.PropTypes.func,
 		renewSub: React.PropTypes.func,
 		extend: React.PropTypes.func,
 		addCoupon: React.PropTypes.func,
@@ -104,6 +105,7 @@ var BillingComponent = React.createClass({
 		var currAmount = currsub.amount;
 		var newAmount = newsub.amount;
 		var chargeAmount = 0;
+		var totalAmount = 0;
 		var prorationRatio = 1;
 		var proratedAmount = 0;
 
@@ -128,8 +130,10 @@ var BillingComponent = React.createClass({
 			chargeAmount = 0;
 		}
 
+		totalAmount = newAmount - currAmount;
+
 		console.log('_countPayAmount: ', currAmount, newAmount, chargeAmount, proratedAmount);
-		return { totalAmount: newAmount, chargeAmount: chargeAmount };
+		return { newSubAmount: newAmount, totalAmount: (totalAmount > 0 ? totalAmount : 0), chargeAmount: chargeAmount };
 	},
 
 	_setUpdate: function(item) {
@@ -209,9 +213,10 @@ var BillingComponent = React.createClass({
 			annually: (plan.billingPeriodUnit === 'years'),
 			payment: {
 				currency: plan.currency,
-				totalAmount: amounts.totalAmount,
+				newSubAmount: amounts.newSubAmount,
 				discounts: this.props.discounts,
-				chargeAmount: amounts.chargeAmount.toFixed(2)
+				chargeAmount: amounts.chargeAmount.toFixed(2),
+				totalAmount: amounts.totalAmount.toFixed(2)
 			}
 		});
 
@@ -229,21 +234,29 @@ var BillingComponent = React.createClass({
 		sub.addOns = params.addOns;
 		sub.amount = this._countSubAmount(sub);
 
-		var chargeAmount = sub.amount - this.props.sub.amount;
+		var totalAmount = sub.amount - this.props.sub.amount;
+		var chargeAmount = 0;
 		
-		if(chargeAmount < 0) chargeAmount = 0;
-		else chargeAmount = chargeAmount * (this.state.proratedDays / this.state.cycleDays);
+		if(totalAmount > 0) {
+			chargeAmount = totalAmount * (this.state.proratedDays / this.state.cycleDays);
+		}
 
 		this.props.updateLicenses({
 			addOns: sub.addOns,
 			quantity: sub.quantity,
+			annually: (sub.plan.billingPeriodUnit === 'years'),
 			payment: {
-				currency: sub.plan.currency,
-				totalAmount: sub.amount,
+				currency: this._currencyNameToSymbol(sub.plan.currency),
+				newSubAmount: sub.amount,
 				discounts: this.props.discounts,
-				chargeAmount: chargeAmount.toFixed(2)
+				chargeAmount: chargeAmount.toFixed(2),
+				totalAmount: (totalAmount > 0 ? totalAmount.toFixed(2) : 0)
 			}
 		});
+
+		sub.addOns = JSON.parse(JSON.stringify(this.props.sub.addOns));
+		sub.quantity = this.props.sub.quantity;
+		sub.amount = this._countSubAmount(sub);
 
 	},
 
@@ -282,23 +295,23 @@ var BillingComponent = React.createClass({
 		this.props.addCoupon(coupon);
 	},
 
-	// _currencyNameToSymbol: function(name) {
-	// 	var symbol = "";
+	_currencyNameToSymbol: function(name) {
+		var symbol = "";
 
-	// 	switch(name) {
-	// 		case "eur":
-	// 			symbol = "€";
-	// 			break;
-	// 		case "usd":
-	// 			symbol = "$";
-	// 			break;
-	// 		default:
-	// 			symbol = "€";
-	// 			break;
-	// 	}
+		switch(name.toLowerCase()) {
+			case "eur":
+				symbol = "€";
+				break;
+			case "usd":
+				symbol = "$";
+				break;
+			default:
+				symbol = "€";
+				break;
+		}
 
-	// 	return symbol;
-	// },
+		return symbol;
+	},
 
 	render: function() {
 		var frases = this.props.frases;
@@ -318,11 +331,11 @@ var BillingComponent = React.createClass({
 					{	
 						sub.status === 'past_due' ? (
 							<div className="alert alert-warning" role="alert">
-								We were not able to receive subscription payment. You may not use all available features on your subscription plan. Please, ensure that your payment method is valid and has sufficient funds and <a href="#" onClick={this._renewSub} className="alert-link">renew subscription</a> or <a href="#" onClick={this._updateAndRenewSub} className="alert-link">update your payment method</a>.
+								{frases.BILLING.ALERTS.PAST_DUE} <a href="#" onClick={this._renewSub} className="alert-link">{frases.BILLING.RENEW_SUB}</a> {frases.OR} <a href="#" onClick={this._updateAndRenewSub} className="alert-link">{frases.BILLING.UPDATE_PAYMENT_METHOD}</a>.
 							</div>
 						) : (sub.plan.planId === 'trial' && sub.status === 'expired') ? (
 							<div className="alert alert-warning" role="alert">
-								Your trial period has been expired. <a href="#plansCollapse" data-toggle="collapse" aria-expanded="false" aria-controls="plansCollapse" onClick={this._openPlans} className="alert-link">Upgrade your subscription plan</a> and use all available features.
+								{frases.BILLING.ALERTS.TRIAL_EXPIRED} <a href="#plansCollapse" data-toggle="collapse" aria-expanded="false" aria-controls="plansCollapse" onClick={this._openPlans} className="alert-link">{frases.BILLING.UPGRADE_PLAN_ALERT_MSG}</a>
 							</div>
 						) : ('')
 
@@ -331,7 +344,7 @@ var BillingComponent = React.createClass({
 					</div>
 				</div>
 				<div className="row">
-					<div className="col-sm-8">
+					<div className="col-sm-4">
 						<PanelComponent>
 							<SubscriptionPriceComponent 
 								frases={frases} 
@@ -339,19 +352,22 @@ var BillingComponent = React.createClass({
 								discounts={discounts} 
 								dids={this.props.dids} 
 							/>
-							<br/>
-							<SubscriptionPlanComponent 
+						</PanelComponent>
+					</div>
+					<div className="col-sm-4">
+						<PanelComponent>
+							<CallCreditsComponent 
 								frases={frases} 
-								subscription={sub}
-								plans={plans}
-								renewSub={this._renewSub}
-								onPlanSelect={this._onPlanSelect}
+								subscription={sub} 
+								addCredits={this.props.addCredits}
+								discounts={discounts} 
 							/>
 						</PanelComponent>
 					</div>
 					<div className="col-sm-4">
 						<PanelComponent>
 							<ManagePaymentMethodComponent 
+								frases={frases}
 								paymentMethod={paymentMethod} 
 								onClick={paymentMethod ? this._editCard : this._addCard}
 								buttonText={paymentMethod ? frases.BILLING.EDIT_PAYMENT_METHOD : frases.BILLING.ADD_CREDIT_CARD}
@@ -359,6 +375,16 @@ var BillingComponent = React.createClass({
 						</PanelComponent>
 					</div>
 				</div>
+				
+				<PanelComponent>
+					<SubscriptionPlanComponent 
+						frases={frases} 
+						subscription={sub}
+						plans={plans}
+						renewSub={this._renewSub}
+						onPlanSelect={this._onPlanSelect}
+					/>
+				</PanelComponent>
 
 				<PanelComponent header={frases.USAGE.PANEL_TITLE}>
 					<StorageUsageComponent 

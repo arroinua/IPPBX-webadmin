@@ -2,7 +2,8 @@
 
 	propTypes: {
 		frases: React.PropTypes.object,
-		data: React.PropTypes.array
+		data: React.PropTypes.array,
+		fetching: React.PropTypes.bool
 	},
 
 	_getColumns: function(data, colname, match, params) {
@@ -38,7 +39,7 @@
 		console.log('ChannelTypeAnalyticsComponent render:', data);
 
 		return (
-			data && (
+			(data && !this.props.fetching) ? (
 				<div className="row">
 					<div className="col-sm-4">
 						<PanelComponent header={frases.CHANNEL_STATISTICS.INDEXES.NEW_CUSTOMERS}>
@@ -51,6 +52,7 @@
 									donut: {
 										label: {
 								            format: function (value, ratio, id) {
+								            	console.log('chart label: ', value, ratio, id);
 								                return value;
 								            }
 								        }
@@ -132,6 +134,8 @@
 						</PanelComponent>
 					</div>
 				</div>
+			) : (
+				<Spinner />
 			)
 		);
 	}

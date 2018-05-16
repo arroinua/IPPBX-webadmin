@@ -100,9 +100,7 @@ function load_trunk(result){
 
     if(result.auth)
         document.getElementById('auth').value = result.auth;
-    
-    document.getElementById('regexpires').value = result.regexpires || 60;
-    
+        
     var radio = document.getElementById('proxy');
     addEvent(radio, 'change', function(){
         var inputs = document.getElementsByName('proxy');
@@ -148,6 +146,10 @@ function load_trunk(result){
                 document.getElementById('f'+i).value = 0;
             }
         }
+        
+        if(document.getElementById('regexpires')) 
+            document.getElementById('regexpires').value = result.parameters.regexpires || 60;
+
     }
     if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
 
@@ -343,7 +345,7 @@ function set_trunk(){
             jprms += '"user":"'+document.getElementById('user').value+'",';
             jprms += '"auth":"'+document.getElementById('auth').value+'",';
             jprms += '"pass":"'+document.getElementById('pass').value+'",';
-            jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
+            // jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
         }
         jprms += '"proxy":'+proxy+',';
         if(proxy){
@@ -369,10 +371,12 @@ function set_trunk(){
     jprms += '"parameters":{';
 
     // if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+    if(register) jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
 
     protoOpts = JSON.stringify(PbxObject.protocolOpts);
     protoOpts = protoOpts.substr(1, protoOpts.length-2);
     jprms += protoOpts;
+
 
     incATrasf = transformsToArray('transforms1');
     incBTrasf = transformsToArray('transforms2');

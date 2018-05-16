@@ -62,16 +62,25 @@ function load_branch_options() {
 			    handler();
 			} else {
 			    if(window.localStorage['ringo_tid'] && !singleBranch) {
-			        billingRequest('changePassword', { login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
+			        BillingApi.changePassword({ login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
 			            if(!err) {
 			            	handler();
 			            	if(callback) callback();
 			            }
 			        });
+
 			    } else {
 			        handler();
 			        if(callback) callback();
 			    }
+			}
+
+			if(window.localStorage['ringo_tid'] && !singleBranch) {
+				if(newOptions.email) {
+					BillingApi.changeAdminEmail({ email: newOptions.email }, function(err, result) {
+					    if(err) notify_about('error', err);
+					});
+				}
 			}
 		});
 	}

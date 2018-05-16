@@ -56,7 +56,7 @@
 		var Component = this.props.component;
 
 		return (
-			data ? <Component frases={frases} data={data} onLoad={this.props.onComponentLoad} onUpdate={this.props.onComponentUpdate} /> : null
+			data ? <Component frases={frases} fetching={this.state.fetching} data={data} onLoad={this.props.onComponentLoad} onUpdate={this.props.onComponentUpdate} /> : null
 		)
 	}
 });

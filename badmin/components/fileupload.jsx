@@ -1,6 +1,7 @@
 var FileUpload = React.createClass({
   
 	propTypes: {
+		frases: React.PropTypes.object,
 		value: React.PropTypes.string,
 		name: React.PropTypes.string,
 		onChange: React.PropTypes.func
@@ -17,11 +18,25 @@ var FileUpload = React.createClass({
 		target.nextSibling.click();
 	},
 
+	_onClear: function() {
+		this.setState({
+			value: ""
+		});
+
+		this.props.onChange({
+			name: this.props.name,
+			filename: "",
+			file: null
+		});
+	},
+
 	_onFileSelect: function(e) {
+		console.log('_onFileSelect: ', e);
 		var filename;
 		var files = e.target.files;
-		if(files.length){
-		    filename = this._getFileName(files[0].name);
+		var file = files[0];
+		if(file){
+		    filename = this._getFileName(file.name);
 		} else{
 		    filename = '';
 		}
@@ -30,7 +45,12 @@ var FileUpload = React.createClass({
 			value: filename
 		});
 
-		this.props.onChange(e);
+		this.props.onChange({
+			name: e.target.name,
+			filename: filename,
+			file: file
+		});
+		// this.props.onChange(e);
 	},
 
 	_getFileName: function(ArrayOrString){
@@ -54,7 +74,8 @@ var FileUpload = React.createClass({
 			<div className="input-group">
 				<input type="text" className="form-control" value={ this.state.value } readOnly />
 				<span className="input-group-btn">
-					<button className="btn btn-default" type="button" onClick={ this._onClick }>Upload</button>
+					<button className="btn btn-default" type="button" onClick={ this._onClear }><i className="fa fa-trash"></i></button>
+					<button className="btn btn-default" type="button" onClick={ this._onClick }>{this.props.frases.UPLOAD}</button>
 					<input 
 						type="file" 
 						name={this.props.name}

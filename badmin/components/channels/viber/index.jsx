@@ -4,7 +4,10 @@ var ViberTrunkComponent = React.createClass({
 		frases: React.PropTypes.object,
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
-		onChange: React.PropTypes.func
+		onChange: React.PropTypes.func,
+		addSteps: React.PropTypes.func,
+		nextStep: React.PropTypes.func,
+		isNew: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -15,6 +18,22 @@ var ViberTrunkComponent = React.createClass({
 
 	componentWillMount: function() {
 		this._initService();
+	},
+
+	componentDidMount: function() {
+		var frases = this.props.frases;
+		if(this.props.isNew && this.props.addSteps) {
+
+			this.props.addSteps([{
+				element: '#ctc-select-3',
+				popover: {
+					title: frases.GET_STARTED.CONNECT_VIBER.STEPS["1"].TITLE,
+					description: frases.GET_STARTED.CONNECT_VIBER.STEPS["1"].DESC,
+					position: 'top'
+				}
+			}]);
+
+		}
 	},
 
 	// componentWillReceiveProps: function(props) {
@@ -49,11 +68,11 @@ var ViberTrunkComponent = React.createClass({
 				{
 					<form className="form-horizontal">
 						<div className="form-group">
-						    <label htmlFor="ctc-select-2" className="col-sm-4 control-label">App Key</label>
+						    <label htmlFor="ctc-select-3" className="col-sm-4 control-label">App Key</label>
 						    <div className="col-sm-6">
 						    	{
 					    			<input 
-					    				id="ctc-select-2"
+					    				id="ctc-select-3"
 					    				className="form-control" 
 					    				value={this.state.access_token} 
 					    				onChange={this._onChange}

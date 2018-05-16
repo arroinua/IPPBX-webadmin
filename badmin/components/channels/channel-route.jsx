@@ -4,7 +4,8 @@ var ChannelRouteComponent = React.createClass({
 		frases: React.PropTypes.object,
 		type: React.PropTypes.string,
 		routes: React.PropTypes.array,
-		onChange: React.PropTypes.func
+		onChange: React.PropTypes.func,
+		addSteps: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -17,6 +18,27 @@ var ChannelRouteComponent = React.createClass({
 
 	componentWillMount: function() {
 		this._setRoutes(this.props);
+			
+	},
+
+	componentDidMount: function() {
+		var frases = this.props.frases;
+
+		this.props.addSteps([{
+			element: '.channel-routes',
+			popover: {
+				title: frases.GET_STARTED.STEPS.ALLOCATE_TO["1"].TITLE,
+				description: frases.GET_STARTED.STEPS.ALLOCATE_TO["1"].DESC,
+				position: 'bottom'
+			}
+		}, {
+			element: '.create-group-links',
+			popover: {
+				title: frases.GET_STARTED.STEPS.ALLOCATE_TO["2"].TITLE,
+				description: frases.GET_STARTED.STEPS.ALLOCATE_TO["2"].DESC,
+				position: 'top'
+			}
+		}]);
 			
 	},
 
@@ -62,11 +84,19 @@ var ChannelRouteComponent = React.createClass({
 	_getAvailableRoutes: function(type, callback) {
 		// var type = this.props.type;
 		console.log('_getAvailableRoutes: ', type);
-		var groupType = type === 'Telephony' ? ['hunting', 'icd'] : ['chatchannel'];
+		var groupType = type === 'Telephony' ? ['hunting', 'icd', 'attendant'] : ['chatchannel'];
+		var extensions = [];
 
-		getObjects(groupType, function(result) {
-			callback(result);
+		getExtensions(function(result) {
+			extensions = filterObject(result, ['user', 'phone']);
+
+			getObjects(groupType, function(result) {
+				var routes = result.concat(extensions);
+
+				callback(routes);
+			});
 		});
+			
 	},
 
 	_handleOnChange: function(e) {
@@ -79,7 +109,41 @@ var ChannelRouteComponent = React.createClass({
 		this.setState({ options: params });
 	},
 
-	_createGroup: function() {
+	_groupObjects: function(array) {
+		var frases = this.props.frases;
+		var groups = {};
+		var kind = null;
+		var optgroup = null;
+		
+		array.map(function(item) {
+			kind = item.kind;
+			if(!groups[kind]){
+			    groups[kind] = [];
+			}
+
+			groups[kind].push(item);
+
+			return item;
+
+		});
+
+		return (
+			Object.keys(groups).map(function(key) {
+
+				return (
+					<optgroup label={frases.KINDS[key]} key={key}>
+						{
+							groups[key].map(function(item) {
+
+								return <option key={item.oid} value={item.oid}>{item.name}</option>
+
+							})	
+						}
+					</optgroup>
+				)
+
+			})
+		);
 
 	},
 
@@ -87,6 +151,10 @@ var ChannelRouteComponent = React.createClass({
 		var frases = this.props.frases;
 		var selectedRoute = this.state.selectedRoute;
 		
+		// this.state.routes.map(function(item) {
+		// 	return <option key={item.oid} value={item.oid}>{item.name}</option>
+		// }.bind(this))
+
 		return (
 			this.state.routes ? (
 				<div>
@@ -94,11 +162,9 @@ var ChannelRouteComponent = React.createClass({
 					{
 						this.state.routes.length ? (
 							<div className="col-sm-4">
-								<select className="form-control" value={selectedRoute.oid} onChange={this._selectRoute}>
+								<select className="form-control channel-routes" value={selectedRoute.oid} onChange={this._selectRoute}>
 									{
-										this.state.routes.map(function(item) {
-											return <option key={item.oid} value={item.oid}>{item.name}</option>
-										})
+										this._groupObjects(this.state.routes)
 									}
 								</select>
 							</div>
@@ -108,14 +174,15 @@ var ChannelRouteComponent = React.createClass({
 							</div>
 						)
 					}
+
 					{
 						this.props.type === 'Telephony' ? (
-							<div className="col-sm-4">
+							<div className="col-sm-4 create-group-links">
 								<a href="#hunting/hunting" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_HUNTING_GROUP}</a>
 								<a href="#icd/icd" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_ICD_GROUP}</a>
 							</div>
 						) : (
-							<div className="col-sm-4">
+							<div className="col-sm-4 create-group-links">
 								<a href="#chatchannel/chatchannel" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_SERVICE_GROUP}</a>
 							</div>
 						)

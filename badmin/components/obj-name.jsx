@@ -4,12 +4,14 @@ var ObjectName = React.createClass({
 	propTypes: {
 		name: React.PropTypes.string,
 		frases: React.PropTypes.object,
+		placeholder: React.PropTypes.string,
 		enabled: React.PropTypes.bool,
 		submitDisabled: React.PropTypes.bool,
 		onStateChange: React.PropTypes.func,
 		onChange: React.PropTypes.func,
 		onSubmit: React.PropTypes.func,
-		onCancel: React.PropTypes.func
+		onCancel: React.PropTypes.func,
+		addSteps: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -27,6 +29,19 @@ var ObjectName = React.createClass({
 			enabled: this.props.enabled,
 			submitDisabled: !this.props.name || this.props.submitDisabled
 		});
+	},
+
+	componentDidMount: function() {
+		if(this.props.addSteps) {
+			this.props.addSteps([{
+				element: '#objname',
+				popover: {
+					title: this.props.frases.GET_STARTED.STEPS.OBJECT_NAME["1"].TITLE,
+					description: '',
+					position: 'bottom'
+				}
+			}]);
+		}
 	},
 
 	componentWillReceiveProps: function(props) {
@@ -48,8 +63,6 @@ var ObjectName = React.createClass({
 		var target = e.target;
 		var disabled = !target.value;
 
-		console.log('disabled: ', disabled);
-
 		this.setState({ name: target.value, submitDisabled: disabled || this.props.submitDisabled });
 		this.props.onChange(target.value);
 	},
@@ -70,10 +83,16 @@ var ObjectName = React.createClass({
 		var props = this.props;
 
 		return (
-			<div>
+			<div className="clearfix">
 				{
 					props.onSubmit ?
-					<button type="button" style={{ marginRight: "5px" }} className="btn btn-success" onClick={props.onSubmit} disabled={state.submitDisabled}><i className="fa fa-check fa-fw"></i> {frases.SAVE}</button>
+					(
+						<div className="pull-left">
+							<button type="button" style={{ marginRight: "5px" }} className="btn btn-success" onClick={props.onSubmit} disabled={state.submitDisabled}><i className="fa fa-check fa-fw"></i> {frases.SAVE}</button>
+							<span className="text-muted" style={{ display: state.submitDisabled ? 'inline-block' : 'none' }}>{frases.GROUPSNAME_SUBMIT_LABEL.toLowerCase()}</span>
+						</div>
+
+					)
 					: ""
 				}
 				{
@@ -91,8 +110,6 @@ var ObjectName = React.createClass({
 		var props = this.props;
 		var Footer = this._getFooter();
 
-		console.log('ObjectName render: ', state);
-
 		return (
 			<PanelComponent classname="object-name-cont" footer={Footer}>
 				<div className="input-group object-name">
@@ -106,26 +123,31 @@ var ObjectName = React.createClass({
 				    	required
 				    	autoFocus 
 				    />
-				    { props.routes && <span className="input-group-addon object-route view-1"></span> }
-				    <span className="input-group-addon">
-				        <div className="switch switch-md">
-				            <input 
-				            	className="cmn-toggle cmn-toggle-round" 
-				            	type="checkbox" 
-				            	checked={state.enabled} 
-				            />
-				            <label 
-				            	htmlFor="enabled" 
-				            	data-toggle="tooltip" 
-				            	title={frases.OBJECT__STATE} 
-				            	onClick={this._toggleState}
-				            	style={{ 
-				            		opacity: state.pending ? 0.2 : 1,
-									pointerEvents: state.pending ? 'none' : 'auto' 
-								}}
-				            ></label>
-				        </div>
-				    </span>
+				    
+				    {
+				    	props.enabled !== undefined && (
+				    		<span className="input-group-addon">
+						        <div className="switch switch-md">
+						            <input 
+						            	className="cmn-toggle cmn-toggle-round" 
+						            	type="checkbox" 
+						            	checked={state.enabled} 
+						            />
+						            <label 
+						            	htmlFor="enabled" 
+						            	data-toggle="tooltip" 
+						            	title={frases.OBJECT__STATE} 
+						            	onClick={this._toggleState}
+						            	style={{ 
+						            		opacity: state.pending ? 0.2 : 1,
+											pointerEvents: state.pending ? 'none' : 'auto' 
+										}}
+						            ></label>
+						        </div>
+						    </span>
+				    	)
+				    }
+
 				</div>
 			</PanelComponent>	        
 		);

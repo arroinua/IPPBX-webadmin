@@ -1,0 +1,157 @@
+var NumberTransformsComponent = React.createClass({
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		transforms: React.PropTypes.array,
+		onChange: React.PropTypes.func
+	},
+
+	getInitialState: function() {
+		return {
+			transforms: []
+		};
+	},
+
+	componentWillMount: function() {
+		this.setState({
+			transforms: this.props.transforms || []
+		});		
+	},
+
+	// componentWillReceiveProps: function(props) {
+	// 	this.setState({
+	// 		params: props.params
+	// 	});
+	// },
+
+	_addRule: function(e) {
+		var transforms = this.state.transforms;
+		transforms.push({
+			applyTo: "all",
+			number: ".",
+			strip: "0",
+			prefix: ""
+		});
+		this.setState({ transforms: transforms });
+	},
+
+	_removeRule: function(index) {
+		console.log("_removeRule: ,", index);
+		var transforms = this.state.transforms;
+		transforms.splice(index, 1);
+		this.setState({
+			transforms: transforms
+		});
+	},
+
+	_onChange: function(index, e) {
+		var transforms = this.state.transforms;
+		var transform = transforms[index];
+		var target = e.target;
+		var type = target.getAttribute('data-type') || target.type;
+		var value = type === 'checkbox' ? target.checked : target.value;
+
+		if(target.name === 'applyTo') {
+			if(value === 'all') transform.number = '.';
+			else transform.number = '';
+		} else if(target.name === 'strip') {
+			if(value === 'P') transform.prefix = 'P';
+			else transform.prefix = '';
+		}
+
+		transform[target.name] = type === 'number' ? parseFloat(value) : value;
+
+		console.log('_handleOnChange: ', transforms, value);
+
+		this.setState({
+			transforms: transforms
+		});
+
+		this.props.onChange(this._parseTransforms(transforms));
+	},
+
+	_parseTransforms: function(array) {
+		return array.reduce(function(result, item) {
+			result.push({
+				number: (item.applyTo === 'prefix' ? (item.number + '.') : item.number),
+				strip: item.strip === '0' ? false : true,
+				prefix: item.prefix
+			});
+			return result;
+
+		}, []);
+	},
+
+	render: function() {
+		var frases = this.props.frases;
+
+		return (
+			<div>
+				<div className="col-xs-12">
+					<button type="button" className="btn btn-primary" onClick={this._addRule}>Add rule</button>
+				</div>
+				<div className="col-xs-12 table-responsive n-transforms-cont">
+					<table className="table">
+						<tbody>
+							{
+								this.state.transforms.map(function(item, index) {
+									return (
+										<tr key={index}>
+											<td>
+										    	<select className="form-control" name="applyTo" value={item.applyTo} onChange={this._onChange.bind(this, index)}>
+										    		<option value="all">For all numbers</option>
+										    		<option value="prefix">For numbers that start with prefix</option>
+										    		<option value="number">For number</option>
+										    	</select>
+									    	</td>
+									    	<td>
+										    	<select className="form-control" name="length" value={item.length} onChange={this._onChange.bind(this, index)}>
+										    		<option value="any">of any length</option>
+										    		<option value="specific">that contain</option>
+										    		<option value="atLeast">that contain at least</option>
+										    	</select>
+									    	</td>
+									    	{
+									    		(item.length === 'specific' || item.length === 'atLeast') && (
+									    	    	<select className="form-control" name="digits" value={item.digits} onChange={this._onChange.bind(this, index)}>
+									    	    		<option></option>
+									    	    	</select>
+									    		)
+									    	}
+									    	<td>
+									    	{
+									    		(item.applyTo === 'number' || item.applyTo === 'prefix') && (
+									    	    	<input type="text" className="form-control" name="number" value={item.number} placeholder="Number or prefix" onChange={this._onChange.bind(this, index)} />
+									    		)
+									    	}
+									    	</td>
+									    	<td>
+										    	<select className="form-control" name="strip" value={item.strip} onChange={this._onChange.bind(this, index)}>
+										    		<option value="0">Add</option>
+										    		<option value="1">Substitute</option>
+										    		<option value="P">Prohibit</option>
+										    	</select>
+										    </td>
+										    {
+										    	item.strip !== 'P' && (
+										    		<td>
+											    		<input type="text" className="form-control" name="prefix" value={item.prefix} placeholder="Number or prefix" onChange={this._onChange.bind(this, index)} />
+											    	</td>
+										    	)
+										    }
+									    	<td>
+									    		<button type="button" className="btn btn-link btn-default" onClick={this._removeRule.bind(this, index)}><i className="fa fa-remove fa-fw"></i></button>
+									    	</td>
+									    </tr>
+									)
+								}.bind(this))
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		);
+	}
+});
+
+NumberTransformsComponent = React.createFactory(NumberTransformsComponent);

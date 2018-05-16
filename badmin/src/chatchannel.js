@@ -4,16 +4,9 @@ function load_chatchannel(params) {
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
-	var modalId = 'available-users-modal';
-	var modalCont = document.getElementById('available-users-cont');
+	var modalCont;
 
 	if(!params.name) params.enabled = true;
-
-	if(!modalCont) {
-		modalCont = document.createElement('div');
-		modalCont.id = "available-users-cont";
-		document.body.appendChild(modalCont);
-	}
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
@@ -36,16 +29,25 @@ function load_chatchannel(params) {
 		});
 	}
 
-	// function getAvailableUsers() {
+	// function onAddMembers() {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
-	//     json_rpc_async('getAvailableUsers', params, function(result){
-	// 		console.log('getAvailableUsers: ', result);
+	//     json_rpc_async('onAddMembers', params, function(result){
+	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
+		modalCont = document.getElementById('available-users-cont');
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
+
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
 		    onSubmit: addMembers,
@@ -64,7 +66,8 @@ function load_chatchannel(params) {
 		$('#available-users-modal').modal('hide');
 	}
 
-	function deleteMember(oid) {
+	function deleteMember(params) {
+		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 		setChatChannel(objParams, function(result) {
@@ -100,7 +103,7 @@ function load_chatchannel(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    getAvailableUsers: showAvailableUsers,
+		    onAddMembers: showAvailableUsers,
 		    setObject: setChatChannel,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,

@@ -33,10 +33,12 @@ var AvailableUsersModalComponent = React.createClass({
 		return (
 			<ModalComponent 
 				size="sm"
+				type="success"
 				title={ frases.CHAT_CHANNEL.AVAILABLE_USERS }
-				submitText={frases.ADD} 
+				submitText={frases.CHAT_CHANNEL.ADD_SELECTED} 
 				cancelText={frases.CANCEL} 
 				submit={this._saveChanges} 
+				closeOnSubmit={true}
 				body={body}
 			>
 			</ModalComponent>

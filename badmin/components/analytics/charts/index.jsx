@@ -13,30 +13,32 @@
 	},
 
 	componentDidMount: function() {
-		var el = ReactDOM.findDOMNode(this);
-		var options = this.props.options;
-		var data = this.props.data;
-		var chartOptions = {
-			bindto: el,
-			data: this.props.data
-		};
-		var chart = {};
+		this._setChart(this.props.data);
+		// var el = ReactDOM.findDOMNode(this);
+		// var options = this.props.options;
+		// var data = this.props.data;
+		// var chartOptions = {
+		// 	bindto: el,
+		// 	data: this.props.data
+		// };
+		// var chart = {};
 
-		if(options) {
-			for(var key in options) {
-				chartOptions[key] = options[key];
-			}
-		}
+		// if(options) {
+		// 	for(var key in options) {
+		// 		chartOptions[key] = options[key];
+		// 	}
+		// }
 
-		data.type = this.props.type;
-		chart = c3.generate(chartOptions);
+		// data.type = this.props.type;
+		// chart = c3.generate(chartOptions);
 
-		this.setState({ chart: chart });
+		// this.setState({ chart: chart });
 	},
 
 	componentWillReceiveProps: function(props) {
 		console.log('ChartsComponent componentWillReceiveProps: ', props);
-		this._updateChart(props.data);
+		this._setChart(props.data);
+		// this._updateChart(props.data);
 	},
 
 	componentWillUnmount: function() {
@@ -60,6 +62,28 @@
 			if(indexArray.indexOf(next) < 0) init.push(next);
 			return init;
 		}, []);
+	},
+
+	_setChart: function(data) {
+		var el = ReactDOM.findDOMNode(this);
+		var options = this.props.options;
+		// var data = this.props.data;
+		var chartOptions = {
+			bindto: el,
+			data: data
+		};
+		var chart = {};
+
+		if(options) {
+			for(var key in options) {
+				chartOptions[key] = options[key];
+			}
+		}
+
+		data.type = this.props.type;
+		chart = c3.generate(chartOptions);
+
+		this.setState({ chart: chart });
 	},
 
 	_updateChart: function(data) {

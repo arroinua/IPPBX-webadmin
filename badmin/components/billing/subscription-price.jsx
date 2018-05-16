@@ -38,7 +38,7 @@ var SubscriptionPriceComponent = React.createClass({
 			return amount;
 		}, 0);
 		var didsPrice = this.props.dids.reduce(function(amount, item) {
-			amount += parseFloat(item[propString]);
+			amount += (item.included ? 0 : parseFloat(item[propString]));
 			return amount;
 		}, 0);
 
@@ -50,24 +50,24 @@ var SubscriptionPriceComponent = React.createClass({
 		return (
 		    <div>
 		    	<h5>
-		    		<span>{sub.quantity} x Users</span>
+		    		<span>{sub.quantity} x {frases.USERS}</span>
 		    		<strong> {currencySymbol}{ (parseFloat(sub.plan.price) * sub.quantity).toFixed(2) } </strong>
 		    	</h5>
 		    	{
-		    		(didsPrice !== 0) && (
+		    		(this.props.dids.length) ? (
 		    			<h5>
-		    				<span>{this.props.dids.length} x Numbers</span>
+		    				<span>{this.props.dids.length} x {frases.NUMBERS}</span>
 		    				<strong> {currencySymbol}{ didsPrice.toFixed(2) } </strong>
 		    			</h5>	
-		    		)
+		    		) : null
 		    	}
 		    	{
-		    		(addonsPrice !== 0) && (
+		    		(addonsPrice !== 0) ? (
 		    			<h5>
-		    				<span>Addons</span>
+		    				<span>{frases.BILLING.ADDONS}</span>
 		    				<strong> {currencySymbol}{ addonsPrice.toFixed(2) } </strong>
 		    			</h5>
-		    		)
+		    		) : null
 		    	}
 		    	<h3 style={{ margin: 0 }}>
 		    		<small>{ sub.plan.billingPeriodUnit === 'years' ? frases.BILLING.ANNUALLY_TOTAL : frases.BILLING.MONTHLY_TOTAL }</small>

@@ -19,7 +19,7 @@ var SubscriptionPlanComponent = React.createClass({
 		// this.setState({ changePlanOpened: !this.state.changePlanOpened });
 
 		if(!this.state.plans.length) {
-			billingRequest('getPlans', { currency: this.props.subscription.plan.currency }, function(err, response) {
+			BillingApi.getPlans({ currency: this.props.subscription.plan.currency }, function(err, response) {
 				if(err) return;
 				this.setState({ plans: response.result });
 			}.bind(this));
@@ -32,7 +32,7 @@ var SubscriptionPlanComponent = React.createClass({
 		var plans = this.state.plans;
 
 		return (
-		    <div>
+		    <div className="clearfix">
 		    	<div className="pull-left">
 		    		<h3 style={{ margin: 0 }}>
 		    			<small>{ frases.BILLING.CURRENT_PLAN } </small>
@@ -47,7 +47,7 @@ var SubscriptionPlanComponent = React.createClass({
 		    	<div className="pull-right">
 		    		{
 		    			sub.state === 'past_due' ? (
-		    				<a href="#" className="text-uppercase" style={{ fontSize: "14px" }} onClick={this.props.renewSub}>Renew</a>
+		    				<a href="#" className="text-uppercase" style={{ fontSize: "14px" }} onClick={this.props.renewSub}>{ frases.BILLING.RENEW_SUB }</a>
 		    			) : (
 		    				<a 
 		    					href="#" 

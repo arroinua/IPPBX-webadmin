@@ -63,10 +63,10 @@
     position: relative;
     width: 100%;
     height: 50px;
-    margin: auto;
+    // margin: auto;
     overflow: hidden;
-    background-color: $primary-color;
-    border-radius: $global-radius;
+    // background-color: $primary-color;
+    // border-radius: $global-radius;
     // border-bottom: 1px solid #ececec;
     // border-right: 1px solid #eee;
 
@@ -84,7 +84,7 @@
 	a.small-logo{
 		// padding: 3px;
 	    opacity: 0;
-	    text-align: center;
+	    // text-align: center;
 	    // -ms-transform:translateX(-100%);
 	    // -webkit-transform:translateX(-100%);
 	    // transform:translateX(-100%);

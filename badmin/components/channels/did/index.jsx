@@ -5,6 +5,7 @@ var DidTrunkComponent = React.createClass({
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
+		buyDidNumber: React.PropTypes.func,
 		isNew: React.PropTypes.bool
 	},
 
@@ -13,6 +14,7 @@ var DidTrunkComponent = React.createClass({
 			init: false,
 			fetch: true,
 			sub: null,
+			isTrial: null,
 			cycleDays: 0,
 			proratedDays: 0,
 			totalAmount: 0,
@@ -33,7 +35,7 @@ var DidTrunkComponent = React.createClass({
 	},
 
 	componentWillMount: function() {
-		billingRequest('getSubscription', null, function(err, response) {
+		BillingApi.getSubscription(function(err, response) {
 			console.log('getSubscription response: ', err, response.result);
 			if(err) return notify_about('error' , err.message);
 
@@ -43,6 +45,7 @@ var DidTrunkComponent = React.createClass({
 
 			this.setState({ 
 				init: true,
+				isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
 				sub: response.result,
 				cycleDays: cycleDays,
 				proratedDays: proratedDays
@@ -84,11 +87,31 @@ var DidTrunkComponent = React.createClass({
 		var params = {
 			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
 			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
+			totalAmount: this.state.totalAmount,
 			chargeAmount: this.state.chargeAmount,
-			currency: this.state.sub.plan.currency
+			newSubAmount: this.state.newSubAmount,
+			currency: this._currencyNameToSymbol(this.state.sub.plan.currency)
 		};
 		
 		this.props.onChange(params);
+	},
+
+	_currencyNameToSymbol: function(name) {
+		var symbol = "";
+
+		switch(name.toLowerCase()) {
+			case "eur":
+				symbol = "€";
+				break;
+			case "usd":
+				symbol = "$";
+				break;
+			default:
+				symbol = "€";
+				break;
+		}
+
+		return symbol;
 	},
 
 	// _setSelectedNumber: function(number) {
@@ -137,7 +160,7 @@ var DidTrunkComponent = React.createClass({
 
 		this.setState(state);
 
-		billingRequest('getDidPrice', { iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
+		BillingApi.getDidPrice({ iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
 			if(err) return notify_about('error', err);
 			this._setDidPrice(response.result);
 			
@@ -147,40 +170,41 @@ var DidTrunkComponent = React.createClass({
 
 	_setDidPrice: function(priceObj) {
 		var sub = this.state.sub;
-		var amount = this._getDidAmount(sub.plan.billingPeriodUnit, priceObj);
+		var amount = this.state.isTrial ? 0 : this._getDidAmount(sub.plan.billingPeriodUnit, priceObj);
 		var proratedAmount = (amount * (this.state.proratedDays / this.state.cycleDays)).toFixed(2);
 
 		this.setState({
 			selectedPriceObject: priceObj,
 			totalAmount: amount,
-			chargeAmount: proratedAmount
+			chargeAmount: proratedAmount,
+			newSubAmount: (parseFloat(sub.amount) + amount)
 		});
 
 		this._onChange();
 	},
 
 	// _getAssignedDids: function(callback) {
-	// 	billingRequest('getAssignedDids', null, callback);
+	// 	BillingApi.('getAssignedDids', null, callback);
 	// },
 
 	_getDid: function(number, callback) {
-		billingRequest('getDid', { number: number }, callback);
+		BillingApi.getDid({ number: number }, callback);
 	},
 
 	_getDidCountries: function(callback) {
-		billingRequest('getDidCountries', null, callback);
+		BillingApi.getDidCountries(callback);
 	},
 
 	_getDidLocations: function(params, callback) {
-		billingRequest('getDidLocations', params, callback);
+		BillingApi.getDidLocations(params, callback);
 	},
 
 	_getDidAmount: function(billingPeriodUnit, priceObj) {
 		var state = this.state;
-		var amount = null;
+		var amount = 0;
 		if(!billingPeriodUnit || !priceObj) return amount;
 		amount = (billingPeriodUnit === 'years' ? priceObj.annualPrice : priceObj.monthlyPrice);
-		return amount ? parseFloat(amount) : null;
+		return amount ? parseFloat(amount) : 0;
 	},
 
 	_showNewDidSettings: function(e) {
@@ -190,10 +214,10 @@ var DidTrunkComponent = React.createClass({
 		var sub = this.state.sub;
 		var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
 
-		billingRequest('hasDids', null, function(err, count) {
+		BillingApi.hasDids(function(err, count) {
 			if(err) return notify_about('error', err);
 
-			if(maxdids >= count) {
+			if(count.result >= maxdids) {
 				this.setState({ limitReached: true, countries: [], fetchingCountries: false });
 				return;
 			}
@@ -207,6 +231,21 @@ var DidTrunkComponent = React.createClass({
 		}.bind(this));
 				
 	},
+
+	// function getBody() {
+	// 	return (
+	// 		<div className="col-sm-8 col-sm-offset-4">
+	// 			<p>{frases.BILLING.CONFIRM_PAYMENT.ADD_NUMBER_NEW_AMOUNT} <strong>€{ amount }</strong>. {frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG} <strong>€{ proratedAmount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
+	// 			<p>{frases.BILLING.CONFIRM_PAYMENT.NEW_SUB_AMOUNT} <strong>€{ parseFloat(sub.amount) + amount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
+	// 			{
+	// 				selectedPriceObject.restrictions && (
+	// 					<DidRestrictionsComponent frases={frases} list={selectedPriceObject.restrictions.split(',')} />
+	// 				) 
+	// 			}
+	// 			<p><button className="btn btn-primary" onClick={this._buyDidNumber}>{frases.CHAT_TRUNK.DID.BUY_NUMBER_BTN}</button></p>
+	// 		</div>
+	// 	)
+	// },
 
 	render: function() {
 		var state = this.state;
@@ -318,8 +357,7 @@ var DidTrunkComponent = React.createClass({
 																			{
 																				(selectedPriceObject && selectedPriceObject._id) ? (
 																					<div className="col-sm-8 col-sm-offset-4">
-																						<p>{frases.BILLING.CONFIRM_PAYMENT.ADD_NUMBER_NEW_AMOUNT} <strong>€{ amount }</strong>. {frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG} <strong>€{ proratedAmount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
-																						<p>{frases.BILLING.CONFIRM_PAYMENT.NEW_SUB_AMOUNT} <strong>€{ parseFloat(sub.amount) + amount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
+																						<p>{frases.BILLING.CONFIRM_PAYMENT.ADD_NUMBER_NEW_AMOUNT} <strong>{this._currencyNameToSymbol(sub.plan.currency)}{ amount }</strong>, {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
 																						{
 																							selectedPriceObject.restrictions && (
 																								<DidRestrictionsComponent frases={frases} list={selectedPriceObject.restrictions.split(',')} />

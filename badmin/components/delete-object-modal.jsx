@@ -25,6 +25,7 @@ function DeleteObjectModalComponent(props) {
 		<ModalComponent 
 			size="sm"
 			type="danger"
+			closeOnSubmit={true}
 			submitText={frases.DELETE}
 			cancelText={frases.CANCEL} 
 			submit={_onSubmit} 

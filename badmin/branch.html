@@ -23,6 +23,7 @@
         <link rel="stylesheet" href="/badmin/css/vendors/select2.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/react-select.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/c3.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/driver.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" />
     </head>
     <body>
@@ -45,6 +46,13 @@
                             <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
                                 <i class="fa fa-fax fa-fw"></i>
                                 <span>{{KINDS.equipment}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-trunks">
+                            <a href="#" data-kind="chattrunk" title="{{KINDS.chattrunk}}">
+                                <i class="fa fa-whatsapp fa-fw"></i>
+                                <span>{{KINDS.chattrunk}}</span>
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
@@ -87,13 +95,6 @@
                             <a href="#" data-kind="trunk" title="{{KINDS.trunk}}">
                                 <i class="fa fa-cloud fa-fw"></i>
                                 <span>{{KINDS.trunk}}</span>
-                                <i class="fa fa-angle-right fa-fw"></i>
-                            </a>
-                        </li>
-                        <li class="branch-mode mode-trunks">
-                            <a href="#" data-kind="chattrunk" title="{{KINDS.chattrunk}}">
-                                <i class="fa fa-whatsapp fa-fw"></i>
-                                <span>{{KINDS.chattrunk}}</span>
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
@@ -295,6 +296,12 @@
                                             <span>{{CERTIFICATES.CERTIFICATES_SETTS}}</span>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a href="#customers" title="{{KINDS.customers}}">
+                                            <i class="fa fa-users fa-fw"></i>
+                                            <span>{{KINDS.customers}}</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -307,7 +314,7 @@
         <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/badmin/js/vendors/bootstrap-tour.min.js"></script>
+        <!-- <script type="text/javascript" src="/badmin/js/vendors/bootstrap-tour.min.js"></script> -->
         <script type="text/javascript" src="/badmin/js/vendors/flot.all.min.js"></script>
         <!--<script type="text/javascript" src="/badmin/js/vendors/fastclick.min.js"></script>-->
         <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
@@ -317,10 +324,11 @@
         <script type="text/javascript" src="/badmin/js/vendors/moment-timezone-with-data-2010-2020.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/flatpickr.all.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/select2.full.min.js"></script>
-        <script src="https://d3js.org/d3.v3.min.js"></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/c3.min.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/react-select-utils.js"></script>
         <script type="text/javascript" src="/badmin/js/vendors/react-select.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/driver.min.js"></script>
         <script type="text/javascript" src="/badmin/js/main.js"></script>
         <script type="text/javascript" src="/badmin/js/components.js"></script>
     </body>

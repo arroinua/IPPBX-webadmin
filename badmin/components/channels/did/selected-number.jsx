@@ -19,7 +19,7 @@ var SelectedDidNumberComponent = React.createClass({
 		};
 
 		if(this.props.number.status !== 'active') {
-			billingRequest('updateDidStatus', { number: this.props.number.number }, function(err, response) {
+			BillingApi.updateDidStatus({ number: this.props.number.number }, function(err, response) {
 				if(err) return notify_about('error', err);
 				this._updateStatus(response.result.status);
 			}.bind(this));
@@ -27,7 +27,7 @@ var SelectedDidNumberComponent = React.createClass({
 		}
 
 		if(this.props.number.awaitingRegistration) {
-			billingRequest('updateDidRegistration', { number: this.props.number.number }, function(err, response) {
+			BillingApi.updateDidRegistration({ number: this.props.number.number }, function(err, response) {
 				if(err) return notify_about('error', err);
 				this._updateRegistration(response.result.awaitingRegistration);
 			}.bind(this));

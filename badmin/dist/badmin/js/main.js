@@ -1283,6 +1283,9 @@ function load_bgroup(result){
         $enabledCont = $('.object-name .switch'),
         availableUsers = result.available;
 
+    var maxusers = PbxObject.options.maxusers; 
+    var storelimit = PbxObject.options.storelimit; 
+
     if(availableUsers) {
         availableUsers = availableUsers.sort();
         PbxObject.available = availableUsers;
@@ -1382,8 +1385,12 @@ function load_bgroup(result){
             // var storeLimitChecked = storeLimitTrigger.checked;
             addUser(utype, function() {
                 cleanForm('new-user-form');
+
+                if(kind === 'users' && addUserForm.storelimit && storelimit && maxusers) 
+                    addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
                 // storeLimitTrigger.checked = storeLimitChecked;
             });
+
             // cleanForm();
         });
         // addEvent(add, 'click', function(){
@@ -1722,6 +1729,11 @@ function load_bgroup(result){
         var activeServices = PbxObject.options.services.filter(function(service){
             return service.state;
         });
+
+        if(addUserForm.storelimit && storelimit && maxusers) 
+            addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
+            console.log('storelimit=', storelimit, maxusers, (convertBytes(storelimit, 'Byte', 'GB') / maxusers));
+
         
         if(activeServices.length) {
             $('#services-cont').append(activeServices.map(createServiceBtn));
@@ -1730,10 +1742,11 @@ function load_bgroup(result){
                 $('#add-external-user').hide();
         }
 
-        qparams = getQueryParams();
-        if(window.sessionStorage.getItem('lastURL') && qparams.service_id && qparams.service_type) {
-            getExternalUsers(qparams.service_id, parseInt(qparams.service_type, 10));
-            window.sessionStorage.removeItem('lastURL');
+        // qparams = getQueryParams();
+        var serviceParams = window.sessionStorage.getItem('serviceParams');
+        if(serviceParams) {
+            getExternalUsers(JSON.parse(serviceParams));
+            window.sessionStorage.removeItem('serviceParams');
         }
 
     }
@@ -1768,25 +1781,33 @@ function onAddLdapUsers(users){
 }
 
 function createServiceBtn(params){
-    var button;
-    button = document.createElement('button');
-    addEvent(button, 'click', function(e){
-        getExternalUsers(params.id, params.type, params.props);
-    });
-    button.className = "btn btn-link btn-default padding-lg ellipsis";
-    button.innerHTML = '<span>'+params.name+'</span>';
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = "btn btn-default padding-lg pl-users";
+    button.innerHTML = '<span>'+PbxObject.frases.IMPORT_USERS_FROM+' </span><strong>'+params.name+'</strong>';
     
+    addEvent(button, 'click', function(e){
+        getExternalUsers(params);
+    });
+
     return button;
 }
 
-function getExternalUsers(id, type, props){
-    if(type === 1) {
-        PbxObject.LdapConnection = Ldap({
-            service_id: id,
-            service_type: type,
-            available: PbxObject.available,
-            onaddusers: setExternalUsers
-        });
+function getExternalUsers(params){
+    PbxObject.LdapConnection = Ldap({
+        service_id: params.id,
+        service_type: params.type,
+        available: PbxObject.available,
+        onaddusers: setExternalUsers
+    });
+
+    if(params.type === 1) {
+        // PbxObject.LdapConnection = Ldap({
+        //     service_id: params.id,
+        //     service_type: params.type,
+        //     available: PbxObject.available,
+        //     onaddusers: setExternalUsers
+        // });
         PbxObject.LdapConnection.getExternalUsers();
 
         // $.ajax({
@@ -1816,8 +1837,9 @@ function getExternalUsers(id, type, props){
         //     }
         // });
     } else {
-        json_rpc_async('getExternalUsers', { service_id: id }, function(result) {
+        json_rpc_async('getExternalUsers', { service_id: params.id }, function(result) {
             console.log('getExternalUsers result: ', result);
+            if(result) PbxObject.LdapConnection.showUsers(result);
         });
     }
 }
@@ -2436,6 +2458,188 @@ function checkHuntMode(e){
         document.getElementById('huntmodesetts').classList.remove('hidden');
 }
 
+var BillingApi = {
+
+	// url: 'https://b9b9c400.ngrok.io/branch/api/',
+	url: 'https://api-web.ringotel.net/branch/api/',
+	cache: {},
+
+	fetch: function(method, url, data, options, callback){
+	    var xhr, response, requestTimer, dataStr;
+
+	    xhr = new XMLHttpRequest();
+	    xhr.open(method, url, true);
+	    if(options && options.headers) {
+	        options.headers.forEach(function(header) {
+	            xhr.setRequestHeader(header.name, header.value);
+	        });
+	    }
+
+	    requestTimer = setTimeout(function(){
+	        xhr.abort();
+	    }, 60000);
+	    
+	    xhr.onload = function(e) {
+	        
+	        clearTimeout(requestTimer);
+
+	        var redirect = e.target.getAllResponseHeaders();
+	        var status = e.target.status;
+	        var response = e.target.responseText;
+	        if(response) {
+	            try {
+	                response = JSON.parse(response);
+	            } catch(err) {
+	                console.log('response in not JSON');
+	            }
+	        }
+	            
+	        if(status === 403) {
+	            logout();
+	        } else if(status === 200) {
+	            if(callback) callback(null, response);
+	        } else if(status >= 500) {
+	            if(callback) return callback('The service is under maintenance. Please, try again later.');
+	        } else {
+	            if(callback) callback(response.error);
+	        }
+
+	    };
+
+	    if(data) {
+	        xhr.setRequestHeader('Content-Type', 'application/json');
+	        dataStr = JSON.stringify(data);
+	        xhr.send(dataStr);
+	    } else {
+	        xhr.send();
+	    }
+	    
+	},
+
+	request: function(method, params, callback) {
+		var access_token = window.localStorage.getItem('ringo_tid');
+		if(!access_token) return callback('MISSING_TOKEN');
+		this.fetch(
+		    'POST',
+		    (this.url+method+'?access_token='+encodeURIComponent(access_token)),
+		    (params || null),
+		    null,
+		    function(err, result) {
+		        if(err || result.error) return callback(err || result.error);
+		        if(callback) callback(null, result);
+		    }
+		);
+	},
+
+	getProfile: function(callback) {
+		this.request('getProfile', null, callback);
+	},
+
+	updateBalance: function(params, callback) {
+		this.request('getProfile', params, callback);	
+	},
+
+	changeAdminEmail: function(params, callback) {
+		this.request('changeAdminEmail', params, callback);	
+	},
+
+	changePassword: function(params, callback) {
+		this.request('changePassword', params, callback);	
+	},
+
+	addCard: function(params, callback) {
+		this.request('addCard', params, callback);	
+	},
+
+	updateCard: function(params, callback) {
+		this.request('updateCard', params, callback);	
+	},
+
+	getPlans: function(params, callback) {
+		this.request('getPlans', params, callback);	
+	},
+
+	changePlan: function(params, callback) {
+		this.request('changePlan', params, callback);	
+	},
+
+	getSubscription: function(callback) {
+		this.request('getSubscription', null, callback);
+	},
+
+	updateSubscription: function(params, callback) {
+		this.request('updateSubscription', params, callback);
+	},
+
+	renewSubscription: function(callback) {
+		this.request('renewSubscription', null, callback);
+	},
+
+	addCoupon: function(params, callback) {
+		this.request('addCoupon', params, callback);
+	},
+
+	getInvoices: function(callback) {
+		this.request('getInvoices', null, callback);
+	},
+
+	getDiscounts: function(callback) {
+		this.request('getDiscounts', null, callback);
+	},
+	
+	getAssignedDids: function(callback) {
+		this.request('getAssignedDids', null, callback);		
+	},
+
+	getUnassignedDids: function(callback) {
+		this.request('getUnassignedDids', null, callback);		
+	},
+
+	orderDid: function(params, callback) {
+		this.request('orderDid', params, callback);		
+	},
+
+	unassignDid: function(params, callback) {
+		this.request('unassignDid', params, callback);
+	},
+
+	getDidPrice: function(params, callback) {
+		this.request('getDidPrice', params, callback);
+	},
+
+	getDid: function(params, callback) {
+		this.request('getDid', params, callback);
+	},
+
+	getDidCountries: function(callback) {
+		this.request('getDidCountries', null, callback);
+	},
+
+	getDidLocations: function(params, callback) {
+		this.request('getDidLocations', params, callback);
+	},
+
+	hasDids: function(callback) {
+		this.request('hasDids', null, callback);
+	},
+
+	updateDidStatus: function(params, callback) {
+		this.request('updateDidStatus', params, callback);
+	},
+
+	updateDidRegistration: function(params, callback) {
+		this.request('updateDidStatus', params, callback);
+	},
+
+	getCredits: function(callback) {
+		this.request('getCredits', null, callback);
+	},
+
+	addCredits: function(params, callback) {
+		this.request('addCredits', params, callback);
+	}
+
+};
 function load_billing() {
 	
 	console.log('load_billing');
@@ -2449,15 +2653,16 @@ function load_billing() {
 	var discounts = [];
 	var methods = {
 		changePlan: changePlan,
-		updateLicenses: updateLicenses
+		updateLicenses: updateLicenses,
+		addCredits: addCredits
 	}
 
-	billingRequest('getSubscription', null, function(err, response) {
+	BillingApi.getSubscription(function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		billingRequest('getAssignedDids', null, function(err, response) {
+		BillingApi.getAssignedDids(function(err, response) {
 			if(err) return notify_about('error' , err.message);
 			dids = response.result;
 
@@ -2499,6 +2704,7 @@ function load_billing() {
 		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: onUpdateLicenses,
+		    addCredits: addCredits,
 		    extend: deepExtend,
 		    addCoupon: addCoupon,
 		    utils: {
@@ -2526,7 +2732,7 @@ function load_billing() {
 					card: PbxObject.stripeToken.card
 				};
 
-				billingRequest('addCard', reqParams, function(err, response) {
+				BillingApi.addCard(reqParams, function(err, response) {
 					console.log('saveCard response: ', err, PbxObject.stripeToken, response);
 					
 					if(err || response.error) {
@@ -2564,7 +2770,7 @@ function load_billing() {
 					card: PbxObject.stripeToken.card
 				};
 
-				billingRequest('updateCard', reqParams, function(err, response) {
+				BillingApi.updateCard(reqParams, function(err, response) {
 					console.log('updateCard response: ', err, PbxObject.stripeToken, response);				
 					
 					if(err || response.error) {
@@ -2586,7 +2792,7 @@ function load_billing() {
 
 		show_loading_panel();
 
-		billingRequest('renewSubscription', { subId: sub._id }, function(err, response) {
+		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
 			console.log('renewSubscription response: ', err, response);
 
 			show_content();
@@ -2623,7 +2829,7 @@ function load_billing() {
 					token: PbxObject.stripeToken.id
 				};
 
-				billingRequest('updateBalance', reqParams, function(err, response) {
+				BillingApi.updateBalance(reqParams, function(err, response) {
 
 					console.log('updateBalance: ', err, response);
 
@@ -2645,7 +2851,7 @@ function load_billing() {
 	}
 
 	function addCoupon(string) {
-		billingRequest('addCoupon', { coupon: string }, function(err, response) {
+		BillingApi.addCoupon({ coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
 			discounts.push(response);
@@ -2673,7 +2879,7 @@ function load_billing() {
 	function changePlan(params, callback) {
 		show_loading_panel();
 
-		billingRequest('changePlan', {
+		BillingApi.changePlan({
 			subId: sub._id,
 			planId: params.plan.planId
 		}, function(err, response) {
@@ -2713,7 +2919,7 @@ function load_billing() {
 	function updateLicenses(params) {
 		show_loading_panel();
 
-		billingRequest('updateSubscription', {
+		BillingApi.updateSubscription({
 			subId: sub._id,
 			addOns: params.addOns,
 			quantity: params.quantity
@@ -2736,8 +2942,33 @@ function load_billing() {
 		});
 	}
 
+	function addCredits(params) {
+		showModal('confirm_add_credits_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
+			console.log('confirm_add_credits_modal submit:', result);
+
+			$(modal).modal('toggle');
+		
+
+			show_loading_panel();
+
+			BillingApi.addCredits({ amount: params.chargeAmount }, function(err, response) {
+				remove_loading_panel();
+				
+				if(err) {
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'addCredits');
+					else notify_about('error', err.message);
+					return;
+				}
+
+				set_object_success();
+				init();
+
+			});
+		});
+	}
+
 	function getInvoices(callback) {
-		billingRequest('getInvoices', null, function(err, response) {
+		BillingApi.getInvoices(function(err, response) {
 			console.log('getInvoices response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
@@ -2745,7 +2976,7 @@ function load_billing() {
 	}
 
 	function getDiscounts(callback) {
-		billingRequest('getDiscounts', null, function(err, response) {
+		BillingApi.getDiscounts(function(err, response) {
 			console.log('getDiscounts response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
@@ -2817,16 +3048,25 @@ function load_branch_options() {
 			    handler();
 			} else {
 			    if(window.localStorage['ringo_tid'] && !singleBranch) {
-			        billingRequest('changePassword', { login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
+			        BillingApi.changePassword({ login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
 			            if(!err) {
 			            	handler();
 			            	if(callback) callback();
 			            }
 			        });
+
 			    } else {
 			        handler();
 			        if(callback) callback();
 			    }
+			}
+
+			if(window.localStorage['ringo_tid'] && !singleBranch) {
+				if(newOptions.email) {
+					BillingApi.changeAdminEmail({ email: newOptions.email }, function(err, result) {
+					    if(err) notify_about('error', err);
+					});
+				}
 			}
 		});
 	}
@@ -3735,16 +3975,9 @@ function load_chatchannel(params) {
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
-	var modalId = 'available-users-modal';
-	var modalCont = document.getElementById('available-users-cont');
+	var modalCont;
 
 	if(!params.name) params.enabled = true;
-
-	if(!modalCont) {
-		modalCont = document.createElement('div');
-		modalCont.id = "available-users-cont";
-		document.body.appendChild(modalCont);
-	}
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
@@ -3767,16 +4000,25 @@ function load_chatchannel(params) {
 		});
 	}
 
-	// function getAvailableUsers() {
+	// function onAddMembers() {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
-	//     json_rpc_async('getAvailableUsers', params, function(result){
-	// 		console.log('getAvailableUsers: ', result);
+	//     json_rpc_async('onAddMembers', params, function(result){
+	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
+		modalCont = document.getElementById('available-users-cont');
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
+
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
 		    onSubmit: addMembers,
@@ -3795,7 +4037,8 @@ function load_chatchannel(params) {
 		$('#available-users-modal').modal('hide');
 	}
 
-	function deleteMember(oid) {
+	function deleteMember(params) {
+		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 		setChatChannel(objParams, function(result) {
@@ -3831,7 +4074,7 @@ function load_chatchannel(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    getAvailableUsers: showAvailableUsers,
+		    onAddMembers: showAvailableUsers,
 		    setObject: setChatChannel,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
@@ -3855,6 +4098,15 @@ function load_chatchannel(params) {
 function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
+	console.log('window parent: ', window.opener);
+	var frases = PbxObject.frases;
+	var driver = new Driver({
+		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	});
+	var driverSteps = [];
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
@@ -3915,6 +4167,11 @@ function load_chattrunk(params) {
 		icon: '/badmin/images/channels/viber.ico',
 		component: ViberTrunkComponent
 	}, {
+		id: 'Telegram',
+		name: "Telegram",
+		icon: '/badmin/images/channels/telegram.png',
+		component: TelegramTrunkComponent
+	}, {
 		id: 'Telephony',
 		name: 'Number',
 		icon: '/badmin/images/channels/did.png',
@@ -3945,6 +4202,24 @@ function load_chattrunk(params) {
 		document.body.appendChild(modalCont);
 	}
 
+	var query = window.location.href;
+	var search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
+	var queryParams = getQueryParams(search);
+	var selectedService = queryParams.channel;
+
+	if(window.opener && window.onTokenReceived) {
+		var userAccessToken = search ? queryParams.access_token : null;
+		return window.onTokenReceived(userAccessToken);
+	}
+
+	if(PbxObject.userAccessToken) {
+		services = services.map(function(item) {
+			console.log('load_chattrunk services:', item);
+			if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
+			return item;
+		});
+	}
+
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
@@ -3965,6 +4240,8 @@ function load_chattrunk(params) {
 	function setObject(params, cb) {
 
 		console.log('setObject: ', params);
+		
+		driver.reset();
 
 	    show_loading_panel();
 
@@ -3983,6 +4260,7 @@ function load_chattrunk(params) {
 
 			render(params.type, params);
 			remove_loading_panel();
+
 		});
     	
 	}
@@ -4024,7 +4302,7 @@ function load_chattrunk(params) {
 
 				show_loading_panel();
 
-				billingRequest('updateBalance', reqParams, function(err, response) {
+				BillingApi.updateBalance(reqParams, function(err, response) {
 
 					console.log('updateBalance: ', err, response);
 
@@ -4046,8 +4324,55 @@ function load_chattrunk(params) {
 		});
 	}
 
+	function confirmPayment(params, callback) {
+		console.log('confirmPayment params:', params);
+		showModal('confirm_payment_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			$(modal).modal('toggle');
+
+			callback(params);
+
+		});
+	}
+
 	function removeObject() {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+	}
+
+	function addSteps(stepParams) {
+		driverSteps = driverSteps.concat(stepParams);
+	}
+
+	function nextStep(stepParams) {
+		driver.moveNext();
+	}
+
+	function highlightStep(stepParams) {
+		driver.highlight(stepParams);
+	}
+
+	function initSteps() {
+		if(!PbxObject.tourStarted) return;
+
+		driverSteps.push({
+			element: '.object-name-cont .btn-success',
+			popover: {
+				title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
+				description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
+				position: 'bottom'
+			}
+		});
+
+		setTimeout(function() {
+			console.log('initSteps: ', driverSteps);
+			driver.defineSteps(driverSteps);
+			driver.start();
+		}, 500);
+	}
+
+	function onTokenReceived(token) {
+		PbxObject.userAccessToken = token;
 	}
 
 	function render(type, params) {
@@ -4056,12 +4381,19 @@ function load_chattrunk(params) {
 			services: services,
 			frases: PbxObject.frases,
 		    params: params,
+		    selected: selectedService,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
 		    updateBalance: updateBalance,
 		    confirmRemoveObject: confirmRemoveObject,
-		    removeObject: removeObject
+		    removeObject: removeObject,
+		    confirmPayment: confirmPayment,
+		    initSteps: initSteps,
+		    addSteps: addSteps,
+		    nextStep: nextStep,
+		    highlightStep: highlightStep,
+		    onTokenReceived: onTokenReceived
 		};
 
 		console.log('render: ', componentParams);
@@ -4230,6 +4562,87 @@ function add_cli_row(object){
     // tr.appendChild(td);
     // table.appendChild(tr);
 }
+function load_customers(params) {
+
+	console.log('load_customers: ', PbxObject.kind, params);
+	var frases = PbxObject.frases;
+	var customers = [];
+	var modalCont = document.getElementById('modal-cont');
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+	}
+
+    set_page();
+    close_options();
+    getCustomers();
+
+    function getCustomers() {
+    	json_rpc_async('getCustomers', null, function(result, err) {
+    		console.log('getCustomers: ', err, result);
+    		customers = result.reverse();
+    		render(customers);
+    	});
+    }
+
+    function onDelete(cid) {
+    	console.log('onDelete: ', cid);
+    	ReactDOM.render(
+    		DeleteObjectModalComponent({
+    			frases: frases,
+    			warning: frases.CUSTOMERS.ON_DELETE_WARNING,
+    			onSubmit: function() {
+    				deleteCustomer(cid);
+    			}
+    		}),
+    		modalCont
+    	);
+    }
+
+    function deleteCustomer(cid) {
+    	json_rpc_async('deleteCustomerData', {
+    		customerid: cid
+    	}, function(result, err) {
+    		console.log('deleteCustomerData result: ', err, result);
+    		
+    		customers = customers.filter(function(item) {
+    			return item.id !== cid;
+    		});
+
+    		notify_about('success', frases.CUSTOMERS.ON_DELETED_MSG);
+    		render(customers);
+    	});
+    }
+
+    function openCustomerInfo(params) {
+    	ReactDOM.render(
+    		CustomerInfoModalComponent({
+    			frases: frases,
+    			params: params,
+    			onDelete: onDelete
+    		}),
+    		modalCont
+    	);
+    }
+
+	function render(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    openCustomerInfo: openCustomerInfo
+		};
+
+		ReactDOM.render(CustomersComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		show_content();
+	}
+
+}
+function load_dashboard(){
+    PbxObject.Dashboard = new Dashboard();
+}
+
 function Dashboard(){
     var self = this,
         loaded = false,
@@ -4260,7 +4673,6 @@ function Dashboard(){
 
         set_page();
 
-        var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
 
     this.checkStates = function(){
@@ -4520,10 +4932,6 @@ function Dashboard(){
 
     this.init();
 
-}
-
-function load_dashboard(){
-    PbxObject.Dashboard = new Dashboard();
 }
 
 function EventEmitter() {
@@ -4914,7 +5322,7 @@ function load_extension(result){
 
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
         result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
-        result.storefree = result.storefree ? convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = result.storelimit - result.storesize;
         // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
         // if(result.storelimit) {
         //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
@@ -5060,6 +5468,7 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     var login = d.getElementById("extlogin").textContent;
+    var password = d.getElementById("extpassword").value;
     // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
@@ -5078,7 +5487,7 @@ function set_extension(kind){
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
     // jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
     if(login) jprms += '\"login\":\"'+login+'\",';
-    jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
+    if(password) jprms += '\"password\":\"'+password+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {
         storelimit = convertBytes(storelimit.value, 'GB', 'Byte').toFixed();
@@ -5240,213 +5649,188 @@ function getUserInfo(userid){
 
 function GetStarted(container) {
 	var extensions = [],
-		trunks = [],
-		objects = PbxObject.objects,
-		icd = [],
-		hunting = [],
-		attendant = [],
-		welcomeModal = 'welcome-modal',
-		wgSteps = [],
-		dashTour = {};
+		objects = PbxObject.objects
+		// welcomeModal = 'welcome-modal',
+		// wgSteps = [],
+		// dashTour = {};
+
+	var modalCont = document.getElementById('modals-cont');
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "gs-modal-cont";
+		document.body.appendChild(modalCont);
+	}
 
 	this.init = function() {
+
 
 		// createTour();
 
 		// Get initial data for the Widget
-		if(typeof objects === 'object') {
-			createWidget();
-		} else {
+		// if(typeof objects === 'object') {
+			// createWidget();
+		// } else {
 
-			json_rpc_async('getExtensions', null, function(exts) {
+			getExtensions(function(exts) {
 			    extensions = exts;
 			    console.log('extensions:', extensions);
 
-			    getObjects(null, function(objs) {
-			    	objects = PbxObject.objects = objs;
+			    // getObjects(null, function(objs) {
+			    	// objects = objs;
 
 			    	console.log('objects:', objects);
 
-			    	createWidget();
+			    	// createWidget();
 
-			    	if(doWelcomeModalNeeded())
-			    		loadWelcomeModal();
-			    });
+			    	if(doWelcomeModalNeeded()) {
+			    		initGetStarted();
+			    		appStorage.set('welcomed', true);
+			    	}
+
+					createGSButton();
+
+			    	// if(doWelcomeModalNeeded())
+			    	// 	loadWelcomeModal();
+			    // });
 
 			});
-		}		
+		// }		
 	};
 
 	function doWelcomeModalNeeded() {
-		var noRoutesObjs = filterKinds(objects, 'routes', true);
-		return !appStorage.get('welcomed') && !noRoutesObjs.length && !extensions.length
+		// var noRoutesObjs = filterKinds(objects, 'routes', true);
+		return !appStorage.get('welcomed') && (!extensions.length || extensions.length < 2);
 	}
 
-	function loadWelcomeModal() {
-	    var modalCont = document.createElement('div');
-	    $('body').prepend(modalCont);
+	// function loadWelcomeModal() {
+	//     var modalCont = document.createElement('div');
+	//     $('body').prepend(modalCont);
 
-	    ReactDOM.render(WelcomeModal({
-	        startTour: startTour,
-	        frases: PbxObject.frases
-	    }), modalCont);
+	//     ReactDOM.render(WelcomeModal({
+	//         startTour: startTour,
+	//         frases: PbxObject.frases
+	//     }), modalCont);
 
-	    $('#welcome-modal').modal();
+	//     $('#welcome-modal').modal();
 
-	    appStorage.set('welcomed', true);
+	//     appStorage.set('welcomed', true);
+	// }
+
+	// function startTour() {
+	//     dashTour.start();
+	// }
+
+	// function createWidget() {
+
+	// 	var allDone = true;
+
+	// 	wgSteps = [
+	// 		{
+	// 			component: "AddExtensions",
+	// 		    name: "addExtensions",
+	// 		    icon: "fa fa-users",
+	// 		    title: PbxObject.frases.GET_STARTED.STEPS.A.TITLE,
+	// 		    desc: PbxObject.frases.GET_STARTED.STEPS.A.BODY,
+	// 		    done: filterKinds(objects, 'users').length > 0 || filterKinds(objects, 'equipment').length > 0
+	// 		}, {
+	// 			component: "AddServiceGroup",
+	// 		    name: "addServiceGroup",
+	// 		    icon: "icon-headset_mic",
+	// 		    title: PbxObject.frases.GET_STARTED.STEPS.B.TITLE,
+	// 		    desc: PbxObject.frases.GET_STARTED.STEPS.B.BODY,
+	// 		    done: filterKinds(objects, ['hunting','icd','chatchannel']).length > 0
+	// 		}, {
+	// 			component: "AddChannel",
+	// 		    name: "addChannel",
+	// 		    icon: "fa fa-whatsapp",
+	// 		    title: PbxObject.frases.GET_STARTED.STEPS.B.TITLE,
+	// 		    desc: PbxObject.frases.GET_STARTED.STEPS.B.BODY,
+	// 		    done: filterKinds(objects, ['chattrunk']).length > 0
+	// 		}
+	// 		// {
+	// 		// 	// component: "AddTrunk",
+	// 		//     name: "addAttendant",
+	// 		//     icon: "icon-room_service",
+	// 		//     title: PbxObject.frases.GET_STARTED.STEPS.C.TITLE,
+	// 		//     desc: PbxObject.frases.GET_STARTED.STEPS.C.BODY,
+	// 		//     done: filterKinds(objects, 'attendant').length > 0,
+	// 		//     onClick: function() {
+	// 		//     	window.location.hash = '#attendant/attendant';
+	// 		//     }
+	// 		// }, 
+	// 		// {
+	// 		// 	// component: "AddTrunk",
+	// 		//     name: "addTrunk",
+	// 		//     icon: "fa fa-cloud",
+	// 		//     title: PbxObject.frases.GET_STARTED.STEPS.D.TITLE,
+	// 		//     desc: PbxObject.frases.GET_STARTED.STEPS.D.BODY,
+	// 		//     done: filterKinds(objects, 'trunk').length > 0,
+	// 		//     onClick: function() {
+	// 		//     	window.location.hash = '#trunk/trunk';
+	// 		//     }
+	// 		// }
+	// 	];
+
+	// 	wgSteps.forEach(function(item) {
+	// 		if(!item.done) allDone = false;
+	// 	});
+
+	// 	ReactDOM.render(GsWidget({
+	// 	    steps: wgSteps,
+	// 	    frases: PbxObject.frases
+	// 	}), document.getElementById('get-started-cont'));
+
+	// 	if(allDone) setAllDone();
+	// }
+
+	function initGetStarted() {
+		var initialStep = extensions.length < 2 ? 0 : 2;
+		// var initialStep = 0;
+
+		ReactDOM.render(GSModalComponent({
+		    frases: PbxObject.frases,
+		    initialStep: initialStep,
+		    profile: PbxObject.profile,
+		    options: PbxObject.options,
+		    objects: PbxObject.objects,
+		    onClose: onClose
+		}), modalCont);
+
 	}
 
-	function startTour() {
-	    dashTour.start();
+	function onClose(init) {
+		PbxObject.tourStarted = init ? true : false;
 	}
 
-	function createWidget() {
+	function createGSButton() {
+		var ul = document.createElement('ul');
+		var li = document.createElement('li');
+		var cont = document.querySelector('#pbxmenu');
+		var child = document.querySelector('#pbxmenu .nav-list');
 
-		var allDone = true;
+		ul.className = 'nav-list';
+		ul.appendChild(li);
+		cont.insertBefore(ul, child);
 
-		wgSteps = [
-			{
-				component: "AddExtensions",
-			    name: "addExtensions",
-			    icon: "fa fa-users",
-			    title: PbxObject.frases.GET_STARTED.STEPS.A.TITLE,
-			    desc: PbxObject.frases.GET_STARTED.STEPS.A.BODY,
-			    done: filterKinds(objects, 'users').length > 0 || filterKinds(objects, 'equipment').length > 0
-			}, {
-				component: "AddCallGroup",
-			    name: "addCallGroup",
-			    icon: "icon-headset_mic",
-			    title: PbxObject.frases.GET_STARTED.STEPS.B.TITLE,
-			    desc: PbxObject.frases.GET_STARTED.STEPS.B.BODY,
-			    done: filterKinds(objects, 'icd').length > 0 || filterKinds(objects, 'hunting').length > 0
-			}, {
-				// component: "AddTrunk",
-			    name: "addAttendant",
-			    icon: "icon-room_service",
-			    title: PbxObject.frases.GET_STARTED.STEPS.C.TITLE,
-			    desc: PbxObject.frases.GET_STARTED.STEPS.C.BODY,
-			    done: filterKinds(objects, 'attendant').length > 0,
-			    onClick: function() {
-			    	window.location.hash = '#attendant/attendant';
-			    }
-			}, {
-				// component: "AddTrunk",
-			    name: "addTrunk",
-			    icon: "fa fa-cloud",
-			    title: PbxObject.frases.GET_STARTED.STEPS.D.TITLE,
-			    desc: PbxObject.frases.GET_STARTED.STEPS.D.BODY,
-			    done: filterKinds(objects, 'trunk').length > 0,
-			    onClick: function() {
-			    	window.location.hash = '#trunk/trunk';
-			    }
-			}
-		];
-
-		wgSteps.forEach(function(item) {
-			if(!item.done) allDone = false;
-		});
-
-		ReactDOM.render(GsWidget({
-		    steps: wgSteps,
-		    frases: PbxObject.frases
-		}), document.getElementById('get-started-cont'));
-
-		if(allDone) setAllDone();
+		ReactDOM.render(InitGSButtonComponent({
+		    frases: PbxObject.frases,
+		    onClick: initGetStarted
+		}), li);
 	}
 
-	function createTour() {
-		dashTour = MyTour('dashboard', PbxObject.tours.dashboard());
+	// function createTour() {
+	// 	dashTour = MyTour('dashboard', PbxObject.tours.dashboard());
+ //    }
 
-        // dashTour = MyTour('dashboard', {
-        //     steps: [
-        //         {
-        //             // orphan: true,
-        //             backdropPadding: { top: 10 },
-        //             placement: 'top',
-        //             element: "#dash-tour-cont",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.A.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.A.BODY
-        //         }, {
-        //             backdropPadding: { top: 10 },
-        //             element: "#dash-graph-cont",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.B.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.B.BODY,
-        //             placement: "bottom"
-        //         }, {
-        //             backdropPadding: { top: 10 },
-        //             element: "#dash-monitor-cont",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.C.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.C.BODY,
-        //             placement: "top"
-        //         }, {
-        //             element: "#dash-trstate-cont",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.D.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.D.BODY,
-        //             placement: "top"
-        //         }, {
-        //             element: "#dash-callmonitor-cont",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.E.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.E.BODY,
-        //             placement: "top"
-        //         }, {
-        //             element: "#home-btn",
-        //             content: PbxObject.frases.TOURS.DASHBOARD.F.BODY,
-        //             placement: "bottom"
-        //         }, {
-        //             element: "#pbxmenu",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.G.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.G.BODY,
-        //             placement: "right"
-        //         }, {
-        //             element: "#history-dropdown-cont .dropdown-menu",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.H.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.H.BODY,
-        //             placement: "left",
-        //             onShow: function() {
-        //             	$('#history-dropdown-cont').addClass('open');
-        //             },
-        //             onShown: function() {
-        //             	$('#history-dropdown-cont .tour-step-backdrop').css('position', 'absolute');
-        //             },
-        //             onHide: function() {
-        //             	$('#history-dropdown-cont').removeClass('open');
-        //             }
-        //         }, {
-        //             reflex: true,
-        //             element: "#open-opts-btn",
-        //             content: PbxObject.frases.TOURS.DASHBOARD.I.BODY,
-        //             placement: "left"
-        //         }, {
-        //             element: "#pbxoptions",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.J.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.J.BODY,
-        //             placement: "left",
-        //             onShow: function() {
-        //                 if(!isOptionsOpened()) open_options();
-        //             },
-        //             onHide: function() {
-        //             	if(isOptionsOpened()) close_options();
-        //             }
-        //         }, {
-        //             element: "#get-started-cont",
-        //             title: PbxObject.frases.TOURS.DASHBOARD.K.TITLE,
-        //             content: PbxObject.frases.TOURS.DASHBOARD.K.BODY,
-        //             placement: "bottom"
-        //         }
-        //     ]
-        // });
-        // console.log('dashTour: ', dashTour);
-    }
+    // function setAllDone() {
+    // 	var panelEl = document.querySelector('#get-started-panel');
+    // 	panelEl.classList.add('minimized');
+    // 	panelEl.classList.add('all-done');
+    // }
 
-    function setAllDone() {
-    	var panelEl = document.querySelector('#get-started-panel');
-    	panelEl.classList.add('minimized');
-    	panelEl.classList.add('all-done');
-    }
-
-	function filterKinds(array, kind, out) {
+	function filterKinds(array, kinds, reverse) {
 		return array.filter(function(item) {
-			return out ? item.kind !== kind : item.kind === kind;
+			return reverse ? (Array.isArray(kinds) ? kinds.indexOf(item.kind) === -1 : item.kind !== kinds) : (Array.isArray(kinds) ? kinds.indexOf(item.kind) !== -1 : item.kind === kinds);
 		});
 	}
 		
@@ -5457,14 +5841,7 @@ function load_hunting(params) {
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
-	var modalId = 'available-users-modal';
-	var modalCont = document.getElementById('available-users-cont');
-
-	if(!modalCont) {
-		modalCont = document.createElement('div');
-		modalCont.id = "available-users-cont";
-		document.body.appendChild(modalCont);
-	}
+	var modalCont;
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
@@ -5487,17 +5864,26 @@ function load_hunting(params) {
 		});
 	}
 
-	// function getAvailableUsers() {
+	// function onAddMembers() {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
-	//     json_rpc_async('getAvailableUsers', params, function(result){
-	// 		console.log('getAvailableUsers: ', result);
+	//     json_rpc_async('onAddMembers', params, function(result){
+	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
 		console.log('showAvailableUsers: ');
+		modalCont = document.getElementById('available-users-cont');
+
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
+
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
 
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
@@ -5580,7 +5966,7 @@ function load_hunting(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    getAvailableUsers: showAvailableUsers,
+		    onAddMembers: showAvailableUsers,
 		    setObject: setObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
@@ -5607,14 +5993,7 @@ function load_icd(params) {
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
-	var modalId = 'available-users-modal';
-	var modalCont = document.getElementById('available-users-cont');
-
-	if(!modalCont) {
-		modalCont = document.createElement('div');
-		modalCont.id = "available-users-cont";
-		document.body.appendChild(modalCont);
-	}
+	var modalCont;
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
@@ -5637,17 +6016,26 @@ function load_icd(params) {
 		});
 	}
 
-	// function getAvailableUsers() {
+	// function onAddMembers() {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
-	//     json_rpc_async('getAvailableUsers', params, function(result){
-	// 		console.log('getAvailableUsers: ', result);
+	//     json_rpc_async('onAddMembers', params, function(result){
+	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
 		console.log('showAvailableUsers: ');
+		modalCont = document.getElementById('available-users-cont');
+
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
+
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
 
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
@@ -5729,7 +6117,7 @@ function load_icd(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    getAvailableUsers: showAvailableUsers,
+		    onAddMembers: showAvailableUsers,
 		    setObject: setObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
@@ -5760,6 +6148,21 @@ function Ldap(options){
     console.log('new LDAP: ', options);
 
     var prevValue, newValue, userIndex, obj = {};
+    // var loc = window.location;
+    // var lastURL = window.location.href;
+    var serviceParams = { id: options.service_id, type: options.service_type };
+    // var newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
+
+    return {
+        options: options,
+        getUsers: getUsers,
+        getExternalUsers: getExternalUsers,
+        setUsers: setUsers,
+        setExternalUsers: setExternalUsers,
+        showUsers: showUsers,
+        auth: openAuthModal,
+        close: closeModal
+    };
 
     function getUsers(authData, cb){
         json_rpc_async('getDirectoryUsers', authData, function(result) {
@@ -5768,18 +6171,16 @@ function Ldap(options){
         });
     }
 
-    function getExternalUsers(authData, cb){
-        var params = {
-            url: '/services/'+options.service_id+'/Users'
+    function getExternalUsers(cb){
+        // var params = {
+            // url: '/services/'+options.service_id+'/Users'
             // method: 'GET'
-        };
+        // };
         // if(authData) {
         //     params.method = 'POST';
         //     // params.data = {username: authData.username, password: authData.password};
         //     params.data = 'username='+authData.username+'&password='+authData.password;
         // }
-
-        console.log('getExternalUsers params: ', params);
         
         // request(params.method, params.url, params.data, null, function(err, data) {
         //     if(err) {
@@ -5799,9 +6200,17 @@ function Ldap(options){
         //         else showUsers(data.result);
         //     }
         // })
+        console.log('getExternalUsers');
 
-        $.ajax(params).then(function(data){
+        $.ajax({
+            url: '/services/'+options.service_id+'/Users'
+        }).then(function(data){
             console.log('getExternalUsers: ', data);
+            if(data.result.location) {
+                // window.sessionStorage.setItem('lastURL', lastURL);
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
+                return window.location = data.result.location;
+            }
             if(cb) cb(data.result);
             else showUsers(data.result);
 
@@ -5809,17 +6218,15 @@ function Ldap(options){
             var error = err.responseJSON.error;
             console.log('getExternalUsers error: ', error);
             if(error && error.redirection) {
-                var loc = window.location,
-                newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
-                window.sessionStorage.setItem('lastURL', newhref);
+                // window.sessionStorage.setItem('lastURL', lastURL);
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 window.location = error.redirection;
             // } else if(error && error.code === 401) {
             //     options.external = true;
             //     openAuthModal();
             } else {
-                var loc = window.location,
-                newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
-                window.sessionStorage.setItem('lastURL', newhref);
+                // window.sessionStorage.setItem('lastURL', lastURL);
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 window.location = loc.origin + '/services/'+options.service_id+'/Users';
             }
         });
@@ -6021,17 +6428,6 @@ function Ldap(options){
     function closeModal(){
         $(modal).modal('hide');
     }
-
-    return {
-        options: options,
-        getUsers: getUsers,
-        getExternalUsers: getExternalUsers,
-        setUsers: setUsers,
-        setExternalUsers: setExternalUsers,
-        showUsers: showUsers,
-        auth: openAuthModal,
-        close: closeModal
-    };
 }
 window.onerror = function(msg, url, linenumber) {
      console.error('Error message: '+msg+'\nURL: '+url+'\nLine number: '+linenumber);
@@ -6185,23 +6581,6 @@ function configureStripe() {
     PbxObject.stripeHandler = stripeHandler;
 }
 
-function billingRequest(path, params, cb) {
-    var access_token = window.localStorage.getItem('ringo_tid');
-    if(!access_token) return cb('MISSING_TOKEN');
-    request(
-        'POST',
-        // 'https://api-web.ringotel.net/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
-        'https://e4a736dd.ngrok.io/branch/api/'+path+'?access_token='+encodeURIComponent(access_token),
-        (params || null),
-        null,
-        function(err, result) {
-            console.log('billing response: ', err, result);
-            if(err || result.error) return cb(err || result.error);
-            if(cb) cb(null, result);
-        }
-    );
-}
-
 function json_rpc(method, params){
     var jsonrpc;
     if(params == null){
@@ -6268,7 +6647,7 @@ function json_rpc_async(method, params, handler, id){
 
             } else {
                 if(xhr.responseText != null) {
-                    if(!xhr.responseText) return;
+                    if(!xhr.responseText) return handler();
                     parsedJSON = JSON.parse(xhr.responseText);
 
                     if(parsedJSON.error){
@@ -6354,6 +6733,7 @@ function getTranslations(language, callback){
             logout();
         } else if(e.target.status === 200) {
             var data = JSON.parse(xhr.responseText);
+            PbxObject.frases = data;
             callback(null, data);
         } else {
             callback('ERROR_OCCURED');
@@ -6466,13 +6846,18 @@ function getPbxOptions(callback) {
     if(cache) {
         callback(JSON.parse(cache));
     } else {
-        json_rpc_async('getPbxOptions', null, callback);
+        json_rpc_async('getPbxOptions', null, function(result) {
+            PbxObject.options = result;
+            callback(result);
+        });
     }
 }
 
 function setupPage() {
     var language, 
-        lastURL = window.sessionStorage.getItem('lastURL');
+        lastURL = window.sessionStorage.getItem('lastURL'),
+        query = location.hash.substring(1);
+        // search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
 
@@ -6480,7 +6865,7 @@ function setupPage() {
 
     getPbxOptions(function(options) {
 
-        PbxObject.options = options;
+        // PbxObject.options = options;
 
         language = options.lang || 'en';
         moment.locale(language);
@@ -6489,19 +6874,26 @@ function setupPage() {
 
             if(err) return notify_about('error', err);
 
-            PbxObject.frases = translations;
+            // PbxObject.frases = translations;
 
-            billingRequest('getProfile', null, function(err, response) {
+            BillingApi.getProfile(function(err, response) {
+                if(err) notify_about('error', err);
+
                 console.log('getProfile: ', err, response);
 
-                if(lastURL) {
-                    window.sessionStorage.removeItem('lastURL');
-                    window.location = lastURL;
-                } else if(window.sessionStorage.query) {
+                // if(lastURL) {
+                //     window.sessionStorage.removeItem('lastURL');
+                //     window.location = lastURL;
+                // } else 
+
+                if(window.sessionStorage.query && !window.opener) {
+
+                    // if(search) PbxObject.lastSearch = getQueryParams(search);
+
                     window.location.hash = window.sessionStorage.query;
                 }
 
-                PbxObject.profile = response.result;
+                PbxObject.profile = response ? response.result : {};
 
                 init_page();
 
@@ -6527,10 +6919,10 @@ function init_page(){
     document.getElementsByTagName('title')[0].innerHTML = 'UCC ' + PbxObject.frases.PBXADMIN;
 
     setPageHeight();
-
     subscribeToEvents();
-
     loadStripeJs();
+
+    new GetStarted().init();
 
     // PbxObject.groups = {};
     // PbxObject.templates = {};
@@ -6590,18 +6982,23 @@ function set_listeners(){
     $('.sidebar-toggle', '#pagecontent').click(toggle_sidebar);
     $('.options-open', '#pagecontent').click(open_options);
     $('.options-close', '#pbxoptions').click(close_options);
-    $('#pbxmenu li a').click(showGroups);
+    $('#pbxmenu li a').click(onMenuClick);
     $('#logout-btn').click(logout);
     
     // var attachFastClick = Origami.fastclick;
     // attachFastClick(document.body);
 }
 
-function showGroups(e){
-    var self = this;
-    var href = this.href;
-    var checkElement;
+function onMenuClick(e) {
+    var target = this;
+    var href = target.href;
     if(href && href.substring(href.length-1) === "#") e.preventDefault();
+    showGroups(target);
+}
+
+function showGroups(targetEl, show){
+    var self = targetEl;
+    var checkElement;
     var parent = $(self).parent();
     var kind = $(self).attr('data-kind');
     if(!parent.hasClass('active')){
@@ -6624,6 +7021,7 @@ function showGroups(e){
 
                 var li = document.createElement('li');
                 li.className = 'add-group-object';
+                li.setAttribute('data-oid', kind);
                 var a = document.createElement('a');
                 if(kind == 'application') {
                     var inp = document.createElement('input');
@@ -6689,12 +7087,16 @@ function showGroups(e){
         }
     } else {
         checkElement = $(self).next('ul');
-        if(checkElement) {
+        if(!show && checkElement) {
             parent.removeClass('active');
             checkElement.slideUp('normal');
         }
     }
     parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
+}
+
+function hideGroups() {
+    $('#pbxmenu li.active').removeClass('active').children('ul:visible').slideUp('normal');
 }
 
 function get_object(e){
@@ -6718,12 +7120,15 @@ function get_object(e){
         $('#dcontainer').addClass('faded');
 
         show_loading_panel();
+        setLastQuery(query);
+        setActiveMenuElement(kind, oid);
+
 
         var modal = document.getElementById('el-extension');
         if(modal) modal.parentNode.removeChild(modal);
 
         // var groupKinds = ['equipment', 'unit', 'users', 'hunting', 'icd', 'conference', 'selector', 'channel', 'pickup'];
-        var groupKinds = ['equipment', 'unit', 'users', 'conference', 'selector', 'channel', 'pickup'];
+        var groupKinds = ['equipment', 'unit', 'conference', 'selector', 'channel', 'pickup'];
         if(groupKinds.indexOf(kind) != -1){
             kind = 'bgroup';
         }
@@ -6744,8 +7149,6 @@ function get_object(e){
             //     load_template(template, kind);
             // });
         }
-
-        setLastQuery(query);
 
         // Analytics
         ga('set', 'page', ('/'+kind));
@@ -6834,6 +7237,42 @@ function clearTempParams() {
 
 function setLastQuery(query) {
     window.sessionStorage.query = query;
+}
+
+function setActiveMenuElement(kind, oid) {
+    var menu = document.getElementById('pbxmenu');
+    var menuItem = menu.querySelector('.nav-list li a[data-kind="'+kind+'"]');
+    var item;
+
+    console.log('setActiveMenuElement', kind, oid, menuItem);
+
+    if(!oid) hideGroups();
+    if(!menuItem) return;
+
+    if(!menuItem.classList.contains('active') && !menu.classList.contains('squeezed-menu')) {
+        showGroups(menuItem, true);
+        setTimeout(function() {
+           setActiveMenuItemElement(menuItem, oid);
+        }, 500);
+    }
+    
+    setActiveMenuItemElement(menuItem, oid);
+
+}
+
+function setActiveMenuItemElement(menu, oid) {
+    var items = [].slice.call(menu.parentNode.querySelectorAll('ul li'));
+    items.map(function(item) {
+        if(item.hasAttribute('data-oid') && item.getAttribute('data-oid') === oid) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+        return item;
+    });
+    
+    console.log('setActiveMenuItemElement', menu.parentNode, items, oid);
+    
 }
 
 function set_page(){
@@ -7669,7 +8108,7 @@ function objectDeleted(data){
 function set_object_success(message){
     remove_loading_panel();
 
-    notify_about('success', (message || PbxObject.frases.SAVED));
+    notify_about('success', PbxObject.frases.SAVED);
 }
 
 function set_options_success() {
@@ -7703,7 +8142,7 @@ function deleteExtension(params){
     var oid = params.oid,
         ext = params.ext,
         group = params.group,
-        msg = PbxObject.frases.DODELETE + ' ' + ext + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
+        msg = PbxObject.frases.DODELETE + ' ' + params.name + ' ' +PbxObject.frases.FROM.toLowerCase() + ' ' + (group ? group : "") + '?',
         conf = confirm(msg);
 
     PbxObject.members = PbxObject.members || [];
@@ -7771,7 +8210,7 @@ function delete_extension(e){
 }
 
 function onObjectDelete(event, params) {
-    if(params.ext && (/extensions|users|equipment/.test(PbxObject.kind)) ) {
+    if(params.ext && (/extensions|equipment/.test(PbxObject.kind)) ) {
         delete_extension_row(params);
         PbxObject.extensions = deleteObjects(PbxObject.extensions, params, 'ext');
     } else {
@@ -7852,7 +8291,7 @@ function customize_upload(id, resultFilename){
 
     uplbtn.type = 'button';
     uplbtn.className = 'btn btn-default btn-sm needsclick';
-    uplbtn.innerHTML = 'Upload';
+    uplbtn.innerHTML = PbxObject.frases.UPLOAD;
     uplbtn.onclick = function(){
         upl.click();
     };
@@ -8096,17 +8535,25 @@ function generatePassword(targ){
     // var button = e.currentTarget;
     // console.log(e, button);
 
-    var elgroup = getClosest(targ, '.input-group'),
-    input = elgroup.querySelector('input'),
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-    pass = "",
-    length = 8,
-    i;
+    var elgroup, input;
+    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    var pass = "";
+    var length = 8;
+    var i;
+
     for(var x=0; x<length; x++){
         i = Math.floor(Math.random() * 62);
         pass += chars.charAt(i);
     }
-    input.value = pass;
+
+    if(targ) {
+        elgroup = getClosest(targ, '.input-group');
+        input = elgroup.querySelector('input');
+        input.value = pass;
+    } else {
+        return pass;
+    }
+
 }
 
 function getClosest(elem, selector) {
@@ -10484,25 +10931,59 @@ function load_services() {
 
 	}
 
-	function saveOptions(newOptions) {
-		console.log('saveOptions: ', newOptions);
+	function saveOptions(serviceOptions) {
+		console.log('saveOptions: ', serviceOptions);
 		var params = {
-			services: Array.isArray(newOptions) ? newOptions : [newOptions]
+			method: "setSubscription",
+			params: serviceOptions
+			// services: Array.isArray(serviceOptions) ? serviceOptions : [serviceOptions]
 		};
 
-		json_rpc_async('setPbxOptions', params, function() {
-			services = services.map(function(item) {
-				if(item.id === newOptions.id) 
-					item = newOptions;
+		var url = '/services/'+serviceOptions.id+'/Subscription';
+		url += "?state="+(serviceOptions.state ? 1 : 0);
+		url += Object.keys(serviceOptions.props).reduce(function(str, key) {
+			str += "&"+key+"="+serviceOptions.props[key];
+			return str;
+		}, "");
 
-				return item;
-			});
+		console.log('saveOptions: ', serviceOptions, url);
 
-			console.log('saveOptions saved: ', services);
+		request('GET', url, null, null, function(err, response) {
+			if(err) return notify_about('error', err);
+			// if(response.result.status === 503) return notify_about('error', response.result.description);
+			if(!response.result) return;
 
-			render();
-			set_object_success();
+			if(response.result.location) {
+				window.location = response.result.location;
+			} else if(response.result.status === 200) {
+				set_object_success();
+				services = services.map(function(item) {
+					if(item.id === serviceOptions.id) 
+						item = serviceOptions;
+
+					return item;
+				});
+
+				console.log('saveOptions saved: ', err, response, services);
+
+				render();
+			}
+
 		});
+
+		// json_rpc_async('setPbxOptions', params, function() {
+		// 	services = services.map(function(item) {
+		// 		if(item.id === serviceOptions.id) 
+		// 			item = serviceOptions;
+
+		// 		return item;
+		// 	});
+
+		// 	console.log('saveOptions saved: ', services);
+
+		// 	render();
+		// 	set_object_success();
+		// });
 	}
 
 	function saveLdapOptions(newOptions) {
@@ -11580,9 +12061,7 @@ function load_trunk(result){
 
     if(result.auth)
         document.getElementById('auth').value = result.auth;
-    
-    document.getElementById('regexpires').value = result.regexpires || 60;
-    
+        
     var radio = document.getElementById('proxy');
     addEvent(radio, 'change', function(){
         var inputs = document.getElementsByName('proxy');
@@ -11628,6 +12107,10 @@ function load_trunk(result){
                 document.getElementById('f'+i).value = 0;
             }
         }
+        
+        if(document.getElementById('regexpires')) 
+            document.getElementById('regexpires').value = result.parameters.regexpires || 60;
+
     }
     if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
 
@@ -11823,7 +12306,7 @@ function set_trunk(){
             jprms += '"user":"'+document.getElementById('user').value+'",';
             jprms += '"auth":"'+document.getElementById('auth').value+'",';
             jprms += '"pass":"'+document.getElementById('pass').value+'",';
-            jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
+            // jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
         }
         jprms += '"proxy":'+proxy+',';
         if(proxy){
@@ -11849,10 +12332,12 @@ function set_trunk(){
     jprms += '"parameters":{';
 
     // if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+    if(register) jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
 
     protoOpts = JSON.stringify(PbxObject.protocolOpts);
     protoOpts = protoOpts.substr(1, protoOpts.length-2);
     jprms += protoOpts;
+
 
     incATrasf = transformsToArray('transforms1');
     incBTrasf = transformsToArray('transforms2');
@@ -11902,6 +12387,332 @@ function set_trunk(){
         // }
     });
 };
+function load_users(params) {
+
+	console.log('load_users: ', params);
+	var frases = PbxObject.frases;
+	var driver;
+	var driverSettings = {
+		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	};
+	var driverSteps = [];
+	var objParams = params;
+	var handler = null;
+	var defaultName = getDefaultName();
+	var modalCont = document.getElementById('modal-cont');
+	var activeServices = PbxObject.options.services.filter(function(service){
+	    return service.state;
+	});
+
+	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
+		activeServices.unshift({
+			id: "MicrosoftAD",
+			name: "Microsoft Active Directory",
+			props: PbxObject.options.ldap,
+			state: true,
+			types: 1
+		});
+	}
+
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+	}
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	init(objParams);
+	show_content();
+    set_page();
+
+	function getDefaultName() {
+		var name = PbxObject.frases.USERS_GROUP.DEFAULT_NAME + ' ';
+		name += PbxObject.objects ? filterObject(PbxObject.objects, PbxObject.kind).length+1 : 1;
+		return name;
+	}
+
+	function onNameChange(name) {
+		objParams.name = name;
+	}
+
+	function openNewUserForm() {
+		console.log('openNewUserForm');
+
+		if(driver) driver.reset(); // close the tour
+
+		var options = PbxObject.options;
+		// var maxusers = options.maxusers;
+		// var storelimit = Math.ceil(convertBytes(options.storelimit, 'Byte', 'GB'));
+		var storeperuser = options.storelimit / options.maxusers;
+
+		params.storelimit = storeperuser;
+
+		modalCont = document.getElementById('modal-cont');
+
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
+
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+
+		ReactDOM.render(NewUsersModalComponent({
+		    frases: PbxObject.frases,
+		    params: params,
+		    onSubmit: addUser,
+		    generatePassword: generatePassword,
+		    convertBytes: convertBytes,
+		    groupid: PbxObject.name ? PbxObject.oid : null
+		}), modalCont);
+	}
+
+	function addUser(userParams) {
+		console.log('addUser: ', params);
+
+		if(!PbxObject.name) {
+			return setObject({
+				name: objParams.name,
+				profile: objParams.profile,
+				members: []
+			}, function() {
+				addUser(userParams);
+			});
+		}
+
+		userParams.kind = params.kind === 'users' ? 'user' : 'phone';
+		userParams.groupid = params.oid;
+
+		json_rpc_async('setObject', userParams, function(result, error) {
+
+			if(error) return notify_about('error', error.message);
+
+			$('#modal-cont .modal').modal('hide');
+
+			userParams.oid = result;
+			userParams.reg = "";
+			userParams.state = 0;
+
+			objParams.available = objParams.available.filter(function(item) {
+				return item !== userParams.number;
+			});
+
+			objParams.members.push(userParams);
+
+			init(objParams);
+
+			if(PbxObject.tourStarted) {
+				onFirstUserCreated();
+			}
+
+		});
+	}
+
+	function onFirstUserCreated() {
+		console.log('onFirstUserCreated');
+
+		driverSettings.onReset = showGSLink;
+		driver = new Driver(driverSettings);
+		driver.highlight({
+			element: '#group-extensions',
+			popover: {
+				title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
+				description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
+				position: 'bottom'
+			}
+		});
+	}
+
+	function onImportUsers(serviceParams) {
+		console.log('onImportUsers: ', serviceParams);
+		if(serviceParams.id === 'MicrosoftAD') {
+			PbxObject.LdapConnection = Ldap({
+			    domains: serviceParams.props.directoryDomains.split(' '),
+			    available: objParams.available,
+			    onaddusers: onAddLdapUsers
+			});
+			PbxObject.LdapConnection.auth();
+		} else {
+			getExternalUsers(serviceParams);
+		}
+	}
+
+	function onAddLdapUsers(users){
+
+	    if(!PbxObject.name) {
+	        set_bgroup(users, onAddLdapUsers);
+	        return;
+	    }
+
+	    console.log('onAddUsers: ', users);
+
+	    var ldapConn = PbxObject.LdapConnection,
+	        availableSelect = document.getElementById('available-users');
+	    
+	    ldapConn.setUsers({
+	        groupid: PbxObject.oid,
+	        username: ldapConn.options.username,
+	        password: ldapConn.options.password,
+	        domain: ldapConn.options.domain,
+	        users: users
+	    }, function(result) {
+	        console.log('addLdapUsers result: ', result);
+	        ldapConn.close();
+	        
+	        refreshUsersTable(function(availableUsers){
+	            ldapConn.options.available = availableUsers;
+	        });
+	    });
+	}
+
+	function getExternalUsers(serviceParams){
+		console.log('getExternalUsers:', serviceParams);
+
+		PbxObject.LdapConnection = Ldap({
+		    service_id: serviceParams.id,
+		    service_type: serviceParams.type,
+		    available: objParams.available,
+		    onaddusers: setExternalUsers
+		});
+
+	    if(serviceParams.type === 1 || serviceParams.types === 1) {
+	        PbxObject.LdapConnection.getExternalUsers();
+	    } else {
+	        json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
+	            console.log('getExternalUsers result: ', result);
+	            if(result) PbxObject.LdapConnection.showUsers(result);
+	        });
+	    }
+	}
+
+	function setExternalUsers(users){
+	    if(!PbxObject.name) {
+	        set_bgroup(users, setExternalUsers);
+	        return;
+	    }
+
+	    console.log('setExternalUsers: ', users);
+
+	    var ldapConn = PbxObject.LdapConnection;
+
+	    ldapConn.setExternalUsers({
+	        groupid: PbxObject.oid,
+	        service_id: ldapConn.options.service_id,
+	        users: users
+	    }, function(result) {
+	        console.log('addLdapUsers result: ', result);
+	        ldapConn.close();
+	        
+	        refreshUsersTable(function(availableUsers){
+	            ldapConn.options.available = availableUsers;
+	        });
+	    });
+	}
+
+	function deleteMember(params) {
+		var oid = params.oid;
+		var msg = PbxObject.frases.DODELETE + ' ' + params.name + '?';
+        var conf = confirm(msg);
+		
+		if(conf) {
+			objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		}
+			
+	}
+
+	function setObject(props, callback) {
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    }
+
+	    var objName = props.name || defaultName;
+	    var groupParams = {
+	    	kind: PbxObject.kind,
+	    	oid: objParams.oid,
+	    	name: objName,
+	    	profile: props.profile,
+	    	// enabled: props.enabled,
+	    	// options: props.options,
+	    	members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
+	    };
+
+	    console.log('setObject: ', props);
+
+		json_rpc_async('setObject', groupParams, function(result) {
+			PbxObject.name = objParams.name = objName;
+
+			if(handler) handler();
+			if(callback) callback(result);
+		});
+	}
+
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	}
+
+	function addSteps(stepParams) {
+		driverSteps = driverSteps.concat(stepParams);
+	}
+
+	function initSteps() {
+		console.log('initSteps: ', driverSteps);
+		if(PbxObject.tourStarted && driverSteps.length) {
+			driverSettings.onReset = showGSLink;
+			driver = new Driver(driverSettings);
+			driver.defineSteps(driverSteps);
+			driver.start();
+		}
+	}
+
+	function showGSLink() {
+		console.log('showGSLink');
+		driver = new Driver({
+			nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+			prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+			doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+			closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+		});
+		driver.highlight({
+			element: '.init-gs-btn',
+			popover: {
+				title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].TITLE,
+				description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].DESC,
+				position: 'right'
+			}
+		});
+	}
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    setObject: setObject,
+		    onAddMembers: openNewUserForm,
+		    onNameChange: onNameChange,
+		    getExtension: getExtension,
+		    activeServices: activeServices,
+		    onImportUsers: onImportUsers,
+		    deleteMember: deleteMember,
+		    addSteps: addSteps,
+		    initSteps: initSteps
+		};
+
+		if(params.name) {
+			componentParams.removeObject = removeObject;
+		}
+
+		ReactDOM.render(UsersGroupComponent(componentParams), document.getElementById('el-loaded-content'));
+	}	
+
+}
 var Utils = {
 	validateElement: function(element, stateElement) {
 	    var valid = !!element.value;
@@ -11913,6 +12724,10 @@ var Utils = {
 	    }
 
 	    return valid;
+	},
+	validateEmail: function(string) {
+		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(string);
 	}
 };
 PbxObject.tours = PbxObject.tours || [];

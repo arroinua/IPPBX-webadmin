@@ -4,6 +4,7 @@ var Select3 = React.createClass({
     name: React.PropTypes.string,
     placeholder: React.PropTypes.string,
     value: React.PropTypes.object,
+    readonly: React.PropTypes.bool,
     options: React.PropTypes.array,
     onChange: React.PropTypes.func
   },
@@ -28,7 +29,8 @@ var Select3 = React.createClass({
   componentWillMount: function() {
     this.setState({
       value: this.props.value,
-      options: this.props.options
+      options: this.props.options,
+      readonly: this.props.readonly || false
     });
 
   },
@@ -170,6 +172,7 @@ var Select3 = React.createClass({
           name={ this.props.name ? this.props.name : '' } 
           placeholder={ this.props.placeholder ? this.props.placeholder : '' } 
           className="Select3-input" 
+          readOnly={this.props.readonly}
           value={this.state.value.label} 
           onFocus={this.openMenu} 
           onBlur={this.closeMenu} 

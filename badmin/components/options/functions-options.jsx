@@ -17,21 +17,34 @@ var FunctionsOptionsComponent = React.createClass({
 		this.props.onChange(update);
 	},
 
-	_onFileUpload: function(e) {
-		var target = e.target;
-		var file = target.files[0];
-		var value = file.name;
-		var update = {
-			files: this.props.files || []
-		};
+	_onFileUpload: function(params) {
+		var update = {};
+		var files = [];
 
-		update[target.name] = value !== null ? value : "";;
-		update.files.push(file);
+		files.push(params);
+		update.files = files;
+		update[params.name] = params.filename;
 
-		console.log('_onFileUpload: ', target, value, update, file);
+		console.log('_onFileUpload: ', files, params);
 
 		this.props.onChange(update);
 	},
+
+	// _onFileUpload: function(e) {
+	// 	var target = e.target;
+	// 	var file = target.files[0];
+	// 	var value = file.name;
+	// 	var update = {
+	// 		files: this.props.files || []
+	// 	};
+
+	// 	update[target.name] = value !== null ? value : "";;
+	// 	update.files.push(file);
+
+	// 	console.log('_onFileUpload: ', target, value, update, file);
+
+	// 	this.props.onChange(update);
+	// },
 
 	render: function() {
 		var frases = this.props.frases;
@@ -45,7 +58,7 @@ var FunctionsOptionsComponent = React.createClass({
 			        <div className="form-group">
 			            <label htmlFor="holdmusicfile" className="col-sm-4 control-label" data-toggle="tooltip" title={frases.OPTS__WAV_ONHOLD}>{frases.MUSICONHOLD}:</label>
 			            <div className="col-sm-4">
-			            	<FileUpload name="holdmusicfile" value={params.holdmusicfile} onChange={this._onFileUpload} />
+			            	<FileUpload frases={frases} name="holdmusicfile" value={params.holdmusicfile} onChange={this._onFileUpload} />
 			            </div>
 			        </div>
 			        <div className="form-group">

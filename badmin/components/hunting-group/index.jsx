@@ -4,7 +4,7 @@ var HuntingGroupComponent = React.createClass({
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
 		onNameChange: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
+		onAddMembers: React.PropTypes.func,
 		setObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
@@ -42,7 +42,7 @@ var HuntingGroupComponent = React.createClass({
 	_setObject: function() {
 		var params = this.state.params;
 		params.options = this.state.options;
-		params.files = this.state.files;
+		params.files = this.state.files.reduce(function(array, item) { array.push(item.file); return array; }, []);
 		params.route = this.state.route;
 		this.props.setObject(params);
 	},
@@ -61,8 +61,8 @@ var HuntingGroupComponent = React.createClass({
 		this.props.onNameChange(value);
 	},
 
-	_getAvailableUsers: function() {
-		this.props.getAvailableUsers();
+	_onAddMembers: function() {
+		this.props.onAddMembers();
 	},
 
 	_handleOnChange: function(e) {
@@ -80,23 +80,49 @@ var HuntingGroupComponent = React.createClass({
 		});
 	},
 
-	_onFileUpload: function(e) {
-		var options = this.state.options;
-		var files = this.state.files;
-		var target = e.target;
-		var file = target.files[0];
-		var value = file.name;
+	_onFileUpload: function(params) {
+		var state = this.state;
+		var found = false;
 
-		options[target.name] = value;
-		files.push(file);
+		var files = state.files.map(function(item) {
+			if(item.name === params.name) {
+				item = params;
+				found = true;
+			}
+			return item;
+		});
 
-		console.log('_onFileUpload: ', target, value, file);
+		if(!found){
+			files.push(params);
+		}
+
+		state.options[params.name] = params.filename;
+		state.files = files;
+
+		console.log('_onFileUpload: ', params, files);
 
 		this.setState({
-			options: options,
-			files: files
+			state: state
 		});	
 	},
+
+	// _onFileUpload: function(e) {
+	// 	var options = this.state.options;
+	// 	var files = this.state.files;
+	// 	var target = e.target;
+	// 	var file = target.files[0];
+	// 	var value = file.name;
+
+	// 	options[target.name] = value;
+	// 	files.push(file);
+
+	// 	console.log('_onFileUpload: ', target, value, file);
+
+	// 	this.setState({
+	// 		options: options,
+	// 		files: files
+	// 	});	
+	// },
 
 	_onRouteChange: function(route) {
 		console.log('_onRouteChange: ', route);
@@ -132,8 +158,10 @@ var HuntingGroupComponent = React.createClass({
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
-			    <GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			    <div className="row">
+			    	<div className="col-xs-12">
+			    		<GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} onAddMembers={this._onAddMembers} deleteMember={this.props.deleteMember} />
+			    	</div>
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
 			    			<form className="form-horizontal">
@@ -184,8 +212,8 @@ var HuntingGroupComponent = React.createClass({
 			    			            <span>{frases.GREETNAME} </span>
 			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.UNIT__GREETINGS}></a>
 			    			        </label>
-			    			        <div className="col-sm-4">
-			    			            <FileUpload name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
+			    			        <div className="col-md-8 col-sm-4">
+			    			            <FileUpload frases={frases} name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
 			    			        </div>
 			    			    </div>
 			    			    <div className="form-group">
@@ -193,8 +221,8 @@ var HuntingGroupComponent = React.createClass({
 			    			            <span>{frases.WAIT_MUSIC} </span>
 			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.UNIT__WAITMUSIC}></a>
 			    			        </label>
-			    			        <div className="col-sm-4">
-			    			            <FileUpload name="waitmusic" value={this.state.options.waitmusic} onChange={this._onFileUpload} />
+			    			        <div className="col-md-8 col-sm-4">
+			    			            <FileUpload frases={frases} name="waitmusic" value={this.state.options.waitmusic} onChange={this._onFileUpload} />
 			    			        </div>
 			    			    </div>
 			    			</form>

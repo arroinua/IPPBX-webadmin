@@ -87,10 +87,11 @@ var OptionsComponent = React.createClass({
 	_handleOnFuncOptionsChange: function(params) {
 		var keys = Object.keys(params);
 		if(!keys || !keys.length) return;
-
 		var state = this.state.options;
 		// var newState = this.state.newOptions || {};
 		
+		params.files = params.files.reduce(function(array, item) { array.push(item.file); return array; }, []);
+
 		keys.forEach(function(key) {
 			state[key] = params[key];
 			// newState[key] = params[key];

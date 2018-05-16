@@ -5,6 +5,7 @@ var ObjectRoute = React.createClass({
 		// getOptions: React.PropTypes.func,
 		routes: React.PropTypes.array,
 		frases: React.PropTypes.object,
+		extOnly: React.PropTypes.bool,
 		// clearCurrObjRoute: React.PropTypes.func,
 		onChange: React.PropTypes.func
 	},
@@ -40,8 +41,8 @@ var ObjectRoute = React.createClass({
 		    	});
 		    	this._onChange({ value: route.ext, label: route.ext });
 		    } else {
-		    	this.setState({ route: options[options.length-1] });
-		    	this._onChange(options[options.length-1]);
+		    	this.setState({ route: options[1] });
+		    	this._onChange(options[1]);
 		    }
 
 		}.bind(this));
@@ -88,7 +89,7 @@ var ObjectRoute = React.createClass({
 		console.log('ObjectRoute value: ', this.state.route);
 		return (
 			this.state.options ? (
-				<Select3 value={this.state.route} options={this.state.options} onChange={this._onChange} />
+				<Select3 value={this.state.route} readonly={this.props.extOnly} options={this.state.options} onChange={this._onChange} />
 			) : (
 				<h4 className="fa fa-fw fa-spinner fa-spin"></h4>
 			)

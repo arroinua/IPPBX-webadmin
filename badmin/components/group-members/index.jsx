@@ -5,16 +5,36 @@
 		members: React.PropTypes.array,
 		withGroups: React.PropTypes.bool,
 		getExtension: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
+		onAddMembers: React.PropTypes.func,
 		deleteMember: React.PropTypes.func,
 		sortable: React.PropTypes.bool,
-		onSort: React.PropTypes.func
+		activeServices: React.PropTypes.array,
+		onImportUsers: React.PropTypes.func,
+		onSort: React.PropTypes.func,
+		addSteps: React.PropTypes.func
 	},
 
 	componentWillMount: function() {
 		this.setState({
 			filteredMembers: this.props.members || []
 		});		
+	},
+
+	componentDidMount: function() {
+		console.log('GroupMembersComponent componentDidMount');
+		var frases = this.props.frases;
+
+		if(this.props.addSteps) {
+			this.props.addSteps([{
+				element: '#new-users-btns .btn-primary',
+				popover: {
+					title: frases.GET_STARTED.CREATE_USERS.STEPS["1"].TITLE,
+					description: frases.GET_STARTED.CREATE_USERS.STEPS["1"].DESC,
+					position: 'bottom',
+					showButtons: false
+				}
+			}]);
+		}
 	},
 
 	componentWillReceiveProps: function(props) {
@@ -107,20 +127,31 @@
 		this.props.onSort(this._reorderMembers(this.props.members, order));
 	},
 
+	_onImportFromService: function(params) {
+		this.props.onImportUsers(params);
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var members = this.props.members;
 		var filteredMembers = this.state.filteredMembers || [];
 
+		// <FilterInputComponent items={members} onChange={this._onFilter} />
+
 		return (
 			<div className="row">
-		    	<div className="col-xs-12">
+		    	<div className="col-xs-12" id="new-users-btns">
 		    		{
-		    			this.props.getAvailableUsers && (
-				    		<button type="button" role="button" className="btn btn-primary" onClick={this.props.getAvailableUsers}><i className="fa fa-user-plus"></i> {frases.CHAT_CHANNEL.ADD_MEMBERS}</button>
+		    			this.props.onAddMembers && (
+				    		<button type="button" role="button" className="btn btn-primary" style={{ margin: "10px 5px" }} onClick={this.props.onAddMembers}><i className="fa fa-user-plus"></i> {frases.ADD_USER}</button>
 		    			)
 		    		}
-				    <FilterInputComponent items={members} onChange={this._onFilter} />
+
+		    		{
+		    			(this.props.activeServices && this.props.activeServices.length) ? (
+		    				<ImportUsersButtonsComponent frases={frases} services={this.props.activeServices} onClick={this._onImportFromService} />
+		    			) : null
+		    		}
 		    	</div>
 		    	<div className="col-xs-12">
 					<div className="panel">

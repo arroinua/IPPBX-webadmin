@@ -17,6 +17,7 @@ function ManagePaymentMethodComponent(props) {
 	}
 
 	var paymentMethod = props.paymentMethod;
+	var frases = props.frases;
 
 	return (
 		<div className="text-center">
@@ -33,11 +34,11 @@ function ManagePaymentMethodComponent(props) {
 						{
 							_isCardExpired(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
 								<div className="alert alert-warning" role="alert">
-									Your payment method has been expired. Please <a href="#" onClick={props.onClick} className="alert-link">add a valid payment method</a> to avoid service interruption.
+									{frases.BILLING.ALERTS.CARD_EXPIRED_P1} <a href="#" onClick={props.onClick} className="alert-link">{frases.BILLING.UPDATE_PAYMENT_METHOD}</a> {frases.BILLING.ALERTS.CARD_EXPIRED_P2}.
 								</div>
 							) : _cardWillExpiredSoon(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
 								<div className="alert alert-warning" role="alert">
-									Your payment method will expire soon. Please <a href="#" onClick={props.onClick} className="alert-link">update your payment method</a> to avoid service interruption.
+									{frases.BILLING.ALERTS.CARD_WILL_EXPIRE_P1} <a href="#" onClick={props.onClick} className="alert-link">{frases.BILLING.UPDATE_PAYMENT_METHOD}</a> {frases.BILLING.ALERTS.CARD_WILL_EXPIRE_P2}.
 								</div>
 							) : ('')
 						}

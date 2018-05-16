@@ -73,6 +73,10 @@ table.table > tbody > tr > td {
   padding: 20px 100px;
 }
 
+#services-cont button {
+  margin-bottom: 5px;
+}
+
 /*
     Modal custom styles
 */
@@ -228,6 +232,15 @@ table.table > tbody > tr > td {
   padding: 20px 16px;
   font-size: 18px;
   line-height: 1.3333333;
+}
+
+.fb-button,
+.fb-button:hover,
+.fb-button:active,
+.fb-button:focus {
+  background-color: #4267b2;
+  border-radius: 4px;
+  border: none;
 }
 
 .custom-dropdown .dropdown-menu {
@@ -742,10 +755,7 @@ input.cmn-toggle-round:checked + label:before {
   position: relative;
   width: 100%;
   height: 50px;
-  margin: auto;
   overflow: hidden;
-  background-color: #54c3f0;
-  border-radius: 10px;
 }
 .nav-logo a {
   position: absolute;
@@ -759,7 +769,6 @@ input.cmn-toggle-round:checked + label:before {
 }
 .nav-logo a.small-logo {
   opacity: 0;
-  text-align: center;
 }
 .nav-logo img {
   position: relative;
@@ -868,6 +877,7 @@ input.cmn-toggle-round:checked + label:before {
   z-index: 200;
   -webkit-overflow-scrolling: touch;
   background-color: #f3f8f9;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 1px;
   -webkit-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
 }
@@ -991,6 +1001,13 @@ input.cmn-toggle-round:checked + label:before {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
+.pbx-menu .nav-list > li.active {
+  border-bottom: none;
+}
+.pbx-menu .nav-list > li.active + li > a {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
 .pbx-menu .nav-list > li.active > a {
   color: #333;
   border-bottom-left-radius: 10px;
@@ -1001,12 +1018,26 @@ input.cmn-toggle-round:checked + label:before {
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);
 }
+.pbx-menu .nav-list > li.active > ul li.active::after {
+  content: "";
+  position: absolute;
+  right: -7.5px;
+  top: 50%;
+  margin-top: -7.5px;
+  width: 15px;
+  height: 15px;
+  background-color: #ffffff;
+  border-radius: 50%;
+}
 .pbx-menu .nav-list li {
   position: relative;
   display: block;
   line-height: 20px;
   width: 100%;
   border-bottom: 1px solid #f3f8f9;
+}
+.pbx-menu .nav-list li:last-child {
+  border-bottom: none;
 }
 .pbx-menu .nav-list li.nav-divider {
   border-bottom: none;
@@ -1060,10 +1091,6 @@ input.cmn-toggle-round:checked + label:before {
 }
 .pbx-menu .nav-list li a i {
   color: #333;
-}
-.pbx-menu .nav-list li.active + li > a {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
 }
 .pbx-menu .nav-list li.menu-name {
   display: none;
@@ -1293,61 +1320,58 @@ input.cmn-toggle-round:checked + label:before {
   display: none;
 }
 
-.gs-item {
-  padding: 10px;
-  cursor: pointer;
-}
-.gs-item:hover {
-  background-color: #eee;
+#gs-modal-cont .modal-body {
+  background: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
 }
 
-.gs-items-cont {
-  position: relative;
+.gs-step .gs-step-head img {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  max-height: 300px;
+}
+.gs-step .gs-step-header {
+  color: #fff;
+  text-align: center;
+}
+.gs-step .gs-step-footer {
+  padding: 30px 0;
+  text-align: center;
+}
+.gs-step .gs-links-cont {
   width: 100%;
-  overflow: auto;
 }
-.gs-items-cont .gs-items {
-  width: 1290px;
-  padding: 0;
-}
-.gs-items-cont .gs-items .gs-item {
+.gs-step .gs-links-cont .gs-link-item {
   display: inline-block;
-  position: relative;
-  float: left;
-  width: 300px;
-  padding-right: 20px;
   vertical-align: top;
-  margin-right: 20px;
-  min-height: 140px;
+  width: 50%;
+  padding: 10px;
 }
-.gs-items-cont .gs-items .gs-item:after {
-  content: "";
-  position: absolute;
-  right: 7px;
-  top: 15px;
-  width: 15px;
-  height: 15px;
-  border-top: 1px solid #777;
-  border-right: 1px solid #777;
-  -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-          transform: rotate(45deg);
+@media only screen and (max-width: 767px) {
+  .gs-step .gs-links-cont .gs-link-item {
+    width: 100%;
+  }
 }
-.gs-items-cont .gs-items .gs-item:last-child {
-  margin-right: 20px;
+.gs-step .gs-links-cont .gs-link-header a {
+  background: #fff;
+  color: #5a728d;
+  padding: 15px;
+  border-radius: 15px;
+  display: block;
+  text-align: center;
 }
-.gs-items-cont .gs-items .gs-item:last-child:after {
-  display: none;
+.gs-step .gs-links-cont .gs-link-desc {
+  padding: 15px;
 }
-.gs-items-cont .gs-items .gs-item.gs-done {
-  color: #777;
+
+@media screen and (max-width: 767px) {
+  .n-transforms-cont {
+    border: none;
+  }
 }
-.gs-items-cont .gs-items .gs-item.gs-done:after {
-  display: none;
-}
-.gs-items-cont .gs-items .gs-item .gs-item-header {
-  font-size: 16px;
-  margin-bottom: 10px;
+.n-transforms-cont > table > tbody > tr > td {
+  border-top: none;
 }
 
 .rec-qos-cont {
@@ -1398,6 +1422,9 @@ input.cmn-toggle-round:checked + label:before {
   }
 }
 
+.object-name-cont .object-name {
+  width: 100%;
+}
 .object-name-cont #objname {
   font-size: 1.5em;
   border: none;
@@ -1561,6 +1588,8 @@ input[type="checkbox"]:checked + .help-block {
   min-height: 100%;
   position: relative;
   background-color: #f3f8f9;
+  background-image: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
+  background-image: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
 }
 
 .add-group-object a {
@@ -1747,6 +1776,11 @@ Helpers
   margin-top: 20px;
   text-align: center;
   color: #ccc;
+}
+
+.main-gradient {
+  background: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
 }
 
 .acc-header {

@@ -6,7 +6,7 @@ function PanelComponent(props) {
 	        <div className="panel-header">{props.header}</div>
 	    	}
 	        <div className="panel-body">
-	            {props.children}
+	            {props.children || props.body}
 	        </div>
 	        {props.footer &&
 	        <div className="panel-footer"> 

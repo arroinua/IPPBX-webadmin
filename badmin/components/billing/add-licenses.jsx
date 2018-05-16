@@ -27,8 +27,8 @@ var AddLicensesComponent = React.createClass({
 		var addOns = {};
 
 		sub.addOns.forEach(function(item) {
-			addOns[item.name] = item;
-		});
+			addOns[item.name] = this._extend({}, item);
+		}.bind(this));
 
 		this.setState({
 			quantity: sub.quantity,
@@ -105,6 +105,15 @@ var AddLicensesComponent = React.createClass({
 
 	_cancelEditLicenses: function() {
 		this._init();
+	},
+
+	_extend( a, b ) {
+	    for( var key in b ) {
+	        if( b.hasOwnProperty( key ) ) {
+	            a[key] = b[key];
+	        }
+	    }
+	    return a;
 	},
 
 	render: function() {
