@@ -6,8 +6,8 @@
     var infoCont = document.getElementById('info-cont');
     var loginInput = document.querySelector('input[name="login"]');
     var loginBtn = document.querySelector('input[type="submit"]');
-    // var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
+    var apiGateway = 'https://api-web.ringotel.net/branch/api';
+    // var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
     var host = window.location.host;
     var bid = host.substr(0, host.indexOf('.'));
 

@@ -4,8 +4,8 @@
     var formEl2 = document.querySelector('#reset');
     var formEl = document.querySelector('form');
     var infoCont = document.getElementById('info-cont');
-    // var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
+    var apiGateway = 'https://api-web.ringotel.net/branch/api';
+    // var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
     var host = window.location.host;
     var search = window.location.search;
     var bid = host.substr(0, host.indexOf('.'));

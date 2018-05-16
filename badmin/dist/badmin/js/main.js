@@ -4095,25 +4095,6 @@ function load_chatchannel(params) {
     set_page();
 
 }
-function load_chats_report(){
-
-	json_rpc_async('getActivityStatistics', {
-		begin: 1514592000000,
-		end: 1515196800000
-	}, init);
-
-	function init(params){
-		console.log('load_chats_report params: ', params);
-
-		var componentParams = {
-			frases: PbxObject.frases,
-		    activityParams: params
-		};
-
-		ReactDOM.render(AnalyticsComponent(componentParams), document.getElementById('el-loaded-content'));
-	}
-
-}
 function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
