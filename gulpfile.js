@@ -30,8 +30,8 @@ gulp.task('styles', function() {
     .pipe(gulp.dest('badmin/dist/badmin/css'))
     .pipe(rename({suffix: '.min'}))
     .pipe(minifycss())
-    .pipe(gulp.dest('badmin/dist/badmin/css'))
-    .pipe(notify({ message: 'Styles task complete' }));
+    .pipe(gulp.dest('badmin/dist/badmin/css'));
+    // .pipe(notify({ message: 'Styles task complete' }));
 });
 
 gulp.task('styles2', function() {
@@ -40,8 +40,8 @@ gulp.task('styles2', function() {
     .pipe(gulp.dest('badmin/dist/badmin/css'))
     .pipe(rename({suffix: '.min'}))
     .pipe(minifycss())
-    .pipe(gulp.dest('badmin/dist/badmin/css'))
-    .pipe(notify({ message: 'Styles2 task complete' }));
+    .pipe(gulp.dest('badmin/dist/badmin/css'));
+    // .pipe(notify({ message: 'Styles2 task complete' }));
 });
 
 gulp.task('scripts', function() {
@@ -53,8 +53,8 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('badmin/dist/badmin/js'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('badmin/dist/badmin/js'))
-    .pipe(notify({ message: 'Scripts task complete' }));
+    .pipe(gulp.dest('badmin/dist/badmin/js'));
+    // .pipe(notify({ message: 'Scripts task complete' }));
 });
 
 gulp.task('components', function() {
@@ -79,8 +79,8 @@ gulp.task('flot', function() {
     .pipe(concat('flot.all.js'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'))
-    .pipe(notify({ message: 'Flot task complete' }));
+    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'));
+    // .pipe(notify({ message: 'Flot task complete' }));
 });
 
 gulp.task('flatpickr', function() {
@@ -88,8 +88,8 @@ gulp.task('flatpickr', function() {
     .pipe(concat('flatpickr.all.js'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'))
-    .pipe(notify({ message: 'Flatpickr task complete' }));
+    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'));
+    // .pipe(notify({ message: 'Flatpickr task complete' }));
 });
 
 gulp.task('views', function() {

@@ -1,25 +1,84 @@
 function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
+	console.log('window parent: ', window.opener);
+	var frases = PbxObject.frases;
+	var driver = new Driver({
+		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	});
+	var driverSteps = [];
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
-	var routes = [];
 	var services = [{
 		id: 'FacebookMessenger',
 		name: "Messenger",
-		icon: '/badmin/images/facebook_messenger.png',
+		icon: '/badmin/images/channels/fm.png',
 		params: {
 			appId: '1920629758202993'
-		}
+		},
+		component: FacebookTrunkComponent
 	}, {
 		id: 'Email',
 		name: "Email",
-		icon: '/badmin/images/email.png'
+		icon: '/badmin/images/channels/email.png',
+		providers: {
+			gmail: {
+				protocol: 'imap',
+				hostname: 'imap.gmail.com',
+				port: 993,
+				usessl: true
+			},
+			outlook: {
+				protocol: 'imap',
+				hostname: 'imap-mail.outlook.com',
+				port: 993,
+				usessl: true
+			},
+			office365: {
+				protocol: 'imap',
+				hostname: 'outlook.office365.com',
+				port: 993,
+				usessl: true
+			},
+			icloud: {
+				protocol: 'imap',
+				hostname: 'imap.mail.me.com',
+				port: 993,
+				usessl: true
+			},
+			aol: {
+				protocol: 'imap',
+				hostname: 'imap.aol.com',
+				port: 993,
+				usessl: true
+			},
+			yahoo: {
+				protocol: 'imap',
+				hostname: 'imap.mail.yahoo.com',
+				port: 993,
+				usessl: true
+			}
+		},
+		component: EmailTrunkComponent
 	}, {
 		id: 'Viber',
 		name: "Viber",
-		icon: '/badmin/images/viber.ico'
+		icon: '/badmin/images/channels/viber.ico',
+		component: ViberTrunkComponent
+	}, {
+		id: 'Telegram',
+		name: "Telegram",
+		icon: '/badmin/images/channels/telegram.png',
+		component: TelegramTrunkComponent
+	}, {
+		id: 'Telephony',
+		name: 'Number',
+		icon: '/badmin/images/channels/did.png',
+		component: DidTrunkComponent
 	}
 	// {
 	// 	id: 'Facebook',
@@ -39,25 +98,39 @@ function load_chattrunk(params) {
 	// 	}
 	];
 
-	params.sessiontimeout = (params.sessiontimeout || 86400*7)/60;
-	params.replytimeout = (params.replytimeout || 86400)/60;
+	var modalCont = document.getElementById('create-service-group');
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "create-service-group";
+		document.body.appendChild(modalCont);
+	}
+
+	var query = window.location.href;
+	var search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
+	var queryParams = getQueryParams(search);
+	var selectedService = queryParams.channel;
+
+	if(window.opener && window.onTokenReceived) {
+		var userAccessToken = search ? queryParams.access_token : null;
+		return window.onTokenReceived(userAccessToken);
+	}
+
+	if(PbxObject.userAccessToken) {
+		services = services.map(function(item) {
+			console.log('load_chattrunk services:', item);
+			if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
+			return item;
+		});
+	}
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
-	init();
+	params.sessiontimeout = (params.sessiontimeout || 86400*7);
+	params.replytimeout = (params.replytimeout || 3600);
+
     set_page();
-
-	function init() {
-		getObjects('chatchannel', function(result) {
-			console.log('getObjects: ', result);
-			routes = result || [];
-
-			render();
-			// initServices(type);
-
-		});
-	}
+    render(type, params);
 
 	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
@@ -70,63 +143,160 @@ function load_chattrunk(params) {
 	function setObject(params, cb) {
 
 		console.log('setObject: ', params);
-
-	    // if(!params.pageid) return console.error('pageid is not defined');
+		
+		driver.reset();
 
 	    show_loading_panel();
 
-	    var props = {
-	    	kind: PbxObject.kind,
-	    	oid: params.oid,
-	    	name: params.name,
-	    	enabled: params.enabled || true,
-	    	type: params.type,
-	    	pagename: params.pagename,
-	    	sessiontimeout: parseFloat(params.sessiontimeout)*60,
-	    	replytimeout: parseFloat(params.replytimeout)*60,
-	    	// properties: params.properties,
-	    	routes: params.routes
-	    };
+	    params.directref = true;
 
-	    if(params.pageid) props.pageid = params.pageid;
+		json_rpc_async('setObject', params, function(result, err) {
+			if(err) {
+				return notify_about('error', err.message);
+			}
 
-	    if(PbxObject.name) {
-	    	handler = set_object_success;
-	    } else {
-	    	props.properties = params.properties;
-	    }
+			if(PbxObject.name) {
+				set_object_success();
+			} else {
+				PbxObject.name = params.name;
+			}
 
-    	json_rpc_async('setObject', props, function(result, err) {
-    		if(err) {
-    			notify_about('error', err.message);
-    			cb(err);
-    			return;
-    		}
+			render(params.type, params);
+			remove_loading_panel();
 
-    		PbxObject.name = params.name;
-    		if(handler) handler();
-    		if(cb) cb(null, result);
-    		show_content();
-    	});
+		});
+    	
 	}
 
-	function removeObject(params) {
-		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	function confirmRemoveObject(type, callback) {
+		var props = {
+			frases: PbxObject.frases,
+			name: PbxObject.name,
+			warning: (type === 'Telephony' ? 
+				PbxObject.frases.CHAT_TRUNK.DID.DELETE_SIP_CHANNEL_MSG 
+				: PbxObject.frases.CHAT_TRUNK.DID.DELETE_OTHER_CHANNEL_MSG
+			),
+			onSubmit: callback
+		};
+
+		ReactDOM.render(DeleteObjectModalComponent(props), modalCont);
 	}
 
-	// function render(serviceParams) {
-	function render() {
+	function updateBalance(params, callback) {
+		PbxObject.stripeHandler.open({
+			// name: 'Ringotel',
+			// zipCode: true,
+			// locale: 'auto',
+			panelLabel: "Pay",
+			allowRememberMe: false,
+			// currency: params.currency,
+			amount: params.chargeAmount*100,
+			closed: function(result) {
+				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
+
+				if(!PbxObject.stripeToken) return;
+
+				var reqParams = {
+					currency: params.currency,
+					amount: params.chargeAmount,
+					description: 'Update balance',
+					token: PbxObject.stripeToken.id
+				};
+
+				show_loading_panel();
+
+				BillingApi.updateBalance(reqParams, function(err, response) {
+
+					console.log('updateBalance: ', err, response);
+
+					remove_loading_panel();
+
+					if(err) {
+						notify_about('error', err.message);
+					} else {
+
+						if(callback) callback(params);
+
+						PbxObject.stripeToken = null;		
+
+					}	
+
+				});
+
+			}
+		});
+	}
+
+	function confirmPayment(params, callback) {
+		console.log('confirmPayment params:', params);
+		showModal('confirm_payment_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
+			console.log('confirm_payment_modal submit:', result);
+
+			$(modal).modal('toggle');
+
+			callback(params);
+
+		});
+	}
+
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
+	}
+
+	function addSteps(stepParams) {
+		driverSteps = driverSteps.concat(stepParams);
+	}
+
+	function nextStep(stepParams) {
+		driver.moveNext();
+	}
+
+	function highlightStep(stepParams) {
+		driver.highlight(stepParams);
+	}
+
+	function initSteps() {
+		if(!PbxObject.tourStarted) return;
+
+		driverSteps.push({
+			element: '.object-name-cont .btn-success',
+			popover: {
+				title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
+				description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
+				position: 'bottom'
+			}
+		});
+
+		setTimeout(function() {
+			console.log('initSteps: ', driverSteps);
+			driver.defineSteps(driverSteps);
+			driver.start();
+		}, 500);
+	}
+
+	function onTokenReceived(token) {
+		PbxObject.userAccessToken = token;
+	}
+
+	function render(type, params) {
 		var componentParams = {
 			type: type,
 			services: services,
-			// onServiceChange: onServiceChange,
 			frases: PbxObject.frases,
 		    params: params,
-		    // serviceParams: serviceParams,
-		    routes: routes,
+		    selected: selectedService,
+		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,
-		    removeObject: removeObject
+		    updateBalance: updateBalance,
+		    confirmRemoveObject: confirmRemoveObject,
+		    removeObject: removeObject,
+		    confirmPayment: confirmPayment,
+		    initSteps: initSteps,
+		    addSteps: addSteps,
+		    nextStep: nextStep,
+		    highlightStep: highlightStep,
+		    onTokenReceived: onTokenReceived
 		};
 
 		console.log('render: ', componentParams);

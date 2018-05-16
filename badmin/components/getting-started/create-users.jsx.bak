@@ -1,0 +1,157 @@
+var GSCreateUsersComponent = React.createClass({
+
+	propTypes: {
+		frases: React.PropTypes.object,
+		profile: React.PropTypes.object,
+		// options: React.PropTypes.object,
+		group: React.PropTypes.object,
+		nextStep: React.PropTypes.func,
+		prevStep: React.PropTypes.func
+	},
+
+	getInitialState: function() {
+		return {
+			users: [],
+			profile: {},
+			count: 3
+		};
+	},
+
+	componentWillMount: function() {
+		var state = this.state;
+		var users = state.users;
+		var profile = this.props.profile;
+		var group = this.props.group;
+		var available = group.available.sort();
+
+		users.push({ name: profile.name, email: profile.email, number: group.members[0].number, admin: true });
+
+		for (var i = 1; i <= state.count; i++) {
+			users.push({ name: "", email: "", number: available[i] });
+		}
+
+		this.setState({ users: users });
+	},
+
+	_onChange: function(index, e) {
+		console.log('_onChange: ', e, index);
+		var target = e.target;
+		var users =this.state.users;
+		var user = users[index];
+		user[target.name] = target.value;
+
+		users[index] = user;
+		this.setState({ users: users });
+	},
+
+	_nextStep: function() {
+		this.props.nextStep();
+	},
+
+	_onSubmit: function(e) {
+		e.preventDefault();
+
+		var profile = this.props.profile;
+		var users = this.state.users.filter(function(item) { return ((item.name && item.email && item.number) && item.email !== profile.email) });
+		var count = 0;
+
+		if(users.length) {
+			users.forEach(function(item) {
+				if(item.admin) return;
+
+				this._createUser(item, function(result) {
+					count += 1;
+					if(count >= users.length-1) this._nextStep();
+				}.bind(this))
+			}.bind(this));
+		} else {
+			this._nextStep();
+		}
+			
+	},
+
+	_createUser: function(item, callback) {
+		if(!item.name || !item.email) return;
+
+		var kind = 'user';
+		var groupid = this.props.group.oid;
+		var params = {
+			kind: kind,
+			groupid: groupid,
+			email: item.email,
+			login: item.email.substr(0, item.email.indexOf('@')),
+			number: item.number,
+			name: item.name,
+			display: item.name,
+			password: generatePassword(),
+			storelimit: convertBytes(1, 'GB', 'Byte')
+		};
+
+		json_rpc_async('setObject', params, callback);
+	},
+
+	render: function() {
+		console.log('GSCreateUsersComponent render: ', this.state.users);
+
+		return (
+			<div>
+				<div className="row">
+					<div className="col-xs-12">
+						<h3>Let's get started</h3>
+						<h4>Hi there! </h4>
+						<p>First, let's create your team</p>
+					</div>
+				</div>
+				<form className="form">
+					{
+						this.state.users.map(function(item, index) {
+							return (
+								<div className="row" key={index}>
+									<div className="col-sm-1">
+										<div className="form-group">
+											{
+												item.admin && (<label> </label>)
+											}
+											<p className="form-control-static">{index+1}</p>
+										</div>
+									</div>
+									<div className="col-sm-4">
+										<div className="form-group">
+											{
+												item.admin && ( <label htmlFor="name">Full name</label> )
+											}
+											<input type="text" className="form-control" name="name" placeholder="John Smith" readOnly={item.admin} value={item.name} onChange={this._onChange.bind(this, index)} />
+										</div>
+									</div>
+									<div className="col-sm-4">
+										<div className="form-group">
+											{
+												item.admin && ( <label htmlFor="name">Email</label> )
+											}
+											<input type="email" className="form-control" name="email" placeholder="john.smith@yourcompany.com" readOnly={item.admin} value={item.email} onChange={this._onChange.bind(this, index)} />
+										</div>
+									</div>
+									<div className="col-sm-2">
+										<div className="form-group">
+											{
+												item.admin && ( <label htmlFor="name">Extension</label> )
+											}
+											<input type="number" className="form-control" name="number" readOnly={item.admin} value={item.number} onChange={this._onChange.bind(this, index)} />
+										</div>
+									</div>
+								</div>
+							)
+						}.bind(this))
+					}
+				</form>
+				<div className="row">
+					<div className="col-xs-12">
+						<GSStepFooterComponent onSubmit={this._onSubmit} />
+					</div>
+				</div>
+			</div>
+		);
+	}
+});
+
+GSCreateUsersComponent = React.createFactory(GSCreateUsersComponent);

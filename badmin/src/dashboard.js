@@ -1,3 +1,7 @@
+function load_dashboard(){
+    PbxObject.Dashboard = new Dashboard();
+}
+
 function Dashboard(){
     var self = this,
         loaded = false,
@@ -28,7 +32,6 @@ function Dashboard(){
 
         set_page();
 
-        var getStarted = new GetStarted(document.getElementById('ns-container')).init();
     };
 
     this.checkStates = function(){
@@ -288,8 +291,4 @@ function Dashboard(){
 
     this.init();
 
-}
-
-function load_dashboard(){
-    PbxObject.Dashboard = new Dashboard();
 }

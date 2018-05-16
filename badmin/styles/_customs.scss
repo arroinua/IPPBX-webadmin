@@ -11,6 +11,7 @@ input[readonly].readonly-custom{
 
 table.table>tbody>tr>td {
     vertical-align: middle;
+    border-top: 1px solid #f3f8f9;
 }
 
 #security-settings-cont table button {
@@ -23,6 +24,10 @@ table.table>tbody>tr>td {
 
 #welcome-modal .modal-body {
     padding: 20px 100px;
+}
+
+#services-cont button {
+    margin-bottom: 5px;
 }
 
 /*
@@ -41,10 +46,28 @@ table.table>tbody>tr>td {
 }
 
 .modal-custom .modal-content{
-    border-radius: 0;
+    border-radius: $global-radius;
 }
 .modal-custom .modal-footer{
+    border-bottom-left-radius: $global-radius;
+    border-bottom-right-radius: $global-radius;
     background-color: $primary-color-l1;
+}
+
+/*
+    Forms custom styles
+*/
+
+// input.form-control {
+//     border-radius: $global-radius;
+// }
+
+/*
+    Buttons custom styles
+*/
+
+.btn {
+    border-radius: $global-radius;
 }
 
 /*
@@ -64,6 +87,7 @@ table.table>tbody>tr>td {
     background-color: #777;
     border-color: #777;
 }
+
 
 /*
     Popover custom styles
@@ -141,16 +165,14 @@ table.table>tbody>tr>td {
     display: none;
 }
 
-// .btn-primary {
-//     background-color: $primary-color;
-//     border-color: $primary-color;
-//     color: $primary-text-color-1;
-// }
-
-// .btn-primary:hover {
-//     background-color: $primary-color-2;
-//     border-color: $primary-color-2;
-// }
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: #fff;
+}
 
 .btn-link.btn-primary,
 .btn-link.btn-danger {
@@ -175,6 +197,15 @@ table.table>tbody>tr>td {
     padding: 20px 16px;
     font-size: 18px;
     line-height: 1.3333333;
+}
+
+.fb-button,
+.fb-button:hover,
+.fb-button:active,
+.fb-button:focus {
+    background-color: #4267b2;
+    border-radius: 4px;
+    border: none;
 }
 
 .custom-dropdown .dropdown-menu{
@@ -210,7 +241,8 @@ table.table>tbody>tr>td {
     background-color: transparent;
 }
 .nav-tabs.custom-nav-tabs > li > a {
-    border-radius: 0;
+    border-top-left-radius: $global-radius;
+    border-top-right-radius: $global-radius;
 }
 .form-control.custom-input{
     height: auto;
@@ -256,13 +288,6 @@ table.table>tbody>tr>td {
     -ms-transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
     transform: rotate(-45deg);
-}
-
-.object-name .input-group-addon{
-    border-radius: 0;
-    border: none;
-    background-color: #fff;
-    padding: 6px 10px 6px 0;
 }
 
 .rd-container{

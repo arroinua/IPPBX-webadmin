@@ -54,7 +54,7 @@ function Picker(pickrElement, defaults){
         } else if(target.nodeName === 'BUTTON'){
             if(target.name === "submitButton"){
                 if(customRange) self._rangeToString(); //if custom range option is selected
-                if(self.defaults.submitFunction) self.defaults.submitFunction();
+                if(self.defaults.submitFunction) self.defaults.submitFunction({ date: this.date });
             } else if(target.name === "selectButton"){
                 if(customRange) self._rangeToString();
             }
@@ -110,10 +110,10 @@ function Picker(pickrElement, defaults){
             this.date.start = today().toStartOf().minus(7).valueOf();
         } else if(option === '30_days'){
             this.date.end = today().toEndOf().valueOf();
-            this.date.start = today().toStartOf().minus(1, 'month').valueOf();
+            this.date.start = today().toStartOf().minus(30).valueOf();
         } else if(option === '60_days'){
             this.date.end = today().toEndOf().valueOf();
-            this.date.start = today().toStartOf().minus(30).valueOf();
+            this.date.start = today().toStartOf().minus(60).valueOf();
         }
         // else if(option === 'month'){
         //     var curr_date = new Date();
@@ -165,12 +165,7 @@ function Picker(pickrElement, defaults){
         removeEvent(document, 'click', this._closeDropdowns);
     };
 
-    this.today = function(date){
-        // var now = new Date();
-        // var today = new Date(this.formatDate(now, 'mm/dd/yyyy')).valueOf();
-        // return today;
-        // var dateObj = date ? new Date(date) : new Date;
-
+    this.today = function(){
         return today().toStartOf().valueOf();
     };
 

@@ -89,7 +89,6 @@ var LdapOptionsComponent = React.createClass({
 			    		</div>
 			    		<div className="col-sm-10">
 			    			<h4>{params.name}</h4>
-			    			<h5>Description</h5>
 			    		</div>
 			    	</div>
 		    	</div>

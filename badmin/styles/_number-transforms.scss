@@ -1,0 +1,9 @@
+.n-transforms-cont {
+	@media screen and (max-width: 767px) {
+		border: none;
+	}
+
+	& > table > tbody > tr > td {
+		border-top: none;
+	}	
+}

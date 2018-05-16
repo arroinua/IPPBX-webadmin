@@ -15,6 +15,9 @@ function load_bgroup(result){
         $enabledCont = $('.object-name .switch'),
         availableUsers = result.available;
 
+    var maxusers = PbxObject.options.maxusers; 
+    var storelimit = PbxObject.options.storelimit; 
+
     if(availableUsers) {
         availableUsers = availableUsers.sort();
         PbxObject.available = availableUsers;
@@ -114,8 +117,12 @@ function load_bgroup(result){
             // var storeLimitChecked = storeLimitTrigger.checked;
             addUser(utype, function() {
                 cleanForm('new-user-form');
+
+                if(kind === 'users' && addUserForm.storelimit && storelimit && maxusers) 
+                    addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
                 // storeLimitTrigger.checked = storeLimitChecked;
             });
+
             // cleanForm();
         });
         // addEvent(add, 'click', function(){
@@ -454,6 +461,11 @@ function load_bgroup(result){
         var activeServices = PbxObject.options.services.filter(function(service){
             return service.state;
         });
+
+        if(addUserForm.storelimit && storelimit && maxusers) 
+            addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
+            console.log('storelimit=', storelimit, maxusers, (convertBytes(storelimit, 'Byte', 'GB') / maxusers));
+
         
         if(activeServices.length) {
             $('#services-cont').append(activeServices.map(createServiceBtn));
@@ -462,10 +474,11 @@ function load_bgroup(result){
                 $('#add-external-user').hide();
         }
 
-        qparams = getQueryParams();
-        if(window.sessionStorage.getItem('lastURL') && qparams.service_id && qparams.service_type) {
-            getExternalUsers(qparams.service_id, parseInt(qparams.service_type, 10));
-            window.sessionStorage.removeItem('lastURL');
+        // qparams = getQueryParams();
+        var serviceParams = window.sessionStorage.getItem('serviceParams');
+        if(serviceParams) {
+            getExternalUsers(JSON.parse(serviceParams));
+            window.sessionStorage.removeItem('serviceParams');
         }
 
     }
@@ -500,25 +513,33 @@ function onAddLdapUsers(users){
 }
 
 function createServiceBtn(params){
-    var button;
-    button = document.createElement('button');
-    addEvent(button, 'click', function(e){
-        getExternalUsers(params.id, params.type, params.props);
-    });
-    button.className = "btn btn-link btn-default padding-lg ellipsis";
-    button.innerHTML = '<span>'+params.name+'</span>';
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = "btn btn-default padding-lg pl-users";
+    button.innerHTML = '<span>'+PbxObject.frases.IMPORT_USERS_FROM+' </span><strong>'+params.name+'</strong>';
     
+    addEvent(button, 'click', function(e){
+        getExternalUsers(params);
+    });
+
     return button;
 }
 
-function getExternalUsers(id, type, props){
-    if(type === 1) {
-        PbxObject.LdapConnection = Ldap({
-            service_id: id,
-            service_type: type,
-            available: PbxObject.available,
-            onaddusers: setExternalUsers
-        });
+function getExternalUsers(params){
+    PbxObject.LdapConnection = Ldap({
+        service_id: params.id,
+        service_type: params.type,
+        available: PbxObject.available,
+        onaddusers: setExternalUsers
+    });
+
+    if(params.type === 1) {
+        // PbxObject.LdapConnection = Ldap({
+        //     service_id: params.id,
+        //     service_type: params.type,
+        //     available: PbxObject.available,
+        //     onaddusers: setExternalUsers
+        // });
         PbxObject.LdapConnection.getExternalUsers();
 
         // $.ajax({
@@ -548,8 +569,9 @@ function getExternalUsers(id, type, props){
         //     }
         // });
     } else {
-        json_rpc_async('getExternalUsers', { service_id: id }, function(result) {
+        json_rpc_async('getExternalUsers', { service_id: params.id }, function(result) {
             console.log('getExternalUsers result: ', result);
+            if(result) PbxObject.LdapConnection.showUsers(result);
         });
     }
 }

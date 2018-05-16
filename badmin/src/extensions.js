@@ -1,35 +1,50 @@
 function load_extensions(result) {
     // console.log(result);
-    var row,
-        table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
-        // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
-        fragment = document.createDocumentFragment();
+    // var row,
+    //     table = document.getElementById('extensions').getElementsByTagName('tbody')[0],
+    //     // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
+    //     fragment = document.createDocumentFragment();
 
-    PbxObject.extensions = result;
+    // PbxObject.extensions = result;
 
-    for(var i=0; i<result.length; i++){
+    // for(var i=0; i<result.length; i++){
 
-        // if(!result[i].oid) continue;
+    //     // if(!result[i].oid) continue;
 
-        row = createExtRow(result[i]);
-        fragment.appendChild(row);
+    //     row = createExtRow(result[i]);
+    //     fragment.appendChild(row);
 
-    }
-        
-    table.appendChild(fragment);
-    
-    // if(passReveal.length) {
-    //     passReveal.forEach(function(item){
-    //         addEvent(item, 'click', revealPassword);
-    //     });
     // }
+        
+    // table.appendChild(fragment);
+    
+    // // if(passReveal.length) {
+    // //     passReveal.forEach(function(item){
+    // //         addEvent(item, 'click', revealPassword);
+    // //     });
+    // // }
 
-    // var $modal = $('#el-extension');
-    // $('#pagecontainer').prepend($modal);
-    // $($modal).insertBefore('#pagecontainer');
+    // // var $modal = $('#el-extension');
+    // // $('#pagecontainer').prepend($modal);
+    // // $($modal).insertBefore('#pagecontainer');
 
-    TableSortable.sortables_init();
-    add_search_handler();
+    // TableSortable.sortables_init();
+    // add_search_handler();
+
+    var data = filterObject(result, ['user', 'phone']);
+
+    function init(data){
+        var componentParams = {
+            frases: PbxObject.frases,
+            data: data,
+            getExtension: getExtension,
+            deleteExtension: deleteExtension
+        };
+
+        ReactDOM.render(ExtensionsComponent(componentParams), document.getElementById('el-loaded-content'));
+    }
+
+    init(data);
     set_page();
     show_content();
 
@@ -140,11 +155,11 @@ function updateExtensionRow(event, data){
             if(cell) cell.innerHTML = data.name;
             // cells[1].innerHTML = data.name;
         }
-        if(data.display){
-            cell = row.querySelector('[data-cell="display"]');
-            if(cell) cell.innerHTML = data.display;
-            // cells[1].innerHTML = data.name;
-        }
+        // if(data.display){
+        //     cell = row.querySelector('[data-cell="display"]');
+        //     if(cell) cell.innerHTML = data.display;
+        //     // cells[1].innerHTML = data.name;
+        // }
         if(data.hasOwnProperty('group')){
             cell = row.querySelector('[data-cell="group"]');
             if(cell) cell.innerHTML = data.group;
@@ -168,6 +183,20 @@ function updateExtensionRow(event, data){
 
     updateObjects(PbxObject.extensions, data, 'ext');
 
+}
+
+function getExtension(oid) {
+    show_loading_panel();
+
+    if(!PbxObject.templates.extension){
+        $.get('/badmin/views/extension.html', function(template){
+            PbxObject.templates = PbxObject.templates || {};
+            PbxObject.templates.extension = template;
+            json_rpc_async('getObject', { oid: oid }, load_extension);
+        });
+    } else {
+        json_rpc_async('getObject', { oid: oid }, load_extension);
+    }
 }
 
 function get_extension(e){
@@ -321,7 +350,7 @@ function load_extension(result){
 
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
         result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
-        result.storefree = result.storefree ? convertBytes((result.storelimit - result.storesize), 'Byte', 'GB').toFixed(2) : 0;
+        result.storefree = result.storelimit - result.storesize;
         // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
         // if(result.storelimit) {
         //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);
@@ -467,6 +496,7 @@ function set_extension(kind){
     var jprms = '\"oid\":\"'+oid+'\",';
     var group = d.getElementById("extgroup");
     var login = d.getElementById("extlogin").textContent;
+    var password = d.getElementById("extpassword").value;
     // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var storelimit = d.getElementById('extstorelimit');
 
@@ -483,9 +513,9 @@ function set_extension(kind){
     //     jprms += '\"followme\":\"'+d.getElementById("followme").value+'\",';
     // }
     jprms += '\"name\":\"'+d.getElementById("extname").value+'\",';
-    jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
+    // jprms += '\"display\":\"'+d.getElementById("extdisplay").value+'\",';
     if(login) jprms += '\"login\":\"'+login+'\",';
-    jprms += '\"password\":\"'+d.getElementById("extpassword").value+'\",';
+    if(password) jprms += '\"password\":\"'+password+'\",';
     if(d.getElementById("extpin").value) jprms += '\"pin\":'+d.getElementById("extpin").value+',';
     if(storelimit) {
         storelimit = convertBytes(storelimit.value, 'GB', 'Byte').toFixed();

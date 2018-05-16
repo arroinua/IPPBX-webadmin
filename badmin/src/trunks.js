@@ -100,9 +100,7 @@ function load_trunk(result){
 
     if(result.auth)
         document.getElementById('auth').value = result.auth;
-    
-    document.getElementById('regexpires').value = result.regexpires || 60;
-    
+        
     var radio = document.getElementById('proxy');
     addEvent(radio, 'change', function(){
         var inputs = document.getElementsByName('proxy');
@@ -148,6 +146,10 @@ function load_trunk(result){
                 document.getElementById('f'+i).value = 0;
             }
         }
+        
+        if(document.getElementById('regexpires')) 
+            document.getElementById('regexpires').value = result.parameters.regexpires || 60;
+
     }
     if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
 
@@ -194,10 +196,10 @@ function load_trunk(result){
     show_content();
     set_page();
 
-    renderTrunkIncRoute({
-        route: result.inboundbnumbertransforms.filter(getCurrIncRoutes)[0],
-        frases: PbxObject.frases
-    });
+    // renderTrunkIncRoute({
+    //     route: result.inboundbnumbertransforms.filter(getCurrIncRoutes)[0],
+    //     frases: PbxObject.frases
+    // });
 
     // renderTrunkOutRoute();
     
@@ -224,22 +226,23 @@ function getRouteOptions(cb) {
 
 function renderTrunkIncRoute(params) {
 
-    var route = null;
+    var routes = null;
 
     getRouteOptions(function(options) {
         if(params.route) {
-            route = options.filter(function(item) {
+            routes = options.filter(function(item) {
                 return (item.ext === params.route.prefix);
             })[0];
         }
 
-        console.log('renderTrunkIncRoute: ', route);
+        console.log('renderTrunkIncRoute: ', routes);
 
         // Render incoming route parameter
         ReactDOM.render(
             TrunkIncRoute({
-                options: options,
-                route: route,
+                // options: options,
+                // routes: routes,
+                routes: result.inboundbnumbertransforms,
                 frases: params.frases,
                 onChange: setTrunkIncRoute
             }),
@@ -284,7 +287,7 @@ function setTrunkOutRoute(route) {
 function set_trunk(){
     var name = document.getElementById('objname').value,
         enabled = document.getElementById('enabled'),
-        passanumberEl = document.getElementById('passanumber'),
+        // passanumberEl = document.getElementById('passanumber'),
         protoOpts,
         jprms,
         handler,
@@ -342,7 +345,7 @@ function set_trunk(){
             jprms += '"user":"'+document.getElementById('user').value+'",';
             jprms += '"auth":"'+document.getElementById('auth').value+'",';
             jprms += '"pass":"'+document.getElementById('pass').value+'",';
-            jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
+            // jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
         }
         jprms += '"proxy":'+proxy+',';
         if(proxy){
@@ -367,11 +370,13 @@ function set_trunk(){
 
     jprms += '"parameters":{';
 
-    if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+    // if(passanumberEl) jprms += '"passanumber":' + passanumberEl.checked+',';
+    if(register) jprms += '"regexpires":'+document.getElementById('regexpires').value+',';
 
     protoOpts = JSON.stringify(PbxObject.protocolOpts);
     protoOpts = protoOpts.substr(1, protoOpts.length-2);
     jprms += protoOpts;
+
 
     incATrasf = transformsToArray('transforms1');
     incBTrasf = transformsToArray('transforms2');

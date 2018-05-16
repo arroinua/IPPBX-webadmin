@@ -109,7 +109,6 @@ var ServiceItemComponent = React.createClass({
 			    		</div>
 			    		<div className="col-sm-8">
 			    			<h4>{params.name}</h4>
-			    			<h5>Description</h5>
 			    		</div>
 			    		<div className="col-sm-2">
 			    			<span 

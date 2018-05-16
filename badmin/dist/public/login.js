@@ -3,9 +3,15 @@
     window.localStorage.removeItem('ringo_tid');
 
     var formEl = document.querySelector('form');
-    var errsCont = document.getElementById('errs-cont');
-    var apiGateway = 'https://my.ringotel.co/branch/api';
+    var infoCont = document.getElementById('info-cont');
+    var loginInput = document.querySelector('input[name="login"]');
+    var loginBtn = document.querySelector('input[type="submit"]');
+    // var apiGateway = 'https://api-web.ringotel.net/branch/api';
+    var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
     var host = window.location.host;
+    var bid = host.substr(0, host.indexOf('.'));
+
+    loginInput.value = bid;
 
     formEl.addEventListener('submit', submitForm, false);
 
@@ -14,36 +20,40 @@
         var submitted = false;
         // var login = e.target.login.value;
         var pass = e.target.password.value;
-        var login = host.substr(0, host.indexOf('.'));
+        var login = bid;
 
         console.log('submitForm: ', login, pass);
 
-        hideErrors();
+        hideInfo();
 
-        // if(!login) {
-        //     showError('Login is required');
-        //     return false;
-        // }
+        if(!pass) return;
 
-        toggleDisableState(formEl.submit);
+        if(!login) {
+            showInfo('Login is required', 'error');
+            return false;
+        }
+
+        toggleDisableState(formEl.submit, true);
 
         authorize({ login: login, password: pass }, function(err, result) {
             console.log('request callback: ', err, result);
             if(err) {
-                if(err === 'INVALID_LOGIN_PASSWORD') showError('Login or password is incorrect');
-                else showError('The service is under maintenance. Please, try again later.');
-                return toggleDisableState(formEl.submit);
+                if(err === 'INVALID_LOGIN_PASSWORD') showInfo('Login or password is incorrect', 'error');
+                else showInfo('The service is under maintenance. Please, contact our support team support@ringotel.co for more details.', 'error');
+                toggleDisableState(formEl.submit, false);
+                // return;
             }
-            if(result.token) window.localStorage.setItem('ringo_tid', result.token);
+            if(result && result.token) window.localStorage.setItem('ringo_tid', result.token);
 
             logIn({ login: login, password: pass }, function(err, result) {
                 console.log('request2 callback: ', err, result);
                 if(err) {
-                    if(err === 'INVALID_LOGIN_PASSWORD') showError('Login or password is incorrect');
-                    else showError('The service is under maintenance. Please, try again later.');
-                    return toggleDisableState(formEl.submit);
+                    if(err === 'INVALID_LOGIN_PASSWORD') showInfo('Login or password is incorrect', 'error');
+                    else showInfo('The service is under maintenance. Please, contact our support team support@ringotel.co for more details.', 'error');
+                    return toggleDisableState(formEl.submit, false);
+                } else {
+                    window.location = '/badmin.html';
                 }
-                window.location = '/badmin.html';
             });
         });
             
@@ -69,16 +79,19 @@
         );
     }
 
-    function showError(msg) {
-        errsCont.innerText = msg
+    function showInfo(msg, className) {
+        infoCont.className = className;
+        infoCont.style.display = 'block';
+        infoCont.innerText = msg
     }
 
-    function hideErrors() {
-        errsCont.innerText = '';
+    function hideInfo() {
+        infoCont.style.display = 'none';
+        infoCont.innerText = '';
     }
 
-    function toggleDisableState(el) {
-        el.disabled = el.disabled ? false : true;
+    function toggleDisableState(el, state) {
+        el.disabled = state !== undefined ? state : (el.disabled ? false : true);
     }
 
     /**
@@ -113,7 +126,7 @@
                     if(method === 'POST') response = JSON.parse(e.target.response);
                     callback(null, response);
                 } else {
-                    callback('The service is under maintenance. Please, try again later.');
+                    callback('The service is under maintenance. Please, contact our support team support@ringotel.co for more details.');
                 }
 
             }

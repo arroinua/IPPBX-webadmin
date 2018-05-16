@@ -1,13 +1,13 @@
 <div id="el-loaded-content">
     <div class="row">
         <div class="col-sm-12 col-custom">
-            <div class="panel">
+            <div class="panel object-name-cont">
                 <div class="panel-body">
                     <div class="input-group object-name">
                         <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
                         <span class="input-group-addon object-route view-1" id="object-route-cont"></span>
                         <span class="input-group-addon">
-                            <div class="switch switch-lg pl-kind pl-all pl-no-users">
+                            <div class="switch switch-md pl-kind pl-all pl-no-users">
                                 <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox" checked="checked">
                                 <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
                             </div>
@@ -15,8 +15,8 @@
                     </div>
                 </div>
                 <div class="panel-footer">
-                    <button type="button" id="el-set-object" class="btn btn-success btn-md"><i class="fa fa-check fa-fw"></i> {{SAVE}}</button>
-                    <button type="button" id="el-delete-object" class="btn btn-danger btn-md"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                    <button type="button" id="el-set-object" class="btn btn-success"><i class="fa fa-check fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-link btn-danger pull-right"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
                 </div>
             </div>
         </div>
@@ -427,40 +427,28 @@
                 </div>
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-sm-8 col-xs-12" style="margin-bottom: 5px;">
-                            <button type="button" id="add-newuser-btn" class="btn btn-default padding-lg ellipsis" data-toggle="collapse" data-target="#new-user-form" aria-expanded="false" aria-controls="new-user-form">
+                        <div id="services-cont" class="col-xs-12" style="margin-bottom: 5px;">
+                            <button type="button" id="add-newuser-btn" class="btn btn-primary padding-lg" data-toggle="collapse" data-target="#new-user-form" aria-expanded="false" aria-controls="new-user-form">
                                 <i class="fa fa-user-plus"></i>
                                 <span class="pl-kind pl-users">{{CREATE_USERS}}</span>
                                 <span class="pl-kind pl-equipment">{{CREATE_EXTENSIONS}}</span>
                             </button>
-                            <button type="button" id="add-external-user" class="btn btn-default padding-lg ellipsis pl-kind pl-users" data-toggle="collapse" data-target="#services-cont" aria-expanded="false" aria-controls="services-cont">
+                            <!-- <button type="button" id="add-external-user" class="btn btn-default ellipsis pl-kind pl-users" data-toggle="collapse" data-target="#services-cont" aria-expanded="false" aria-controls="services-cont">
                                <i class="fa fa-sitemap"></i><span> {{IMPORT_USERS}}</span>
+                            </button> -->
+                            <button type="button" class="btn btn-primary padding-lg pl-users" id="from-directory-btn">
+                                <span>{{IMPORT_USERS_FROM}} </span><strong>Active Directory</strong>
                             </button>
-                            
-                        </div>
-                        <div class="col-sm-4 col-xs-12">
-                            <div class="form-group has-feedback">
-                                <input type="text" class="form-control el-search" data-element="group-extensions" placeholder="{{SEARCH}}">
-                                <i class="fa fa-search fa-fw form-control-feedback"></i>
-                            </div>
                         </div>
                     </div>
                     <div class="row" style="padding: 20px 0;">
-                        <div class="col-xs-12 collapse pl-kind pl-users" id="services-cont">
+                        <!-- <div class="col-xs-12 pl-kind pl-users" id="services-cont">
                             <button class="btn btn-primary padding-lg ellipsis" id="from-directory-btn">
                                 <i class="fa fa-sitemap"></i><span class="hidden-xs"> Active Directory</span>
                             </button>
-                        </div>
-                        <form class="form-horizontal collapse col-xs-12" id="new-user-form" autocomplete="off">
+                        </div> -->
+                        <form class="form-horizontal collapse col-xs-12" name="new-user-form" id="new-user-form" autocomplete="off">
                             <div class="col-sm-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">
-                                        {{EXTENSION}}
-                                    </label>
-                                    <div class="col-sm-4">
-                                        <select id="available-users" class="form-control select2"></select>
-                                    </div>
-                                </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">
                                         {{NAME}}
@@ -478,6 +466,14 @@
                                         <input type="text" class="form-control" id="user-email" placeholder="{{EXT_SETTS__EMAIL}}">
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">
+                                        {{EXTENSION}}
+                                    </label>
+                                    <div class="col-sm-4">
+                                        <select id="available-users" class="form-control select2"></select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
@@ -485,7 +481,7 @@
                                         {{LOGIN}}
                                     </label>
                                     <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="user-login" placeholder="{{EXT_SETTS__LOGIN}}" required>
+                                        <input type="text" class="form-control" id="user-login" placeholder="{{EXT_SETTS__LOGIN}}" required autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -495,7 +491,7 @@
                                     </label>
                                     <div class="col-sm-8">
                                         <div class="input-group">
-                                            <input type="password" name="trunk" class="form-control" id="user-pass" placeholder="{{PASSWORD}}" required>
+                                            <input type="password" name="trunk" class="form-control" id="user-pass" placeholder="{{PASSWORD}}" required autocomplete="off">
                                             <span class="input-group-btn">
                                                 <button type="button" class="btn btn-default" onclick="revealPassword(this)">
                                                     <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
@@ -524,7 +520,7 @@
                                         </label>
                                         <div class="col-sm-8">
                                             <div class="input-group">
-                                                <input type="number" class="form-control" id="storelimit" min="0" step="1" value="5.00">
+                                                <input type="number" class="form-control" name="storelimit" id="storelimit" min="0" step="1" value="1.00">
                                                 <span class="input-group-addon">GB</span>
                                             </div>
                                         </div>

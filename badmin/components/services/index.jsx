@@ -30,7 +30,8 @@ var ServicesComponent = React.createClass({
 	},
 
 	_saveOptions: function(index, props) {
-		this.props.saveOptions(props);	
+		this.props.saveOptions(props);
+
 	},
 
 	_saveLdapOptions: function(props) {

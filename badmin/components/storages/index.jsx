@@ -38,11 +38,6 @@ var UsageComponent = React.createClass({
 						</div>
 					) : ''
 				}
-				<div className="row">
-					<div className="col-xs-12">
-						<StorageUsageComponent frases={this.props.frases} data={this.props.options} utils={this.props.utils} />
-					</div>
-				</div>
 				
 				<div className="row">
 					<div className="col-xs-12">

@@ -4,7 +4,7 @@
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
 		onNameChange: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
+		onAddMembers: React.PropTypes.func,
 		setObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
@@ -42,7 +42,7 @@
 	_setObject: function() {
 		var params = this.state.params;
 		params.options = this.state.options;
-		params.files = this.state.files;
+		params.files = this.state.files.reduce(function(array, item) { array.push(item.file); return array; }, []);
 		params.route = this.state.route;
 		this.props.setObject(params);
 	},
@@ -61,8 +61,8 @@
 		this.props.onNameChange(value);
 	},
 
-	_getAvailableUsers: function() {
-		this.props.getAvailableUsers();
+	_onAddMembers: function() {
+		this.props.onAddMembers();
 	},
 
 	_handleOnChange: function(e) {
@@ -80,21 +80,47 @@
 		});
 	},
 
-	_onFileUpload: function(e) {
+	_onFileUpload: function(params) {
 		var state = this.state;
-		var target = e.target;
-		var file = target.files[0];
-		var value = file.name;
+		var found = false;
 
-		state.options[target.name] = value;
-		state.files.push(file);
+		var files = state.files.map(function(item) {
+			if(item.name === params.name) {
+				item = params;
+				found = true;
+			}
+			return item;
+		});
 
-		console.log('_onFileUpload: ', target, value, file);
+		if(!found){
+			files.push(params);
+		}
+
+		state.options[params.name] = params.filename;
+		state.files = files;
+
+		console.log('_onFileUpload: ', params, files);
 
 		this.setState({
 			state: state
 		});	
 	},
+
+	// _onFileUpload: function(e) {
+	// 	var state = this.state;
+	// 	var target = e.target;
+	// 	var file = target.files[0];
+	// 	var value = file.name;
+
+	// 	state.options[target.name] = value;
+	// 	state.files.push(file);
+
+	// 	console.log('_onFileUpload: ', target, value, file);
+
+	// 	this.setState({
+	// 		state: state
+	// 	});	
+	// },
 
 	_onRouteChange: function(route) {
 		console.log('_onRouteChange: ', route);
@@ -130,8 +156,10 @@
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
-			    <GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
 			    <div className="row">
+			    	<div className="col-xs-12">
+					    <GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} onAddMembers={this._onAddMembers} deleteMember={this.props.deleteMember} />
+			    	</div>
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
 			    			<ul className="nav nav-tabs" role="tablist">
@@ -157,7 +185,7 @@
 										        <span>{frases.PRIORITY} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__PRIORITY}></a>
 										    </label>
-										    <div className="col-sm-2">
+										    <div className="col-md-4 col-sm-2">
 										        <input type="text" className="form-control" name="priority" value={ this.state.options.priority } onChange={ this._handleOnChange } />
 										    </div>
 										</div>
@@ -166,7 +194,7 @@
 										        <span>{frases.SETTINGS.MAXCONN} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__CONN_NUM}></a>
 										    </label>
-										    <div className="col-sm-2">
+										    <div className="col-md-4 col-sm-2">
 										        <input type="text" className="form-control" name="maxlines" value={ this.state.options.maxlines } onChange={ this._handleOnChange } />
 										    </div>
 										</div>
@@ -175,7 +203,7 @@
 										        <span>{frases.NOANSTOUT} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__NA_TOUT}></a>
 										    </label>
-										    <div className="col-sm-4">
+										    <div className="col-md-8 col-sm-4">
 										        <div className="input-group">
 										            <input type="text" className="form-control" name="natimeout" value={ this.state.options.natimeout } onChange={ this._handleOnChange } />	
 										            <span className="input-group-addon">{frases.SECONDS}</span>
@@ -187,7 +215,7 @@
 										        <span>{frases.RESUMETIME} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__RESUME_TIME}></a>
 										    </label>
-										    <div className="col-sm-4">
+										    <div className="col-md-8 col-sm-4">
 										        <div className="input-group">
 										            <input type="text" className="form-control" name="resumetime" value={ this.state.options.resumetime } onChange={ this._handleOnChange } />
 										            <span className="input-group-addon">{frases.SECONDS}</span>
@@ -199,7 +227,7 @@
 										        <span>{frases.ROUTEMETH.ROUTEMETH} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__METHOD}></a>
 										    </label>
-										    <div className="col-sm-4">
+										    <div className="col-md-8 col-sm-4">
 										        <select name="method" className="form-control" value={ this.state.options.method } onChange={ this._handleOnChange }>
 										            <option value="0">{frases.ROUTEMETH.UNIFORM}</option>
 										            <option value="1">{frases.ROUTEMETH.PRIORITY}</option>
@@ -213,8 +241,8 @@
 										        <span>{frases.GREETNAME} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__GREETINGS}></a>
 										    </label>
-										    <div className="col-sm-4">
-										    	<FileUpload name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
+										    <div className="col-md-8 col-sm-4">
+										    	<FileUpload frases={frases} name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
 										    </div>
 										</div>
 										<div className="form-group">
@@ -222,8 +250,8 @@
 										        <span>{frases.QUEUEPROMPT} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__QUEUEPROMPT}></a>
 										    </label>
-										    <div className="col-sm-4">
-										    	<FileUpload name="queueprompt" value={this.state.options.queueprompt} onChange={this._onFileUpload} />
+										    <div className="col-md-8 col-sm-4">
+										    	<FileUpload frases={frases} name="queueprompt" value={this.state.options.queueprompt} onChange={this._onFileUpload} />
 										    </div>
 										</div>
 										<div className="form-group">
@@ -231,8 +259,8 @@
 										        <span>{frases.QUEUEMUSIC} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__QUEUEMUSIC}></a>
 										    </label>
-										    <div className="col-sm-4">
-										    	<FileUpload name="queuemusic" value={this.state.options.queuemusic} onChange={this._onFileUpload} />
+										    <div className="col-md-8 col-sm-4">
+										    	<FileUpload frases={frases} name="queuemusic" value={this.state.options.queuemusic} onChange={this._onFileUpload} />
 										    </div>
 										</div>
 										<div className="form-group">
@@ -269,7 +297,7 @@
 										        <span>{frases.GROUPNUM} </span>
 										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.GRP__GRP_NUMBER}></a>
 										    </label>
-										    <div className="col-sm-2">
+										    <div className="col-md-4 col-sm-2">
 										        <input type="text" className="form-control" name="groupno" value={ this.state.options.groupno } onChange={ this._handleOnChange } />
 										    </div>
 										</div>
@@ -292,7 +320,7 @@
 								                <span>{frases.QUEUELEN} </span>
 								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_LENGTH}></a>
 								            </label>
-								            <div className="col-sm-2">
+								            <div className="col-md-4 col-sm-2">
 								                <input type="text" className="form-control" name="queuelen" value={ this.state.options.queuelen } onChange={ this._handleOnChange } />
 								            </div>
 								        </div>
@@ -301,7 +329,7 @@
 								                <span>{frases.OVERFLOWREDIR} </span>
 								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_OVERFLOW_FWD}></a>
 								            </label>
-								            <div className="col-sm-4">
+								            <div className="col-md-8 col-sm-4">
 								                <input type="text" className="form-control" name="overflowredirect" value={ this.state.options.overflowredirect } onChange={ this._handleOnChange } />
 								            </div>
 								        </div>
@@ -311,7 +339,7 @@
 								                <span>{frases.MAXQWAIT} </span>
 								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_WAIT}></a>
 								            </label>
-								            <div className="col-sm-3">
+								            <div className="col-md-8 col-sm-3">
 								                <div className="input-group">
 								                    <input type="text" className="form-control" name="maxqwait" value={ this.state.options.maxqwait } onChange={ this._handleOnChange } />
 								                    <span className="input-group-addon">{frases.SECONDS}</span>
@@ -323,7 +351,7 @@
 								                <span>{frases.OVERTIMEREDIR} </span>
 								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_OVERTIME_FWD}></a>
 								            </label>
-								            <div className="col-sm-4">
+								            <div className="col-md-8 col-sm-4">
 								                <input type="text" className="form-control" name="overtimeredirect" value={ this.state.options.overtimeredirect } onChange={ this._handleOnChange } />
 								            </div>
 								        </div>
@@ -333,7 +361,7 @@
 								                <span>{frases.INDICMODE} </span>
 								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__INDICATION}></a>
 								            </label>
-								            <div className="col-sm-2">
+								            <div className="col-md-8 col-sm-2">
 								                <input type="text" className="form-control" name="indicationmode" value={ this.state.options.indicationmode } onChange={ this._handleOnChange } />
 								            </div>
 								        </div>
@@ -342,7 +370,7 @@
 								                <span>{frases.INDICTIME} </span>
 								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__INDICATION_TIME}></a>
 								            </label>
-								            <div className="col-sm-3">
+								            <div className="col-md-8 col-sm-3">
 								                <div className="input-group">
 								                    <input type="text" className="form-control" name="indicationtime" value={ this.state.options.indicationtime } onChange={ this._handleOnChange } />
 								                    <span className="input-group-addon">{frases.SECONDS}</span>

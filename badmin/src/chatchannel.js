@@ -4,14 +4,9 @@ function load_chatchannel(params) {
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
-	var modalId = 'available-users-modal';
-	var modalCont = document.getElementById('available-users-cont');
+	var modalCont;
 
-	if(!modalCont) {
-		modalCont = document.createElement('div');
-		modalCont.id = "available-users-cont";
-		document.body.appendChild(modalCont);
-	}
+	if(!params.name) params.enabled = true;
 
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
@@ -34,26 +29,31 @@ function load_chatchannel(params) {
 		});
 	}
 
-	function getAvailableUsers() {
-		var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
+	// function onAddMembers() {
+	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
-	    json_rpc_async('getAvailableUsers', params, function(result){
-			console.log('getAvailableUsers: ', result);
-			showAvailableUsers(result);
-		});
-	}
+	//     json_rpc_async('onAddMembers', params, function(result){
+	// 		console.log('onAddMembers: ', result);
+	// 		showAvailableUsers(result);
+	// 	});
+	// }
 
-	function showAvailableUsers(data) {
-		console.log('showAvailableUsers: ', data);
+	function showAvailableUsers() {
+		modalCont = document.getElementById('available-users-cont');
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
 
-		ReactDOM.render(AvailableUsersComponent({
-			modalId: modalId,
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+
+		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
-		    data: data,
-		    onSubmit: addMembers
+		    onSubmit: addMembers,
+		    groupid: PbxObject.name ? PbxObject.oid : null
 		}), modalCont);
 
-		$('#'+modalId).modal();
 	}
 
 	function addMembers(array) {
@@ -66,7 +66,8 @@ function load_chatchannel(params) {
 		$('#available-users-modal').modal('hide');
 	}
 
-	function deleteMember(oid) {
+	function deleteMember(params) {
+		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 		setChatChannel(objParams, function(result) {
@@ -102,12 +103,12 @@ function load_chatchannel(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    getAvailableUsers: getAvailableUsers,
+		    onAddMembers: showAvailableUsers,
 		    setObject: setChatChannel,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
-		    getExtension: get_extension,
+		    getExtension: getExtension,
 		    deleteMember: deleteMember
 		};
 

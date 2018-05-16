@@ -35,10 +35,12 @@
     "gulp-zip": "^3.0.2"
   },
   "dependencies": {
+    "babel-core": "^6.26.3",
     "excellentexport": "^2.0.3",
     "flatpickr": "^2.3.7",
-    "moment-timezone": "^0.5.11",
-    "react": "^15.4.1",
-    "react-dom": "^15.4.1"
+    "gulp-babel": "^7.0.1",
+    "moment-timezone": "^0.5.16",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
   }
 }

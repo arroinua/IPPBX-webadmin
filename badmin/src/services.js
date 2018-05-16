@@ -19,25 +19,59 @@ function load_services() {
 
 	}
 
-	function saveOptions(newOptions) {
-		console.log('saveOptions: ', newOptions);
+	function saveOptions(serviceOptions) {
+		console.log('saveOptions: ', serviceOptions);
 		var params = {
-			services: Array.isArray(newOptions) ? newOptions : [newOptions]
+			method: "setSubscription",
+			params: serviceOptions
+			// services: Array.isArray(serviceOptions) ? serviceOptions : [serviceOptions]
 		};
 
-		json_rpc_async('setPbxOptions', params, function() {
-			services = services.map(function(item) {
-				if(item.id === newOptions.id) 
-					item = newOptions;
+		var url = '/services/'+serviceOptions.id+'/Subscription';
+		url += "?state="+(serviceOptions.state ? 1 : 0);
+		url += Object.keys(serviceOptions.props).reduce(function(str, key) {
+			str += "&"+key+"="+serviceOptions.props[key];
+			return str;
+		}, "");
 
-				return item;
-			});
+		console.log('saveOptions: ', serviceOptions, url);
 
-			console.log('saveOptions saved: ', services);
+		request('GET', url, null, null, function(err, response) {
+			if(err) return notify_about('error', err);
+			// if(response.result.status === 503) return notify_about('error', response.result.description);
+			if(!response.result) return;
 
-			render();
-			set_object_success();
+			if(response.result.location) {
+				window.location = response.result.location;
+			} else if(response.result.status === 200) {
+				set_object_success();
+				services = services.map(function(item) {
+					if(item.id === serviceOptions.id) 
+						item = serviceOptions;
+
+					return item;
+				});
+
+				console.log('saveOptions saved: ', err, response, services);
+
+				render();
+			}
+
 		});
+
+		// json_rpc_async('setPbxOptions', params, function() {
+		// 	services = services.map(function(item) {
+		// 		if(item.id === serviceOptions.id) 
+		// 			item = serviceOptions;
+
+		// 		return item;
+		// 	});
+
+		// 	console.log('saveOptions saved: ', services);
+
+		// 	render();
+		// 	set_object_success();
+		// });
 	}
 
 	function saveLdapOptions(newOptions) {

@@ -4,99 +4,57 @@ function load_billing() {
 	close_options();
 
 	var cont = document.getElementById('el-loaded-content');
-	var profile = {};
+	var profile = PbxObject.profile;
 	var sub = {};
-	var plans = [];
+	var dids = [];
 	var invoices = [];
 	var discounts = [];
-	var stripeToken;
-	var stripeHandler;
-
 	var methods = {
 		changePlan: changePlan,
-		updateLicenses: updateLicenses
+		updateLicenses: updateLicenses,
+		addCredits: addCredits
 	}
 
-	loadStripeJs();
-
-	billingRequest('getSubscription', null, function(err, response) {
+	BillingApi.getSubscription(function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		billingRequest('getProfile', null, function(err, response) {
-			console.log('getProfile: ', err, response);
+		BillingApi.getAssignedDids(function(err, response) {
 			if(err) return notify_about('error' , err.message);
-			profile = response.result;
+			dids = response.result;
 
-			getPlans(profile.currency, function(err, result) {
+			init();
+			show_content();
+
+			getDiscounts(function(err, response) {
 				if(err) return notify_about('error', err.message);
-				plans = result;
+				discounts = response;
 
-				init();
+				// init();
 
-				getDiscounts(function(err, response) {
+				getInvoices(function(err, response) {
 					if(err) return notify_about('error', err.message);
-					discounts = response;
-
-					// init();
-
-					getInvoices(function(err, response) {
-						if(err) return notify_about('error', err.message);
-						invoices = response.filter(function(item) {
-							return (item.paidAmount && parseFloat(item.paidAmount) > 0);
-						});
-
-						console.log('invoices: ', invoices);
-						init();
+					invoices = response.filter(function(item) {
+						return (item.paidAmount && parseFloat(item.paidAmount) > 0);
 					});
+
+					console.log('invoices: ', invoices);
+					init();
 				});
-
-					
-
-				// set_page();
-				show_content();
 			});
 
 		});
 
 	});
 
-	function loadStripeJs() {
-		if(window.StripeCheckout) return configureStripe();
-
-		$.ajaxSetup({ cache: true });
-		$.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
-	}
-
-	function configureStripe() {
-		stripeHandler = StripeCheckout.configure({
-			key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-			// key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-			image: '/badmin/images/Ringotel_emblem_new.png',
-			// email: profile.email,
-			// name: 'Ringotel',
-			// zipCode: true,
-			// locale: 'auto',
-			token: function(token) {
-				console.log('stripe token: ', token);
-				stripeToken = token;
-			}
-		});
-
-		// Close Checkout on page navigation:
-		window.addEventListener('popstate', function() {
-		  stripeHandler.close();
-		});
-	}
-
 	function init() {
 		ReactDOM.render(BillingComponent({
 		    options: PbxObject.options,
 		    profile: profile,
 		    sub: sub,
+		    dids: dids,
 		    frases: PbxObject.frases,
-		    plans: plans,
 		    invoices: invoices,
 		    discounts: discounts,
 		    addCard: addCard,
@@ -104,26 +62,17 @@ function load_billing() {
 		    renewSub: renewSub,
 		    onPlanSelect: onPlanSelect,
 		    updateLicenses: onUpdateLicenses,
+		    addCredits: addCredits,
 		    extend: deepExtend,
-		    addCoupon: addCoupon
+		    addCoupon: addCoupon,
+		    utils: {
+		    	convertBytes: convertBytes
+		    }
 		}), cont);
 	}
 
-	// function openStripeWindow(onCLoseHandler) {
-	// 	stripeHandler.open({
-	// 		email: profile.email,
-	// 		name: 'Ringotel',
-	// 		zipCode: true,
-	// 		allowRememberMe: false,
-	// 		panelLabel: "Add card",
-	// 		// currency: 'eur',
-	// 		// amount: plan.amount*100,
-	// 		closed: onCLoseHandler
-	// 	});
-	// }
-
 	function addCard(callback) {
-		stripeHandler.open({
+		PbxObject.stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
@@ -134,25 +83,25 @@ function load_billing() {
 			closed: function(result) {
 				console.log('addCard closed: ', result);
 				
-				if(!stripeToken) return callback(null);
+				if(!PbxObject.stripeToken) return callback(null);
 				var reqParams = {
 					service: 'stripe',
-					token: stripeToken.id,
-					card: stripeToken.card
+					token: PbxObject.stripeToken.id,
+					card: PbxObject.stripeToken.card
 				};
 
-				billingRequest('addCard', reqParams, function(err, response) {
-					console.log('saveCard response: ', err, stripeToken, response);
+				BillingApi.addCard(reqParams, function(err, response) {
+					console.log('saveCard response: ', err, PbxObject.stripeToken, response);
 					
 					if(err || response.error) {
 						notify_about('error', err.message || response.error.message);
 						callback(null);
 					} else {
-						callback(stripeToken);
+						callback(PbxObject.stripeToken);
 						set_object_success();
 					}
 
-					stripeToken = null;
+					PbxObject.stripeToken = null;
 
 				});
 			}
@@ -160,7 +109,7 @@ function load_billing() {
 	}
 
 	function editCard(callback) {
-		stripeHandler.open({
+		PbxObject.stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
@@ -172,25 +121,25 @@ function load_billing() {
 			closed: function(result) {
 				console.log('editCard closed: ', result);
 
-				if(!stripeToken) return callback(null);;
+				if(!PbxObject.stripeToken) return callback(null);;
 				var reqParams = {
 					service: 'stripe',
-					token: stripeToken.id,
-					card: stripeToken.card
+					token: PbxObject.stripeToken.id,
+					card: PbxObject.stripeToken.card
 				};
 
-				billingRequest('updateCard', reqParams, function(err, response) {
-					console.log('updateCard response: ', err, stripeToken, response);				
+				BillingApi.updateCard(reqParams, function(err, response) {
+					console.log('updateCard response: ', err, PbxObject.stripeToken, response);				
 					
 					if(err || response.error) {
 						notify_about('error', err.message || response.error.message);
 						callback(null);
 					} else {
-						callback(stripeToken);
+						callback(PbxObject.stripeToken);
 						set_object_success();
 					}
 
-					stripeToken = null;
+					PbxObject.stripeToken = null;
 				});
 
 			}
@@ -201,7 +150,7 @@ function load_billing() {
 
 		show_loading_panel();
 
-		billingRequest('renewSubscription', { subId: sub._id }, function(err, response) {
+		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
 			console.log('renewSubscription response: ', err, response);
 
 			show_content();
@@ -217,7 +166,7 @@ function load_billing() {
 	}
 
 	function updateBalance(params, callbackFn) {
-		stripeHandler.open({
+		PbxObject.stripeHandler.open({
 			email: profile.email,
 			name: 'Ringotel',
 			zipCode: true,
@@ -227,18 +176,18 @@ function load_billing() {
 			currency: params.payment.currency,
 			amount: params.payment.chargeAmount*100,
 			closed: function(result) {
-				console.log('updateBalance closed: ', result, stripeToken);
+				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
 
-				if(!stripeToken) return;
+				if(!PbxObject.stripeToken) return;
 
 				var reqParams = {
 					currency: params.payment.currency,
 					amount: params.payment.chargeAmount,
 					description: 'Update balance',
-					token: stripeToken.id
+					token: PbxObject.stripeToken.id
 				};
 
-				billingRequest('updateBalance', reqParams, function(err, response) {
+				BillingApi.updateBalance(reqParams, function(err, response) {
 
 					console.log('updateBalance: ', err, response);
 
@@ -249,7 +198,7 @@ function load_billing() {
 						if(methods[callbackFn])
 							methods[callbackFn](params);
 
-						stripeToken = null;		
+						PbxObject.stripeToken = null;		
 
 					}	
 
@@ -260,7 +209,7 @@ function load_billing() {
 	}
 
 	function addCoupon(string) {
-		billingRequest('addCoupon', { coupon: string }, function(err, response) {
+		BillingApi.addCoupon({ coupon: string }, function(err, response) {
 			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
 			discounts.push(response);
@@ -288,7 +237,7 @@ function load_billing() {
 	function changePlan(params, callback) {
 		show_loading_panel();
 
-		billingRequest('changePlan', {
+		BillingApi.changePlan({
 			subId: sub._id,
 			planId: params.plan.planId
 		}, function(err, response) {
@@ -328,7 +277,7 @@ function load_billing() {
 	function updateLicenses(params) {
 		show_loading_panel();
 
-		billingRequest('updateSubscription', {
+		BillingApi.updateSubscription({
 			subId: sub._id,
 			addOns: params.addOns,
 			quantity: params.quantity
@@ -351,16 +300,33 @@ function load_billing() {
 		});
 	}
 
-	function getPlans(currency, callback) {
-		billingRequest('getPlans', { currency: currency }, function(err, response) {
-			console.log('getPlans response: ', err, currency, response);
-			if(err) return callback(err);
-			if(callback) callback(null, response.result || [])
+	function addCredits(params) {
+		showModal('confirm_add_credits_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
+			console.log('confirm_add_credits_modal submit:', result);
+
+			$(modal).modal('toggle');
+		
+
+			show_loading_panel();
+
+			BillingApi.addCredits({ amount: params.chargeAmount }, function(err, response) {
+				remove_loading_panel();
+				
+				if(err) {
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'addCredits');
+					else notify_about('error', err.message);
+					return;
+				}
+
+				set_object_success();
+				init();
+
+			});
 		});
 	}
 
 	function getInvoices(callback) {
-		billingRequest('getInvoices', null, function(err, response) {
+		BillingApi.getInvoices(function(err, response) {
 			console.log('getInvoices response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
@@ -368,7 +334,7 @@ function load_billing() {
 	}
 
 	function getDiscounts(callback) {
-		billingRequest('getDiscounts', null, function(err, response) {
+		BillingApi.getDiscounts(function(err, response) {
 			console.log('getDiscounts response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])

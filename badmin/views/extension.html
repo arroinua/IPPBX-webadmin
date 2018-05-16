@@ -1,9 +1,9 @@
 <div class="modal modal-custom fade" id="el-extension" tabindex="-1" role="dialog" aria-labelledby="Extension settings" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="border-bottom: none">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="el-extension-num">{{frases.EXTENSION}} {{data.number}} <span class="user-state-ind"></span></h4>
+                <h4 class="modal-title" id="el-extension-num">{{data.name}} | {{data.number}} <span class="user-state-ind"></span></h4>
             </div>
             <ul id="ext-tabs" class="nav nav-tabs nav-justified custom-nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#ext-general" role="tab" data-toggle="tab">{{frases.GENERAL}}</a></li>
@@ -16,8 +16,8 @@
                         <div class="row">
                             <div class="col-xs-12">
                                 <div class="col-sm-4 center">
-                                    <div class="avatar-cont img-circle">
-                                        <a href="#" onclick="loadAvatar()"><img src="images/avatar.svg" alt="avatar" class="img-responsive" id="user-avatar"></a>
+                                    <div class="avatar-cont">
+                                        <a href="#" onclick="loadAvatar()"><img src="images/avatar.svg" alt="avatar" id="user-avatar"></a>
                                     </div>
                                     <!-- <a href="#" onclick="loadAvatar()">{{frases.ADD_PHOTO}}</a> -->
                                     <input type="file" class="hidden" id="upload-avatar">
@@ -33,19 +33,17 @@
                                             <input type="text" class="form-control" id="extname" placeholder="{{frases.NAME}}" value="{{data.name}}">
                                         <!-- </div> -->
                                     </div>
-                                    <div class="form-group">
+                                    <!-- <div class="form-group">
                                         <label for="extdisplay">{{frases.DISPLAY}}</label>
-                                        <!-- <div class="col-xs-12"> -->
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" id="extdisplay" placeholder="{{frases.DISPLAY}}" value="{{data.display}}">
-                                                <span class="input-group-btn">
-                                                    <button type="button" class="btn btn-default" onclick="copyFromField(this, 'extname')">
-                                                        <i class="fa fa-exchange" data-toggle="tooltip" title="{{frases.COPY}}"></i>
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        <!-- </div> -->
-                                    </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="extdisplay" placeholder="{{frases.DISPLAY}}" value="{{data.display}}">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" onclick="copyFromField(this, 'extname')">
+                                                    <i class="fa fa-exchange" data-toggle="tooltip" title="{{frases.COPY}}"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div> -->
                                     <div class="form-group" id="extgroup-cont">
                                         <label>
                                             {{frases.GROUP}}
@@ -84,7 +82,7 @@
                             </legend>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">
-                                    {{frases.USER_ID}}
+                                    {{frases.USERNAME}}
                                     <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{frases.EXT_SETTS__LOGIN}}"></a>
                                 </label>
                                 <div class="col-sm-8">

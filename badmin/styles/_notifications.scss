@@ -1,7 +1,7 @@
 .el-notifier{
     position: fixed;
     z-index: 1100;
-    top: 0;
+    top: 15px;
     width: 400px;
     left: 50%;
     margin-left: -200px; 
@@ -10,17 +10,17 @@
     line-height: 2.5;
     -webkit-box-shadow: 0 0 5px $primary-color-l1;
     box-shadow:         0 0 5px $primary-color-l1;
-    border: 1px solid #333;
-    border-top: none;
+    // border: 1px solid #333;
+    border: none;
+    border-radius: $global-radius;
     color: #333;
     animation: slideDown 7s;
     -webkit-animation: slideDown 7s;
 
     @media only screen and (max-width: $handheld) {
         min-height: 50px;
-        width: 100%;
-        left: 0;
-        margin: 0;
+        width: 300px;
+        margin-left: -150px;
     }
 }
 

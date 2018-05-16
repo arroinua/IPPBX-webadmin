@@ -1,47 +1,126 @@
 ﻿{
 	"PBXADMIN" : "Administrator",
+	"OR": "or",
+	"AND": "and",
 	"GET_STARTED": {
-		"GET_STARTED": "Get started",
+		"TITLE": "Get started",
 		"WELCOME_MSG": "Welcome to the administrative panel",
-		"TOUR_OFFER": "Would you like to have a short tour of how to get started?",
-		"START_TOUR": "Start tour",
-		"DISMISS_TOUR": "No, dismiss",
 		"STEPS": {
-			"A": {
-				"TITLE": "Add extension",
-				"BODY": "Add extensions for company employees",
-				"MODAL": {
-					"OPTION_1": {
-						"TITLE": "Add user group",
-						"DESC": "Users are extensions that can be registered with Ringotel messaging apps"
-					},
-					"OPTION_2": {
-						"TITLE": "Add equipment group",
-						"DESC": "Equipment are extensions that can be registered with third-party SIP softphones, IP phones, etc."
-					}
+			"NEXT_BTN": "Next",
+			"PREV_BTN": "Previous",
+			"DONE_BTN": "Done",
+			"CLOSE_BTN": "Close",
+			"OBJECT_NAME": {
+				"1": {
+					"TITLE": "Enter the name",
+					"DESC": ""
+				},
+				"2": {
+					"TITLE": "Save changes",
+					"DESC": "Create channel by clicking Save button."
 				}
 			},
-			"B": {
-				"TITLE": "Create call group",
-				"BODY": "Call groups define how incomming calls would be handled and by whom",
-				"MODAL": {
-					"OPTION_1": {
-						"TITLE": "Create hunting group",
-						"DESC": "Within a hunting group calls would be allocated to the available extensions, either circular, or simultaneously"
-					},
-					"OPTION_2": {
-						"TITLE": "Create hotline",
-						"DESC": "Define how incoming calls would be serverd and allocated by setting up queue settings, routing methods, greeting prompt, etc."
-					}
+			"ALLOCATE_TO": {
+				"1": {
+					"TITLE": "Allocate to user or group",
+					"DESC": "Select user or group to serve requests from the channel"
+				},
+				"2": {
+					"TITLE": "Or create a new service group",
+					"DESC": "Create new service group and allocate users to it."
 				}
-			},
-			"C": {
-				"TITLE": "Create Auto-attendant",
-				"BODY": "Greet your callers and route them to the appropriate department, extension, phone number or voicemail"
-			},
-			"D": {
-				"TITLE": "Create trunk",
-				"BODY": "Connect SIP trunk to make and recieve calls from the external numbers"
+			} 
+		},
+		"CREATE_USERS": {
+			"TITLE": "Lets get started",
+			"DESC": "You are logged in to Ringotel admin panel. To help you get your new communication system ready complete a few simple steps. Your user have already been created, you can find it in the Admin group. Now lets create users for your team.",
+			"START_TOUR": "Create user group",
+			"SKIP_TOUR": "Skip for now",
+			"STEPS": {
+				"1": {
+					"TITLE": "Create new user",
+					"DESC": "Click the button to open a new user form"
+				},
+				"2": {
+					"TITLE": "Great, user has been created!",
+					"DESC": "The notification was sent to the specified email address with further instructions. Now you can create more users or continue to Get Started guide."
+				},
+				"3": {
+					"TITLE": "Continue setup",
+					"DESC": "Click here for more guides."
+				}
+			}
+		},
+		"DOWNLOAD_APPS": {
+			"TITLE": "Download Ringotel messaging apps",
+			"DESC": "The whole power of Ringotel is in its messaging apps. Start talking with your customers through different channels, collaborate with your team, make audio and video calls and conferences and much more. Download app for your device:",
+			"START_TOUR": "Go to download page",
+			"SKIP_TOUR": "I did this step"
+		},
+		"CONNECT_CHANNELS": {
+			"TITLE": "Connect channels",
+			"DESC": "",
+			"CHANNELS": {
+				"MESSENGER": {
+					"TITLE": "Connect Facebook business page",
+					"DESC": "You will receive direct messages from Facebook Messenger directly into Ringotel's app."
+				},
+				"DID": {
+					"TITLE": "Choose a business phone number",
+					"DESC": "Ringotel provides local numbers from more than 40 countries."
+				},
+				"EMAIL": {
+					"TITLE": "Connect company email",
+					"DESC": "Within Ringotel apps you can directly receive and send emails to your colleagues and customers."
+				},
+				"VIBER": {
+					"TITLE": "Connect Viber public account",
+					"DESC": "Connect your Viber Public Account to Ringotel, so Viber users will be able to find you in Viber directory and chat with you in their favorite app."
+				},
+				"TELEGRAM": {
+					"TITLE": "Connect Telegram bot",
+					"DESC": "Connect your Telegram bot to Ringotel, so Telegram users will be able to chat with you in their favourite app."
+				}
+			}
+		},
+		"CONNECT_MESSENGER": {
+			"STEPS": {
+				"1": {
+					"TITLE": "Login with Facebook",
+					"DESC": "Connect Facebook Business Page to Ringotel"
+				},
+				"2": {
+					"TITLE": "Select Page",
+					"DESC": "Facebook Business Page you would like to connect"
+				}
+			}
+		},
+		"CONNECT_EMAIL": {
+			"STEPS": {
+				"1": {
+					"TITLE": "Select your email provider",
+					"DESC": "Some provider may not allow to connect to accounts from third party apps. You need to enable that feature explicitly in settings of your provider. You can find more info <a href=\"#\">here</a>."
+				},
+				"2": {
+					"TITLE": "Complete your account settings",
+					"DESC": "You can ask your account provider or system administrator for more details on how to complete this step."
+				}
+			}
+		},
+		"CONNECT_TELEGRAM": {
+			"STEPS": {
+				"1": {
+					"TITLE": "Insert Bot Token",
+					"DESC": "The token for your bot was sent to you after the bot was created. <a href=\"#\">Learn more</a> on how to create Telegram bot."
+				}
+			}
+		},
+		"CONNECT_VIBER": {
+			"STEPS": {
+				"1": {
+					"TITLE": "Insert your Viber Public Page App Key",
+					"DESC": "You can find the App Key in the Public Page settings. <a href=\"#\">Learn more</a> on how to create Viber Public Page."
+				}
 			}
 		}
 	},
@@ -50,6 +129,7 @@
 	"EXTENSION" : "Extension",
 	"GROUPSETTS" : "Group settings",
 	"GROUPSNAME" : "Group name",
+	"GROUPSNAME_SUBMIT_LABEL" : "Enter the name",
 	"GROUPS" : {
 		"GROUPS" : "Groups",
 		"EQUIPMENT" : "Equipment",
@@ -103,6 +183,26 @@
 		"CALLHOLD" : "Call hold",
 		"CALLTRANSFER" : "Call transfer",
 		"CALLPARK" : "Call park"
+	},
+	"NUMBER_TRANSFORMS": {
+		"NUMBER_TRANSFORMS": "Number transforms",
+		"NUMBER": "Number",
+		"PREFIX": "Prefix",
+		"STRIP": "Strip",
+		"ADD_RULE": "Add rule",
+		"INBOUND_CALLS": "Inbound calls",
+		"OUTBOUND_CALLS": "Outbound calls",
+		"INBOUNDA": "Calling number",
+		"INBOUNDB": "Called number",
+		"OUTBOUNDA": "Calling number",
+		"OUTBOUNDB": "Called number",
+		"HELPERS": {
+			"NUMBER": "Number - source number or prefix. The prefix is indicated by a dot at the end of the number. To apply rule to any number, set '.' as a value.",
+			"STRIP": "Strip - if checked, the Prefix will be cut off from the Number.",
+			"PREFIX": "Prefix - number or prefix that will be cut off if Strip is checked and added to the front of the Number if not.",
+			"DOLLAR": "$ (dollar sign) - can be used to denote one single character",
+			"LEARN_MORE_LINK": "Learn more"
+		}
 	},
 	"STATES" : {
 		"0":"Not registered",
@@ -170,7 +270,7 @@
 		"FUNCSETTINGS" : "PBX Features",
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
-		"USAGE_SETTINGS" : "License usage",
+		"USAGE_SETTINGS" : "Storage usage",
 		"BILLING": "Billing",
 		"REC_MODE" : {
 			"REC_MODE" : "Recording mode",
@@ -224,6 +324,8 @@
 	"ABOUT" : "About",
 	"USER_INFO" : "User Info",
 	"ADD_PHOTO" : "Add photo",
+	"USER" : "User",
+	"USERS" : "Users",
 	"NAME" : "Name",
 	"GROUP" : "Group",
 	"LOGIN" : "Login",
@@ -252,6 +354,7 @@
 	"ADD_USERS" : "Add users",
 	"IMPORT_USER" : "Import user",
 	"IMPORT_USERS" : "Import users",
+	"IMPORT_USERS_FROM" : "Import from",
 	"CREATE_USER" : "Create user",
 	"CREATE_USERS" : "Create users",
 	"CREATE_EXTENSION" : "Create extension",
@@ -268,6 +371,7 @@
     "SUBMIT" : "Submit",
     "EDIT": "Edit",
 	"CANCEL" : "Cancel",
+	"CLOSE" : "CLOSE",
 	"CLEAR" : "Clear",
 	"DELETE" : "Delete",
 	"OTHER": "Other",
@@ -427,6 +531,28 @@
 		"IMPORT_CERTIFICATE" : "Import Certificate",
 		"PRIVAT_KEY" : "Privat Key"
 	},
+	"CUSTOMERS": {
+		"CUSTOMER": "Customer",
+		"FIELDS": {
+			"name": "Name",
+			"created": "Created at",
+			"createdby": "Created by",
+			"consent": "Consent",
+			"email": "Email",
+			"phone": "Phone",
+			"company": "Company",
+			"organization": "Organization",
+			"about": "About",
+			"tags": "Tags"
+		},
+		"DETAILS_BTN": "Details",
+		"EXPORT_BTN": "Export customer data",
+		"DELETE_BTN": "Delete customer data",
+		"ON_DELETE_WARNING": "You are going to completely delete customer data. This action is irreversible. Do you want to proceed?",
+		"ON_DELETED_MSG": "Customer has been deleted",
+		"HAS_CONSENT_MSG": "Yes",
+		"NO_CONSENT_MSG": "No"
+	},
 	"TIMERSNAME": "Timer name",
 	"PICKADATE": "Select date and time",
     "TIME": "Time",
@@ -488,13 +614,14 @@
         "hunting": "Call Hunting Groups",
         "channel": "Channels",
         "channels": "Channel Monitoring",
-        "chatchannel": "Chat channels",
-        "chattrunk": "Chat trunks",
+        "chatchannel": "Service groups",
+        "chattrunk": "Channels",
         "calls": "Dashboard",
         "dashboard": "Dashboard",
         "records": "Call Records",
         "rec_settings": "Recording settings",
-        "statistics": "Statistics",
+        "statistics": "Calls statistics",
+        "channel_statistics": "Channel statistics",
         "reports": "Reports",
         "extensions": "Extensions",
         "attendant": "Auto-attendant",
@@ -502,7 +629,8 @@
         "storages": "Storages",
         "billing": "Billing",
         "usage": "License usage",
-        "channel_records": "Channel Records"
+        "channel_records": "Channel Records",
+        "customers": "Customers"
     },
     "CODES": {
     	"-1": "error",
@@ -578,6 +706,7 @@
     "DBOWNER" : "Database owner",
     "OWNER" : "Owner",
     "STATISTICS" : {
+    	"STATISTICS": "Statistics",
     	"TYPES" : {
     		"PERIOD" : "Period",
     		"INTERVAL" : "Interval"
@@ -630,6 +759,52 @@
     	"ADD_RULE": "Add rule",
     	"PASSANUMBER": "Pass Caller ID in the From header"
     },
+    "USERS_GROUP": {
+    	"DEFAULT_NAME": "Users group",
+    	"EXT_FEATURES_SETTS" : "Extension features",
+    	"OUTCALLS_SETTS" : "Outgoing calls",
+    	"EXTENSION": "Extension",
+    	"NAME": "Full name",
+    	"EMAIL": "Email",
+    	"LOGIN": "Login",
+    	"PASSWORD": "Password",
+    	"MAXSTORAGE": "Storage size",
+    	"NEW_USER_MODAL_TITLE": "New user",
+    	"FUNCTIONS": {
+    		"FUNCTIONS" : "Functions",
+    		"DND" : "Do not disturb",
+    		"DNDOVER" : "Override of \"Do not disturb\" mode",
+    		"CLIR" : "Hide calling number",
+    		"CALLWAITING" : "Call waiting",
+    		"PICKUP" : "Call Pickup",
+    		"PICKUPDENY" : "Deny call pickup",
+    		"CALLMONITOR" : "Call monitor",
+    		"MONITORDENY" : "Deny call monitor",
+    		"BUSYOVER" : "'Busy' override",
+    		"BUSYOVERDENY" : "Deny busy override",
+    		"VOICEMAIL" : "Voicemail",
+    		"RECORDING" : "Call recording",
+    		"RECORD_CALLS" : "Record calls",
+    		"ALLOW_RECORDING" : "Allow call recording",
+    		"HIDE_REC_IND" : "Hide records indicator",
+    		"LOCK" : "Lock",
+    		"CALLHOLD" : "Call hold",
+    		"CALLTRANSFER" : "Call transfer",
+    		"CALLPARK" : "Call park",
+    		"FORWARDING" : "Forwarding",
+    		"OUTBARGING" : "Deny calls to outer numbers",
+    		"COSTBARGING" : "Deny paid calls"
+    	},
+    	"PLACEHOLDERS": {
+    		"NAME": "User name",
+    		"EMAIL": "User email",
+    		"LOGIN": "User login",
+    		"PASSWORD": "",
+    		"REVEAL_PWD" : "Reveal password",
+    		"HIDE_PWD" : "Hide password",
+    		"GENERATE_PWD" : "Generate password"
+    	}
+    },
     "HUNTING_GROUP": {
     	"DEFAULT_NAME": "Hunting group"
     },
@@ -639,21 +814,30 @@
     	"QUEUE_SETTINGS_TAB": "Queue"
     },
     "CHAT_CHANNEL": {
-    	"DEFAULT_NAME": "Chat channel",
-    	"NO_MEMBERS": "No members in the channel",
+    	"DEFAULT_NAME": "Service group",
+    	"NO_MEMBERS": "No members in the group",
     	"ADD_MEMBERS": "Add members",
+    	"ADD_SELECTED": "Add selected",
     	"MEMBERS": "Members",
     	"AVAILABLE_USERS": "Available users",
     	"SELECT_ALL": "Select all"
     },
     "CHAT_TRUNK": {
+		"OBJ_NAME_PLACEHOLDER" : "Channel name",
     	"SELECT_SERVICE": "Select service",
     	"NO_CHANNELS_MSG_1": "You need to",
     	"NO_CHANNELS_MSG_2": "before connecting a Chat trnuk",
-    	"CREATE_CHANNEL": "create a Chat channel",
-    	"SELECT_CHANNEL": "Select Chat Channel",
+    	"CREATE_CHANNEL": "create new Service group",
+    	"SELECT_CHANNEL": "Select Service group",
+    	"SELECT_SERVICE_GROUP": "Allocate to",
     	"SESSION_TIMEOUT": "Session timeout (min)",
     	"REPLY_TIMEOUT": "Reply timeout (min)",
+    	"GROUP_IN_REQUEST": "Select service group in request",
+    	"CREATE_SERVICE_GROUP": "Create Service group",
+    	"CREATE_HUNTING_GROUP": "Create Hunting group",
+    	"CREATE_ICD_GROUP": "Create Hotline",
+    	"NO_SERVICE_GROUP": "You don't have service groups yet.",
+    	"SERVICE_GROUP_NOT_SELECTED": "Service group is not selected",
     	"FACEBOOK": {
     		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
@@ -661,12 +845,66 @@
     		"SELECT_PAGE": "Select Facebook Page"
     	},
     	"EMAIL": {
+    		"SELECT_ACCOUNT_PROVIDER": " Mail account provider",
+    		"NOT_SELECTED": "Not selected",
+    		"OTHER_PROVIDER": "Other provider",
     		"PROTOCOL": "Protocol",
     		"USERNAME": "User name",
     		"PASSWORD": "Password",
     		"HOSTNAME": "Hostname",
     		"PORT": "Port",
     		"SSL": "Use TLS/SSL"
+    	},
+    	"DID": {
+    		"LOCATION": "Location",
+    		"NUMBER": "Number",
+    		"STATUS": "Status",
+    		"ADD_NUMBER_BTN": "Add new number",
+    		"BUY_NUMBER_BTN": "Buy number",
+    		"SELECT_COUNTRY": "Select country",
+    		"SELECT_LOCATION": "Select location",
+    		"DELETE_SIP_CHANNEL_MSG": "IMPORTANT: By deleting the channel the number assigned to it will be also deleted. You will no longer receive call via this channel.",
+    		"DELETE_OTHER_CHANNEL_MSG": "IMPORTANT: By deleting the channel you will no longer receive requests via this channel.",
+    		"NOTIFY_LOCATION_NOT_SELECTED": "Please select number location",
+    		"NOTIFY_NO_AVAILABLE_NUMBERS": "No available number in the selected location",
+    		"LIMIT_REACHED": {
+    			"MAIN_MSG": "You can have only one number during your trial period.",
+    			"CHANGE_PLAN_LINK": "Change plan",
+    			"CHANGE_PLAN_MSG": "to add more numbers"
+    		},
+    		"CHECK_COUNTRY_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this country.",
+    		"CHECK_LOCATION_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this location.",
+    		"RESTRICTIONS_MSG1": "Current location has the following registration requirements",
+    		"RESTRICTIONS_MSG2": "Information should be sent to support@ringotel.co within 10 days.",
+    		"RESTRICTIONS_MSG3": "DID number will not be activated until full registration details are provided and approved.",
+    		"RESTRICTIONS_MSG4": "Please note that your order will be cancelled in case you fail to provide the details for registration.",
+    		"RESTRICTIONS": {
+    			"1": "Name, business name and contact phone numbers.",
+    			"2": "Company registration certificate",
+    			"3": "Address worldwide.",
+    			"4": "Local address in the same country as DID ordered.",
+    			"5": "Local address in the same area as DID ordered.",
+    			"6": "Local address in the same city as DID ordered.",
+    			"7": "Proof of address form (copy of utility bill no older than 6 months).",
+    			"8": "Specific registration form needs to be filled in and signed by the end user. You will be provided with the required form during registration process."
+    		}
+    	}
+    },
+    "CHANNEL_STATISTICS": {
+    	"INDEXES": {
+    		"NEW_CUSTOMERS": "New customers",
+    		"NEW_REQUESTS": "New requests",
+    		"ASSIGNED_REQUESTS": "Assigned requests",
+    		"TOTAL_REPLIES": "Total replies",
+    		"TIME_TO_FIRST_REPLY": "Time to first reply",
+    		"RESOLUTION_TIME": "Resolution time",
+    		"TIME_TO_REPLY": "Time to reply",
+    		"TIME_TO_ASSIGN": "Time to assign"
+    	},
+    	"SHOW_BY": {
+    		"CHAT_GROUP": "By chat group",
+    		"CHANNEL_NAME": "By channel name",
+    		"CHANNEL_TYPE": "By channel type"
     	}
     },
     "ATTENDANT" : {
@@ -756,6 +994,13 @@
     	"PAYMENT_METHOD_WARNING_P1": "To change plan and add licenses please",
     	"PAYMENT_METHOD_WARNING_P2": "to your account",
     	"ADD_CREDIT_CARD": "add credit card",
+    	"ADD_CALL_CREDITS_BTN": "Add",
+    	"BUY_CALL_CREDITS_BTN": "Buy credits",
+    	"UPGRADE_PLAN_ALERT_MSG": "upgrade your subscription plan",
+    	"RENEW_SUB": "renew subscription",
+    	"UPDATE_PAYMENT_METHOD": "update your payment method",
+    	"ADDONS": "Add-ons",
+    	"CALL_CREDITS": "Calling credits",
     	"AVAILABLE_LICENSES": {
     		"AVAILABLE_LICENSES": "Available licenses",
     		"USERS": "Users",
@@ -787,9 +1032,21 @@
     		"HEADER": "Billing update",
     		"NEW_MONTHLY_RATE_MSG": "Your new monthly rate would be",
     		"NEW_ANNUALLY_RATE_MSG": "Your new annual rate would be",
+    		"NEW_SUB_AMOUNT": "Your new subscription amount would be",
     		"TODAY_CHARGE_MSG": "Today you will be charged",
+    		"ADD_NUMBER_NEW_AMOUNT": "This number will add the following amount to your subscription",
+    		"ADD_CALL_CREDITS": "Calling credits are used to make outgoing call to international numbers.",
+    		"PLUS_TAXES": "plus applicable taxes",
     		"CONFIRM_PAYMENT": "Pay now",
     		"CANCEL_PAYMENT": "Cancel"
+    	},
+    	"ALERTS": {
+    		"PAST_DUE": "We were not able to receive subscription payment. You may not use all available features on your subscription plan. Please, ensure that your payment method is valid and has sufficient funds. You can then",
+    		"TRIAL_EXPIRED": "Your trial period has been expired.",
+    		"CARD_EXPIRED_P1": "Your payment method has been expired. Please",
+    		"CARD_EXPIRED_P2": "to avoid service interruption",
+    		"CARD_WILL_EXPIRE_P1": "Your payment method will expire soon. Please",
+    		"CARD_WILL_EXPIRE_P2": "to avoid service interruption"
     	}
 
     },

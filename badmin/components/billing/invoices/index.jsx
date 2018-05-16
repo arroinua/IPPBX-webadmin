@@ -76,7 +76,7 @@ var InvoicesComponent = React.createClass({
 						)
 					}
 				</div>
-			</div>			
+			</div>
 		);
 	}
 });

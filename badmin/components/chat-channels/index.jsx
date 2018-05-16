@@ -4,7 +4,7 @@
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
 		onNameChange: React.PropTypes.func,
-		getAvailableUsers: React.PropTypes.func,
+		onAddMembers: React.PropTypes.func,
 		setObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
@@ -68,8 +68,8 @@
 		});
 	},
 
-	_getAvailableUsers: function() {
-		this.props.getAvailableUsers();
+	_onAddMembers: function() {
+		this.props.onAddMembers();
 	},
 
 	render: function() {
@@ -86,13 +86,13 @@
 			    <ObjectName 
 			    	name={params.name}
 			    	frases={frases} 
-			    	enabled={params.enabled || false}
+			    	enabled={params.enabled}
 			    	onStateChange={this._onStateChange}
 			    	onChange={this._onNameChange}
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
 			    />
-			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} getAvailableUsers={this._getAvailableUsers} deleteMember={this.props.deleteMember} />
+			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} onAddMembers={this._onAddMembers} deleteMember={this.props.deleteMember} />
 			</div>
 		);
 	}

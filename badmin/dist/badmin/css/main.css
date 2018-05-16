@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 .selectable-cont div ul li:hover {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
   color: #333;
 }
 .selectable-cont .glyphicon {
@@ -58,6 +58,7 @@ input[readonly].readonly-custom {
 
 table.table > tbody > tr > td {
   vertical-align: middle;
+  border-top: 1px solid #f3f8f9;
 }
 
 #security-settings-cont table button {
@@ -70,6 +71,10 @@ table.table > tbody > tr > td {
 
 #welcome-modal .modal-body {
   padding: 20px 100px;
+}
+
+#services-cont button {
+  margin-bottom: 5px;
 }
 
 /*
@@ -85,11 +90,23 @@ table.table > tbody > tr > td {
 }
 
 .modal-custom .modal-content {
-  border-radius: 0;
+  border-radius: 10px;
 }
 
 .modal-custom .modal-footer {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
   background-color: #f3f8f9;
+}
+
+/*
+    Forms custom styles
+*/
+/*
+    Buttons custom styles
+*/
+.btn {
+  border-radius: 10px;
 }
 
 /*
@@ -116,7 +133,7 @@ table.table > tbody > tr > td {
   padding: 0;
   min-width: 200px;
   max-width: 320px;
-  border: 1px solid #33C3F0;
+  border: 1px solid #54c3f0;
   border-radius: 4px;
 }
 
@@ -180,6 +197,15 @@ table.table > tbody > tr > td {
   display: none;
 }
 
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+  background-color: #54c3f0;
+  border-color: #54c3f0;
+  color: #fff;
+}
+
 .btn-link.btn-primary,
 .btn-link.btn-danger {
   background-color: none;
@@ -206,6 +232,15 @@ table.table > tbody > tr > td {
   padding: 20px 16px;
   font-size: 18px;
   line-height: 1.3333333;
+}
+
+.fb-button,
+.fb-button:hover,
+.fb-button:active,
+.fb-button:focus {
+  background-color: #4267b2;
+  border-radius: 4px;
+  border: none;
 }
 
 .custom-dropdown .dropdown-menu {
@@ -246,7 +281,8 @@ table.table > tbody > tr > td {
 }
 
 .nav-tabs.custom-nav-tabs > li > a {
-  border-radius: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .form-control.custom-input {
@@ -301,13 +337,6 @@ table.table > tbody > tr > td {
   transform: rotate(-45deg);
 }
 
-.object-name .input-group-addon {
-  border-radius: 0;
-  border: none;
-  background-color: #fff;
-  padding: 6px 10px 6px 0;
-}
-
 .rd-container {
   color: #333;
   z-index: 2000;
@@ -318,7 +347,7 @@ table.table > tbody > tr > td {
 }
 
 .rd-day-selected {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
 }
 
 .select2-container .select2-selection--single {
@@ -385,7 +414,7 @@ table.table > tbody > tr > td {
 .el-notifier {
   position: fixed;
   z-index: 1100;
-  top: 0;
+  top: 15px;
   width: 400px;
   left: 50%;
   margin-left: -200px;
@@ -393,8 +422,8 @@ table.table > tbody > tr > td {
   text-align: center;
   line-height: 2.5;
   box-shadow: 0 0 5px #f3f8f9;
-  border: 1px solid #333;
-  border-top: none;
+  border: none;
+  border-radius: 10px;
   color: #333;
   animation: slideDown 7s;
   -webkit-animation: slideDown 7s;
@@ -402,9 +431,8 @@ table.table > tbody > tr > td {
 @media only screen and (max-width: 767px) {
   .el-notifier {
     min-height: 50px;
-    width: 100%;
-    left: 0;
-    margin: 0;
+    width: 300px;
+    margin-left: -150px;
   }
 }
 
@@ -678,8 +706,8 @@ input.cmn-toggle-round:checked + label:before {
   margin-right: auto;
   background-color: #fff;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-  border-radius: 0;
-  border-bottom: #f3f8f9;
+  border-radius: 10px;
+  border: none;
 }
 .nav-bar a {
   font-size: 1.5em;
@@ -703,24 +731,31 @@ input.cmn-toggle-round:checked + label:before {
   background-color: #333;
   color: #eee;
 }
-.nav-bar-nav > a:hover {
-  background-color: transparent;
-}
 .nav-bar-nav > li {
   float: left;
 }
 .nav-bar-nav > li > a {
   padding: 10px 12px;
 }
+.nav-bar-nav > li > a:active,
+.nav-bar-nav > li > a:hover,
+.nav-bar-nav > li > a:focus {
+  background-color: transparent;
+}
+.nav-bar-nav > li:first-child:hover > a {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.nav-bar-nav > li:last-child:hover > a {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
 
 .nav-logo {
   position: relative;
   width: 100%;
   height: 50px;
-  margin: auto;
   overflow: hidden;
-  background-color: #33C3F0;
-  border-bottom: 1px solid #ececec;
 }
 .nav-logo a {
   position: absolute;
@@ -734,7 +769,6 @@ input.cmn-toggle-round:checked + label:before {
 }
 .nav-logo a.small-logo {
   opacity: 0;
-  text-align: center;
 }
 .nav-logo img {
   position: relative;
@@ -757,12 +791,13 @@ input.cmn-toggle-round:checked + label:before {
 }
 
 .pbx-options {
+  padding: 0 15px;
   color: #333;
   overflow-x: hidden;
-  border-left: 1px solid #ececec;
   transform: translateX(100%);
   -ms-transform: translateX(100%);
   -webkit-transform: translateX(100%);
+  background-color: transparent;
 }
 .pbx-options.pushed-left {
   -ms-transform: translateX(0px);
@@ -777,7 +812,7 @@ input.cmn-toggle-round:checked + label:before {
   color: #333;
 }
 .pbx-options .panel-body {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
 }
 .pbx-options .panel-header {
   border-top: 1px solid #eee;
@@ -791,6 +826,14 @@ input.cmn-toggle-round:checked + label:before {
 }
 .pbx-options a.el-save-options:hover {
   background-color: #449d44;
+}
+.pbx-options .tab-pane {
+  background-color: #fff;
+  margin-top: 15px;
+  border-radius: 10px;
+  border-right: 1px solid #ececec;
+  box-shadow: 1px 0 1px #f3f8f9;
+  overflow: hidden;
 }
 .pbx-options .tab-pane > form, .pbx-options .tab-pane h4 {
   padding: 0 15px;
@@ -828,12 +871,13 @@ input.cmn-toggle-round:checked + label:before {
 
 .page-content {
   position: relative;
-  margin-left: 60px;
-  padding-bottom: 40px;
-  background-color: #f3f8f9;
+  margin-left: 90px;
+  padding: 15px;
   overflow: auto;
   z-index: 200;
   -webkit-overflow-scrolling: touch;
+  background-color: #f3f8f9;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 1px;
   -webkit-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
 }
@@ -843,7 +887,7 @@ input.cmn-toggle-round:checked + label:before {
   transform: translateX(-320px);
 }
 .page-content.squeezed-right {
-  margin-left: 250px;
+  margin-left: 300px;
 }
 @media only screen and (max-width: 767px) {
   .page-content.squeezed-right {
@@ -862,18 +906,15 @@ input.cmn-toggle-round:checked + label:before {
 .page-sidebar {
   position: fixed;
   display: inline-block;
-  top: 0;
+  top: 15px;
   height: 100%;
-  background-color: #fff;
-  border-right: 1px solid #ececec;
-  box-shadow: 1px 0 1px #f3f8f9;
   -webkit-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
 }
 .page-sidebar.pbx-menu {
-  width: 250px;
+  width: 300px;
   left: 0;
 }
 @media only screen and (max-width: 767px) {
@@ -895,14 +936,16 @@ input.cmn-toggle-round:checked + label:before {
 
 .pbx-menu {
   overflow: auto;
+  padding: 0 15px;
 }
 .pbx-menu.squeezed-menu {
-  width: 60px;
+  width: 90px;
   z-index: 300;
   overflow: visible;
 }
 .pbx-menu.squeezed-menu .nav-logo {
   width: 60px;
+  border-radius: 10px;
   -webkit-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
 }
@@ -927,7 +970,7 @@ input.cmn-toggle-round:checked + label:before {
   display: none;
 }
 .pbx-menu.squeezed-menu > ul > li > a i:first-child {
-  font-size: 1.4em;
+  font-size: 1.2em;
 }
 .pbx-menu.squeezed-menu ul > li > a {
   padding: 15px;
@@ -935,7 +978,6 @@ input.cmn-toggle-round:checked + label:before {
 }
 .pbx-menu.squeezed-menu ul ul {
   width: 250px;
-  background-color: #eee;
   /*background-color: rgba(34,34,34,0.9);*/
 }
 @media only screen and (max-width: 767px) {
@@ -948,12 +990,44 @@ input.cmn-toggle-round:checked + label:before {
 .pbx-menu .nav-list {
   position: relative;
   width: 100%;
-  margin: 0;
   padding: 0;
+  margin-top: 15px;
 }
-.pbx-menu .nav-list ul {
-  display: none;
-  padding: 0;
+.pbx-menu .nav-list > li:first-child > a {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+.pbx-menu .nav-list > li:last-child > a {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.pbx-menu .nav-list > li.active {
+  border-bottom: none;
+}
+.pbx-menu .nav-list > li.active + li > a {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+.pbx-menu .nav-list > li.active > a {
+  color: #333;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.pbx-menu .nav-list > li.active > a i:last-child {
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.pbx-menu .nav-list > li.active > ul li.active::after {
+  content: "";
+  position: absolute;
+  right: -7.5px;
+  top: 50%;
+  margin-top: -7.5px;
+  width: 15px;
+  height: 15px;
+  background-color: #ffffff;
+  border-radius: 50%;
 }
 .pbx-menu .nav-list li {
   position: relative;
@@ -961,6 +1035,9 @@ input.cmn-toggle-round:checked + label:before {
   line-height: 20px;
   width: 100%;
   border-bottom: 1px solid #f3f8f9;
+}
+.pbx-menu .nav-list li:last-child {
+  border-bottom: none;
 }
 .pbx-menu .nav-list li.nav-divider {
   border-bottom: none;
@@ -973,16 +1050,23 @@ input.cmn-toggle-round:checked + label:before {
 }
 .pbx-menu .nav-list li.nav-divider > ul > li > a {
   padding: 15px 7px;
+  background-color: #fff;
 }
 .pbx-menu .nav-list li.nav-divider > ul ul li a {
   padding: 12px 15px 12px 20px;
 }
-.pbx-menu .nav-list li:hover {
-  background-color: #eee;
+.pbx-menu .nav-list li ul {
+  display: none;
+  padding: 10px;
+  overflow: hidden;
 }
-.pbx-menu .nav-list li:hover a,
-.pbx-menu .nav-list li:hover a:first-of-type {
-  color: #333;
+.pbx-menu .nav-list li ul li:last-child a {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.pbx-menu .nav-list li ul li:first-child a {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 .pbx-menu .nav-list li a:first-of-type {
   position: relative;
@@ -994,6 +1078,7 @@ input.cmn-toggle-round:checked + label:before {
 }
 .pbx-menu .nav-list li a {
   padding: 15px;
+  background-color: #fff;
 }
 .pbx-menu .nav-list ul li a {
   padding: 12px 15px 12px 20px;
@@ -1002,24 +1087,10 @@ input.cmn-toggle-round:checked + label:before {
   padding: 12px 15px 12px 30px;
 }
 .pbx-menu .nav-list li a i {
+  text-align: center;
+}
+.pbx-menu .nav-list li a i {
   color: #333;
-}
-.pbx-menu .nav-list li.active a {
-  color: #333;
-}
-.pbx-menu .nav-list li.active a i:last-child {
-  -webkit-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(90deg);
-}
-.pbx-menu .nav-list li.active ul {
-  background-color: #eee;
-}
-.pbx-menu .nav-list li.active ul li:last-child {
-  border-bottom: 1px solid #dedede;
-}
-.pbx-menu .nav-list li.active ul li {
-  border-top: 1px solid #dedede;
 }
 .pbx-menu .nav-list li.menu-name {
   display: none;
@@ -1040,9 +1111,8 @@ input.cmn-toggle-round:checked + label:before {
 }
 
 .panel {
-  border-radius: 0;
+  border-radius: 10px;
   border: 1px solid #eee;
-  background-color: #fff;
   margin-bottom: 20px;
 }
 .panel.minimized .panel-body {
@@ -1070,7 +1140,6 @@ input.cmn-toggle-round:checked + label:before {
   margin: 0;
   padding: 15px;
   text-transform: uppercase;
-  background-color: #fff;
   border-bottom: 1px solid #eee;
   cursor: pointer;
 }
@@ -1081,8 +1150,6 @@ input.cmn-toggle-round:checked + label:before {
 .panel-body {
   position: relative;
   padding: 15px;
-  background-color: #fff;
-  overflow: hidden;
 }
 @media only screen and (max-width: 767px) {
   .panel-body {
@@ -1106,11 +1173,13 @@ input.cmn-toggle-round:checked + label:before {
   padding: 1px;
   text-align: center;
   border-top: 1px solid #eee;
-  background-color: #33C3F0;
+  background-color: #54c3f0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .pl-txt h5 {
-  color: #333;
+  color: #fff;
 }
 
 .att-container {
@@ -1226,7 +1295,7 @@ input.cmn-toggle-round:checked + label:before {
 }
 
 .tree li.active > a {
-  background-color: #33C3F0;
+  background-color: #54c3f0;
   color: #333;
 }
 
@@ -1251,61 +1320,58 @@ input.cmn-toggle-round:checked + label:before {
   display: none;
 }
 
-.gs-item {
-  padding: 10px;
-  cursor: pointer;
-}
-.gs-item:hover {
-  background-color: #eee;
+#gs-modal-cont .modal-body {
+  background: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
 }
 
-.gs-items-cont {
-  position: relative;
+.gs-step .gs-step-head img {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  max-height: 300px;
+}
+.gs-step .gs-step-header {
+  color: #fff;
+  text-align: center;
+}
+.gs-step .gs-step-footer {
+  padding: 30px 0;
+  text-align: center;
+}
+.gs-step .gs-links-cont {
   width: 100%;
-  overflow: auto;
 }
-.gs-items-cont .gs-items {
-  width: 1290px;
-  padding: 0;
-}
-.gs-items-cont .gs-items .gs-item {
+.gs-step .gs-links-cont .gs-link-item {
   display: inline-block;
-  position: relative;
-  float: left;
-  width: 300px;
-  padding-right: 20px;
   vertical-align: top;
-  margin-right: 20px;
-  min-height: 140px;
+  width: 50%;
+  padding: 10px;
 }
-.gs-items-cont .gs-items .gs-item:after {
-  content: "";
-  position: absolute;
-  right: 7px;
-  top: 15px;
-  width: 15px;
-  height: 15px;
-  border-top: 1px solid #777;
-  border-right: 1px solid #777;
-  -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-          transform: rotate(45deg);
+@media only screen and (max-width: 767px) {
+  .gs-step .gs-links-cont .gs-link-item {
+    width: 100%;
+  }
 }
-.gs-items-cont .gs-items .gs-item:last-child {
-  margin-right: 20px;
+.gs-step .gs-links-cont .gs-link-header a {
+  background: #fff;
+  color: #5a728d;
+  padding: 15px;
+  border-radius: 15px;
+  display: block;
+  text-align: center;
 }
-.gs-items-cont .gs-items .gs-item:last-child:after {
-  display: none;
+.gs-step .gs-links-cont .gs-link-desc {
+  padding: 15px;
 }
-.gs-items-cont .gs-items .gs-item.gs-done {
-  color: #777;
+
+@media screen and (max-width: 767px) {
+  .n-transforms-cont {
+    border: none;
+  }
 }
-.gs-items-cont .gs-items .gs-item.gs-done:after {
-  display: none;
-}
-.gs-items-cont .gs-items .gs-item .gs-item-header {
-  font-size: 16px;
-  margin-bottom: 10px;
+.n-transforms-cont > table > tbody > tr > td {
+  border-top: none;
 }
 
 .rec-qos-cont {
@@ -1354,6 +1420,34 @@ input.cmn-toggle-round:checked + label:before {
   .object-route.view-1 {
     width: 150px;
   }
+}
+
+.object-name-cont .object-name {
+  width: 100%;
+}
+.object-name-cont #objname {
+  font-size: 1.5em;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  height: auto;
+}
+.object-name-cont #objname:focus {
+  outline: 0;
+  border: none;
+}
+.object-name-cont #objname[readonly="readonly"] {
+  background-color: #fff;
+}
+.object-name-cont .input-group-addon {
+  border-radius: 0;
+  border: none;
+  background-color: #fff;
+  padding: 6px 10px 6px 0;
+}
+.object-name-cont .panel-footer {
+  border-top: none;
 }
 
 .Select3 {
@@ -1420,7 +1514,6 @@ html, body {
 input.form-control,
 select.form-control,
 textarea.form-control {
-  border-radius: 2px;
   box-shadow: none;
   border: 1px solid #dfe4ed;
 }
@@ -1441,8 +1534,7 @@ input[type="checkbox"]:checked + .help-block {
 
 .context-icon, .pbx-menu .nav-list li a i, .panel-header > i:last-child {
   position: relative;
-  margin-right: 5px;
-  font-size: 1.1em;
+  font-size: 1.2em;
   font-weight: normal;
   /*color: #fff;*/
 }
@@ -1495,6 +1587,9 @@ input[type="checkbox"]:checked + .help-block {
   height: 100%;
   min-height: 100%;
   position: relative;
+  background-color: #f3f8f9;
+  background-image: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
+  background-image: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
 }
 
 .add-group-object a {
@@ -1503,6 +1598,7 @@ input[type="checkbox"]:checked + .help-block {
 }
 
 .page-footer {
+  display: none;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1528,33 +1624,13 @@ input[type="checkbox"]:checked + .help-block {
 
 .data-container {
   position: relative;
+  padding: 0;
   -webkit-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
 }
 
 .data-container .panel-body {
   overflow: visible;
-}
-
-/*.object-name {
-    margin-bottom: 15px;
-}*/
-.object-name #objname {
-  font-size: 2.5em;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  outline: none;
-  height: auto;
-}
-
-.object-name #objname:focus {
-  outline: 0;
-  border: none;
-}
-
-.object-name #objname[readonly="readonly"] {
-  background-color: #fff;
 }
 
 .control-icons i {
@@ -1578,17 +1654,20 @@ input[type="checkbox"]:checked + .help-block {
   margin-top: 10px;
   overflow: hidden;
   border: 1px solid #eee;
+  border-radius: 10px;
 }
 
 .avatar-cont img {
-  max-width: 100%;
+  height: 100%;
+  width: auto;
+  margin: auto;
 }
 
 .user-state-ind {
   position: absolute;
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: 10px;
   margin: 7px;
 }
 
@@ -1697,6 +1776,11 @@ Helpers
   margin-top: 20px;
   text-align: center;
   color: #ccc;
+}
+
+.main-gradient {
+  background: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
 }
 
 .acc-header {

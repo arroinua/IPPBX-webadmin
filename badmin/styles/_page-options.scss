@@ -1,10 +1,12 @@
 .pbx-options{
+    padding: 0 15px;
     color: $primary-text-color-1;
     overflow-x: hidden;
-    border-left: 1px solid $primary-color-l2;
+    // border-left: 1px solid $primary-color-l2;
     transform:translateX(100%);
     -ms-transform:translateX(100%);
     -webkit-transform:translateX(100%);
+    background-color: transparent;
 
     &.pushed-left{
         -ms-transform:translateX(0px);
@@ -35,6 +37,14 @@
         background-color: #449d44;
     }
     .tab-pane{
+        background-color: #fff;
+        margin-top: 15px;
+        border-radius: $global-radius;
+        border-right: 1px solid $primary-color-l2;
+        -webkit-box-shadow: 1px 0 1px $primary-color-l1;
+        box-shadow: 1px 0 1px $primary-color-l1;
+        overflow: hidden;
+
         > form, h4{
             padding: 0 15px;
         }
