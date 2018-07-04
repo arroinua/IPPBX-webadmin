@@ -425,7 +425,8 @@ function getPbxOptions(callback) {
 function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
-        query = location.hash.substring(1);
+        query = location.hash.substring(1),
+        profile = {};
         // search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
@@ -445,28 +446,44 @@ function setupPage() {
 
             // PbxObject.frases = translations;
 
-            BillingApi.getProfile(function(err, response) {
-                if(err) notify_about('error', err);
+            if(options.mode !== 1) { // if cloud branch
+                BillingApi.getProfile(function(err, response) {
+                    if(err) {
+                        notify_about('error', err);
+                    } else {
+                        profile = response.result;
+                    }
 
-                console.log('getProfile: ', err, response);
+                    console.log('getProfile: ', err, response);
 
-                // if(lastURL) {
-                //     window.sessionStorage.removeItem('lastURL');
-                //     window.location = lastURL;
-                // } else 
+                    // if(lastURL) {
+                    //     window.sessionStorage.removeItem('lastURL');
+                    //     window.location = lastURL;
+                    // } else 
 
-                if(window.sessionStorage.query && !window.opener) {
+                    if(window.sessionStorage.query && !window.opener) {
 
-                    // if(search) PbxObject.lastSearch = getQueryParams(search);
+                        // if(search) PbxObject.lastSearch = getQueryParams(search);
 
-                    window.location.hash = window.sessionStorage.query;
-                }
+                        window.location.hash = window.sessionStorage.query;
+                    }
 
-                PbxObject.profile = response ? response.result : {};
+                    PbxObject.profile = profile;
 
+                    // if(profile._id) {
+                    //     analytics.identify(profile._id, {
+                    //       name: profile.name,
+                    //       email: profile.email,
+                    //       company: profile.company
+                    //     });
+                    // }
+
+                    init_page();
+
+                });
+            } else {
                 init_page();
-
-            });
+            }
 
         });
 
@@ -484,12 +501,13 @@ function init_page(){
     var mainrend = Mustache.render(maintemp, PbxObject.frases);
     $('#pagecontainer').html(mainrend);
 
-    switchMode(PbxObject.options.config);
+    switchMode(PbxObject.options);
     document.getElementsByTagName('title')[0].innerHTML = 'UCC ' + PbxObject.frases.PBXADMIN;
 
     setPageHeight();
     subscribeToEvents();
-    loadStripeJs();
+    
+    if(PbxObject.options.mode !== 1) loadStripeJs();
 
     new GetStarted().init();
 
@@ -1122,9 +1140,11 @@ function show_content(togglecont){
 }
 
 //TODO stick to DRY principles
-function switchMode(config){
+function switchMode(options){
     // var menu = document.getElementById('pbxmenu');
     // var lists = [].slice.call(menu.querySelectorAll('ul li'));
+    var config = options.config;
+    var mode = options.mode;
     var lists = [].slice.call(document.querySelectorAll('.branch-mode'));
     if(config.indexOf('channels') == -1) {
         lists.forEach(function(item){
@@ -1160,6 +1180,12 @@ function switchMode(config){
         lists.forEach(function(item){
             // if(item.className.indexOf('mode-groups') != -1 || item.className.indexOf('mode-equipment') != -1)
             if(item.className.indexOf('mode-groups') != -1)
+                item.parentNode.removeChild(item);
+        });
+    }
+    if(mode === 1) {
+        lists.forEach(function(item){
+            if(item.className.indexOf('mode-single') != -1)
                 item.parentNode.removeChild(item);
         });
     }
@@ -2447,7 +2473,7 @@ function fill_list_items(listid, items, prop){
     var list = document.getElementById(listid),
         fragment = document.createDocumentFragment();
     for(var i=0; i<items.length; i++){
-        var item = prop ? items[i][prop] : items[i];
+        var item = (prop && items[i][prop]) ? items[i][prop] : items[i];
         var li = document.createElement('li');
         // addEvent(item, 'click', move_list_item);
         li.setAttribute('data-value', item);
@@ -2523,9 +2549,10 @@ function switchVisibility(selector, isVisible){
     else $(selector).hide();
 }
 
-function get_protocol_opts(protocol, options){
+function get_protocol_opts(protocol, params){
     
     var proto = protocol == 'h323' ? 'h323' : 'sip';
+    var options = params.parameters;
     var opts = Object.keys(PbxObject.protocolOpts).length !== 0 ? PbxObject.protocolOpts : options;
     var sipModes = [
         {mode: 'sip info', sel: 'sip info' === opts.dtmfmode},
@@ -2540,6 +2567,7 @@ function get_protocol_opts(protocol, options){
     ];
     var data = {
         opts: opts,
+        internal: params.type === 'internal',
         frases: PbxObject.frases
     };
     data.opts.dtmfmodes = proto == 'h323' ? h323Modes : sipModes;

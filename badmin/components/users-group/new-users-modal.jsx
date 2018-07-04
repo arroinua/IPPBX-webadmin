@@ -76,7 +76,7 @@ var NewUsersModalComponent = React.createClass({
 
 		return (
 			<ModalComponent 
-				size="sm"
+				size="md"
 				title={ frases.USERS_GROUP.NEW_USER_MODAL_TITLE }
 				type="success"
 				submitText={frases.ADD} 

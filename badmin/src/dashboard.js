@@ -30,6 +30,7 @@ function Dashboard(){
         this.statUpdate = setInterval(this.updateStatistics.bind(this), 1800*1000);
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
+        show_content();
         set_page();
 
     };

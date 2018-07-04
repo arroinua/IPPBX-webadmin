@@ -99,6 +99,10 @@ table.table > tbody > tr > td {
   background-color: #f3f8f9;
 }
 
+.modal .modal-footer {
+  text-align: left;
+}
+
 /*
     Forms custom styles
 */
@@ -107,6 +111,24 @@ table.table > tbody > tr > td {
 */
 .btn {
   border-radius: 10px;
+}
+
+.btn.btn-action {
+  color: #fff;
+  background: #faa3f4;
+  background: -webkit-linear-gradient(0deg, #faa3f4 0%, #2cbbe6 100%);
+  background: linear-gradient(90deg, #faa3f4 0%, #2cbbe6 100%);
+  border: none;
+}
+
+.init-gs-btn.btn.btn-action {
+  text-align: left;
+  box-shadow: 0px 10px 27px -10px #363636;
+}
+
+.init-gs-btn.btn.btn-action i,
+.init-gs-btn.btn.btn-action span {
+  color: #fff;
 }
 
 /*
@@ -992,6 +1014,7 @@ input.cmn-toggle-round:checked + label:before {
   width: 100%;
   padding: 0;
   margin-top: 15px;
+  border-radius: 10px;
 }
 .pbx-menu .nav-list > li:first-child > a {
   border-top-left-radius: 10px;
@@ -1001,24 +1024,24 @@ input.cmn-toggle-round:checked + label:before {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
-.pbx-menu .nav-list > li.active {
+.pbx-menu .nav-list > li.active:not(.nav-divider) {
   border-bottom: none;
 }
-.pbx-menu .nav-list > li.active + li > a {
+.pbx-menu .nav-list > li.active:not(.nav-divider) + li > a {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
-.pbx-menu .nav-list > li.active > a {
+.pbx-menu .nav-list > li.active:not(.nav-divider) > a {
   color: #333;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
-.pbx-menu .nav-list > li.active > a i:last-child {
+.pbx-menu .nav-list > li.active:not(.nav-divider) > a i:last-child {
   -webkit-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);
 }
-.pbx-menu .nav-list > li.active > ul li.active::after {
+.pbx-menu .nav-list > li.active:not(.nav-divider) > ul li.active::after {
   content: "";
   position: absolute;
   right: -7.5px;
@@ -1044,9 +1067,6 @@ input.cmn-toggle-round:checked + label:before {
 }
 .pbx-menu .nav-list li.nav-divider > a i {
   line-height: 38px;
-}
-.pbx-menu .nav-list li.nav-divider > ul {
-  background-color: #eee;
 }
 .pbx-menu .nav-list li.nav-divider > ul > li > a {
   padding: 15px 7px;
@@ -1332,12 +1352,23 @@ input.cmn-toggle-round:checked + label:before {
   max-height: 300px;
 }
 .gs-step .gs-step-header {
+  padding: 10px 0;
+}
+.gs-step .gs-step-header {
   color: #fff;
   text-align: center;
 }
 .gs-step .gs-step-footer {
   padding: 30px 0;
   text-align: center;
+}
+.gs-step .gs-download-links {
+  text-align: center;
+}
+.gs-step .gs-download-links img {
+  max-width: 80%;
+  max-height: 50px;
+  margin: 20px 0;
 }
 .gs-step .gs-links-cont {
   width: 100%;

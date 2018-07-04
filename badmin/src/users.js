@@ -17,6 +17,7 @@ function load_users(params) {
 	var activeServices = PbxObject.options.services.filter(function(service){
 	    return service.state;
 	});
+	var tourStarted = false;
 
 	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
 		activeServices.unshift({
@@ -117,7 +118,7 @@ function load_users(params) {
 
 			init(objParams);
 
-			if(PbxObject.tourStarted) {
+			if(tourStarted) {
 				onFirstUserCreated();
 			}
 
@@ -276,6 +277,7 @@ function load_users(params) {
 	function initSteps() {
 		console.log('initSteps: ', driverSteps);
 		if(PbxObject.tourStarted && driverSteps.length) {
+			tourStarted = true;
 			driverSettings.onReset = showGSLink;
 			driver = new Driver(driverSettings);
 			driver.defineSteps(driverSteps);

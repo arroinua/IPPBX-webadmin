@@ -79,7 +79,13 @@
                             <div class="col-sm-6">
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" id="passanumber" {{#opts.passanumber}} checked {{/opts.passanumber}}> Always send username in the INVITE "To" header
+                                        <input type="checkbox" id="passanumber" {{#opts.passanumber}} checked {{/opts.passanumber}}> 
+                                        {{^internal}}
+                                            Pass Caller ID in the From header
+                                        {{/internal}}
+                                        {{#internal}}
+                                            Always send username in the INVITE "To" header
+                                        {{/internal}}
                                     </label>
                                 </div>
                             </div>

@@ -82,10 +82,12 @@ var EmailTrunkComponent = React.createClass({
 		var state = this.state;
 
 		state.provider = provider;
+		state.data = this._extendProps(state.data, props);
 
-		if(provider && provider !== 'other') {
-			state.data = this._extendProps(state.data, props);
-		} else {
+		if(provider && provider === 'other') { 
+			// state.data = this._extendProps(state.data, props);
+		// } else {
+			state.data.protocol = "imap";
 			state.data.hostname = "";
 			state.data.port = "";
 		}

@@ -74,7 +74,7 @@ var SubscriptionPriceComponent = React.createClass({
 		    		<span> {currencySymbol}{parseFloat(subAmount).toFixed(2)} </span>
 		    	</h3>
 		    	{
-		    		!sub.plan.trialPeriod && (
+		    		(!sub.plan.trialPeriod && (parseFloat(subAmount) > 0)) && (
 		    			<p className="text-muted">{ frases.BILLING.NEXT_CHARGE } <b>{ window.moment(sub.nextBillingDate).format('DD MMMM YYYY') }</b></p>
 		    		)
 		    	}

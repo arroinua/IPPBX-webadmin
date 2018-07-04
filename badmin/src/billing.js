@@ -66,7 +66,8 @@ function load_billing() {
 		    extend: deepExtend,
 		    addCoupon: addCoupon,
 		    utils: {
-		    	convertBytes: convertBytes
+		    	convertBytes: convertBytes,
+		    	getProration: getProration
 		    }
 		}), cont);
 	}
@@ -313,7 +314,7 @@ function load_billing() {
 				remove_loading_panel();
 				
 				if(err) {
-					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'addCredits');
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance({ payment: params }, 'addCredits');
 					else notify_about('error', err.message);
 					return;
 				}
@@ -339,6 +340,10 @@ function load_billing() {
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});	
+	}
+
+	function getProration(sub, amount) {
+		return BillingApi.getProration(sub, amount);
 	}
 
 }

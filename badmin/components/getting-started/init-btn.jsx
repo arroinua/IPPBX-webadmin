@@ -6,7 +6,7 @@ function InitGSButtonComponent(props) {
 	}
 
 	return (
-		<a href="#" className="init-gs-btn" onClick={onClick}>
+		<a href="#" className="btn btn-action init-gs-btn" onClick={onClick}>
 		    <i className="fa fa-play-circle fa-fw"></i>
 		    <span>{props.frases.GET_STARTED.TITLE}</span>
 		</a>

@@ -22,7 +22,6 @@ function ManagePaymentMethodComponent(props) {
 	return (
 		<div className="text-center">
 			<h3><i className="fa fa-credit-card"></i></h3>
-			<a href="#" onClick={props.onClick} className="text-uppercase">{ props.buttonText }</a>
 			{
 				paymentMethod && (
 					<div>
@@ -45,6 +44,8 @@ function ManagePaymentMethodComponent(props) {
 					</div>
 				)
 			}
+			<a href="#" onClick={props.onClick} className="text-uppercase">{ props.buttonText }</a>
+			
 					
 		</div>
 	);

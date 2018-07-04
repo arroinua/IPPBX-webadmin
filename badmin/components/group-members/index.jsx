@@ -134,7 +134,7 @@
 	render: function() {
 		var frases = this.props.frases;
 		var members = this.props.members;
-		var filteredMembers = this.state.filteredMembers || [];
+		var filteredMembers = sortByKey(this.state.filteredMembers, 'number') || [];
 
 		// <FilterInputComponent items={members} onChange={this._onFilter} />
 

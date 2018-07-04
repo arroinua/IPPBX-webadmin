@@ -8,12 +8,18 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <!-- Google Analytics -->
-        <script>
+        <!-- <script>
         window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
         ga('create', 'UA-82207439-2', 'auto');
-        </script>
-        <script async src='https://www.google-analytics.com/analytics.js'></script>
+        </script> -->
+        <!-- <script async src='https://www.google-analytics.com/analytics.js'></script> -->
         <!-- End Google Analytics -->
+        <script>
+          !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
+          analytics.load("FLp9OXDzMMi4RDxAaNKAAPvOflNlXr3U");
+          analytics.page();
+          }}();
+        </script>
         <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/badmin/fonts/css/icomoon.css" />
         <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
@@ -49,14 +55,14 @@
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode mode-trunks">
+                        <li class="branch-mode mode-single">
                             <a href="#" data-kind="chattrunk" title="{{KINDS.chattrunk}}">
                                 <i class="fa fa-whatsapp fa-fw"></i>
                                 <span>{{KINDS.chattrunk}}</span>
                                 <i class="fa fa-angle-right fa-fw"></i>
                             </a>
                         </li>
-                        <li class="branch-mode">
+                        <li class="branch-mode mode-single">
                             <a href="#" data-kind="chatchannel" title="{{KINDS.chantchannel}}">
                                 <i class="fa fa-comments-o fa-fw"></i>
                                 <span>{{KINDS.chatchannel}}</span>
@@ -284,7 +290,7 @@
                                             <span>{{SETTINGS.USAGE_SETTINGS}}</span>
                                         </a>
                                     </li>
-                                    <li id="billing-tab">
+                                    <li class="branch-mode mode-single">
                                         <a href="#billing" title="{{SETTINGS.BILLING}}">
                                             <i class="fa fa-credit-card fa-fw"></i>
                                             <span>{{SETTINGS.BILLING}}</span>

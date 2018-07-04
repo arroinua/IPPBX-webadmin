@@ -38,6 +38,8 @@ var BillingComponent = React.createClass({
 		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
 
+		console.log('BillingComponent proration: ', cycleDays, proratedDays);
+
 		this.setState({
 			profile: this.props.profile,
 			sub: sub,
@@ -106,33 +108,53 @@ var BillingComponent = React.createClass({
 		var newAmount = newsub.amount;
 		var chargeAmount = 0;
 		var totalAmount = 0;
-		var prorationRatio = 1;
-		var proratedAmount = 0;
+		var proratedAmount = null;
+		var currentSubProration = null;
+		var newSubProration = null;
+		var getProration = this.props.utils.getProration;
 
 		console.log('_countPayAmount: ', currsub, newsub);
 
-		// if new plan with different billing period
-		if(currsub.plan.trialPeriod || newsub.plan.billingPeriod !== currsub.plan.billingPeriod || newsub.plan.billingPeriodUnit !== currsub.plan.billingPeriodUnit) {
+		if(parseFloat(currAmount) <= 0 || currsub.plan.trialPeriod || currsub.plan.billingPeriod !== newsub.plan.billingPeriod || currsub.plan.billingPeriodUnit !== newsub.plan.billingPeriodUnit) {
 			newsub.nextBillingDate = moment().add(newsub.plan.billingPeriod, newsub.plan.billingPeriodUnit).valueOf();
 			newsub.prevBillingDate = Date.now();
+			chargeAmount = parseFloat(newAmount);
+
 		} else {
-			prorationRatio = this.state.proratedDays / this.state.cycleDays;
-			
+			currentSubProration = getProration(currsub, currAmount)
+			newSubProration = getProration(newsub, newAmount);
+
+			if(newSubProration >= currentSubProration) {
+				chargeAmount = newSubProration - currentSubProration;
+			} else {
+				proratedAmount = currentSubProration - newSubProration;
+				chargeAmount = 0;
+			}
+
+			console.log('changePlan proration: ', currAmount, newAmount, currentSubProration, newSubProration, chargeAmount, proratedAmount);
 		}
+
+		// if new plan with different billing period
+		// if(currAmount <= 0 || currsub.plan.trialPeriod || newsub.plan.billingPeriod !== currsub.plan.billingPeriod || newsub.plan.billingPeriodUnit !== currsub.plan.billingPeriodUnit) {
+		// 	newsub.nextBillingDate = moment().add(newsub.plan.billingPeriod, newsub.plan.billingPeriodUnit).valueOf();
+		// 	newsub.prevBillingDate = Date.now();
+		// } else {
+		// 	prorationRatio = this.state.proratedDays / this.state.cycleDays;
+		// }
 		
-		currAmount = currAmount * prorationRatio;
-		chargeAmount = newAmount * prorationRatio;
+		// currAmount = currAmount * prorationRatio;
+		// chargeAmount = newAmount * prorationRatio;
 
-		if(chargeAmount >= currAmount) {
-			chargeAmount = chargeAmount - currAmount;
-		} else {
-			proratedAmount = currAmount - chargeAmount;
-			chargeAmount = 0;
-		}
+		// if(chargeAmount >= currAmount) {
+		// 	chargeAmount = chargeAmount - currAmount;
+		// } else {
+		// 	proratedAmount = currAmount - chargeAmount;
+		// 	chargeAmount = 0;
+		// }
 
-		totalAmount = newAmount - currAmount;
+		// totalAmount = newAmount - currAmount;
 
-		console.log('_countPayAmount: ', currAmount, newAmount, chargeAmount, proratedAmount);
+		// console.log('_countPayAmount: ', currAmount, newAmount, chargeAmount, proratedAmount);
 		return { newSubAmount: newAmount, totalAmount: (totalAmount > 0 ? totalAmount : 0), chargeAmount: chargeAmount };
 	},
 
@@ -195,16 +217,16 @@ var BillingComponent = React.createClass({
 
 	_onPlanSelect: function(plan) {
 		console.log('_onPlanSelect 1: ', plan, this.state.sub);
-		var profile = this.props.profile;
-		var paymentMethod = profile.billingMethod;
 
 		var sub = JSON.parse(JSON.stringify(this.props.sub));
+		var nextBillingDate = sub.nextBillingDate;
+		var isTrial = plan.planId === 'trial';
+
 		sub.plan = plan;
-		sub.addOns = this._extendAddons(plan.addOns, sub.addOns);
+		sub.addOns = this._extendAddons(plan.addOns, sub.addOns);		
+		sub.amount = this._countSubAmount(sub);
 
 		console.log('_onPlanSelect 2: ', plan, sub);
-		
-		sub.amount = this._countSubAmount(sub);
 
 		var amounts = this._countNewPlanAmount(this.props.sub, sub);
 
@@ -212,9 +234,10 @@ var BillingComponent = React.createClass({
 			plan: plan,
 			annually: (plan.billingPeriodUnit === 'years'),
 			payment: {
-				currency: plan.currency,
+				currency: this._currencyNameToSymbol(plan.currency),
 				newSubAmount: amounts.newSubAmount,
 				discounts: this.props.discounts,
+				nextBillingDate: (nextBillingDate && !isTrial ? moment(nextBillingDate).format('DD/MM/YY') : null),
 				chargeAmount: amounts.chargeAmount.toFixed(2),
 				totalAmount: amounts.totalAmount.toFixed(2)
 			}
@@ -227,19 +250,21 @@ var BillingComponent = React.createClass({
 
 	_updateLicenses: function(params) {
 
-		console.log('_updateLicenses: ', params);
-
+		var getProration = this.props.utils.getProration;
 		var sub = this.state.sub;
 		sub.quantity = params.quantity;
 		sub.addOns = params.addOns;
 		sub.amount = this._countSubAmount(sub);
 
-		var totalAmount = sub.amount - this.props.sub.amount;
 		var chargeAmount = 0;
-		
+		var totalAmount = parseFloat(sub.amount) - parseFloat(this.props.sub.amount);
+		var proration = getProration(sub, totalAmount);
+
 		if(totalAmount > 0) {
-			chargeAmount = totalAmount * (this.state.proratedDays / this.state.cycleDays);
+			chargeAmount = proration > 1 ? proration : 1;
 		}
+
+		console.log('_updateLicenses: ', totalAmount, proration);
 
 		this.props.updateLicenses({
 			addOns: sub.addOns,
@@ -248,9 +273,10 @@ var BillingComponent = React.createClass({
 			payment: {
 				currency: this._currencyNameToSymbol(sub.plan.currency),
 				newSubAmount: sub.amount,
+				nextBillingDate: moment(sub.nextBillingDate).format('DD/MM/YY'),
 				discounts: this.props.discounts,
 				chargeAmount: chargeAmount.toFixed(2),
-				totalAmount: (totalAmount > 0 ? totalAmount.toFixed(2) : 0)
+				totalAmount: totalAmount.toFixed(2)
 			}
 		});
 

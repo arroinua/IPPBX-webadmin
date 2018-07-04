@@ -159,7 +159,7 @@ function load_bgroup(result){
         
         if(availableUsers) fill_list_items('available', availableUsers);
         // if(members) fill_list_items('members', members.sort());
-        if(members) fill_list_items('members', members);
+        if(members) fill_list_items('members', members, 'number');
 
         // Render route parameters
         renderObjRoute({

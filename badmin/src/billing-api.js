@@ -1,7 +1,7 @@
 var BillingApi = {
 
-	// url: 'https://b9b9c400.ngrok.io/branch/api/',
-	url: 'https://api-web.ringotel.net/branch/api/',
+	url: 'https://dee6c679.ngrok.io/branch/api/',
+	// url: 'https://api-web.ringotel.net/branch/api/',
 	cache: {},
 
 	fetch: function(method, url, data, options, callback){
@@ -71,12 +71,27 @@ var BillingApi = {
 		);
 	},
 
+	sendAppsLinks: function(email, callback) {
+		this.request('sendAppsLinks', { email: email }, callback);
+	},
+
+	getProration: function(sub, amount) {
+		console.log('getProration: ', sub, amount);
+		var now = Date.now();
+		var cycle = Math.floor((sub.nextBillingDate - sub.prevBillingDate) / 1000);
+		var left = sub.nextBillingDate > now ? Math.floor((sub.nextBillingDate - now) / 1000) : 0;
+		var ratio = (left / cycle).toFixed(2);
+		var proration = parseFloat(amount) * parseFloat(ratio);
+		
+		return proration;
+	},
+
 	getProfile: function(callback) {
 		this.request('getProfile', null, callback);
 	},
 
 	updateBalance: function(params, callback) {
-		this.request('getProfile', params, callback);	
+		this.request('updateBalance', params, callback);	
 	},
 
 	changeAdminEmail: function(params, callback) {
@@ -168,7 +183,7 @@ var BillingApi = {
 	},
 
 	updateDidRegistration: function(params, callback) {
-		this.request('updateDidStatus', params, callback);
+		this.request('updateDidRegistration', params, callback);
 	},
 
 	getCredits: function(callback) {

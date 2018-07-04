@@ -3,7 +3,7 @@ var GSCreateChannelsComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		profile: React.PropTypes.object,
-		group: React.PropTypes.object,
+		// group: React.PropTypes.object,
 		nextStep: React.PropTypes.func,
 		prevStep: React.PropTypes.func,
 		closeGS: React.PropTypes.func
@@ -40,6 +40,7 @@ var GSCreateChannelsComponent = React.createClass({
 						<div className="gs-step-head">
 							<img src="/badmin/images/omnichannel.png" />
 						</div>
+						<GSStepNavComponent onPrev={this.props.prevStep} prevText={frases.GET_STARTED.DOWNLOAD_APPS.TITLE} />
 						<div className="gs-step-body">
 							<h3>{frases.GET_STARTED.CONNECT_CHANNELS.TITLE}</h3>
 							<GSCreateChannelContComponent>

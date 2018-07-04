@@ -15,16 +15,20 @@ var DidTrunkComponent = React.createClass({
 			fetch: true,
 			sub: null,
 			isTrial: null,
-			cycleDays: 0,
-			proratedDays: 0,
+			// cycleDays: 0,
+			// proratedDays: 0,
 			totalAmount: 0,
 			chargeAmount: 0,
 			numbers: null,
 			countries: [],
+			regions: null,
 			locations: null,
 			didTypes: ['Local'],
+			availableNumbers: null,
 			selectedCountry: {},
+			selectedRegion: {},
 			selectedLocation: {},
+			selectedAvailableNumber: {},
 			selectedPriceObject: {},
 			selectedType: 'Local',
 			selectedNumber: {},
@@ -36,19 +40,19 @@ var DidTrunkComponent = React.createClass({
 
 	componentWillMount: function() {
 		BillingApi.getSubscription(function(err, response) {
-			console.log('getSubscription response: ', err, response.result);
+			console.log('getSubscription response: ', err, response);
 			if(err) return notify_about('error' , err.message);
 
 			var sub = response.result;
-			var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
-			var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
+			// var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
+			// var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
 
 			this.setState({ 
 				init: true,
 				isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
-				sub: response.result,
-				cycleDays: cycleDays,
-				proratedDays: proratedDays
+				sub: response.result
+				// cycleDays: cycleDays,
+				// proratedDays: proratedDays
 			});
 
 			if(this.props.properties && this.props.properties.number) {
@@ -87,9 +91,11 @@ var DidTrunkComponent = React.createClass({
 		var params = {
 			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
 			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
+			anid: this.state.selectedAvailableNumber ? this.state.selectedAvailableNumber.id : null,
 			totalAmount: this.state.totalAmount,
 			chargeAmount: this.state.chargeAmount,
 			newSubAmount: this.state.newSubAmount,
+			nextBillingDate: this.state.nextBillingDate,
 			currency: this._currencyNameToSymbol(this.state.sub.plan.currency)
 		};
 		
@@ -131,17 +137,47 @@ var DidTrunkComponent = React.createClass({
 		
 		state.selectedCountry = country;
 		state.selectedLocation = {};
+		state.selectedRegion = {};
+		state.selectedLocation = {};
+		state.selectedAvailableNumber = {};
+		state.regions = null;
 		state.locations = null;
+		state.needRegion = (country.attributes.iso === 'US' || country.attributes.iso === 'CA');
 
 		this.setState(state);
 
 		if(!value) return;
 
-		this._getDidLocations({ country: country.id, type: state.selectedType }, function(err, response) {
+		if(state.needRegion) {
+			BillingApi.request('getDidRegions', { country: country.id }, function(err, response) {
+				console.log('getDidRegions: ', err, response);
+				this.setState({ regions: response.result || [] });
+			}.bind(this));
+		} else {
+			this._getDidLocations({ country: country.id, type: state.selectedType }, function(err, response) {
+				if(err) return notify_about('error', err);
+				this.setState({ locations: response.result || [] });
+			}.bind(this));
+		}
+
+	},
+
+	_onRegionSelect: function(e) {
+		var value = e.target.value;
+		var state = this.state;
+		var region = this.state.regions.filter(function(item) { return item.id === value })[0] || {};
+
+		state.selectedRegion = region;
+		state.selectedLocation = {};
+		state.selectedAvailableNumber = {};
+		state.locations = null;
+
+		this.setState(state);
+
+		this._getDidLocations({ country: state.selectedCountry.id, region: region.id, type: state.selectedType }, function(err, response) {
 			if(err) return notify_about('error', err);
 			this.setState({ locations: response.result || [] });
 		}.bind(this));
-		
 	},
 
 	_onLocationSelect: function(e) {
@@ -157,27 +193,51 @@ var DidTrunkComponent = React.createClass({
 
 		state.selectedLocation = selectedLocation;
 		state.selectedPriceObject = selectedPriceObject;
+		state.selectedAvailableNumber = {};
+		state.availableNumbers = null;
 
 		this.setState(state);
 
-		BillingApi.getDidPrice({ iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
+		this._getAvailableNumbers({ dgid: selectedLocation._id }, function(err, response) {
+			console.log('getAvailableNumbers: ', err, response);
+			if(err) return notify_about('error', err);
+
+			this.setState({  availableNumbers: response.result });
+		}.bind(this));
+
+	},
+
+	_onAvailableNumberSelect: function(e) {
+		var value = e.target.value;
+		var state = this.state;
+
+		console.log('_onAvailableNumberSelect: ', value, state.availableNumbers);
+
+		if(value) {
+			state.selectedAvailableNumber = state.availableNumbers.filter(function(item) { return item.id === value; })[0];
+		}
+
+		this.setState(state);
+
+		this._getDidPrice({ iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
 			if(err) return notify_about('error', err);
 			this._setDidPrice(response.result);
 			
 		}.bind(this));
-
 	},
 
 	_setDidPrice: function(priceObj) {
 		var sub = this.state.sub;
 		var amount = this.state.isTrial ? 0 : this._getDidAmount(sub.plan.billingPeriodUnit, priceObj);
-		var proratedAmount = (amount * (this.state.proratedDays / this.state.cycleDays)).toFixed(2);
+		// var proratedAmount = BillingApi.getProration(sub, amount);
+		// var proratedAmount = (amount * (this.state.proratedDays / this.state.cycleDays)).toFixed(2);
 
 		this.setState({
 			selectedPriceObject: priceObj,
 			totalAmount: amount,
-			chargeAmount: proratedAmount,
-			newSubAmount: (parseFloat(sub.amount) + amount)
+			chargeAmount: amount,
+			newSubAmount: (parseFloat(sub.amount) + amount),
+			nextBillingDate: moment(sub.nextBillingDate).format('DD/MM/YY')
 		});
 
 		this._onChange();
@@ -197,6 +257,14 @@ var DidTrunkComponent = React.createClass({
 
 	_getDidLocations: function(params, callback) {
 		BillingApi.getDidLocations(params, callback);
+	},
+
+	_getAvailableNumbers: function(params, callback) {
+		BillingApi.request('getAvailableNumbers', params, callback);
+	},
+
+	_getDidPrice: function(params, callback) {
+		BillingApi.request('getDidPrice', params, callback);
 	},
 
 	_getDidAmount: function(billingPeriodUnit, priceObj) {
@@ -253,7 +321,9 @@ var DidTrunkComponent = React.createClass({
 		// var data = state.data;
 		var sub = state.sub;
 		var selectedCountry = state.selectedCountry;
+		var selectedRegion = state.selectedRegion;
 		var selectedLocation = state.selectedLocation;
+		var selectedAvailableNumber = state.selectedAvailableNumber;
 		var selectedPriceObject = state.selectedPriceObject;
 		var amount = this.state.totalAmount;
 		var proratedAmount = this.state.chargeAmount;
@@ -321,38 +391,110 @@ var DidTrunkComponent = React.createClass({
 													{
 														selectedCountry.id && (
 															<div>
-																<div className="form-group">
-																    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_LOCATION}</label>
-															    	{
-															    		this.state.locations ? (
-															    			<div>
-															    				{
-															    					this.state.locations.length ? (
-															    						<div className="col-sm-4">
-																	    					<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
-																	    						<option value="">----------</option>
-																	    						{
-																	    							this.state.locations.map(function(item) {
-																	    								return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
-																	    							})
-																	    						}
-																	    					</select>
-																	    				</div>
-																    				) : (
-																    					<div className="col-sm-8">
-																    						<p>{frases.CHAT_TRUNK.DID.CHECK_COUNTRY_AVAILABILITY_MSG}</p>
-																    					</div>
-																    				)
-															    				}
-															    			</div>
-															    		) : (
-															    			<Spinner />
-															    		)
-															    	}
-																</div>
+																{
+																	this.state.needRegion && (
+																		<div className="form-group">
+																		    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_REGION}</label>
+																	    	{
+																	    		this.state.regions ? (
+																	    			<div>
+																	    				{
+																	    					this.state.regions.length ? (
+																	    						<div className="col-sm-4">
+																			    					<select className="form-control" name="location" value={selectedRegion.id} onChange={this._onRegionSelect} autoComplete='off' required>
+																			    						<option value="">----------</option>
+																			    						{
+																			    							this.state.regions.map(function(item) {
+																			    								return <option key={item.id} value={item.id}>{item.attributes.name}</option>
+																			    							})
+																			    						}
+																			    					</select>
+																			    				</div>
+																		    				) : (
+																		    					<div className="col-sm-8">
+																		    						<p>{frases.CHAT_TRUNK.DID.CHECK_COUNTRY_AVAILABILITY_MSG}</p>
+																		    					</div>
+																		    				)
+																	    				}
+																	    			</div>
+																	    		) : (
+																	    			<Spinner />
+																	    		)
+																	    	}
+																		</div>
+																	)
+																}
+
+																{
+																	(!this.state.needRegion || selectedRegion.id) && (
+																		<div className="form-group">
+																		    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_LOCATION}</label>
+																	    	{
+																	    		this.state.locations ? (
+																	    			<div>
+																	    				{
+																	    					this.state.locations.length ? (
+																	    						<div className="col-sm-4">
+																			    					<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
+																			    						<option value="">----------</option>
+																			    						{
+																			    							this.state.locations.map(function(item) {
+																			    								return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
+																			    							})
+																			    						}
+																			    					</select>
+																			    				</div>
+																		    				) : (
+																		    					<div className="col-sm-8">
+																		    						<p>{frases.CHAT_TRUNK.DID.CHECK_COUNTRY_AVAILABILITY_MSG}</p>
+																		    					</div>
+																		    				)
+																	    				}
+																	    			</div>
+																	    		) : (
+																	    			<Spinner />
+																	    		)
+																	    	}
+																		</div>
+																	)
+																}
 
 																{
 																	selectedLocation._id && (
+																		<div className="form-group">
+																		    <label htmlFor="number" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_NUMBER}</label>
+																	    	{
+																	    		this.state.availableNumbers ? (
+																	    			<div>
+																	    				{
+																	    					this.state.availableNumbers.length ? (
+																	    						<div className="col-sm-4">
+																			    					<select className="form-control" name="number" value={selectedAvailableNumber.id} onChange={this._onAvailableNumberSelect} autoComplete='off' required>
+																			    						<option value="">----------</option>
+																			    						{
+																			    							this.state.availableNumbers.map(function(item) {
+																			    								return <option key={item.id} value={item.id}>{item.attributes.number}</option>
+																			    							})
+																			    						}
+																			    					</select>
+																			    				</div>
+																		    				) : (
+																		    					<div className="col-sm-8">
+																		    						<p>{frases.CHAT_TRUNK.DID.CHECK_LOCATION_AVAILABILITY_MSG}</p>
+																		    					</div>
+																		    				)
+																	    				}
+																	    			</div>
+																	    		) : (
+																	    			<Spinner />
+																	    		)
+																	    	}
+																		</div>
+																	)
+																}
+
+																{
+																	selectedAvailableNumber.id && (
 																		<div className="form-group">
 																			{
 																				(selectedPriceObject && selectedPriceObject._id) ? (

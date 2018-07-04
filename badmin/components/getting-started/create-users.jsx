@@ -3,7 +3,7 @@ var GSCreateUsersComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		profile: React.PropTypes.object,
-		group: React.PropTypes.object,
+		// group: React.PropTypes.object,
 		nextStep: React.PropTypes.func,
 		prevStep: React.PropTypes.func,
 		closeGS: React.PropTypes.func

@@ -4,11 +4,11 @@
     var formEl2 = document.querySelector('#reset');
     var formEl = document.querySelector('form');
     var infoCont = document.getElementById('info-cont');
-    var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    // var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
+    // var apiGateway = 'https://api-web.ringotel.net/branch/api';
+    var apiGateway = 'https://1598fe41.ngrok.io/branch/api';
     var host = window.location.host;
     var search = window.location.search;
-    var bid = host.substr(0, host.indexOf('.'));
+    var prefix = host.substr(0, host.indexOf('.'));
     var ott = search ? search.substr(search.indexOf('=')+1) : null;
 
     formEl1.addEventListener('submit', submitForm, false);
@@ -42,7 +42,7 @@
         request(
             'POST', 
             apiGateway+'/requestResetPassword', 
-            { branchId: bid }, 
+            { prefix: prefix }, 
             { headers: [{ name: 'Content-type', value: 'application/json' }] }, 
             cb
         );

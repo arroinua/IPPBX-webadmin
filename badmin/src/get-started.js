@@ -13,8 +13,6 @@ function GetStarted(container) {
 	}
 
 	this.init = function() {
-
-
 		// createTour();
 
 		// Get initial data for the Widget
@@ -144,9 +142,14 @@ function GetStarted(container) {
 		    profile: PbxObject.profile,
 		    options: PbxObject.options,
 		    objects: PbxObject.objects,
-		    onClose: onClose
+		    onClose: onClose,
+		    sendLinks: sendLinks
 		}), modalCont);
 
+	}
+
+	function sendLinks(email) {
+		
 	}
 
 	function onClose(init) {

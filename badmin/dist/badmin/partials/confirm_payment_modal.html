@@ -11,6 +11,9 @@
 						<p>
 							<span>{{ frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG }}</span> <strong>{{payment.currency}}{{payment.chargeAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
 							<br> 
+							{{ #payment.nextBillingDate }}
+							<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEXT_BILLING_DATE }}</span><strong> {{ payment.nextBillingDate }} </strong>
+							{{ /payment.nextBillingDate }}
 							{{ #annually }}
 								<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEW_ANNUALLY_RATE_MSG }}</span> <strong>{{payment.currency}}{{payment.newSubAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
 							{{ /annually }}

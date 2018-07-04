@@ -1,8 +1,8 @@
 function load_trunk(result){
     // console.log(result);
     var type = result.type,
-        types = [].slice.call(document.querySelectorAll('[name="trunkType"]')),
-        passanumberEl = document.getElementById('passanumber');
+        types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
+        // passanumberEl = document.getElementById('passanumber');
 
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
@@ -65,7 +65,8 @@ function load_trunk(result){
             });
         }
         addEvent(protoOpts, 'click', function(){
-            get_protocol_opts(protocols.value, result.parameters);
+            getProtocolOptions(result.parameters);
+            // get_protocol_opts(protocols.value, result);
         });
         if(!PbxObject.templates.protocol){
             $.get('/badmin/views/protocol.html', function(template){
@@ -151,7 +152,7 @@ function load_trunk(result){
             document.getElementById('regexpires').value = result.parameters.regexpires || 60;
 
     }
-    if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
+    // if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
 
     var transforms = result.inboundanumbertransforms;
     if(transforms.length) {
@@ -203,6 +204,21 @@ function load_trunk(result){
 
     // renderTrunkOutRoute();
     
+}
+
+function getProtocolOptions(params) {
+    var protocols = document.getElementById('protocols');
+    var types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
+    var type = "";
+    types.forEach(function (item){
+        if(item.checked) {
+            type = item.value;
+        }
+    });
+
+    console.log('getProtocolOptions: ', params, type);
+
+    get_protocol_opts(protocols.value, { parameters: params, type: type });
 }
 
 function changeTrunkRegState(up) {

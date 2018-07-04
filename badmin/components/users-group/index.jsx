@@ -1,4 +1,4 @@
- var UsersGroupComponent = React.createClass({
+var UsersGroupComponent = React.createClass({
 
 	propTypes: {
 		frases: React.PropTypes.object,
@@ -29,7 +29,7 @@
 			// options: this.props.params.options,
 			removeObject: this.props.removeObject,
 			filteredMembers: this.props.params.members
-		});		
+		});
 	},
 
 	componentDidMount: function() {

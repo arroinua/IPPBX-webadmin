@@ -5,64 +5,65 @@ var GSModalComponent = React.createClass({
 		profile: React.PropTypes.object,
 		initialStep: React.PropTypes.number,
 		options: React.PropTypes.object,
-		onClose: React.PropTypes.func
+		onClose: React.PropTypes.func,
+		sendLinks: React.PropTypes.func
 	},
 
 	getInitialState: function() {
 		return {
-			step: 0,
-			components: [],
-			profile: {},
+			// step: 0,
+			// components: [],
+			// profile: {},
 			open: true,
-			init: false
+			// init: false
 		};
 	},
 
-	componentWillMount: function() {
-		this.setState({
-			components: [
-				GSCreateUsersComponent,
-				GSDownloadAppsComponent,
-				GSCreateChannelsComponent
-			]
-		});
+	// componentWillMount: function() {
+	// 	this.setState({
+	// 		components: [
+	// 			GSCreateUsersComponent,
+	// 			GSDownloadAppsComponent,
+	// 			GSCreateChannelsComponent
+	// 		]
+	// 	});
 
-		this.setState({ 
-			init: true,
-			step: this.props.initialStep
-		});
+	// 	this.setState({ 
+	// 		init: true,
+	// 		step: this.props.initialStep
+	// 	});
 
-	},
+	// },
 
 	componentWillReceiveProps: function(props) {
 		var open = props.open === false ? false : true;
 
 		this.setState({
-			open: open,
-			step: this.props.initialStep
+			open: open
+			// step: this.props.initialStep
 		});
 
 	},
 
-	_nextStep: function(num) {
-		var step = this.state.step;
-		var next = step+1;
-		console.log('nextStep >>>', next);
-		if(!this.state.components[next]) return;
-		this.setState({
-			step: num || next
-		});
-	},
+	// _nextStep: function(num) {
+	// 	var step = this.state.step;
+	// 	var next = step+1;
+	// 	console.log('nextStep >>>', next);
+	// 	if(!this.state.components[next]) return;
+	// 	this.setState({
+	// 		step: num || next
+	// 	});
+	// },
 
-	_prevStep: function() {
-		var step = this.state.step;
-		var next = step-1;
-		console.log('<<< prevStep', next);
-		if(!this.state.components[next]) return;
-		this.setState({
-			step: next
-		});
-	},
+	// _prevStep: function() {
+	// 	var step = this.state.step;
+	// 	var next = step-1;
+	// 	console.log('<<< prevStep', next);
+	// 	if(!this.state.components[next]) return;
+	// 	this.setState({
+	// 		step: next
+	// 	});
+	// },
 
 	_closeModal: function(init){
 		this.setState({
@@ -78,27 +79,15 @@ var GSModalComponent = React.createClass({
 	},
 
 	_getBody: function() {
-		var Component = this.state.components[this.state.step];
-		console.log('_getBody: ', this.state.step);
 		return (
-			<GSStepComponent>
-				{
-					this.state.init ? (
-						<Component 
-							frases={this.props.frases} 
-							profile={this.state.profile} 
-							group={this.state.group} 
-							nextStep={this._nextStep}
-							prevStep={this._prevStep}
-							closeGS={this._closeModal}
-							// options={this.state.options} 
-						/>
-					) : (
-						<Spinner />
-					)
-				}
-						
-			</GSStepComponent>
+			<GSStepsComponent 
+				frases={this.props.frases}
+				profile={this.props.profile}
+				initialStep={this.props.initialStep} 
+				options={this.props.options}
+				onClose={this._closeModal}
+				sendLinks={this.props.sendLinks}
+			/>
 		);
 	},
 

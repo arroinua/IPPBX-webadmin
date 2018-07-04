@@ -51,7 +51,7 @@ var CallCreditsComponent = React.createClass({
 	_getCredits: function() {
 		BillingApi.getCredits(function(err, response) {
 			if(err) return notify_about('error', err.message);
-			this.setState({ credits: response.result.balance });
+			this.setState({ credits: (response.result ? response.result.balance : 0) });
 		}.bind(this));
 	},
 

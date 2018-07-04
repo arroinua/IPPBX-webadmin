@@ -2,6 +2,7 @@ function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
 	console.log('window parent: ', window.opener);
+	console.log('window onTokenReceived: ', window.onTokenReceived);
 	var frases = PbxObject.frases;
 	var driver = new Driver({
 		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
@@ -109,16 +110,15 @@ function load_chattrunk(params) {
 	var search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 	var queryParams = getQueryParams(search);
 	var selectedService = queryParams.channel;
+	var userAccessToken = search ? queryParams.access_token : null;
 
 	if(window.opener && window.onTokenReceived) {
-		var userAccessToken = search ? queryParams.access_token : null;
 		return window.onTokenReceived(userAccessToken);
-	}
-
-	if(PbxObject.userAccessToken) {
+	} else if(userAccessToken) {
 		services = services.map(function(item) {
 			console.log('load_chattrunk services:', item);
-			if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
+			if(item.id === 'FacebookMessenger') item.params.userAccessToken = userAccessToken;
+			// if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
 			return item;
 		});
 	}

@@ -6,12 +6,12 @@
     var infoCont = document.getElementById('info-cont');
     var loginInput = document.querySelector('input[name="login"]');
     var loginBtn = document.querySelector('input[type="submit"]');
-    var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    // var apiGateway = 'https://b9b9c400.ngrok.io/branch/api';
+    // var apiGateway = 'https://api-web.ringotel.net/branch/api';
+    var apiGateway = 'https://dee6c679.ngrok.io/branch/api';
     var host = window.location.host;
-    var bid = host.substr(0, host.indexOf('.'));
+    var prefix = host.substr(0, host.indexOf('.'));
 
-    loginInput.value = bid;
+    loginInput.value = prefix;
 
     formEl.addEventListener('submit', submitForm, false);
 
@@ -20,7 +20,7 @@
         var submitted = false;
         // var login = e.target.login.value;
         var pass = e.target.password.value;
-        var login = bid;
+        var login = prefix;
 
         console.log('submitForm: ', login, pass);
 
@@ -50,7 +50,8 @@
                 if(err) {
                     if(err === 'INVALID_LOGIN_PASSWORD') showInfo('Login or password is incorrect', 'error');
                     else showInfo('The service is under maintenance. Please, contact our support team support@ringotel.co for more details.', 'error');
-                    return toggleDisableState(formEl.submit, false);
+                    toggleDisableState(formEl.submit, false);
+                    // return toggleDisableState(formEl.submit, false);
                 } else {
                     window.location = '/badmin.html';
                 }
@@ -63,7 +64,7 @@
         request(
             'POST', 
             apiGateway+'/authorize', 
-            { login: params.login, password: params.password }, 
+            { prefix: prefix, login: params.login, password: params.password }, 
             { headers: [{ name: 'Content-type', value: 'application/json' }] }, 
             cb
         );

@@ -54,6 +54,10 @@ table.table>tbody>tr>td {
     background-color: $primary-color-l1;
 }
 
+.modal .modal-footer {
+    text-align: left;
+}
+
 /*
     Forms custom styles
 */
@@ -68,6 +72,25 @@ table.table>tbody>tr>td {
 
 .btn {
     border-radius: $global-radius;
+}
+
+.btn.btn-action {
+    color: #fff;
+    background: rgb(250,163,244);
+    background: linear-gradient(90deg, rgba(250,163,244,1) 0%, rgba(44,187,230,1) 100%);
+    border: none;
+}
+
+.init-gs-btn.btn.btn-action {
+    text-align: left;
+    -webkit-box-shadow: 0px 10px 27px -10px rgba(54,54,54,1);
+    -moz-box-shadow: 0px 10px 27px -10px rgba(54,54,54,1);
+    box-shadow: 0px 10px 27px -10px rgba(54,54,54,1);
+}
+
+.init-gs-btn.btn.btn-action i,
+.init-gs-btn.btn.btn-action span {
+    color: #fff;
 }
 
 /*

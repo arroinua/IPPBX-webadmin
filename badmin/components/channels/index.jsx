@@ -432,7 +432,7 @@
 												type !== 'Telephony' && (
 													<div className="form-group">
 														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
-														<div className="col-sm-4">
+														<div className="col-sm-3">
 															<input type="number" className="form-control replytimeout" name="replytimeout" value={this._toMinutes(params.replytimeout)} onChange={this._onParamsChange} />
 														</div>
 													</div>
@@ -440,7 +440,7 @@
 											}
 											<div className="form-group">
 												<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SESSION_TIMEOUT}</label>
-												<div className="col-sm-4">
+												<div className="col-sm-3">
 													<input type="number" className="form-control sessiontimeout" name="sessiontimeout" value={this._toMinutes(params.sessiontimeout)} onChange={this._onParamsChange} />
 												</div>
 											</div>

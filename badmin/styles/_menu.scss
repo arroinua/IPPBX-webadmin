@@ -60,6 +60,10 @@
         // margin: 0;
         padding: 0;
         margin-top: 15px;
+        border-radius: $global-radius;
+        // -webkit-box-shadow: 0px 10px 27px -10px rgba(54,54,54,1);
+        // -moz-box-shadow: 0px 10px 27px -10px rgba(54,54,54,1);
+        // box-shadow: 0px 10px 27px -10px rgba(54,54,54,1);
 
         > li:first-child > a {
             border-top-left-radius: $global-radius;
@@ -71,7 +75,7 @@
             border-bottom-right-radius: $global-radius;
         }
 
-        > li.active {
+        > li.active:not(.nav-divider) {
 
             border-bottom: none;
 
@@ -129,7 +133,7 @@
                 }
 
                 > ul {
-                    background-color: #eee;
+                    // background-color: #eee;
 
                     > li > a {
                         padding: 15px 7px;

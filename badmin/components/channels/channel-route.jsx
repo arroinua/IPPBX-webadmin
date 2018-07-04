@@ -161,7 +161,7 @@ var ChannelRouteComponent = React.createClass({
 					<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.SELECT_SERVICE_GROUP}</label>
 					{
 						this.state.routes.length ? (
-							<div className="col-sm-4">
+							<div className="col-sm-3">
 								<select className="form-control channel-routes" value={selectedRoute.oid} onChange={this._selectRoute}>
 									{
 										this._groupObjects(this.state.routes)
@@ -174,7 +174,7 @@ var ChannelRouteComponent = React.createClass({
 							</div>
 						)
 					}
-
+					<div className="col-sm-1">-- {frases.OR} --</div>
 					{
 						this.props.type === 'Telephony' ? (
 							<div className="col-sm-4 create-group-links">

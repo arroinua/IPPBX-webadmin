@@ -1427,7 +1427,7 @@ function load_bgroup(result){
         
         if(availableUsers) fill_list_items('available', availableUsers);
         // if(members) fill_list_items('members', members.sort());
-        if(members) fill_list_items('members', members);
+        if(members) fill_list_items('members', members, 'number');
 
         // Render route parameters
         renderObjRoute({
@@ -2460,8 +2460,8 @@ function checkHuntMode(e){
 
 var BillingApi = {
 
-	// url: 'https://b9b9c400.ngrok.io/branch/api/',
-	url: 'https://api-web.ringotel.net/branch/api/',
+	url: 'https://dee6c679.ngrok.io/branch/api/',
+	// url: 'https://api-web.ringotel.net/branch/api/',
 	cache: {},
 
 	fetch: function(method, url, data, options, callback){
@@ -2531,12 +2531,27 @@ var BillingApi = {
 		);
 	},
 
+	sendAppsLinks: function(email, callback) {
+		this.request('sendAppsLinks', { email: email }, callback);
+	},
+
+	getProration: function(sub, amount) {
+		console.log('getProration: ', sub, amount);
+		var now = Date.now();
+		var cycle = Math.floor((sub.nextBillingDate - sub.prevBillingDate) / 1000);
+		var left = sub.nextBillingDate > now ? Math.floor((sub.nextBillingDate - now) / 1000) : 0;
+		var ratio = (left / cycle).toFixed(2);
+		var proration = parseFloat(amount) * parseFloat(ratio);
+		
+		return proration;
+	},
+
 	getProfile: function(callback) {
 		this.request('getProfile', null, callback);
 	},
 
 	updateBalance: function(params, callback) {
-		this.request('getProfile', params, callback);	
+		this.request('updateBalance', params, callback);	
 	},
 
 	changeAdminEmail: function(params, callback) {
@@ -2628,7 +2643,7 @@ var BillingApi = {
 	},
 
 	updateDidRegistration: function(params, callback) {
-		this.request('updateDidStatus', params, callback);
+		this.request('updateDidRegistration', params, callback);
 	},
 
 	getCredits: function(callback) {
@@ -2708,7 +2723,8 @@ function load_billing() {
 		    extend: deepExtend,
 		    addCoupon: addCoupon,
 		    utils: {
-		    	convertBytes: convertBytes
+		    	convertBytes: convertBytes,
+		    	getProration: getProration
 		    }
 		}), cont);
 	}
@@ -2955,7 +2971,7 @@ function load_billing() {
 				remove_loading_panel();
 				
 				if(err) {
-					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'addCredits');
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance({ payment: params }, 'addCredits');
 					else notify_about('error', err.message);
 					return;
 				}
@@ -2981,6 +2997,10 @@ function load_billing() {
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});	
+	}
+
+	function getProration(sub, amount) {
+		return BillingApi.getProration(sub, amount);
 	}
 
 }
@@ -4099,6 +4119,7 @@ function load_chattrunk(params) {
 
 	console.log('load_chat_trunk: ', PbxObject.kind, params);
 	console.log('window parent: ', window.opener);
+	console.log('window onTokenReceived: ', window.onTokenReceived);
 	var frases = PbxObject.frases;
 	var driver = new Driver({
 		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
@@ -4206,16 +4227,15 @@ function load_chattrunk(params) {
 	var search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 	var queryParams = getQueryParams(search);
 	var selectedService = queryParams.channel;
+	var userAccessToken = search ? queryParams.access_token : null;
 
 	if(window.opener && window.onTokenReceived) {
-		var userAccessToken = search ? queryParams.access_token : null;
 		return window.onTokenReceived(userAccessToken);
-	}
-
-	if(PbxObject.userAccessToken) {
+	} else if(userAccessToken) {
 		services = services.map(function(item) {
 			console.log('load_chattrunk services:', item);
-			if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
+			if(item.id === 'FacebookMessenger') item.params.userAccessToken = userAccessToken;
+			// if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
 			return item;
 		});
 	}
@@ -4671,6 +4691,7 @@ function Dashboard(){
         this.statUpdate = setInterval(this.updateStatistics.bind(this), 1800*1000);
         addEvent(window, 'hashchange', this.stopUpdate.bind(this));
 
+        show_content();
         set_page();
 
     };
@@ -5662,8 +5683,6 @@ function GetStarted(container) {
 	}
 
 	this.init = function() {
-
-
 		// createTour();
 
 		// Get initial data for the Widget
@@ -5793,9 +5812,14 @@ function GetStarted(container) {
 		    profile: PbxObject.profile,
 		    options: PbxObject.options,
 		    objects: PbxObject.objects,
-		    onClose: onClose
+		    onClose: onClose,
+		    sendLinks: sendLinks
 		}), modalCont);
 
+	}
+
+	function sendLinks(email) {
+		
 	}
 
 	function onClose(init) {
@@ -6856,7 +6880,8 @@ function getPbxOptions(callback) {
 function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
-        query = location.hash.substring(1);
+        query = location.hash.substring(1),
+        profile = {};
         // search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
@@ -6876,28 +6901,44 @@ function setupPage() {
 
             // PbxObject.frases = translations;
 
-            BillingApi.getProfile(function(err, response) {
-                if(err) notify_about('error', err);
+            if(options.mode !== 1) { // if cloud branch
+                BillingApi.getProfile(function(err, response) {
+                    if(err) {
+                        notify_about('error', err);
+                    } else {
+                        profile = response.result;
+                    }
 
-                console.log('getProfile: ', err, response);
+                    console.log('getProfile: ', err, response);
 
-                // if(lastURL) {
-                //     window.sessionStorage.removeItem('lastURL');
-                //     window.location = lastURL;
-                // } else 
+                    // if(lastURL) {
+                    //     window.sessionStorage.removeItem('lastURL');
+                    //     window.location = lastURL;
+                    // } else 
 
-                if(window.sessionStorage.query && !window.opener) {
+                    if(window.sessionStorage.query && !window.opener) {
 
-                    // if(search) PbxObject.lastSearch = getQueryParams(search);
+                        // if(search) PbxObject.lastSearch = getQueryParams(search);
 
-                    window.location.hash = window.sessionStorage.query;
-                }
+                        window.location.hash = window.sessionStorage.query;
+                    }
 
-                PbxObject.profile = response ? response.result : {};
+                    PbxObject.profile = profile;
 
+                    // if(profile._id) {
+                    //     analytics.identify(profile._id, {
+                    //       name: profile.name,
+                    //       email: profile.email,
+                    //       company: profile.company
+                    //     });
+                    // }
+
+                    init_page();
+
+                });
+            } else {
                 init_page();
-
-            });
+            }
 
         });
 
@@ -6915,12 +6956,13 @@ function init_page(){
     var mainrend = Mustache.render(maintemp, PbxObject.frases);
     $('#pagecontainer').html(mainrend);
 
-    switchMode(PbxObject.options.config);
+    switchMode(PbxObject.options);
     document.getElementsByTagName('title')[0].innerHTML = 'UCC ' + PbxObject.frases.PBXADMIN;
 
     setPageHeight();
     subscribeToEvents();
-    loadStripeJs();
+    
+    if(PbxObject.options.mode !== 1) loadStripeJs();
 
     new GetStarted().init();
 
@@ -7553,9 +7595,11 @@ function show_content(togglecont){
 }
 
 //TODO stick to DRY principles
-function switchMode(config){
+function switchMode(options){
     // var menu = document.getElementById('pbxmenu');
     // var lists = [].slice.call(menu.querySelectorAll('ul li'));
+    var config = options.config;
+    var mode = options.mode;
     var lists = [].slice.call(document.querySelectorAll('.branch-mode'));
     if(config.indexOf('channels') == -1) {
         lists.forEach(function(item){
@@ -7591,6 +7635,12 @@ function switchMode(config){
         lists.forEach(function(item){
             // if(item.className.indexOf('mode-groups') != -1 || item.className.indexOf('mode-equipment') != -1)
             if(item.className.indexOf('mode-groups') != -1)
+                item.parentNode.removeChild(item);
+        });
+    }
+    if(mode === 1) {
+        lists.forEach(function(item){
+            if(item.className.indexOf('mode-single') != -1)
                 item.parentNode.removeChild(item);
         });
     }
@@ -8878,7 +8928,7 @@ function fill_list_items(listid, items, prop){
     var list = document.getElementById(listid),
         fragment = document.createDocumentFragment();
     for(var i=0; i<items.length; i++){
-        var item = prop ? items[i][prop] : items[i];
+        var item = (prop && items[i][prop]) ? items[i][prop] : items[i];
         var li = document.createElement('li');
         // addEvent(item, 'click', move_list_item);
         li.setAttribute('data-value', item);
@@ -8954,9 +9004,10 @@ function switchVisibility(selector, isVisible){
     else $(selector).hide();
 }
 
-function get_protocol_opts(protocol, options){
+function get_protocol_opts(protocol, params){
     
     var proto = protocol == 'h323' ? 'h323' : 'sip';
+    var options = params.parameters;
     var opts = Object.keys(PbxObject.protocolOpts).length !== 0 ? PbxObject.protocolOpts : options;
     var sipModes = [
         {mode: 'sip info', sel: 'sip info' === opts.dtmfmode},
@@ -8971,6 +9022,7 @@ function get_protocol_opts(protocol, options){
     ];
     var data = {
         opts: opts,
+        internal: params.type === 'internal',
         frases: PbxObject.frases
     };
     data.opts.dtmfmodes = proto == 'h323' ? h323Modes : sipModes;
@@ -11962,8 +12014,8 @@ function MyTour(name, options) {
 function load_trunk(result){
     // console.log(result);
     var type = result.type,
-        types = [].slice.call(document.querySelectorAll('[name="trunkType"]')),
-        passanumberEl = document.getElementById('passanumber');
+        types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
+        // passanumberEl = document.getElementById('passanumber');
 
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
@@ -12026,7 +12078,8 @@ function load_trunk(result){
             });
         }
         addEvent(protoOpts, 'click', function(){
-            get_protocol_opts(protocols.value, result.parameters);
+            getProtocolOptions(result.parameters);
+            // get_protocol_opts(protocols.value, result);
         });
         if(!PbxObject.templates.protocol){
             $.get('/badmin/views/protocol.html', function(template){
@@ -12112,7 +12165,7 @@ function load_trunk(result){
             document.getElementById('regexpires').value = result.parameters.regexpires || 60;
 
     }
-    if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
+    // if(passanumberEl) passanumberEl.checked = result.parameters.passanumber;
 
     var transforms = result.inboundanumbertransforms;
     if(transforms.length) {
@@ -12164,6 +12217,21 @@ function load_trunk(result){
 
     // renderTrunkOutRoute();
     
+}
+
+function getProtocolOptions(params) {
+    var protocols = document.getElementById('protocols');
+    var types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
+    var type = "";
+    types.forEach(function (item){
+        if(item.checked) {
+            type = item.value;
+        }
+    });
+
+    console.log('getProtocolOptions: ', params, type);
+
+    get_protocol_opts(protocols.value, { parameters: params, type: type });
 }
 
 function changeTrunkRegState(up) {
@@ -12406,6 +12474,7 @@ function load_users(params) {
 	var activeServices = PbxObject.options.services.filter(function(service){
 	    return service.state;
 	});
+	var tourStarted = false;
 
 	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
 		activeServices.unshift({
@@ -12506,7 +12575,7 @@ function load_users(params) {
 
 			init(objParams);
 
-			if(PbxObject.tourStarted) {
+			if(tourStarted) {
 				onFirstUserCreated();
 			}
 
@@ -12665,6 +12734,7 @@ function load_users(params) {
 	function initSteps() {
 		console.log('initSteps: ', driverSteps);
 		if(PbxObject.tourStarted && driverSteps.length) {
+			tourStarted = true;
 			driverSettings.onReset = showGSLink;
 			driver = new Driver(driverSettings);
 			driver.defineSteps(driverSteps);
