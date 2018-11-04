@@ -19,6 +19,7 @@ var AvailableUsersComponent = React.createClass({
 		var params = this.props.groupid ? { groupid: this.props.groupid } : null;
 		this._getAvailableUsers(params, function(result) {
 			var data = result.length ? this._sortItems(result, 'ext') : result;
+			console.log('AvailableUsersComponent componentWillMount: ', data);
 			this.setState({ data: data, init: true });
 		}.bind(this));
 	},

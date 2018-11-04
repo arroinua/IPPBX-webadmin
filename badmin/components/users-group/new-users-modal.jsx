@@ -14,12 +14,16 @@ var NewUsersModalComponent = React.createClass({
 		return {
 			userParams: {},
 			validationError: false,
-			init: false
+			init: false,
+			fetching: false
 		};
 	},
 
 	componentWillMount: function() {
-		var params = this.props.groupid ? { groupid: this.props.groupid } : null;
+		// var params = this.props.groupid ? { groupid: this.props.groupid } : null;
+		this.setState({
+			params: this.props.params
+		});
 		
 	},
 
@@ -29,7 +33,7 @@ var NewUsersModalComponent = React.createClass({
 		return (
 			<NewUsersComponent 
 				frases={frases} 
-				params={this.props.params} 
+				params={this.state.params} 
 				validationError={this.state.validationError} 
 				validateEmail={this._validateEmail} 
 				onChange={this._onChange} 
@@ -59,10 +63,13 @@ var NewUsersModalComponent = React.createClass({
 		}
 		
 		this.setState({
-			validationError: false
+			validationError: false,
+			fetching: true
 		});			
 
-		this.props.onSubmit(this.state.userParams);
+		this.props.onSubmit(this.state.userParams, function() {
+			this.setState({ opened: false, fetching: false });
+		}.bind(this));
 	},
 
 	_validateEmail: function(string) {
@@ -79,10 +86,12 @@ var NewUsersModalComponent = React.createClass({
 				size="md"
 				title={ frases.USERS_GROUP.NEW_USER_MODAL_TITLE }
 				type="success"
+				fetching={this.state.fetching}
 				submitText={frases.ADD} 
 				cancelText={frases.CLOSE} 
 				submit={this._saveChanges} 
 				body={this._getBody()}
+				open={this.state.opened}
 			>
 			</ModalComponent>
 		);

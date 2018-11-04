@@ -7,6 +7,7 @@ var OptionsComponent = React.createClass({
 		branchParams: React.PropTypes.object,
 		saveOptions: React.PropTypes.func,
 		saveBranchOptions: React.PropTypes.func,
+		generateApiKey: React.PropTypes.func,
 		singleBranch: React.PropTypes.bool
 	},
 
@@ -101,6 +102,30 @@ var OptionsComponent = React.createClass({
 		this.setState(state);
 	},
 
+	_handleOnApiKeyOptionsChange: function(params) {
+
+	},
+
+	_handleOnGdprSettsChange: function(gdprParams) {
+		var params = this.state.params;
+		params.gdpr = gdprParams;
+		this.setState({
+			params: params
+		});
+
+		console.log('_handleOnGdprSettsChange: ', params);
+	},
+
+	_handleOnTemplatesSettsChange: function(newParams) {
+		var params = this.state.params;
+		params.properties = newParams;
+		this.setState({
+			params: params
+		});
+
+		console.log('_handleOnGdprSettsChange: ', params);
+	},
+
 	_handleOnBranchOptionsChange: function(params) {
 		this.setState({ branchParams: params });
 	},
@@ -161,8 +186,11 @@ var OptionsComponent = React.createClass({
 					<PanelComponent header={panelHead}>
 		    			<ul className="nav nav-tabs" role="tablist">
 		    				<li role="presentation" className="active"><a href="#tab-general-options" aria-controls="general" role="tab" data-toggle="tab">{frases.SETTINGS.GENERAL_SETTS}</a></li>
-		    				<li role="presentation"><a href="#tab-security-options" aria-controls="queue" role="tab" data-toggle="tab">{frases.SETTINGS.SECURITY.SECURITY_SETTS}</a></li>
-		    				<li role="presentation"><a href="#tab-functions-options" aria-controls="queue" role="tab" data-toggle="tab">{frases.SETTINGS.FUNCSETTINGS}</a></li>
+		    				<li role="presentation"><a href="#tab-security-options" aria-controls="security-tab" role="tab" data-toggle="tab">{frases.SETTINGS.SECURITY.SECURITY_SETTS}</a></li>
+		    				<li role="presentation"><a href="#tab-functions-options" aria-controls="functions-tab" role="tab" data-toggle="tab">{frases.SETTINGS.FUNCSETTINGS}</a></li>
+		    				<li role="presentation"><a href="#tab-api-keys" aria-controls="api-keys-queue" role="tab" data-toggle="tab">API Keys</a></li>
+		    				<li role="presentation"><a href="#tab-gdpr-setts" aria-controls="gdpr-settings" role="tab" data-toggle="tab">{frases.SETTINGS.GDPR_SETTS}</a></li>
+		    				<li role="presentation"><a href="#tab-templates" aria-controls="templates-settings" role="tab" data-toggle="tab">{frases.SETTINGS.TEMPLATES_SETTS}</a></li>
 		    				{
 		    					this.props.singleBranch &&
 		    					<li role="presentation"><a href="#tab-branch-options" aria-controls="queue" role="tab" data-toggle="tab">{frases.SETTINGS.BRANCH_SETTS}</a></li>
@@ -178,6 +206,15 @@ var OptionsComponent = React.createClass({
 							</div>
 							<div role="tabpanel" className="tab-pane fade in" id="tab-functions-options">
 								<FunctionsOptionsComponent frases={this.props.frases} params={this.state.options} onChange={this._handleOnFuncOptionsChange} />
+							</div>
+							<div role="tabpanel" className="tab-pane fade in" id="tab-api-keys">
+								<ApiKeysComponent frases={this.props.frases} params={params} onChange={this._handleOnApiKeyOptionsChange} generateApiKey={this.props.generateApiKey} />
+							</div>
+							<div role="tabpanel" className="tab-pane fade in" id="tab-gdpr-setts">
+								<GdprSettingsComponent frases={this.props.frases} params={params} onChange={this._handleOnGdprSettsChange} />
+							</div>
+							<div role="tabpanel" className="tab-pane fade in" id="tab-templates">
+								<TemplatesSettingsComponent frases={this.props.frases} params={params.properties} onChange={this._handleOnTemplatesSettsChange} />
 							</div>
 							{
 								this.props.singleBranch && (

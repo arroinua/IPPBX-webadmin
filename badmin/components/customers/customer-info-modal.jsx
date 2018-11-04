@@ -37,7 +37,7 @@ var CustomerInfoModalComponent = React.createClass({
 		return (
 			<div className="row">
 				<div className="col-xs-12">
-					<CustomerInfoComponent frases={this.props.frases} params={this.props.params} onDelete={this.props.onDelete} />
+					<CustomerInfoComponent frases={this.props.frases} params={this.props.params} getPrivacyPrefs={this.props.getPrivacyPrefs} onDelete={this.props.onDelete} />
 				</div>
 				<div className="col-xs-12 text-right">
 					<a href={exportLink} className="btn btn-link" target="_blank" onClick={this._onExport}>{frases.CUSTOMERS.EXPORT_BTN}</a>
@@ -51,7 +51,7 @@ var CustomerInfoModalComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var params = this.props.params;
-		var cname = params.name ? params.name : (params.usinfo.email || params.usinfo.phone);
+		var cname = params.name ? params.name : (params.usinfo && (params.usinfo.email || params.usinfo.phone));
 	
 		return (
 			<ModalComponent 

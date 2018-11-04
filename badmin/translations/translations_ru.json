@@ -267,6 +267,8 @@
 		"LIMITEDCONN" : "Ограниченные соединения",
 		"MAXCONN" : "Кол-во соединений",
 		"GENERAL_SETTS" : "Общие",
+		"GDPR_SETTS" : "GDPR",
+		"TEMPLATES_SETTS" : "Шаблоны",
 		"FUNCSETTINGS" : "Функции АТС",
 		"REC_SETTINGS" : "Записи разговоров",
 		"STORAGE_SETTINGS" : "Хранилище",
@@ -541,10 +543,26 @@
 			"consent": "Согласие",
 			"email": "Email",
 			"phone": "Телефон",
+			"mobile": "Номер мобильного",
+			"department": "Департамент",
 			"company": "Компания",
 			"organization": "Организация",
 			"about": "Информация",
 			"tags": "Теги"
+		},
+		"PRIVACY_PREFS": {
+			"LAWFUL_BASIS": "Законное обоснование",
+			"CREATED_BY": "Кем создано",
+			"CREATED": "Когда создано",
+			"FILE": "Файл",
+			"LAWFUL_BASES" : {
+				"0": "Legitimate interest",
+				"1": "Contract",
+				"2": "Consent",
+				"3": "Vital interest",
+				"4": "Legal obligation",
+				"5": "Public task"
+			}
 		},
 		"DETAILS_BTN": "Детали",
 		"EXPORT_BTN": "Экспортировать данные клиента",
@@ -622,6 +640,7 @@
         "records": "Журнал вызовов",
         "rec_settings": "Настройка записи разговоров",
         "statistics": "Статистика звонков",
+        "reg_history": "История регистраций",
         "channel_statistics": "Статистика чатов",
         "reports": "Отчеты",
         "extensions": "Внутренние номера",
@@ -740,6 +759,20 @@
 	    	"RNE": "R-factor на стороне сервера"
 	    }
     },
+    "REG_HISTORY": {
+    	"SELECT_USER_PLACEHOLDER": "Выбрать пользователя...",
+    	"IP_FILTER_PLACEHOLDER": "Фильтр по IP (опционально)",
+    	"SEARCH_BTN": "Поиск",
+    	"NO_DATA" : "Нет данных за выбранный период",
+    	"FIRST_REG": "Первая рег.",
+    	"LAST_REG": "Последняя разрег.",
+    	"TOTAL_DURATION": "Общее время в рег.",
+    	"REG_TIME": "Время рег.",
+    	"UNREG_TIME": "Время разрег.",
+    	"REG_DURATION": "Длительность рег.",
+    	"IP_ADDR": "IP адрес",
+    	"DEV_INFO": "Об устройстве"
+    },
     "DATE_PICKER" : {
     	"TODAY" : "Сегодня",
     	"YESTERDAY" : "Вчера",
@@ -839,6 +872,7 @@
     "CHAT_TRUNK": {
     	"OBJ_NAME_PLACEHOLDER" : "Имя канала",
     	"SELECT_SERVICE": "Выберите сервис",
+    	"SELECTED_SERVICE": "Выбранный сервис",
     	"NO_CHANNELS_MSG_1": "Вам необходимо",
     	"NO_CHANNELS_MSG_2": "перед тем как подключить Канал",
     	"CREATE_CHANNEL": "создать Канал",
@@ -849,6 +883,7 @@
     	"GROUP_IN_REQUEST": "Выбор группы обслуживания в запросе",
     	"CREATE_SERVICE_GROUP": "Создать группу обслуживания",
     	"CREATE_HUNTING_GROUP": "Создать группу распределения вызовов",
+    	"CREATE_TRUNK": "Создать Транк",
     	"CREATE_ICD_GROUP": "Создать горячую линию",
     	"NO_SERVICE_GROUP": "У вас еще нет групп обслуживания",
     	"SERVICE_GROUP_NOT_SELECTED": "Группа обслуживания не выбрана",
@@ -856,7 +891,8 @@
     		"LOGIN_MSG": "Подключите ваш Facebook аккаунт. Вам нужен аккаунт Facebook с разрешениями для управления опубликованной страницей Facebook.",
     		"NO_PAGES_MSG": "Похоже, вы еще не создали и / или не управляете ни одной страницей Facebook",
     		"LEARN_MORE_LINK": "Узнайте, как создать страницу в Facebook",
-    		"SELECT_PAGE": "Выбрать Facebook страницу"
+    		"SELECT_PAGE": "Выбрать Facebook страницу",
+    		"SELECTED_PAGE": "Выбранная страница"
     	},
     	"EMAIL": {
     		"SELECT_ACCOUNT_PROVIDER": "Провайдер учетной записи",
@@ -874,6 +910,11 @@
     		"NUMBER": "Номер",
     		"STATUS": "Статус",
     		"ADD_NUMBER_BTN": "Добавить номер",
+    		"CONNECT_TRUNK_BTN": "Привязать транк",
+    		"SELECT_TRUNK_LABEL": "Выбрать транк",
+    		"SELECTED_TRUNK_LABEL": "Выбранный транк",
+    		"TRUNK_NUMBER_LABEL": "Телефонный номер транка",
+    		"NO_CREATED_TRUNKS": "Транк еще не создан",
     		"BUY_NUMBER_BTN": "Купить номер",
     		"SELECT_COUNTRY": "Виберите страну",
     		"SELECT_REGION": "Выберите регион/штат",
@@ -904,6 +945,37 @@
     			"7": "Справка об адресе (копия счета за коммунальные услуги не старше 6 месяцев).",
     			"8": "Форма регистрации должна быть заполнена и подписана конечным пользователем. При регистрации вам будет оказана необходимая форму."
     		}
+    	},
+    	"WEBCHAT": {
+    		"CODE_SNIPPET": "Код для веб-сайта",
+    		"SHOW_CODE_BTN": "Показать код",
+    		"SHOW_CODE_BTN_WARNING": "сначала создайте канал",
+    		"DOMAIN": "Доменное имя веб-сайта",
+    		"TITLE": "Заголовок виджета",
+    		"POSITION": "Расположение на странице",
+    		"RIGHT_POSITION": "справа",
+    		"LEFT_POSITION": "слева",
+    		"COLOR_THEME": "Цветовая схема",
+    		"INTRO_CHECKBOX": "Форма обратной связи",
+    		"INTRO_MESSAGE_LABEL": "Сообщение",
+    		"INTRO_MESSAGE": "Пожалуйста, заполните форму, чтобы начать чат:",
+    		"ADD_FIELD_BTN": "Добавить поле",
+    		"INTRO_FIELDS_LABELS": {
+    			"uname": "Имя",
+    			"email": "Email",
+    			"phone": "Номер телефона",
+    			"consent": "Согласие"
+    		},
+    		"INTRO_FIELDS_PLACEHOLDERS": {
+    			"uname": "Введите Ваше имя",
+    			"email": "Введите Ваш email",
+    			"phone": "Введите Ваш номер телефона",
+    			"consent": ""
+    		},
+    		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайта",
+    		"CODE_SNIPPET_MODAL_TEXT": "Добавьте этот скрипт на каждую веб-страницу, где вы хотите, чтобы виджет появился. Вы можете поместить скрипт в любом месте в пределах <HEAD> или <BODY> тегов.",
+    		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопировать в буфер",
+    		"CODE_SNIPPET_MODAL_COPIED_BTN": "Скопировано"
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -1067,6 +1139,32 @@
     		"CARD_WILL_EXPIRE_P2": "чтобы избежать прерывания работы сервиса"
     	}
 
+    },
+    "GDPR": {
+    	"TAB_NAME": "GDPR",
+    	"ADD_NEW_PROFILE_BTN": "Добавить новый профиль",
+    	"DELETE_PROFILE_BTN": "Удалить профиль",
+    	"PROFILE_NAME_LABEL": "Имя профиля",
+    	"PROFILE_LANGUAGE_LABEL": "Язык профиля",
+    	"COMPANY_NAME_LABEL": "Имя компании",
+    	"POLICY_LINK_LABEL": "Ссылка на Политику конфиденциальности",
+    	"CONSENT_TEXT_LABEL": "Текст согласия",
+    	"PURPOSES_LABEL": "Причины",
+    	"DEFAULT_CONSENT_TEXT": "(\"us\", \"we\", \"our\") will use your personal information to get in touch with you and to provide updates and marketing. If at any time you wish to stop receiving messages from us, you can return to this page and change your preferences. If at any time you wish to change or withdraw your personal information, you can contact us via email that you can find on our website.",
+    	"PURPOSES": {
+    		"service": "Обслуживание",
+    		"promotions": "Акции",
+    		"invitations": "Приглашения",
+    		"urgent": "Важные сообщения",
+    		"updates": "Новости и обновления",
+    		"press": "Пресс-релизы"
+    	}
+    },
+    "TEMPLATES_SETTS": {
+    	"NEW_USER_DESC": "Вы можете установить тему и текст письма, которое будет отправлено на электронную почту пользователя после создания аккаунта.",
+    	"NEW_USER_SUBJECT_LABEL": "Тема сообщения",
+    	"NEW_USER_BODY_LABEL": "Содержимое сообщения",
+    	"NEW_USER_BODY_HELPER": "Где %% - это данные для входа в аккаунт"
     },
     "TOURS": {
     	"NEXT_STEP": "Далее",

@@ -267,6 +267,8 @@
 		"LIMITEDCONN" : "Limited connections",
 		"MAXCONN" : "Max. connections",
 		"GENERAL_SETTS" : "General",
+		"GDPR_SETTS" : "GDPR",
+		"TEMPLATES_SETTS" : "Templates",
 		"FUNCSETTINGS" : "PBX Features",
 		"REC_SETTINGS" : "Recording",
 		"STORAGE_SETTINGS" : "Storage",
@@ -540,10 +542,26 @@
 			"consent": "Consent",
 			"email": "Email",
 			"phone": "Phone",
+			"mobile": "Mobile number",
+			"department": "Department",
 			"company": "Company",
 			"organization": "Organization",
 			"about": "About",
 			"tags": "Tags"
+		},
+		"PRIVACY_PREFS": {
+			"LAWFUL_BASIS": "Lawful basis",
+			"CREATED_BY": "Created by",
+			"CREATED": "Created",
+			"FILE": "File",
+			"LAWFUL_BASES" : {
+				"0": "Legitimate interest",
+				"1": "Contract",
+				"2": "Consent",
+				"3": "Vital interest",
+				"4": "Legal obligation",
+				"5": "Public task"
+			}
 		},
 		"DETAILS_BTN": "Details",
 		"EXPORT_BTN": "Export customer data",
@@ -621,6 +639,7 @@
         "records": "Call Records",
         "rec_settings": "Recording settings",
         "statistics": "Calls statistics",
+        "reg_history": "Registration history",
         "channel_statistics": "Channel statistics",
         "reports": "Reports",
         "extensions": "Extensions",
@@ -739,6 +758,20 @@
 	    	"RNE": "R-factor (server)"
 	    }
     },
+    "REG_HISTORY": {
+    	"SELECT_USER_PLACEHOLDER": "Select user...",
+    	"IP_FILTER_PLACEHOLDER": "Filter by IP address (optional)",
+    	"SEARCH_BTN": "Search",
+    	"NO_DATA" : "No data for the selected period",
+    	"FIRST_REG": "First reg.",
+    	"LAST_REG": "Last unreg.",
+    	"TOTAL_DURATION": "Total reg. duration",
+    	"REG_TIME": "Reg. time",
+    	"UNREG_TIME": "Unreg. time",
+    	"REG_DURATION": "Reg. duration",
+    	"IP_ADDR": "IP address",
+    	"DEV_INFO": "Device info"
+    },
     "DATE_PICKER" : {
     	"TODAY" : "Today",
     	"YESTERDAY" : "Yesterday",
@@ -838,6 +871,7 @@
     "CHAT_TRUNK": {
 		"OBJ_NAME_PLACEHOLDER" : "Channel name",
     	"SELECT_SERVICE": "Select service",
+    	"SELECTED_SERVICE": "Selected service",
     	"NO_CHANNELS_MSG_1": "You need to",
     	"NO_CHANNELS_MSG_2": "before connecting a Chat trnuk",
     	"CREATE_CHANNEL": "create new Service group",
@@ -846,16 +880,18 @@
     	"SESSION_TIMEOUT": "Session timeout (min)",
     	"REPLY_TIMEOUT": "Reply timeout (min)",
     	"GROUP_IN_REQUEST": "Select service group in request",
-    	"CREATE_SERVICE_GROUP": "Create Service group",
-    	"CREATE_HUNTING_GROUP": "Create Hunting group",
-    	"CREATE_ICD_GROUP": "Create Hotline",
+    	"CREATE_SERVICE_GROUP": "Create a Service group",
+    	"CREATE_HUNTING_GROUP": "Create a Hunting group",
+    	"CREATE_TRUNK": "Create a Trunk",
+    	"CREATE_ICD_GROUP": "Create a Hotline",
     	"NO_SERVICE_GROUP": "You don't have service groups yet.",
     	"SERVICE_GROUP_NOT_SELECTED": "Service group is not selected",
     	"FACEBOOK": {
     		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
     		"LEARN_MORE_LINK": "Learn how to create one",
-    		"SELECT_PAGE": "Select Facebook Page"
+    		"SELECT_PAGE": "Select Page",
+    		"SELECTED_PAGE": "Selected Page"
     	},
     	"EMAIL": {
     		"SELECT_ACCOUNT_PROVIDER": " Mail account provider",
@@ -872,12 +908,17 @@
     		"LOCATION": "Location",
     		"NUMBER": "Number",
     		"STATUS": "Status",
-    		"ADD_NUMBER_BTN": "Add new number",
-    		"BUY_NUMBER_BTN": "Buy number",
-    		"SELECT_COUNTRY": "Select country",
-    		"SELECT_REGION": "Select region/state",
-    		"SELECT_LOCATION": "Select location",
-    		"SELECT_NUMBER": "Select number",
+    		"ADD_NUMBER_BTN": "Buy a new number",
+    		"CONNECT_TRUNK_BTN": "Connect a trunk",
+    		"SELECT_TRUNK_LABEL": "Select a trunk",
+    		"SELECTED_TRUNK_LABEL": "Selected trunk",
+    		"TRUNK_NUMBER_LABEL": "Trunk phone number",
+    		"NO_CREATED_TRUNKS": "No trunks created yet",
+    		"BUY_NUMBER_BTN": "Buy a number",
+    		"SELECT_COUNTRY": "Select a country",
+    		"SELECT_REGION": "Select a region/state",
+    		"SELECT_LOCATION": "Select a location",
+    		"SELECT_NUMBER": "Select a number",
     		"DELETE_SIP_CHANNEL_MSG": "IMPORTANT: By deleting the channel the number assigned to it will be also deleted. You will no longer receive call via this channel.",
     		"DELETE_OTHER_CHANNEL_MSG": "IMPORTANT: By deleting the channel you will no longer receive requests via this channel.",
     		"NOTIFY_LOCATION_NOT_SELECTED": "Please select number location",
@@ -903,6 +944,37 @@
     			"7": "Proof of address form (copy of utility bill no older than 6 months).",
     			"8": "Specific registration form needs to be filled in and signed by the end user. You will be provided with the required form during registration process."
     		}
+    	},
+    	"WEBCHAT": {
+    		"CODE_SNIPPET": "Code snippet",
+    		"SHOW_CODE_BTN": "Show code",
+    		"SHOW_CODE_BTN_WARNING": "create a channel first",
+    		"DOMAIN": "Website domain",
+    		"TITLE": "Widget title",
+    		"POSITION": "Position on the webpage",
+    		"RIGHT_POSITION": "right",
+    		"LEFT_POSITION": "left",
+    		"COLOR_THEME": "Color theme",
+    		"INTRO_CHECKBOX": "Pre-chat survey",
+    		"INTRO_MESSAGE_LABEL": "Message",
+    		"INTRO_MESSAGE": "To start chat, please fill in the form below",
+    		"ADD_FIELD_BTN": "Add field",
+    		"INTRO_FIELDS_LABELS": {
+    			"uname": "Name",
+    			"email": "Email",
+    			"phone": "Phone",
+    			"consent": "Consent"
+    		},
+    		"INTRO_FIELDS_PLACEHOLDERS": {
+    			"uname": "Enter your name",
+    			"email": "Enter your email",
+    			"phone": "Enter your phone number",
+    			"consent": ""
+    		},
+    		"CODE_SNIPPET_MODAL_TITLE": "Code snippet",
+    		"CODE_SNIPPET_MODAL_TEXT": "Add this script to every webpage where you want the widget to appear. You can place the script anywhere within the <head> or <body> tags.",
+    		"CODE_SNIPPET_MODAL_COPY_BTN": "Copy to clipboard",
+    		"CODE_SNIPPET_MODAL_COPIED_BTN": "Copied"
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -1051,7 +1123,7 @@
     		"NEW_ANNUALLY_RATE_MSG": "Your new annual rate will be",
     		"NEW_SUB_AMOUNT": "Your new subscription amount will be",
     		"TODAY_CHARGE_MSG": "Today you will be charged",
-    		"ADD_NUMBER_NEW_AMOUNT": "This number will add the following amount to your subscription",
+    		"ADD_NUMBER_NEW_AMOUNT": "This number will extend your subscription cost by",
     		"ADD_CALL_CREDITS": "Calling credits are used to make outgoing call to international numbers.",
     		"PLUS_TAXES": "plus applicable taxes",
     		"CONFIRM_PAYMENT": "Pay now",
@@ -1066,6 +1138,32 @@
     		"CARD_WILL_EXPIRE_P2": "to avoid service interruption"
     	}
 
+    },
+    "GDPR": {
+    	"TAB_NAME": "GDPR",
+    	"ADD_NEW_PROFILE_BTN": "Add new profile",
+    	"DELETE_PROFILE_BTN": "Delete profile",
+    	"PROFILE_NAME_LABEL": "Profile name",
+    	"PROFILE_LANGUAGE_LABEL": "Profile language",
+    	"COMPANY_NAME_LABEL": "Company name",
+    	"POLICY_LINK_LABEL": "Privacy Policy link",
+    	"CONSENT_TEXT_LABEL": "Consent text",
+    	"PURPOSES_LABEL": "Purposes",
+    	"DEFAULT_CONSENT_TEXT": "(\"us\", \"we\", \"our\") will use your personal information to get in touch with you and to provide updates and marketing. If at any time you wish to stop receiving messages from us, you can return to this page and change your preferences. If at any time you wish to change or withdraw your personal information, you can contact us via email that you can find on our website.",
+    	"PURPOSES": {
+    		"service": "Service & Sale",
+    		"promotions": "Promotions",
+    		"invitations": "Invitations",
+    		"urgent": "Urgent messages",
+    		"updates": "News & updates",
+    		"press": "Press releases"
+    	}
+    },
+    "TEMPLATES_SETTS": {
+    	"NEW_USER_DESC": "You can set a subject and a body of the email, that will be sent to the user's email after an account has been created.",
+    	"NEW_USER_SUBJECT_LABEL": "Email subject",
+    	"NEW_USER_BODY_LABEL": "Email body",
+    	"NEW_USER_BODY_HELPER": "Where %% is a login credentials"
     },
     "TOURS": {
     	"NEXT_STEP": "Next",

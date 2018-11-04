@@ -666,6 +666,9 @@ function getUserInfo(userid){
                 data: result,
                 frases: PbxObject.frases
             };
+
+            data.data.email = data.data.email || data.data.mail;
+
             rendered = Mustache.render(template, data);
             $('#userInfo').html(rendered);
             btn.innerHTML = btnContent;

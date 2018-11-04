@@ -6,6 +6,7 @@ var Select3 = React.createClass({
     value: React.PropTypes.object,
     readonly: React.PropTypes.bool,
     options: React.PropTypes.array,
+    inputStyles: React.PropTypes.object,
     onChange: React.PropTypes.func
   },
 
@@ -171,7 +172,8 @@ var Select3 = React.createClass({
           type="text" 
           name={ this.props.name ? this.props.name : '' } 
           placeholder={ this.props.placeholder ? this.props.placeholder : '' } 
-          className="Select3-input" 
+          className="Select3-input"
+          style={this.props.inputStyles || {}}
           readOnly={this.props.readonly}
           value={this.state.value.label} 
           onFocus={this.openMenu} 

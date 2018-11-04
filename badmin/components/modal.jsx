@@ -12,7 +12,9 @@ var ModalComponent = React.createClass({
 		submit: React.PropTypes.func,
 		onClose: React.PropTypes.func,
 		body: React.PropTypes.element,
-		children: React.PropTypes.array
+		children: React.PropTypes.array,
+		cont: React.PropTypes.bool,
+		fetching: React.PropTypes.bool
 	},
 	
 	el: null,
@@ -26,11 +28,12 @@ var ModalComponent = React.createClass({
 			$(this.el).on('hidden.bs.modal', this.props.onClose)
 	},
 
-	componentDidUpdate: function() {
-		if(this.props.open === true || this.props.open === undefined) {
-			this._openModal();
-		}
-	},
+	// componentDidUpdate: function() {
+	// 	console.log('componentDidUpdate: ', this.props);
+	// 	if(this.props.open === true || this.props.open === undefined) {
+	// 		this._openModal();
+	// 	}
+	// },
 
 	componentWillReceiveProps: function(props) {
 		if(props.open === false) {
@@ -38,6 +41,11 @@ var ModalComponent = React.createClass({
 		} else if(props.open === true) {
 			this._openModal();
 		}
+	},
+
+	componentWillUnmount: function() {
+		var cont = document.getElementById('modal-container');
+		if(cont) cont.parentNode.removeChild(cont);
 	},
 
 	_openModal: function() {
@@ -56,8 +64,21 @@ var ModalComponent = React.createClass({
 	},
 
 	_onRef: function(el) {
-		console.log('_onRef:', el);
+		if(!el) return;
+		
 		this.el = el;
+
+		var cont = document.getElementById('modal-container');
+		if(cont) { cont.removeChild(cont.firstChild); }
+		else {
+			cont = document.createElement('div'); 
+			cont.id='modal-container';
+			document.body.insertBefore(cont, document.body.firstChild);
+		}
+		// var clone = el.cloneNode(true);
+		cont.appendChild(el);
+		// el.parentNode.removeChild(el);
+		// this.el = clone;
 	},
 
 	render: function() {
@@ -79,7 +100,7 @@ var ModalComponent = React.createClass({
 						</div>
 						{ this.props.submit ? 
 						<div className="modal-footer">
-							<button className={"btn btn-"+(this.props.type || "primary")} onClick={this._submitModal}>{this.props.submitText}</button>
+							<button className={"btn btn-"+(this.props.type || "primary")} onClick={this._submitModal} disabled={this.props.fetching ? true : false}>{ this.props.fetching ? <span className="fa fa-spinner fa-spin fa-fw"></span> : this.props.submitText}</button>
 							<button className="btn btn-link" data-dismiss="modal">{this.props.cancelText}</button>
 						</div>
 						: null }

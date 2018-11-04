@@ -1340,6 +1340,21 @@ input.cmn-toggle-round:checked + label:before {
   display: none;
 }
 
+.chattrunk-service-cont {
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+}
+
+.chattrunk-service-item {
+  width: 100px;
+  padding: 10px 0;
+}
+
+.chattrunk-service-item.selected {
+  background-color: #eee;
+}
+
 #gs-modal-cont .modal-body {
   background: -webkit-linear-gradient(270deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
   background: linear-gradient(180deg, rgba(68, 187, 253, 0.5) 0%, rgba(127, 199, 255, 0.5) 10%, rgba(142, 221, 255, 0.5) 30%, rgba(157, 251, 255, 0.5) 55%, rgba(250, 254, 255, 0.5) 100%);
@@ -1518,7 +1533,7 @@ input.cmn-toggle-round:checked + label:before {
   overflow-x: hidden;
 }
 .Select3 .Select3-menu-list ul {
-  max-height: 100px;
+  max-height: 200px;
   margin: 0;
   padding: 0;
   overflow-y: scroll;

@@ -1,0 +1,14 @@
+.chattrunk-service-cont {
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+}
+
+.chattrunk-service-item {
+	width: 100px;
+	padding: 10px 0;
+}
+
+.chattrunk-service-item.selected {
+	background-color: #eee;
+}

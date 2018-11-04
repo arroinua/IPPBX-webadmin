@@ -105,6 +105,7 @@ var UsersGroupComponent = React.createClass({
 			    	<div className="col-xs-12">
 			    		<GroupMembersComponent 
 			    			frases={frases} 
+			    			doSort={true}
 			    			onSort={this._onSortMember} 
 			    			members={members} 
 			    			getExtension={this.props.getExtension} 

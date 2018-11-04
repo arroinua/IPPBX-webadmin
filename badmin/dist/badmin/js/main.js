@@ -2459,9 +2459,8 @@ function checkHuntMode(e){
 }
 
 var BillingApi = {
-
-	url: 'https://dee6c679.ngrok.io/branch/api/',
-	// url: 'https://api-web.ringotel.net/branch/api/',
+	// url: 'https://a0addce0.ngrok.io/branch/api/',
+	url: 'https://api-web.ringotel.net/branch/api/',
 	cache: {},
 
 	fetch: function(method, url, data, options, callback){
@@ -3054,13 +3053,14 @@ function load_branch_options() {
 		}
 
 		if(newOptions.lang && newOptions.lang !== initLang) {	    
-		    handler = set_options_success;
+		    handler = set_options_success_with_reload;
 		} else {
 		    handler = set_object_success;
 		}
 
 		json_rpc_async('setPbxOptions', newOptions, function(result) {
-			PbxObject.options = options = newOptions;
+			options = deepExtend(options, newOptions);
+			PbxObject.options = options;
 
 			console.log('setPbxOptions success: ', newOptions, options);
 
@@ -3091,6 +3091,14 @@ function load_branch_options() {
 		});
 	}
 
+	function generateApiKey(params, callback) {
+		show_loading_panel();
+		json_rpc_async('createAPIKey', params, function(result) {
+			show_content();
+			callback(result);
+		});
+	}
+
 	function saveBranchOptions(newOptions) {
 		console.log('saveBranchOptions: ', newOptions);
 
@@ -3104,6 +3112,7 @@ function load_branch_options() {
 		    params: options,
 		    branchParams: branchOptions,
 		    saveOptions: saveOptions,
+		    generateApiKey: generateApiKey,
 		    saveBranchOptions: saveBranchOptions
 		};
 
@@ -4131,12 +4140,27 @@ function load_chattrunk(params) {
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
-	var services = [{
+	var services = [
+	{
+	// 	id: 'FacebookMessenger',
+	// 	name: "Instagram",
+	// 	icon: '/badmin/images/channels/instagram.png',
+	// 	params: {
+	// 		// appId: '507766126349295',
+	// 		appId: '1920629758202993',
+	// 		// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
+	// 		redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
+	// 	},
+	// 	component: InstagramTrunkComponent
+	// }, {
 		id: 'FacebookMessenger',
-		name: "Messenger",
-		icon: '/badmin/images/channels/fm.png',
+		name: "Facebook & Messenger",
+		icon: '/badmin/images/channels/facebook.png',
 		params: {
-			appId: '1920629758202993'
+			// appId: '507766126349295',
+			appId: '1920629758202993',
+			// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
+			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
 	}, {
@@ -4197,16 +4221,13 @@ function load_chattrunk(params) {
 		name: 'Number',
 		icon: '/badmin/images/channels/did.png',
 		component: DidTrunkComponent
+	}, {
+		id: 'WebChat',
+		name: 'Webchat',
+		icon: '/badmin/images/channels/webchat.png',
+		component: WebchatTrunkComponent
 	}
-	// {
-	// 	id: 'Facebook',
-	// 	name: "Facebook",
-	// 	icon: '/badmin/images/facebook.png',
-	// 	params: {
-	// 		appId: '1920629758202993'
-	// 	}
-		
-	// },{
+	// ,{
 	// 	id: 'Twitter',
 	// 	name: "Twitter",
 	// 	icon: '/badmin/images/twitter.png',
@@ -4229,8 +4250,8 @@ function load_chattrunk(params) {
 	var selectedService = queryParams.channel;
 	var userAccessToken = search ? queryParams.access_token : null;
 
-	if(window.opener && window.onTokenReceived) {
-		return window.onTokenReceived(userAccessToken);
+	if(window.opener && window.opener.onTokenReceived) {
+		return window.opener.onTokenReceived(userAccessToken);
 	} else if(userAccessToken) {
 		services = services.map(function(item) {
 			console.log('load_chattrunk services:', item);
@@ -4276,6 +4297,14 @@ function load_chattrunk(params) {
 				set_object_success();
 			} else {
 				PbxObject.name = params.name;
+				if(params.oid) {
+					getPageid(params, function(result) {
+						if(result.pageid) {
+							render(result.type, result);
+						}
+					});
+				}
+
 			}
 
 			render(params.type, params);
@@ -4283,6 +4312,10 @@ function load_chattrunk(params) {
 
 		});
     	
+	}
+
+	function getPageid(params, callback) {
+		json_rpc_async('getObject', { oid: params.oid }, callback);
 	}
 
 	function confirmRemoveObject(type, callback) {
@@ -4391,9 +4424,9 @@ function load_chattrunk(params) {
 		}, 500);
 	}
 
-	function onTokenReceived(token) {
-		PbxObject.userAccessToken = token;
-	}
+	// function onTokenReceived(token) {
+	// 	PbxObject.userAccessToken = token;
+	// }
 
 	function render(type, params) {
 		var componentParams = {
@@ -4412,8 +4445,8 @@ function load_chattrunk(params) {
 		    initSteps: initSteps,
 		    addSteps: addSteps,
 		    nextStep: nextStep,
-		    highlightStep: highlightStep,
-		    onTokenReceived: onTokenReceived
+		    highlightStep: highlightStep
+		    // onTokenReceived: onTokenReceived
 		};
 
 		console.log('render: ', componentParams);
@@ -4635,12 +4668,22 @@ function load_customers(params) {
     	});
     }
 
+    function getPrivacyPrefs(customerId, callback) {
+        console.log('getPrivacyPrefs: ', customerId);
+        json_rpc_async('getCustomerConsent', { customerid: customerId }, function(response, err) {
+            console.log('getCustomerConsent: ', response);
+            if(err) return notify_about('error', err);
+            callback(response);
+        });
+    }
+
     function openCustomerInfo(params) {
     	ReactDOM.render(
     		CustomerInfoModalComponent({
     			frases: frases,
     			params: params,
-    			onDelete: onDelete
+    			onDelete: onDelete,
+                getPrivacyPrefs: getPrivacyPrefs
     		}),
     		modalCont
     	);
@@ -5659,6 +5702,9 @@ function getUserInfo(userid){
                 data: result,
                 frases: PbxObject.frases
             };
+
+            data.data.email = data.data.email || data.data.mail;
+
             rendered = Mustache.render(template, data);
             $('#userInfo').html(rendered);
             btn.innerHTML = btnContent;
@@ -6245,9 +6291,9 @@ function Ldap(options){
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 window.location = error.redirection;
-            // } else if(error && error.code === 401) {
-            //     options.external = true;
-            //     openAuthModal();
+            } else if(error && error.code === 401) {
+                options.external = true;
+                openAuthModal();
             } else {
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -6553,7 +6599,7 @@ function createWebsocket(){
 
 function onWebsocketClose(e) {
     console.log('WebSocket closed', e);
-    if(e.code === 1006) return window.location = '/';
+    // if(e.code === 1006) return window.location = '/';
     var time = generateInterval(PbxObject.websocketTry);
     setTimeout(function(){
         PbxObject.websocketTry++;
@@ -6582,8 +6628,8 @@ function loadStripeJs() {
 
 function configureStripe() {
     var stripeHandler = StripeCheckout.configure({
-        // key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-        key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+        key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+        // key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
         image: '/badmin/images/Ringotel_emblem_new.png',
         billingAddress: true,
         email: PbxObject.profile.email,
@@ -6625,10 +6671,13 @@ function json_rpc(method, params){
         notify_about('error' , parsedJSON.error.message);
         return;
     }
+
     return parsedJSON.result;
 }
 
 function json_rpc_async(method, params, handler, id){
+
+
     var xhr = {};
     var jsonrpc = {};
     var parsedJSON = {};
@@ -6659,7 +6708,10 @@ function json_rpc_async(method, params, handler, id){
             if(xhr.status != 200) {
                 console.error(method, xhr.responseText);
 
-                if(xhr.status === 403) return window.location = '/';
+                if(xhr.status === 403 || xhr.status === 302) {
+                    
+                    return window.location = '/';
+                }
                 if(xhr.responseText) parsedJSON = JSON.parse(xhr.responseText);
 
                 if(handler) {
@@ -6691,6 +6743,7 @@ function json_rpc_async(method, params, handler, id){
 
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send(jsonrpc);
+
 }
 
 /**
@@ -6728,6 +6781,8 @@ function request(method, url, data, options, callback){
             
         if(status === 403) {
             logout();
+        } else if(status === 302) {
+            return window.location = '/';
         } else if(status === 200) {
             if(callback) callback(null, response);
         } else if(status >= 500) {
@@ -6904,7 +6959,7 @@ function setupPage() {
             if(options.mode !== 1) { // if cloud branch
                 BillingApi.getProfile(function(err, response) {
                     if(err) {
-                        notify_about('error', err);
+                        console.error(err);
                     } else {
                         profile = response.result;
                     }
@@ -7193,8 +7248,10 @@ function get_object(e){
         }
 
         // Analytics
-        ga('set', 'page', ('/'+kind));
-        ga('send', 'pageview');
+        if(window.ga) {
+            ga('set', 'page', ('/'+kind));
+            ga('send', 'pageview');
+        }
 
     }
 
@@ -8161,7 +8218,7 @@ function set_object_success(message){
     notify_about('success', PbxObject.frases.SAVED);
 }
 
-function set_options_success() {
+function set_options_success_with_reload() {
     // var i, newpath = '', parts = window.location.pathname.split('/');
     // for (i = 0; i < parts.length; i++) {
     //     if (parts[i] === 'en' || parts[i] === 'uk' || parts[i] === 'ru') {
@@ -10260,6 +10317,24 @@ function playRecord(src, targ){
     player.audioURL = window.location.protocol+'//'+window.location.host+'/records/'+src;
     player.playAudio();
 }
+function load_reg_history(params) {
+
+	console.log('load_reg_history: ', params);
+	init();
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params
+		};
+
+		ReactDOM.render(UsersRegHistoryComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+	
+	show_content();
+    // set_page();
+
+}
 function load_reports(){
     new Reports();
 }
@@ -10660,13 +10735,23 @@ function set_routes(){
 }
 
 function getRouteObjects(callback) {
+    var objects = [];
+
     getObjects(['equipment','users','cli','timer','routes','pickup', 'chattrunk' ,'chatchannel'], function(result) {
-        callback(result);
+
+        objects = objects.concat(result);
+
+        getExtensions(function(result) {
+            objects = objects.concat(result.filter(function(item){ return item.kind.match(/user|phone/) }))
+            console.log('getRouteObjects: ', objects);
+            callback(objects);
+        });
+            
     }, true);
 }
 
 function build_routes_table(routes){
-    var result, fragment,
+    var result, fragment, route,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
     getRouteObjects(function(result) {
@@ -10675,12 +10760,18 @@ function build_routes_table(routes){
             sortByKey(routes, 'number');
             fragment = document.createDocumentFragment();
             for(var i=0; i<routes.length; i++){
-                fragment.appendChild(add_route_row(routes[i], result));
+                route = routes[i];
+                if(!isChannelRoute(route))
+                    fragment.appendChild(add_route_row(routes[i], result));
             }
             tbody.appendChild(fragment);
         }    
         show_content();
     });
+}
+
+function isChannelRoute(route) {
+    return (route.number && route.number.indexOf('@') !== -1);
 }
 
 function editRow(row, route) {
@@ -10703,7 +10794,7 @@ function add_new_route(e){
 }
 
 function add_route_row(route, objects){
-    var row, cell;
+    var row, cell, objLinkEl;
     row = document.createElement('tr');
     cell = row.insertCell(0);
     cell.textContent = route.number;
@@ -10720,7 +10811,20 @@ function add_route_row(route, objects){
             obj = objects[i];
             cell.setAttribute('data-gid', route.target.oid);
             cell.setAttribute('data-gname', obj.name);
-            cell.innerHTML = '<a href="#'+obj.kind+'/'+obj.oid+'">'+obj.name+'</a>';
+            objLinkEl = document.createElement('a');
+            if(obj.kind.match(/user|phone/)) {
+                objLinkEl.href = '#';
+                objLinkEl.onclick = function(e) {
+                    e.preventDefault();
+                    getExtension(obj.oid);
+                }
+            } else {
+                objLinkEl.href = '#'+obj.kind+'/'+obj.oid;    
+            }
+            objLinkEl.innerText = obj.name;
+            
+            cell.appendChild(objLinkEl);
+
         }
     }
 
@@ -10985,11 +11089,11 @@ function load_services() {
 
 	function saveOptions(serviceOptions) {
 		console.log('saveOptions: ', serviceOptions);
-		var params = {
-			method: "setSubscription",
-			params: serviceOptions
-			// services: Array.isArray(serviceOptions) ? serviceOptions : [serviceOptions]
-		};
+		// var params = {
+		// 	method: "setSubscription",
+		// 	params: serviceOptions
+		// 	// services: Array.isArray(serviceOptions) ? serviceOptions : [serviceOptions]
+		// };
 
 		var url = '/services/'+serviceOptions.id+'/Subscription';
 		url += "?state="+(serviceOptions.state ? 1 : 0);
@@ -12514,13 +12618,6 @@ function load_users(params) {
 
 		if(driver) driver.reset(); // close the tour
 
-		var options = PbxObject.options;
-		// var maxusers = options.maxusers;
-		// var storelimit = Math.ceil(convertBytes(options.storelimit, 'Byte', 'GB'));
-		var storeperuser = options.storelimit / options.maxusers;
-
-		params.storelimit = storeperuser;
-
 		modalCont = document.getElementById('modal-cont');
 
 		if(modalCont) {
@@ -12531,9 +12628,21 @@ function load_users(params) {
 		modalCont.id = "modal-cont";
 		document.body.appendChild(modalCont);
 
+		rednerNewUserModal();
+
+	}
+
+	function rednerNewUserModal() {
+		var options = PbxObject.options;
+		// var maxusers = options.maxusers;
+		// var storelimit = Math.ceil(convertBytes(options.storelimit, 'Byte', 'GB'));
+		var storeperuser = options.storelimit / options.maxusers;
+
+		objParams.storelimit = storeperuser;
+
 		ReactDOM.render(NewUsersModalComponent({
 		    frases: PbxObject.frases,
-		    params: params,
+		    params: objParams,
 		    onSubmit: addUser,
 		    generatePassword: generatePassword,
 		    convertBytes: convertBytes,
@@ -12541,7 +12650,7 @@ function load_users(params) {
 		}), modalCont);
 	}
 
-	function addUser(userParams) {
+	function addUser(userParams, callback) {
 		console.log('addUser: ', params);
 
 		if(!PbxObject.name) {
@@ -12578,6 +12687,8 @@ function load_users(params) {
 			if(tourStarted) {
 				onFirstUserCreated();
 			}
+
+			if(callback) callback(result);
 
 		});
 	}
@@ -12689,10 +12800,15 @@ function load_users(params) {
         var conf = confirm(msg);
 		
 		if(conf) {
-			objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-			setObject(objParams, function(result) {
+			json_rpc_async('deleteObject', { oid: oid }, function(){
+				objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 				init(objParams);
 			});
+			
+			// objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+			// setObject(objParams, function(result) {
+				// init(objParams);
+			// });
 		}
 			
 	}

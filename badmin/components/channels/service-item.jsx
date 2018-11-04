@@ -3,7 +3,7 @@ function TrunkServiceItemComponent(props) {
 	var itemStyles = {
 		display: 'block',
 		textDecoration: 'none',
-		opacity: props.disabled ? 0.5 : 1,
+		display: props.disabled ? "none" : "block",
 		cursor: props.disabled ? 'default' : 'pointer'
 	};
 
@@ -14,18 +14,21 @@ function TrunkServiceItemComponent(props) {
 	}
 
 	return (
-	    <a 
-	    	href="#" 
-	    	style={itemStyles} 
-	    	onClick={selectItem}
-	    	className={props.disabled ? "disabled" : ""}
-	    >
-	    	<img 
-	    		src={props.item.icon} 
-	    		alt={props.item.name+' icon'} 
-	    		style={{ width: "40px", height: "40px" }}
-	    	/>
-	    	<h5 className={ props.selected ? '' : 'hidden' }>{props.item.name}</h5>
-	    </a>
+		<div className="chattrunk-service-cont">
+		    <a 
+		    	href="#" 
+		    	style={itemStyles} 
+		    	onClick={selectItem}
+		    	className={"chattrunk-service-item " + (props.selected ? "selected" : "")}
+		    	title={props.item.name}
+		    >
+		    	<img 
+		    		src={props.item.icon} 
+		    		alt={props.item.name+' icon'} 
+		    		style={{ width: "40px", height: "40px" }}
+		    	/>
+		    	<h5>{props.item.name}</h5>
+		    </a>
+		</div>
 	);
 }

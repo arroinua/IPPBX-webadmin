@@ -5,7 +5,7 @@ var FacebookTrunkComponent = React.createClass({
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
-		onTokenReceived: React.PropTypes.func,
+		// onTokenReceived: React.PropTypes.func,
 		addSteps: React.PropTypes.func,
 		nextStep: React.PropTypes.func,
 		isNew: React.PropTypes.bool
@@ -115,10 +115,10 @@ var FacebookTrunkComponent = React.createClass({
 		}.bind(this), 500);
 	},
 
-	// _getFacebookSDK: function(cb) {
-	// 	$.ajaxSetup({ cache: true });
-	// 	$.getScript('//connect.facebook.net/en_US/sdk.js', cb);
-	// },
+	_getFacebookSDK: function(cb) {
+		$.ajaxSetup({ cache: true });
+		$.getScript('//connect.facebook.net/en_US/sdk.js', cb);
+	},
 
 	_updateStatusCallback: function(result) {
 		console.log('updateStatusCallback: ', result);
@@ -143,7 +143,7 @@ var FacebookTrunkComponent = React.createClass({
 	},
 
 	_apiCall: function(path, data, callback) {
-		request('GET', 'https://graph.facebook.com/v3.0/'+path+'?access_token='+this.state.userAccessToken, data, null, callback);
+		request('GET', 'https://graph.facebook.com/v3.1/'+path+'?access_token='+this.state.userAccessToken, data, null, callback);
 	},
 
 	_getSubscriptions: function() {
@@ -154,19 +154,36 @@ var FacebookTrunkComponent = React.createClass({
 		}.bind(this));
 	},
 
+	_openAuthWindow: function(link) {
+		var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+    	var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+		var windowWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+	    var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+	    var poupHeight = 500;
+	    var popupWidth = 700;
+	    var left = ((windowWidth / 2) - (popupWidth / 2)) + dualScreenLeft;
+	    var top = ((windowHeight / 2) - (popupWidth / 2)) + dualScreenTop;
+
+		return window.open(
+			link,
+			"ServiceAuth",
+			('height='+poupHeight+',width='+popupWidth+',top='+top+',left='+left)
+		);
+	},
+
 	_login: function() {
+		var params = this.props.serviceParams.params;
 		var href = window.location.href;
 		var search = href.indexOf('?');
 		var state = search !== -1 ? btoa(href.substr(0, search)) : btoa(href);
-		console.log('_login: ', href, search, state);
-		var authWindow = window.open(
-			"https://www.facebook.com/dialog/oauth?client_id=1920629758202993&redirect_uri=https://main.ringotel.net/chatbot/FacebookMessenger&state="+state,
-			"ServiceAuth"
-		);
+		var fbscope = 'email, manage_pages, publish_pages, read_page_mailboxes, pages_messaging, pages_messaging_subscriptions, public_profile';
+		var link = ("https://www.facebook.com/dialog/oauth?client_id="+params.appId+"&redirect_uri="+params.redirectUri+"&state="+state+'&scope='+fbscope);
+		console.log('_login: ', link, href, search, state);
+		var authWindow = this._openAuthWindow(link);
 
 		var scope = this;
 
-		authWindow.onTokenReceived = function(token) {
+		window.onTokenReceived = function(token) {
 			console.log('authWindow onTokenReceived: ', token);
 			authWindow.close();
 
@@ -175,15 +192,27 @@ var FacebookTrunkComponent = React.createClass({
 			});
 
 			scope._getPages();
-			scope.props.onTokenReceived(token);
+			// scope.props.onTokenReceived(token);
 		}
+
+		// authWindow.onTokenReceived = function(token) {
+		// 	console.log('authWindow onTokenReceived: ', token);
+		// 	authWindow.close();
+
+		// 	scope.setState({
+		// 		userAccessToken: token
+		// 	});
+
+		// 	scope._getPages();
+		// 	scope.props.onTokenReceived(token);
+		// }
 
 		// window.location = "https://www.facebook.com/dialog/oauth?client_id=1920629758202993&redirect_uri=https://main.ringotel.net/chatbot/FacebookMessenger&state="+btoa(window.location.href);
 		
 		// window.FB.login(function(response) {
 		// 	console.log('window.FB.login: ', response);
 		// 	this._updateStatusCallback(response);
-		// }.bind(this), {scope: 'email, manage_pages, read_page_mailboxes, pages_messaging'});
+		// }.bind(this), {scope: 'email, manage_pages, publish_pages, read_page_mailboxes, pages_messaging, pages_messaging_subscriptions, public_profile'});
 	},
 
 	_selectPage: function(value) {
@@ -213,7 +242,6 @@ var FacebookTrunkComponent = React.createClass({
 		
 		console.log('FacebookTrunkComponent render: ', this.props.properties, this.props.serviceParams, pages);
 
-
 		return (
 			<div>
 				{
@@ -225,7 +253,7 @@ var FacebookTrunkComponent = React.createClass({
 
 						<form className="form-horizontal">
 							<div className="form-group">
-							    <label htmlFor="ctc-select-1" className="col-sm-4 control-label">{frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE}</label>
+							    <label htmlFor="ctc-select-1" className="col-sm-4 control-label">{frases.CHAT_TRUNK.FACEBOOK.SELECTED_PAGE}</label>
 							    <div className="col-sm-4">
 									<p className="form-control-static">{this.props.properties.name}</p>
 								</div>
@@ -264,7 +292,7 @@ var FacebookTrunkComponent = React.createClass({
 
 					    						return (
 
-					    							<option key={item.id} value={item.id}>{item.name}</option>
+					    							<option key={item.id} value={item.id}>{item.name + " ("+item.category+")"}</option>
 
 					    						);
 

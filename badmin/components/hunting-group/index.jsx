@@ -132,10 +132,13 @@ var HuntingGroupComponent = React.createClass({
 	},
 
 	_onSortMember: function(array) {
-		var params = this.state.params;
-		params.members = array;
+		var newParams = extend({}, this.state.params);
+		newParams.members = array;
+
+		console.log('_onSortMember array: ', array);
+
 		this.setState({
-			params: params
+			params: newParams
 		});
 	},
 
@@ -145,7 +148,18 @@ var HuntingGroupComponent = React.createClass({
 		var members = params.members || [];
 		// var filteredMembers = this.state.filteredMembers || [];
 
-		console.log('remder: ', params.name);
+		console.log('remder: ', params.name, params);
+
+		//<div className="form-group">
+		//    <label className="col-sm-4 control-label">
+		  //      <span>{frases.EXTENSION} </span>
+		    //    <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.EXTENSION}></a>
+		    //</label>
+		    //<div className="col-sm-8">
+		    //	<ObjectRoute frases={frases} routes={params.routes} removeRoute={this._onRouteRemove} onChange={this._onRouteChange} />
+		    //</div>
+		//</div>
+		//<hr/>
 
 		return (
 			<div>
@@ -165,17 +179,6 @@ var HuntingGroupComponent = React.createClass({
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
 			    			<form className="form-horizontal">
-			    				
-			    				<div className="form-group">
-			    				    <label className="col-sm-4 control-label">
-			    				        <span>{frases.EXTENSION} </span>
-			    				        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.EXTENSION}></a>
-			    				    </label>
-			    				    <div className="col-sm-4">
-			    				    	<ObjectRoute frases={frases} routes={params.routes} onChange={this._onRouteChange} />
-			    				    </div>
-			    				</div>
-			    				<hr/>
 			    			    <div className="form-group">
 			    			        <label className="col-sm-4 control-label">
 			    			            <span>{frases.HUNTINGTYPE.HUNTINGTYPE} </span>

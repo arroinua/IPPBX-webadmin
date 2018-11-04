@@ -8,6 +8,7 @@
 		onAddMembers: React.PropTypes.func,
 		deleteMember: React.PropTypes.func,
 		sortable: React.PropTypes.bool,
+		doSort: React.PropTypes.bool,
 		activeServices: React.PropTypes.array,
 		onImportUsers: React.PropTypes.func,
 		onSort: React.PropTypes.func,
@@ -16,7 +17,7 @@
 
 	componentWillMount: function() {
 		this.setState({
-			filteredMembers: this.props.members || []
+			filteredMembers: this.props.members ? [].concat(this.props.members) : []
 		});		
 	},
 
@@ -39,7 +40,7 @@
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
-			filteredMembers: props.members || []
+			filteredMembers: props.members ? [].concat(props.members) : []
 		});
 	},
 
@@ -110,7 +111,7 @@
 		newArray.length = members.length;
 		
 		members.forEach(function(item, index, array) {
-			newArray[order.indexOf(item.oid)] = item;
+			newArray[order.indexOf(item.oid)] = extend({}, item);
 			// newArray.splice(order.indexOf(item.oid), 0, newArray.splice(index, 1)[0]);
 		});
 
@@ -124,6 +125,8 @@
 			return el;
 		});
 
+		console.log('_onSortEnd', target, order, this._reorderMembers(this.props.members, order))
+
 		this.props.onSort(this._reorderMembers(this.props.members, order));
 	},
 
@@ -134,7 +137,7 @@
 	render: function() {
 		var frases = this.props.frases;
 		var members = this.props.members;
-		var filteredMembers = sortByKey(this.state.filteredMembers, 'number') || [];
+		var filteredMembers = this.props.doSort ? sortByKey(this.state.filteredMembers, 'number') : this.state.filteredMembers;
 
 		// <FilterInputComponent items={members} onChange={this._onFilter} />
 
@@ -157,7 +160,7 @@
 					<div className="panel">
 						<div className="panel-body" style={{ padding: "0" }}>
 						    <div className="table-responsive">
-						        <table className={"table table-hover" + ((filteredMembers.length && this.props.sortable) ? "sortable" : "")} id="group-extensions" style={{ marginBottom: "0" }}>
+						        <table className={"table table-hover" + ((filteredMembers.length && this.props.sortable) ? "" : "")} id="group-extensions" style={{ marginBottom: "0" }}>
 						            
 						            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
 						            	{

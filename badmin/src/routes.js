@@ -128,13 +128,23 @@ function set_routes(){
 }
 
 function getRouteObjects(callback) {
+    var objects = [];
+
     getObjects(['equipment','users','cli','timer','routes','pickup', 'chattrunk' ,'chatchannel'], function(result) {
-        callback(result);
+
+        objects = objects.concat(result);
+
+        getExtensions(function(result) {
+            objects = objects.concat(result.filter(function(item){ return item.kind.match(/user|phone/) }))
+            console.log('getRouteObjects: ', objects);
+            callback(objects);
+        });
+            
     }, true);
 }
 
 function build_routes_table(routes){
-    var result, fragment,
+    var result, fragment, route,
     tbody = document.getElementById("rtable").getElementsByTagName('tbody')[0];
 
     getRouteObjects(function(result) {
@@ -143,12 +153,18 @@ function build_routes_table(routes){
             sortByKey(routes, 'number');
             fragment = document.createDocumentFragment();
             for(var i=0; i<routes.length; i++){
-                fragment.appendChild(add_route_row(routes[i], result));
+                route = routes[i];
+                if(!isChannelRoute(route))
+                    fragment.appendChild(add_route_row(routes[i], result));
             }
             tbody.appendChild(fragment);
         }    
         show_content();
     });
+}
+
+function isChannelRoute(route) {
+    return (route.number && route.number.indexOf('@') !== -1);
 }
 
 function editRow(row, route) {
@@ -171,7 +187,7 @@ function add_new_route(e){
 }
 
 function add_route_row(route, objects){
-    var row, cell;
+    var row, cell, objLinkEl;
     row = document.createElement('tr');
     cell = row.insertCell(0);
     cell.textContent = route.number;
@@ -188,7 +204,20 @@ function add_route_row(route, objects){
             obj = objects[i];
             cell.setAttribute('data-gid', route.target.oid);
             cell.setAttribute('data-gname', obj.name);
-            cell.innerHTML = '<a href="#'+obj.kind+'/'+obj.oid+'">'+obj.name+'</a>';
+            objLinkEl = document.createElement('a');
+            if(obj.kind.match(/user|phone/)) {
+                objLinkEl.href = '#';
+                objLinkEl.onclick = function(e) {
+                    e.preventDefault();
+                    getExtension(obj.oid);
+                }
+            } else {
+                objLinkEl.href = '#'+obj.kind+'/'+obj.oid;    
+            }
+            objLinkEl.innerText = obj.name;
+            
+            cell.appendChild(objLinkEl);
+
         }
     }
 

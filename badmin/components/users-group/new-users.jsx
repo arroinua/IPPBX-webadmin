@@ -26,7 +26,8 @@ var NewUsersComponent = React.createClass({
 				info: {},
 				storelimit: (this.props.params.storelimit || this.props.convertBytes(1, 'GB', 'Byte')),
 				password: this.props.generatePassword()
-			}
+			},
+			tkn: Date.now()
 		});
 	},
 
@@ -36,6 +37,27 @@ var NewUsersComponent = React.createClass({
 				validationError: props.validationError
 			});
 		}
+		
+		console.log('props.clear, ', props.clear);
+
+		// if(props.clear) {
+		// 	this.setState({
+		// 		userParams: {
+		// 			name: "",
+		// 			login: "",
+		// 			info: {
+		// 				email: "",
+		// 				company: "",
+		// 				title: "",
+		// 				department: "",
+		// 				mobile: "",
+		// 				description: ""
+		// 			},
+		// 			storelimit: (props.params.storelimit || props.convertBytes(1, 'GB', 'Byte')),
+		// 			password: props.generatePassword()
+		// 		}
+		// 	});
+		// }
 			
 	},
 
@@ -54,10 +76,15 @@ var NewUsersComponent = React.createClass({
 
 	_onExtChange: function(params) {
 		console.log('_onExtChange: ', params);
-		this.state.userParams.number = params.ext;
+		var userParams = extend({}, this.state.userParams);
+		userParams.number = params.ext;
+		if(!PbxObject.options.domain) userParams.login = PbxObject.options.prefix+userParams.number;
+
 		this.setState({
-			userParams: this.state.userParams
+			userParams: userParams
 		});
+
+		this.props.onChange(userParams);
 	},
 
 	_onChange: function(e) {
@@ -65,13 +92,13 @@ var NewUsersComponent = React.createClass({
 		var type = target.getAttribute('data-type') || target.type;
 		var value = type === 'checkbox' ? target.checked : target.value;
 		var userParams = this.state.userParams;
-		var tname = target.name;
+		var tname = target.name.split('_')[0];
 
 		if(tname === 'email') {
 			userParams.info = userParams.info || {};
 			userParams.info.email = value;
 		} else {
-			userParams[target.name] = type === 'number' ? parseFloat(value) : value;
+			userParams[tname] = type === 'number' ? parseFloat(value) : value;
 		}
 
 		if(tname === 'name') userParams.display = value;
@@ -103,9 +130,7 @@ var NewUsersComponent = React.createClass({
 	_onFocus: function(e) {
 		var userParams = this.state.userParams;
 		var email = userParams.info.email;
-		if(email) userParams.login = email.substr(0,email.indexOf('@'));
-
-		console.log('_onFocus: ', email, email.substr(0,email.indexOf('@')));
+		if(email && PbxObject.options.domain) userParams.login = email.substr(0,email.indexOf('@'));
 
 		this.setState({
 			userParams: userParams
@@ -117,8 +142,8 @@ var NewUsersComponent = React.createClass({
 		var params = this.props.params;
 		var userParams = this.state.userParams;
 		var validationError = this.state.validationError;
-
-		console.log('NewUsersComponent: ', params);
+		var hasDomain = !!PbxObject.options.domain;
+		var tkn = this.state.tkn;
 
 		return (
 			<div className="row">
@@ -130,12 +155,12 @@ var NewUsersComponent = React.createClass({
 
 					<div className="tab-content" style={{ padding: "20px 0" }}>
 						<div role="tabpanel" className="tab-pane fade in active" id="tab-general">
-							<form autoComplete="nope">
+							<div autoComplete="nope">
 								<div className="row">
 									<div className="col-sm-6">
 										<div className={"form-group "+((validationError && !userParams.name) ? 'has-error' : '')}>
 							                <label className="control-label">{frases.USERS_GROUP.NAME}</label>
-							                <input type="text" className="form-control" name="name" value={userParams.name} onChange={this._onChange} placeholder={frases.USERS_GROUP.PLACEHOLDERS.NAME} autoComplete="none" required />
+							                <input type="text" className="form-control" name={"name_"+tkn} value={userParams.name} onChange={this._onChange} placeholder="" autoComplete="none" required />
 							            </div>
 							        </div>
 							        <div className="col-sm-6">
@@ -143,7 +168,7 @@ var NewUsersComponent = React.createClass({
 							            	params.kind === 'users' && (
 							            		<div className={"form-group "+((validationError && (!userParams.info.email || !this.props.validateEmail(userParams.info.email))) ? 'has-error' : '')}>
 									                <label className="control-label">{frases.USERS_GROUP.EMAIL}</label>
-									                <input type="email" className="form-control" name="email" value={userParams.info.email} onChange={this._onChange} placeholder={frases.USERS_GROUP.PLACEHOLDERS.EMAIL} autoComplete="none" required />
+									                <input type="email" className="form-control" name={"email_"+tkn} value={userParams.info.email} onChange={this._onChange} placeholder="" autoComplete="none" required />
 									            </div>
 							            	)
 							            }
@@ -154,7 +179,7 @@ var NewUsersComponent = React.createClass({
 							    		<input autoComplete="none" name="hidden" type="hidden" value="stopautofill" style={{display:"none"}} />
 							            <div className={"form-group "+((validationError && !userParams.login) ? 'has-error' : '')}>
 							                <label className="control-label">{frases.USERS_GROUP.LOGIN}</label>
-							                <input type="text" className="form-control" name="login" value={userParams.login} placeholder={frases.USERS_GROUP.PLACEHOLDERS.LOGIN} onFocus={this._onFocus} onChange={this._onChange} required autoComplete="none" />
+							                <input type="text" className="form-control" name={"login_"+tkn} value={userParams.login} placeholder="" onFocus={this._onFocus} onChange={this._onChange} readOnly={!hasDomain} required autoComplete="none" />
 							            </div>
 							    	</div>
 							    	<div className="col-sm-6">
@@ -162,7 +187,7 @@ var NewUsersComponent = React.createClass({
 							            <div className="form-group">
 							                <label className="control-label">{frases.USERS_GROUP.PASSWORD}</label>
 						                    <div className="input-group">
-						                        <input type={this.state.passwordRevealed ? 'text' : 'password'} name="password" value={userParams.password} className="form-control" placeholder={frases.USERS_GROUP.PLACEHOLDERS.PASSWORD} onChange={this._onChange} required autoComplete="none" />
+						                        <input type={this.state.passwordRevealed ? 'text' : 'password'} name={"password_"+tkn} value={userParams.password} className="form-control" placeholder="" onChange={this._onChange} required autoComplete="none" />
 						                        <span className="input-group-btn">
 						                            <button type="button" className="btn btn-default" onClick={this._revealPassword}>
 						                                <i className="fa fa-eye" data-toggle="tooltip" title={frases.USERS_GROUP.PLACEHOLDERS.REVEAL_PWD}></i>
@@ -196,16 +221,7 @@ var NewUsersComponent = React.createClass({
 							            }
 							    	</div>
 							    </div>
-							    <div className="row">
-							    	<div className="col-xs-12">
-							    		{
-							            	validationError && (
-							            		<div className="alert alert-warning" role="alert">{frases.USERS_GROUP.REQUIRED_FIELDS_MSG}</div>
-							            	)
-							            }
-							    	</div>
-							    </div>
-						    </form>
+						    </div>
 						</div>
 						<div role="tabpanel" className="tab-pane fade in" id="tab-info">
 							<form autoComplete="nope">
@@ -213,13 +229,13 @@ var NewUsersComponent = React.createClass({
 								    <div className="col-sm-6">
 								        <div className="form-group">
 								            <label htmlFor="company">{frases.USERS_GROUP.INFO.COMPANY}</label>
-								            <input type="text" className="form-control" name="company" placeholder={frases.USERS_GROUP.INFO.COMPANY} value={userParams.info.company} onChange={this._onInfoChange} />
+								            <input type="text" className="form-control" name="company" placeholder="" value={userParams.info.company} onChange={this._onInfoChange} />
 								        </div>
 								    </div>
 								    <div className="col-sm-6">
 								        <div className="form-group">
 								            <label htmlFor="position">{frases.USERS_GROUP.INFO.POSITION}</label>
-								            <input type="text" className="form-control" name="title" placeholder={frases.USERS_GROUP.INFO.POSITION} value={userParams.info.title} onChange={this._onInfoChange} />
+								            <input type="text" className="form-control" name="title" placeholder="" value={userParams.info.title} onChange={this._onInfoChange} />
 								        </div>
 								    </div>
 								</div>
@@ -227,13 +243,13 @@ var NewUsersComponent = React.createClass({
 								    <div className="col-sm-6">
 								        <div className="form-group">
 								            <label htmlFor="department">{frases.USERS_GROUP.INFO.DEPARTMENT}</label>
-								            <input type="text" className="form-control" name="department" placeholder={frases.USERS_GROUP.INFO.DEPARTMENT} value={userParams.info.department} onChange={this._onInfoChange} />
+								            <input type="text" className="form-control" name="department" placeholder="" value={userParams.info.department} onChange={this._onInfoChange} />
 								        </div>
 								    </div>
 								    <div className="col-sm-6">
 								        <div className="form-group">
 								            <label htmlFor="mobile">{frases.USERS_GROUP.INFO.MOBILE}</label>
-								            <input type="text" className="form-control" name="mobile" placeholder={frases.USERS_GROUP.INFO.MOBILE} value={userParams.info.mobile} onChange={this._onInfoChange} />
+								            <input type="text" className="form-control" name="mobile" placeholder="" value={userParams.info.mobile} onChange={this._onInfoChange} />
 								        </div>
 								    </div>
 								</div>
@@ -241,13 +257,20 @@ var NewUsersComponent = React.createClass({
 								    <div className="col-xs-12">
 								        <div className="form-group">
 								            <label htmlFor="description">{frases.USERS_GROUP.INFO.ABOUT}</label>
-								            <textarea type="text" className="form-control" name="description" placeholder={frases.USERS_GROUP.INFO.ABOUT} onChange={this._onInfoChange}>{userParams.info.description}</textarea>
+								            <textarea type="text" className="form-control" name="description" placeholder="" onChange={this._onInfoChange}>{userParams.info.description}</textarea>
 								        </div>
 								    </div>
 								</div>
 							</form>
 						</div>
 					</div>
+				</div>
+				<div className="col-xs-12">
+		    		{
+		            	validationError && (
+		            		<div className="alert alert-warning" role="alert">{frases.USERS_GROUP.REQUIRED_FIELDS_MSG}</div>
+		            	)
+		            }
 				</div>
 			</div>
 		);

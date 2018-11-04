@@ -48,13 +48,14 @@ function load_branch_options() {
 		}
 
 		if(newOptions.lang && newOptions.lang !== initLang) {	    
-		    handler = set_options_success;
+		    handler = set_options_success_with_reload;
 		} else {
 		    handler = set_object_success;
 		}
 
 		json_rpc_async('setPbxOptions', newOptions, function(result) {
-			PbxObject.options = options = newOptions;
+			options = deepExtend(options, newOptions);
+			PbxObject.options = options;
 
 			console.log('setPbxOptions success: ', newOptions, options);
 
@@ -85,6 +86,14 @@ function load_branch_options() {
 		});
 	}
 
+	function generateApiKey(params, callback) {
+		show_loading_panel();
+		json_rpc_async('createAPIKey', params, function(result) {
+			show_content();
+			callback(result);
+		});
+	}
+
 	function saveBranchOptions(newOptions) {
 		console.log('saveBranchOptions: ', newOptions);
 
@@ -98,6 +107,7 @@ function load_branch_options() {
 		    params: options,
 		    branchParams: branchOptions,
 		    saveOptions: saveOptions,
+		    generateApiKey: generateApiKey,
 		    saveBranchOptions: saveBranchOptions
 		};
 

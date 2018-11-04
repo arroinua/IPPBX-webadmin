@@ -68,6 +68,17 @@ gulp.task('components', function() {
     .pipe(gulp.dest('badmin/dist/badmin/js'))
 });
 
+gulp.task('public-components', function() {
+  return gulp.src('public/components/**/*.jsx')
+    // .pipe(sourcemaps.init())
+    .pipe(babel({
+      presets: ['react']
+    }))
+    .pipe(concat('components.js'))
+    // .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('badmin/dist/public/scripts'))
+});
+
 gulp.task('zip', function() {
   return gulp.src('badmin/dist/**')
     .pipe(zip('webadmin_'+getDateString()+'.zip')).
@@ -105,7 +116,7 @@ gulp.task('views', function() {
   gulp.src('init.js')
   .pipe(gulp.dest('badmin/dist/'));
 
-  gulp.src('public/*')
+  gulp.src(['public/**/*', '!public/{components,components/*}'])
   .pipe(gulp.dest('badmin/dist/public/'));
 
   gulp.src('badmin/views/**/*')

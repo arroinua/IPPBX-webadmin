@@ -6,12 +6,12 @@
     var infoCont = document.getElementById('info-cont');
     var loginInput = document.querySelector('input[name="login"]');
     var loginBtn = document.querySelector('input[type="submit"]');
-    // var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    var apiGateway = 'https://dee6c679.ngrok.io/branch/api';
+    var apiGateway = 'https://api-web.ringotel.net/branch/api';
+    // var apiGateway = 'https://a0addce0.ngrok.io/branch/api';
     var host = window.location.host;
     var prefix = host.substr(0, host.indexOf('.'));
 
-    loginInput.value = prefix;
+    // loginInput.value = prefix;
 
     formEl.addEventListener('submit', submitForm, false);
 
@@ -20,7 +20,8 @@
         var submitted = false;
         // var login = e.target.login.value;
         var pass = e.target.password.value;
-        var login = prefix;
+        var login = e.target.login.value;
+        // var login = prefix;
 
         console.log('submitForm: ', login, pass);
 

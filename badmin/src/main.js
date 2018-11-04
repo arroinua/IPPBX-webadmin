@@ -98,7 +98,7 @@ function createWebsocket(){
 
 function onWebsocketClose(e) {
     console.log('WebSocket closed', e);
-    if(e.code === 1006) return window.location = '/';
+    // if(e.code === 1006) return window.location = '/';
     var time = generateInterval(PbxObject.websocketTry);
     setTimeout(function(){
         PbxObject.websocketTry++;
@@ -127,8 +127,8 @@ function loadStripeJs() {
 
 function configureStripe() {
     var stripeHandler = StripeCheckout.configure({
-        // key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
-        key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
+        key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+        // key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
         image: '/badmin/images/Ringotel_emblem_new.png',
         billingAddress: true,
         email: PbxObject.profile.email,
@@ -170,10 +170,13 @@ function json_rpc(method, params){
         notify_about('error' , parsedJSON.error.message);
         return;
     }
+
     return parsedJSON.result;
 }
 
 function json_rpc_async(method, params, handler, id){
+
+
     var xhr = {};
     var jsonrpc = {};
     var parsedJSON = {};
@@ -204,7 +207,10 @@ function json_rpc_async(method, params, handler, id){
             if(xhr.status != 200) {
                 console.error(method, xhr.responseText);
 
-                if(xhr.status === 403) return window.location = '/';
+                if(xhr.status === 403 || xhr.status === 302) {
+                    
+                    return window.location = '/';
+                }
                 if(xhr.responseText) parsedJSON = JSON.parse(xhr.responseText);
 
                 if(handler) {
@@ -236,6 +242,7 @@ function json_rpc_async(method, params, handler, id){
 
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send(jsonrpc);
+
 }
 
 /**
@@ -273,6 +280,8 @@ function request(method, url, data, options, callback){
             
         if(status === 403) {
             logout();
+        } else if(status === 302) {
+            return window.location = '/';
         } else if(status === 200) {
             if(callback) callback(null, response);
         } else if(status >= 500) {
@@ -449,7 +458,7 @@ function setupPage() {
             if(options.mode !== 1) { // if cloud branch
                 BillingApi.getProfile(function(err, response) {
                     if(err) {
-                        notify_about('error', err);
+                        console.error(err);
                     } else {
                         profile = response.result;
                     }
@@ -484,6 +493,8 @@ function setupPage() {
             } else {
                 init_page();
             }
+
+            // renderSidebar();
 
         });
 
@@ -550,6 +561,38 @@ function init_page(){
     });
 
     // var wizzard = Wizzard({frases: PbxObject.frases});
+}
+
+function renderSidebar() {
+    var menuDesc = [
+        {
+            kind: 'users',
+            iconClass: 'fa fa-fw fa-users'
+        }, {
+            kind: 'chattrunk',
+            iconClass: 'fa fa-fw fa-whatsapp'
+        }, {
+            kind: 'servgroup',
+            iconClass: 'fa fa-fw fa-comments-o'
+        }, {
+            kind: 'attendant',
+            iconClass: 'fa fa-fw fa-room_service'
+        }, {
+            kind: 'trunk',
+            iconClass: 'fa fa-fw fa-cloud'
+        }, {
+            kind: 'equipment',
+            iconClass: 'fa fa-fw fa-fax'
+        }, {
+            kind: 'timer',
+            iconClass: 'fa fa-fw fa-calendar'
+        }, {
+            kind: 'routes',
+            iconClass: 'fa fa-fw fa-arrows'
+        }
+    ];
+
+    ReactDOM.render(SideBarComponent({ kinds: menuDesc, activeKind: 'dashboard', objects: PbxObject.objects }), document.getElementById('pbxmenu'));
 }
 
 // init tour
@@ -738,8 +781,10 @@ function get_object(e){
         }
 
         // Analytics
-        ga('set', 'page', ('/'+kind));
-        ga('send', 'pageview');
+        if(window.ga) {
+            ga('set', 'page', ('/'+kind));
+            ga('send', 'pageview');
+        }
 
     }
 
@@ -1706,7 +1751,7 @@ function set_object_success(message){
     notify_about('success', PbxObject.frases.SAVED);
 }
 
-function set_options_success() {
+function set_options_success_with_reload() {
     // var i, newpath = '', parts = window.location.pathname.split('/');
     // for (i = 0; i < parts.length; i++) {
     //     if (parts[i] === 'en' || parts[i] === 'uk' || parts[i] === 'ru') {

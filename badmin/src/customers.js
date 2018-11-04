@@ -51,12 +51,22 @@ function load_customers(params) {
     	});
     }
 
+    function getPrivacyPrefs(customerId, callback) {
+        console.log('getPrivacyPrefs: ', customerId);
+        json_rpc_async('getCustomerConsent', { customerid: customerId }, function(response, err) {
+            console.log('getCustomerConsent: ', response);
+            if(err) return notify_about('error', err);
+            callback(response);
+        });
+    }
+
     function openCustomerInfo(params) {
     	ReactDOM.render(
     		CustomerInfoModalComponent({
     			frases: frases,
     			params: params,
-    			onDelete: onDelete
+    			onDelete: onDelete,
+                getPrivacyPrefs: getPrivacyPrefs
     		}),
     		modalCont
     	);

@@ -174,7 +174,7 @@ var ChannelRouteComponent = React.createClass({
 							</div>
 						)
 					}
-					<div className="col-sm-1">-- {frases.OR} --</div>
+					<div className="col-sm-1 text-center"><strong>{frases.OR}</strong></div>
 					{
 						this.props.type === 'Telephony' ? (
 							<div className="col-sm-4 create-group-links">

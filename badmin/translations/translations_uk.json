@@ -268,6 +268,8 @@
 		"LIMITEDCONN" : "Обмежені з'єднання",
 		"MAXCONN" : "Кіл-ть з'єднань",
 		"GENERAL_SETTS" : "Загальні",
+		"GDPR_SETTS" : "GDPR",
+		"TEMPLATES_SETTS" : "Шаблони",
 		"FUNCSETTINGS" : "Функції АТС",
 		"REC_SETTINGS" : "Запис розмов",
 		"STORAGE_SETTINGS" : "Сховище",
@@ -337,7 +339,7 @@
 	"REVEAL_PWD" : "Показати пароль",
 	"HIDE_PWD" : "Приховати пароль",
 	"GENERATE_PWD" : "Згенерувати пароль",
-	"COPY" : "Зкопіювати",
+	"COPY" : "Скопіювати",
 	"NUMBER" : "Номер",
 	"NUMBERS" : "Номери",
 	"NUMBERING_POOL" : "План нумерації",
@@ -542,10 +544,26 @@
 			"consent": "Згода",
 			"email": "Email",
 			"phone": "Телефон",
+			"mobile": "Номер мобільного",
+			"department": "Департамент",
 			"company": "Компанія",
 			"organization": "Організація",
 			"about": "Інформація",
 			"tags": "Теги"
+		},
+		"PRIVACY_PREFS": {
+			"LAWFUL_BASIS": "Законна основа",
+			"CREATED_BY": "Ким створено",
+			"CREATED": "Коли створено",
+			"FILE": "Файл",
+			"LAWFUL_BASES" : {
+				"0": "Legitimate interest",
+				"1": "Contract",
+				"2": "Consent",
+				"3": "Vital interest",
+				"4": "Legal obligation",
+				"5": "Public task"
+			}
 		},
 		"DETAILS_BTN": "Деталі",
 		"EXPORT_BTN": "Експортувати дані клієнта",
@@ -623,6 +641,7 @@
         "records": "Журнал викликів",
         "rec_settings": "Налаштування запису розмов",
         "statistics": "Статистика дзвінків",
+        "reg_history": "Історія реєстрацій",
         "channel_statistics": "Статистика по каналам",
         "reports": "Звіти",
         "extensions": "Внутрішні номери",
@@ -741,6 +760,20 @@
 	    	"RNE": "R-factor на стороні сервера"
 	    }
     },
+    "REG_HISTORY": {
+    	"SELECT_USER_PLACEHOLDER": "Вибрати користувача...",
+    	"IP_FILTER_PLACEHOLDER": "Фільтр за IP (опціонально)",
+    	"SEARCH_BTN": "Пошук",
+    	"NO_DATA" : "Немає даних за період",
+    	"FIRST_REG": "Перша рег.",
+    	"LAST_REG": "Остання разрег.",
+    	"TOTAL_DURATION": "Загальний час у рег.",
+    	"REG_TIME": "Час рег.",
+    	"UNREG_TIME": "Час разрег.",
+    	"REG_DURATION": "Тривалість рег.",
+    	"IP_ADDR": "IP адреса",
+    	"DEV_INFO": "Про пристрій"
+    },
     "DATE_PICKER" : {
     	"TODAY" : "Сьогодні",
     	"YESTERDAY" : "Вчора",
@@ -840,6 +873,7 @@
     "CHAT_TRUNK": {
     	"OBJ_NAME_PLACEHOLDER" : "Ім'я каналу",
     	"SELECT_SERVICE": "Виберіть сервіс",
+    	"SELECTED_SERVICE": "Вибраний сервіс",
     	"NO_CHANNELS_MSG_1": "Вам необхідно",
     	"NO_CHANNELS_MSG_2": "перед тим як підключити Канал",
     	"CREATE_CHANNEL": "створити Канал",
@@ -850,6 +884,7 @@
     	"GROUP_IN_REQUEST": "Вибір групи обслуговування у запиті",
     	"CREATE_SERVICE_GROUP": "Створити групу обслуговування",
     	"CREATE_HUNTING_GROUP": "Створити групу розподілу викликів",
+    	"CREATE_TRUNK": "Створити Транк",
     	"CREATE_ICD_GROUP": "Створити гарячу лінію",
     	"NO_SERVICE_GROUP": "У вас ще немає груп обслуговування",
     	"SERVICE_GROUP_NOT_SELECTED": "Група обслуговування не вибрана",
@@ -857,7 +892,8 @@
     		"LOGIN_MSG": "Підключіть ваш Facebook аккаунт. Вам потрібен обліковий запис Facebook із дозволами для керування опублікованою сторінкою Facebook.",
     		"NO_PAGES_MSG": "Схоже, ви ще не створили та/або не керуєте жодною сторінкою Facebook.",
     		"LEARN_MORE_LINK": "Дізнайтеся, як створити сторінку в Facebook",
-    		"SELECT_PAGE": "Вибрати Facebook сторінку"
+    		"SELECT_PAGE": "Вибрати Facebook сторінку",
+    		"SELECTED_PAGE": "Вибрана сторінка"
     	},
     	"EMAIL": {
     		"SELECT_ACCOUNT_PROVIDER": "Провайдер облікового запису",
@@ -875,6 +911,11 @@
     		"NUMBER": "Номер",
     		"STATUS": "Статус",
     		"ADD_NUMBER_BTN": "Додати номер",
+    		"CONNECT_TRUNK_BTN": "Прив'язати транк",
+    		"SELECT_TRUNK_LABEL": "Вибрати транк",
+    		"SELECTED_TRUNK_LABEL": "Вибраний транк",
+    		"TRUNK_NUMBER_LABEL": "Номер телефону транку",
+    		"NO_CREATED_TRUNKS": "Ще немає жодного транку",
     		"BUY_NUMBER_BTN": "Купити номер",
     		"SELECT_COUNTRY": "Виберіть страну",
     		"SELECT_REGION": "Виберіть регіон/штат",
@@ -905,6 +946,37 @@
     			"7": "Довідка про адресу (копія рахунку за комунальні послуги не старше 6 місяців).",
     			"8": "Форма реєстрації повинна бути заповнена та підписана кінцевим користувачем. Під час реєстрації вам буде надано необхідну форму."
     		}
+    	},
+    	"WEBCHAT": {    		
+    		"CODE_SNIPPET": "Код для веб-сайту",
+    		"SHOW_CODE_BTN": "Показати код",
+    		"SHOW_CODE_BTN_WARNING": "спочатку створіть канал",
+    		"DOMAIN": "Доменне ім'я' веб-сайту",
+    		"TITLE": "Заголовок віджету",
+    		"POSITION": "Розташування на сторінці",
+    		"RIGHT_POSITION": "праворуч",
+    		"LEFT_POSITION": "ліворуч",
+    		"COLOR_THEME": "Схема кольорів",
+    		"INTRO_CHECKBOX": "Форма зворотного зв'язку",
+    		"INTRO_MESSAGE_LABEL": "Повідомлення",
+    		"INTRO_MESSAGE": "Будь ласка, заповніть форму, щоб почати чат:",
+    		"ADD_FIELD_BTN": "Додати поле",
+    		"INTRO_FIELDS_LABELS": {
+    			"uname": "Ім'я",
+    			"email": "Email",
+    			"phone": "Номер телефону",
+    			"consent": "Згода"
+    		},
+    		"INTRO_FIELDS_PLACEHOLDERS": {
+    			"uname": "Введіть Ваше ім'я",
+    			"email": "Введіть Ваш email",
+    			"phone": "Введіть Ваш номер телефону",
+    			"consent": ""
+    		},
+    		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайту",
+    		"CODE_SNIPPET_MODAL_TEXT": "Додайте цей скрипт на кожну веб-сторінку, де ви хочете, щоб віджет з'явився. Ви можете помістити скрипт в будь-якому місці в межах <HEAD> або <BODY> тегів.",
+    		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопіювати в буфер",
+    		"CODE_SNIPPET_MODAL_COPIED_BTN": "Скопійовано"
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -1068,6 +1140,32 @@
     		"CARD_WILL_EXPIRE_P2": "щоб уникнути переривання роботи сервісу"
     	}
 
+    },
+    "GDPR": {
+    	"TAB_NAME": "GDPR",
+    	"ADD_NEW_PROFILE_BTN": "Додати новий профіль",
+    	"DELETE_PROFILE_BTN": "Видалити профіль",
+    	"PROFILE_NAME_LABEL": "Ім'я профілю",
+    	"PROFILE_LANGUAGE_LABEL": "Мова профілю",
+    	"COMPANY_NAME_LABEL": "Ім'я компанії",
+    	"POLICY_LINK_LABEL": "Посилання на Політику конфіденційності",
+    	"CONSENT_TEXT_LABEL": "Текст згоди",
+    	"PURPOSES_LABEL": "Причини",
+    	"DEFAULT_CONSENT_TEXT": "(\"us\", \"we\", \"our\") will use your personal information to get in touch with you and to provide updates and marketing. If at any time you wish to stop receiving messages from us, you can return to this page and change your preferences. If at any time you wish to change or withdraw your personal information, you can contact us via email that you can find on our website.",
+    	"PURPOSES": {
+    		"service": "Обслуговування",
+    		"promotions": "Акції",
+    		"invitations": "Запрошення",
+    		"urgent": "Важливі повідомлення",
+    		"updates": "Новини та оновлення",
+    		"press": "Прес-релізи"
+    	}
+    },
+    "TEMPLATES_SETTS": {
+    	"NEW_USER_DESC": "Ви можете встановити тему та тіло повідомлення, яке буде надіслано на електронну пошту користувача після створення облікового запису.",
+    	"NEW_USER_SUBJECT_LABEL": "Тема повідомлення",
+    	"NEW_USER_BODY_LABEL": "Зміст повідомлення",
+    	"NEW_USER_BODY_HELPER": "Де %% - це данні для входу в обліковий запис"
     },
     "TOURS": {
     	"NEXT_STEP": "Далі",

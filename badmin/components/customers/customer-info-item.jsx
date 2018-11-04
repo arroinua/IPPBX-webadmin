@@ -3,7 +3,7 @@ function CustomerInfoItemComponent(props) {
 	return (
 		<dl className="dl-horizontal">
 			<dt>{props.label}</dt>
-			<dd>{props.value}</dd>
+			<dd>{(typeof props.value === 'object' ? props.value.join(', ') : props.value)}</dd>
 		</dl>
 	);
 }

@@ -14,12 +14,27 @@ function load_chattrunk(params) {
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
-	var services = [{
+	var services = [
+	{
+	// 	id: 'FacebookMessenger',
+	// 	name: "Instagram",
+	// 	icon: '/badmin/images/channels/instagram.png',
+	// 	params: {
+	// 		// appId: '507766126349295',
+	// 		appId: '1920629758202993',
+	// 		// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
+	// 		redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
+	// 	},
+	// 	component: InstagramTrunkComponent
+	// }, {
 		id: 'FacebookMessenger',
-		name: "Messenger",
-		icon: '/badmin/images/channels/fm.png',
+		name: "Facebook & Messenger",
+		icon: '/badmin/images/channels/facebook.png',
 		params: {
-			appId: '1920629758202993'
+			// appId: '507766126349295',
+			appId: '1920629758202993',
+			// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
+			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
 	}, {
@@ -80,16 +95,13 @@ function load_chattrunk(params) {
 		name: 'Number',
 		icon: '/badmin/images/channels/did.png',
 		component: DidTrunkComponent
+	}, {
+		id: 'WebChat',
+		name: 'Webchat',
+		icon: '/badmin/images/channels/webchat.png',
+		component: WebchatTrunkComponent
 	}
-	// {
-	// 	id: 'Facebook',
-	// 	name: "Facebook",
-	// 	icon: '/badmin/images/facebook.png',
-	// 	params: {
-	// 		appId: '1920629758202993'
-	// 	}
-		
-	// },{
+	// ,{
 	// 	id: 'Twitter',
 	// 	name: "Twitter",
 	// 	icon: '/badmin/images/twitter.png',
@@ -112,8 +124,8 @@ function load_chattrunk(params) {
 	var selectedService = queryParams.channel;
 	var userAccessToken = search ? queryParams.access_token : null;
 
-	if(window.opener && window.onTokenReceived) {
-		return window.onTokenReceived(userAccessToken);
+	if(window.opener && window.opener.onTokenReceived) {
+		return window.opener.onTokenReceived(userAccessToken);
 	} else if(userAccessToken) {
 		services = services.map(function(item) {
 			console.log('load_chattrunk services:', item);
@@ -159,6 +171,14 @@ function load_chattrunk(params) {
 				set_object_success();
 			} else {
 				PbxObject.name = params.name;
+				if(params.oid) {
+					getPageid(params, function(result) {
+						if(result.pageid) {
+							render(result.type, result);
+						}
+					});
+				}
+
 			}
 
 			render(params.type, params);
@@ -166,6 +186,10 @@ function load_chattrunk(params) {
 
 		});
     	
+	}
+
+	function getPageid(params, callback) {
+		json_rpc_async('getObject', { oid: params.oid }, callback);
 	}
 
 	function confirmRemoveObject(type, callback) {
@@ -274,9 +298,9 @@ function load_chattrunk(params) {
 		}, 500);
 	}
 
-	function onTokenReceived(token) {
-		PbxObject.userAccessToken = token;
-	}
+	// function onTokenReceived(token) {
+	// 	PbxObject.userAccessToken = token;
+	// }
 
 	function render(type, params) {
 		var componentParams = {
@@ -295,8 +319,8 @@ function load_chattrunk(params) {
 		    initSteps: initSteps,
 		    addSteps: addSteps,
 		    nextStep: nextStep,
-		    highlightStep: highlightStep,
-		    onTokenReceived: onTokenReceived
+		    highlightStep: highlightStep
+		    // onTokenReceived: onTokenReceived
 		};
 
 		console.log('render: ', componentParams);

@@ -7,7 +7,7 @@ function CustomerItemComponent(props) {
 
 	return (
 		<tr>
-			<td>{props.item.name ? props.item.name : (props.item.usinfo.email || props.item.usinfo.phone)}</td>
+			<td>{props.item.name ? props.item.name : (props.item.usinfo && (props.item.usinfo.email || props.item.usinfo.phone))}</td>
 			<td>{moment(props.item.created).format('DD/MM/YY HH:mm:ss')}</td>
 			<td>{props.item.createdby}</td>
 			<td className={props.item.consent ? "text-success" : ""}>

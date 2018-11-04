@@ -21,11 +21,11 @@ function load_services() {
 
 	function saveOptions(serviceOptions) {
 		console.log('saveOptions: ', serviceOptions);
-		var params = {
-			method: "setSubscription",
-			params: serviceOptions
-			// services: Array.isArray(serviceOptions) ? serviceOptions : [serviceOptions]
-		};
+		// var params = {
+		// 	method: "setSubscription",
+		// 	params: serviceOptions
+		// 	// services: Array.isArray(serviceOptions) ? serviceOptions : [serviceOptions]
+		// };
 
 		var url = '/services/'+serviceOptions.id+'/Subscription';
 		url += "?state="+(serviceOptions.state ? 1 : 0);

@@ -6,6 +6,7 @@ var DidTrunkComponent = React.createClass({
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
 		buyDidNumber: React.PropTypes.func,
+		getObjects: React.PropTypes.func,
 		isNew: React.PropTypes.bool
 	},
 
@@ -32,8 +33,10 @@ var DidTrunkComponent = React.createClass({
 			selectedPriceObject: {},
 			selectedType: 'Local',
 			selectedNumber: {},
+			selectedTrunk: {},
 			limitReached: false,
 			showNewDidSettings: false,
+			showConnectTrunkSettings: false,
 			fetchingCountries: false
 		};
 	},
@@ -61,10 +64,17 @@ var DidTrunkComponent = React.createClass({
 				this._getDid(this.props.properties.number, function(err, response) {
 					if(err) return notify_about('error', err);
 					this.setState({
+						showNewDidSettings: true,
 						selectedNumber: response.result
 					});
 
 				}.bind(this));
+
+			} else if(this._isTrunkChannel(this.props.properties.id)) {
+				this.setState({ 
+					fetch: false,
+					showConnectTrunkSettings: true
+				});
 			}
 
 		}.bind(this));
@@ -83,11 +93,17 @@ var DidTrunkComponent = React.createClass({
 				this.setState({ selectedNumber: response.result });
 
 			}.bind(this));
+		} else if(this._isTrunkChannel(props.properties.id)) {
+			this.setState({ 
+				fetch: false,
+				showConnectTrunkSettings: true
+			});
 		}
 				
 	},
 
 	_onChange: function() {
+
 		var params = {
 			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
 			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
@@ -100,6 +116,10 @@ var DidTrunkComponent = React.createClass({
 		};
 		
 		this.props.onChange(params);
+	},
+
+	_isTrunkChannel: function(str) {
+		return (str ? str.indexOf('@') !== -1 : false);
 	},
 
 	_currencyNameToSymbol: function(name) {
@@ -275,6 +295,14 @@ var DidTrunkComponent = React.createClass({
 		return amount ? parseFloat(amount) : 0;
 	},
 
+	_getCreatedTrunks: function() {
+		this.props.getObjects('trunk', function(result) {
+			this.setState({
+				trunks: result || []
+			});
+		});
+	},
+
 	_showNewDidSettings: function(e) {
 		e.preventDefault();
 		this.setState({ showNewDidSettings: !this.state.showNewDidSettings, fetchingCountries: true });
@@ -298,6 +326,15 @@ var DidTrunkComponent = React.createClass({
 			}
 		}.bind(this));
 				
+	},
+
+	_showConnectTrunkSettings: function() {
+		this.setState({ showNewDidSettings: false, showConnectTrunkSettings: true, fetchingTrunks: true });
+	},
+
+	_onTrunkSelect: function(params) {
+		console.log('_onTrunkSelect: ', params);
+		this.props.onChange(params);
 	},
 
 	// function getBody() {
@@ -342,16 +379,11 @@ var DidTrunkComponent = React.createClass({
 					this.state.init ? (
 						<div>
 							{
-								this.props.isNew ? (
+								
+								this.state.showNewDidSettings ? (
 									<div>
 										{
-											!this.state.showNewDidSettings ? (
-												<div className="form-group">
-													<div className="col-sm-4 col-sm-offset-4">
-														<button className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.DID.ADD_NUMBER_BTN}</button>
-													</div>
-												</div>
-											) : (
+											this.props.isNew ? (
 												<div>
 													{
 														this.state.fetchingCountries ? (
@@ -521,21 +553,40 @@ var DidTrunkComponent = React.createClass({
 															</div>
 														)
 													}
-
-
 												</div>
+											) : (
+
+												(this.state.selectedNumber && this.state.selectedNumber._id) ? (
+													<SelectedDidNumberComponent frases={frases} number={this.state.selectedNumber} />
+												) : (
+													<Spinner />
+												)
+
 											)
 										}
-										
 									</div>
 								) : (
-									(this.state.selectedNumber && this.state.selectedNumber._id) ? (
-										<SelectedDidNumberComponent frases={frases} number={this.state.selectedNumber} />
-									) : (
-										<Spinner />
-									)
-								)
+								this.state.showConnectTrunkSettings ? (
+									<ConnectTrunkSettings 
+										getObjects={this.props.getObjects} 
+										pageid={this.props.properties.id}
+										frases={this.props.frases} 
+										onChange={this._onTrunkSelect}
+										isNew={this.props.isNew}
+									/>
+								) : (
+									<div className="form-group">
+										<div className="col-sm-8 col-sm-offset-4">
+											<button type="button" className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.DID.ADD_NUMBER_BTN}</button>
+											<span> or </span>
+											<button type="button" className="btn btn-primary" onClick={this._showConnectTrunkSettings}><i className="fa fa-plug"></i> {frases.CHAT_TRUNK.DID.CONNECT_TRUNK_BTN}</button>
+										</div>
+									</div>
+								))
+										
+									
 							}
+										
 						</div>
 					) : (
 						<Spinner />

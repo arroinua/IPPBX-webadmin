@@ -57,13 +57,6 @@ function load_users(params) {
 
 		if(driver) driver.reset(); // close the tour
 
-		var options = PbxObject.options;
-		// var maxusers = options.maxusers;
-		// var storelimit = Math.ceil(convertBytes(options.storelimit, 'Byte', 'GB'));
-		var storeperuser = options.storelimit / options.maxusers;
-
-		params.storelimit = storeperuser;
-
 		modalCont = document.getElementById('modal-cont');
 
 		if(modalCont) {
@@ -74,9 +67,21 @@ function load_users(params) {
 		modalCont.id = "modal-cont";
 		document.body.appendChild(modalCont);
 
+		rednerNewUserModal();
+
+	}
+
+	function rednerNewUserModal() {
+		var options = PbxObject.options;
+		// var maxusers = options.maxusers;
+		// var storelimit = Math.ceil(convertBytes(options.storelimit, 'Byte', 'GB'));
+		var storeperuser = options.storelimit / options.maxusers;
+
+		objParams.storelimit = storeperuser;
+
 		ReactDOM.render(NewUsersModalComponent({
 		    frases: PbxObject.frases,
-		    params: params,
+		    params: objParams,
 		    onSubmit: addUser,
 		    generatePassword: generatePassword,
 		    convertBytes: convertBytes,
@@ -84,7 +89,7 @@ function load_users(params) {
 		}), modalCont);
 	}
 
-	function addUser(userParams) {
+	function addUser(userParams, callback) {
 		console.log('addUser: ', params);
 
 		if(!PbxObject.name) {
@@ -121,6 +126,8 @@ function load_users(params) {
 			if(tourStarted) {
 				onFirstUserCreated();
 			}
+
+			if(callback) callback(result);
 
 		});
 	}
@@ -232,10 +239,15 @@ function load_users(params) {
         var conf = confirm(msg);
 		
 		if(conf) {
-			objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-			setObject(objParams, function(result) {
+			json_rpc_async('deleteObject', { oid: oid }, function(){
+				objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 				init(objParams);
 			});
+			
+			// objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+			// setObject(objParams, function(result) {
+				// init(objParams);
+			// });
 		}
 			
 	}

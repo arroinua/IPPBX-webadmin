@@ -81,9 +81,9 @@ function Ldap(options){
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 window.location = error.redirection;
-            // } else if(error && error.code === 401) {
-            //     options.external = true;
-            //     openAuthModal();
+            } else if(error && error.code === 401) {
+                options.external = true;
+                openAuthModal();
             } else {
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
