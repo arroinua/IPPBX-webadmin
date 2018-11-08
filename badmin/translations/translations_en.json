@@ -298,6 +298,7 @@
 		"COSTBARGING" : "Deny paid calls",
 		"TIMEZONE": "Time zone"
 	},
+	"MENU": "Menu",
 	"OPTIONS" : "Options",
 	"LOGOUT": "Logout",
 	"GENERAL" : "General",
@@ -616,7 +617,7 @@
     	"branch_options": "Settings",
     	"services": "Integrations",
         "trunk": "Trunks",
-        "users": "Users",
+        "users": "User Groups",
         "user": "User",
         "equipment": "Equipment",
         "phone": "Equipment",
@@ -649,7 +650,9 @@
         "billing": "Billing",
         "usage": "License usage",
         "channel_records": "Channel Records",
-        "customers": "Customers"
+        "customers": "Customers",
+        "servicegroup": "Service Groups",
+        "settings": "Settings"
     },
     "CODES": {
     	"-1": "error",

@@ -29,7 +29,12 @@
 	    padding: 6px 10px 6px 0;
 	}
 
+	.panel-body {
+		padding: 10px;
+	}
+
 	.panel-footer {
-		border-top: none;
+		background-color: transparent;
+    	border-top: 1px dashed #eee;
 	}
 }

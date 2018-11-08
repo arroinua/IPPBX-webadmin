@@ -7019,7 +7019,7 @@ function init_page(){
     
     if(PbxObject.options.mode !== 1) loadStripeJs();
 
-    new GetStarted().init();
+    // new GetStarted().init();
 
     // PbxObject.groups = {};
     // PbxObject.templates = {};
@@ -7034,13 +7034,14 @@ function init_page(){
 
     if(!isSmallScreen()) {
         $('#pagecontent').addClass('squeezed-right');
-    } else{
-        $('#sidebar-toggle').toggleClass('flipped');
     }
-    if($(window).width() > 767 && $(window).width() < 959) {
-        $('#pbxmenu').addClass('squeezed-menu');
-        $('#pagecontent').removeClass('squeezed-right');
-    }
+    // else{
+    //     $('#sidebar-toggle').toggleClass('flipped');
+    // }
+    // if($(window).width() > 767 && $(window).width() < 959) {
+    //     $('#pbxmenu').addClass('squeezed-menu');
+    //     $('#pagecontent').removeClass('squeezed-right');
+    // }
     
     //set default loading page
     if(!location.hash.substring(1))
@@ -7051,13 +7052,15 @@ function init_page(){
     get_object();
     set_listeners();
 
-    $('[data-toggle="tooltip"]').tooltip({
-        delay: {"show": 1000, "hide": 100}
-    });
+    // $('[data-toggle="tooltip"]').tooltip({
+    //     delay: {"show": 1000, "hide": 100}
+    // });
 
     $('.tab-switcher', '#pbxoptions').click(function(e) {
         switch_options_tab($(this).attr('data-tab'));
     });
+
+    $('[data-toggle="tooltip"]').tooltip();
 
     // var wizzard = Wizzard({frases: PbxObject.frases});
 }
@@ -7218,7 +7221,7 @@ function get_object(e){
 
         show_loading_panel();
         setLastQuery(query);
-        setActiveMenuElement(kind, oid);
+        // setActiveMenuElement(kind, oid);
 
 
         var modal = document.getElementById('el-extension');
@@ -7246,6 +7249,12 @@ function get_object(e){
             //     load_template(template, kind);
             // });
         }
+
+        renderSidebar({
+            branchOptions: PbxObject.options,
+            activeKind: PbxObject.kind,
+            activeItem: PbxObject.oid
+        });
 
         // Analytics
         if(window.ga) {
@@ -7643,7 +7652,7 @@ function remove_loading_panel(){
 }
 
 function show_content(togglecont){
-    setBreadcrumbs();
+    // setBreadcrumbs();
     remove_loading_panel();
 
     $('#dcontainer').removeClass('faded');
@@ -7832,12 +7841,14 @@ function filterObject(array, kind, reverse) {
 
 function getObjects(kind, callback, reverse) {
     if(typeof PbxObject.objects === 'object') {
-        callback(filterObject(PbxObject.objects, kind, reverse));
+        if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
+        else callback(PbxObject.objects);
     } else {
         json_rpc_async('getObjects', { kind: 'all' }, function(result) {
             sortByKey(result, 'name');
             PbxObject.objects = result;
-            callback(filterObject(PbxObject.objects, kind, reverse));
+            if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
+            else callback(result);
         });
     }
 }
@@ -8117,8 +8128,8 @@ function newObjectAdded(event, data){
         enabled = data.enabled,
         nameEl = document.getElementById('objname'),
         setobj = document.getElementById('el-set-object'),
-        delobj = document.getElementById('el-delete-object'),
-        ul = document.getElementById('ul-'+data.kind);
+        delobj = document.getElementById('el-delete-object');
+        // ul = document.getElementById('ul-'+data.kind);
 
     remove_loading_panel();
     notify_about('success', name+' '+PbxObject.frases.CREATED);
@@ -8131,15 +8142,15 @@ function newObjectAdded(event, data){
     console.log('newObjectAdded: ', nameEl, name);
     if(nameEl && name) nameEl.value = name;
     
-    if(ul){
-        var li = document.createElement('li'),
-            a = document.createElement('a');
-        a.href = '#'+kind+'/'+oid;
-        a.innerHTML = name;
-        li.setAttribute('data-oid', oid);
-        li.appendChild(a);
-        ul.appendChild(li);
-    }
+    // if(ul){
+    //     var li = document.createElement('li'),
+    //         a = document.createElement('a');
+    //     a.href = '#'+kind+'/'+oid;
+    //     a.innerHTML = name;
+    //     li.setAttribute('data-oid', oid);
+    //     li.appendChild(a);
+    //     ul.appendChild(li);
+    // }
 
     if(delobj && delobj.hasAttribute('disabled')) {
         delobj.removeAttribute('disabled');
@@ -8160,6 +8171,12 @@ function newObjectAdded(event, data){
         PbxObject.objects.push(data);
         sortByKey(PbxObject.objects, 'name');
     }
+
+    renderSidebar({
+        branchOptions: PbxObject.options,
+        activeKind: PbxObject.kind,
+        activeItem: PbxObject.oid
+    });
 
 }
 
@@ -10333,6 +10350,116 @@ function load_reg_history(params) {
 	
 	show_content();
     // set_page();
+
+}
+function renderSidebar(params) {
+
+	_init(params);
+
+	function _getMenuItems() {
+	    var menuItems = [
+	        {
+	            name: 'dashboard',
+	            iconClass: 'fa fa-fw fa-pie-chart'
+	        }, {
+	            name: 'users',
+	            iconClass: 'fa fa-fw fa-users',
+	            fetchKinds: ['users']
+	        }, {
+	            name: 'chattrunk',
+	            iconClass: 'fa fa-fw fa-whatsapp',
+	            fetchKinds: ['chattrunk']
+	        }, {
+	            name: 'servicegroup',
+	            iconClass: 'fa fa-fw fa-comments-o',
+	            fetchKinds: ['hunting', 'icd', 'chatchannel']
+	        }, {
+	            name: 'attendant',
+	            iconClass: 'icon-room_service',
+	            fetchKinds: ['attendant']
+	        }, {
+	            name: 'trunk',
+	            iconClass: 'fa fa-fw fa-cloud',
+	            fetchKinds: ['trunk']
+	        }, {
+	            name: 'equipment',
+	            iconClass: 'fa fa-fw fa-fax',
+	            fetchKinds: ['equipment']
+	        }, {
+	            name: 'timer',
+	            iconClass: 'fa fa-fw fa-calendar',
+	            fetchKinds: ['timer']
+	        }, {
+	            name: 'routes',
+	            iconClass: 'fa fa-fw fa-arrows',
+	            fetchKinds: ['routes']
+	        }, {
+	            name: 'settings',
+	            shouldRender: false
+	        }
+	    ];
+
+	    return menuItems;
+	}
+
+	function _getMenuObjects(menu, branchOptions, callback) {
+		var objects = [];
+
+		if(menu.fetchKinds && menu.fetchKinds.length) {
+		    window.getObjects(menu.fetchKinds, function(result) {
+		    	objects = result || [];
+		        return callback(objects);
+		    });
+		} else {
+			switch(menu.name) {
+				case 'dashboard':
+					objects = [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }];
+					break;
+				case 'settings':
+					objects = [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: (branchOptions.mode === 0 ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }];
+					break;
+				default:
+					objects = []
+			}
+
+			return callback(objects);
+		}
+	}
+
+	function _getActiveKind(kind) {
+	    if(kind.match('hunting|icd|chatchannel')) return 'servicegroup';
+	    else if(kind.match('statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
+	    else return kind;
+	}
+
+	function _selectKind(kind) {
+		var newParams = extend({}, params);
+		newParams.activeKind = kind;
+		_init(newParams);
+	}
+
+	function _init(params) {
+	    var menuItems = _getMenuItems();
+	    var activeKind = _getActiveKind(params.activeKind);
+	    var activeItem = params.activeItem || params.activeKind;
+	    var menuParams = menuItems.filter(function(item) { return item.name === activeKind })[0];
+	    
+	    _getMenuObjects(menuParams, params.branchOptions, function(result) {
+	    	componentParams = {
+	    	    frases: PbxObject.frases,
+	    	    menuItems: menuItems, 
+	    	    activeKind: activeKind,
+	    	    activeItem: activeItem,
+	    	    selectedMenu: menuParams,
+	    	    selectKind: _selectKind,
+	    	    objects: result
+	    	};
+
+	    	ReactDOM.render(SideBarComponent(componentParams), document.getElementById('pbxmenu'));
+	    });
+
+	}
 
 }
 function load_reports(){

@@ -494,8 +494,6 @@ function setupPage() {
                 init_page();
             }
 
-            // renderSidebar();
-
         });
 
     });
@@ -520,7 +518,7 @@ function init_page(){
     
     if(PbxObject.options.mode !== 1) loadStripeJs();
 
-    new GetStarted().init();
+    // new GetStarted().init();
 
     // PbxObject.groups = {};
     // PbxObject.templates = {};
@@ -535,13 +533,14 @@ function init_page(){
 
     if(!isSmallScreen()) {
         $('#pagecontent').addClass('squeezed-right');
-    } else{
-        $('#sidebar-toggle').toggleClass('flipped');
     }
-    if($(window).width() > 767 && $(window).width() < 959) {
-        $('#pbxmenu').addClass('squeezed-menu');
-        $('#pagecontent').removeClass('squeezed-right');
-    }
+    // else{
+    //     $('#sidebar-toggle').toggleClass('flipped');
+    // }
+    // if($(window).width() > 767 && $(window).width() < 959) {
+    //     $('#pbxmenu').addClass('squeezed-menu');
+    //     $('#pagecontent').removeClass('squeezed-right');
+    // }
     
     //set default loading page
     if(!location.hash.substring(1))
@@ -561,38 +560,6 @@ function init_page(){
     });
 
     // var wizzard = Wizzard({frases: PbxObject.frases});
-}
-
-function renderSidebar() {
-    var menuDesc = [
-        {
-            kind: 'users',
-            iconClass: 'fa fa-fw fa-users'
-        }, {
-            kind: 'chattrunk',
-            iconClass: 'fa fa-fw fa-whatsapp'
-        }, {
-            kind: 'servgroup',
-            iconClass: 'fa fa-fw fa-comments-o'
-        }, {
-            kind: 'attendant',
-            iconClass: 'fa fa-fw fa-room_service'
-        }, {
-            kind: 'trunk',
-            iconClass: 'fa fa-fw fa-cloud'
-        }, {
-            kind: 'equipment',
-            iconClass: 'fa fa-fw fa-fax'
-        }, {
-            kind: 'timer',
-            iconClass: 'fa fa-fw fa-calendar'
-        }, {
-            kind: 'routes',
-            iconClass: 'fa fa-fw fa-arrows'
-        }
-    ];
-
-    ReactDOM.render(SideBarComponent({ kinds: menuDesc, activeKind: 'dashboard', objects: PbxObject.objects }), document.getElementById('pbxmenu'));
 }
 
 // init tour
@@ -751,7 +718,7 @@ function get_object(e){
 
         show_loading_panel();
         setLastQuery(query);
-        setActiveMenuElement(kind, oid);
+        // setActiveMenuElement(kind, oid);
 
 
         var modal = document.getElementById('el-extension');
@@ -779,6 +746,12 @@ function get_object(e){
             //     load_template(template, kind);
             // });
         }
+
+        renderSidebar({
+            branchOptions: PbxObject.options,
+            activeKind: PbxObject.kind,
+            activeItem: PbxObject.oid
+        });
 
         // Analytics
         if(window.ga) {
@@ -1176,7 +1149,7 @@ function remove_loading_panel(){
 }
 
 function show_content(togglecont){
-    setBreadcrumbs();
+    // setBreadcrumbs();
     remove_loading_panel();
 
     $('#dcontainer').removeClass('faded');
@@ -1365,12 +1338,14 @@ function filterObject(array, kind, reverse) {
 
 function getObjects(kind, callback, reverse) {
     if(typeof PbxObject.objects === 'object') {
-        callback(filterObject(PbxObject.objects, kind, reverse));
+        if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
+        else callback(PbxObject.objects);
     } else {
         json_rpc_async('getObjects', { kind: 'all' }, function(result) {
             sortByKey(result, 'name');
             PbxObject.objects = result;
-            callback(filterObject(PbxObject.objects, kind, reverse));
+            if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
+            else callback(result);
         });
     }
 }
@@ -1650,8 +1625,8 @@ function newObjectAdded(event, data){
         enabled = data.enabled,
         nameEl = document.getElementById('objname'),
         setobj = document.getElementById('el-set-object'),
-        delobj = document.getElementById('el-delete-object'),
-        ul = document.getElementById('ul-'+data.kind);
+        delobj = document.getElementById('el-delete-object');
+        // ul = document.getElementById('ul-'+data.kind);
 
     remove_loading_panel();
     notify_about('success', name+' '+PbxObject.frases.CREATED);
@@ -1664,15 +1639,15 @@ function newObjectAdded(event, data){
     console.log('newObjectAdded: ', nameEl, name);
     if(nameEl && name) nameEl.value = name;
     
-    if(ul){
-        var li = document.createElement('li'),
-            a = document.createElement('a');
-        a.href = '#'+kind+'/'+oid;
-        a.innerHTML = name;
-        li.setAttribute('data-oid', oid);
-        li.appendChild(a);
-        ul.appendChild(li);
-    }
+    // if(ul){
+    //     var li = document.createElement('li'),
+    //         a = document.createElement('a');
+    //     a.href = '#'+kind+'/'+oid;
+    //     a.innerHTML = name;
+    //     li.setAttribute('data-oid', oid);
+    //     li.appendChild(a);
+    //     ul.appendChild(li);
+    // }
 
     if(delobj && delobj.hasAttribute('disabled')) {
         delobj.removeAttribute('disabled');
@@ -1693,6 +1668,12 @@ function newObjectAdded(event, data){
         PbxObject.objects.push(data);
         sortByKey(PbxObject.objects, 'name');
     }
+
+    renderSidebar({
+        branchOptions: PbxObject.options,
+        activeKind: PbxObject.kind,
+        activeItem: PbxObject.oid
+    });
 
 }
 

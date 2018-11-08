@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ringotel | Administrator Panel</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <!-- Google Analytics -->
+        <!-- <script>
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', 'UA-82207439-2', 'auto');
+        </script> -->
+        <!-- <script async src='https://www.google-analytics.com/analytics.js'></script> -->
+        <!-- End Google Analytics -->
+        <script>
+          !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
+          analytics.load("FLp9OXDzMMi4RDxAaNKAAPvOflNlXr3U");
+          analytics.page();
+          }}();
+        </script>
+                      <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-N2LKPNF');</script>
+        <!-- End Google Tag Manager -->
+        <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/badmin/fonts/css/icomoon.css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/bootstrap-tour.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/rome.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/flatpickr.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/select2.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/react-select.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/c3.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/vendors/driver.min.css" type="text/css" />
+        <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" />
+    </head>
+    <body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N2LKPNF"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
+        <div id="pagecontainer" class="page-container">
+            <script type="text/html" id="main-template">
+                <div id="pbxmenu" class="page-sidebar pbx-menu">
+                    <div class="nav-logo">
+                        <a href="#dashboard" class="small-logo"><img src="/badmin/images/small-logo.png" alt="logo"></a>
+                        <a href="#dashboard" class="big-logo"><img src="/badmin/images/logo.png" alt="logo"></a>
+                    </div>
+                    <ul class="nav-list">
+                        <li>
+                            <a href="#" data-kind="users" title="{{KINDS.users}}">
+                                <i class="fa fa-user fa-fw"></i>
+                                <span>{{KINDS.users}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-equipment">
+                            <a href="#" data-kind="equipment" title="{{KINDS.equipment}}">
+                                <i class="fa fa-fax fa-fw"></i>
+                                <span>{{KINDS.equipment}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-single">
+                            <a href="#" data-kind="chattrunk" title="{{KINDS.chattrunk}}">
+                                <i class="fa fa-whatsapp fa-fw"></i>
+                                <span>{{KINDS.chattrunk}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-single">
+                            <a href="#" data-kind="chatchannel" title="{{KINDS.chantchannel}}">
+                                <i class="fa fa-comments-o fa-fw"></i>
+                                <span>{{KINDS.chatchannel}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode">
+                            <a href="#" data-kind="hunting" title="{{KINDS.hunting}}">
+                                <i class="icon-find_replace"></i>
+                                <span>{{KINDS.hunting}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode">
+                            <a href="#" data-kind="icd" title="{{KINDS.icd}}">
+                                <i class="icon-headset_mic"></i>
+                                <span>{{KINDS.icd}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-selector">
+                            <a href="#" data-kind="selector" title="{{KINDS.selector}}">
+                                <i class="fa fa-line-chart fa-fw"></i>
+                                <span>{{KINDS.selector}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-kind="attendant" title="{{KINDS.attendant}}">
+                                <i class="icon-room_service"></i>
+                                <span>{{KINDS.attendant}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-trunks">
+                            <a href="#" data-kind="trunk" title="{{KINDS.trunk}}">
+                                <i class="fa fa-cloud fa-fw"></i>
+                                <span>{{KINDS.trunk}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="branch-mode mode-equipment">
+                            <a href="#" data-kind="timer" title="{{KINDS.timer}}">
+                                <i class="fa fa-calendar fa-fw"></i>
+                                <span>{{KINDS.timer}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-kind="routes" title="{{KINDS.routes}}">
+                                <i class="fa fa-arrows fa-fw"></i>
+                                <span>{{KINDS.routes}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="nav-divider branch-mode mode-groups">
+                            <a href="#">
+                                <i class="fa fa-plus fa-fw"></i>
+                                <span>{{MORE}}</span>
+                                <i class="fa fa-angle-right fa-fw"></i>
+                            </a>
+                            <ul>
+                                <li class="branch-mode mode-channels">
+                                    <a href="#channels" title="{{KINDS.channels}}">
+                                        <i class="fa fa-list-ul fa-fw"></i>
+                                        <span>{{KINDS.channels}}</span>
+                                    </a>
+                                </li>
+                                <li class="branch-mode mode-channels">
+                                    <a href="#" data-kind="channel" title="{{KINDS.channel}}">
+                                        <i class="fa fa-rss fa-fw"></i>
+                                        <span>{{KINDS.channel}}</span>
+                                        <i class="fa fa-angle-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <!-- <li class="branch-mode mode-groups">
+                                    <a href="#" data-kind="application" title="{{KINDS.application}}">
+                                        <i class="fa fa-puzzle-piece fa-fw"></i>
+                                        <span>{{KINDS.application}}</span>
+                                        <i class="fa fa-angle-right fa-fw"></i>
+                                    </a>
+                                </li> -->
+                                <li>
+                                    <a href="#" data-kind="conference" title="{{KINDS.conference}}">
+                                        <i class="icon-call_split"></i>
+                                        <span>{{KINDS.conference}}</span>
+                                        <i class="fa fa-angle-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-kind="pickup" title="{{KINDS.pickup}}">
+                                        <i class="icon-phone_missed"></i>
+                                        <span>{{KINDS.pickup}}</span>
+                                        <i class="fa fa-angle-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-kind="unit" title="{{KINDS.unit}}">
+                                        <i class="fa fa-building fa-fw"></i>
+                                        <span>{{KINDS.unit}}</span>
+                                        <i class="fa fa-angle-right fa-fw"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-kind="cli" title="{{KINDS.cli}}">
+                                        <i class="icon-fingerprint"></i>
+                                        <span>{{KINDS.cli}}</span>
+                                        <i class="fa fa-angle-right fa-fw"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div id="pagecontent" class="page-content">
+                    <nav class="navbar nav-bar">
+                        <ul class="nav nav-bar-nav">
+                            <li>
+                                <a href="#" id="sidebar-toggle" class="sidebar-toggle">
+                                    <i class="fa fa-angle-left fa-fw"></i>
+                                </a>
+                            </li>
+                            <li id="home-btn">
+                                <a href="#dashboard" title="{{KINDS.dashboard}}">
+                                    <i class="fa fa-home fa-fw"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#extensions" title="{{KINDS.extensions}}">
+                                    <i class="fa fa-users fa-fw"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul id="el-slidemenu" class="nav nav-bar-nav pull-right slide-menu">
+                            <li>
+                                <div class="dropdown custom-dropdown" id="history-dropdown-cont">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                        <i class="fa fa-history fa-fw"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdown">
+                                        <li>
+                                            <a href="#statistics" role="menuitem" tabindex="-1">
+                                                <i class="fa fa-table fa-fw"></i>
+                                                {{KINDS.statistics}}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#channel_statistics" role="menuitem" tabindex="-1">
+                                                <i class="fa fa-commenting-o fa-fw"></i>
+                                                {{KINDS.channel_statistics}}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#records" role="menuitem" tabindex="-1">
+                                                <i class="fa fa-phone fa-fw"></i>
+                                                {{KINDS.records}}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#reg_history" role="menuitem" tabindex="-1">
+                                                <i class="fa fa-signal fa-fw"></i>
+                                                {{KINDS.reg_history}}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li id="open-opts-btn">
+                                <a href="#" class="options-open">
+                                    <i class="fa fa-cog fa-fw"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <ol class="custom breadcrumb" id="main-breadcrumb"></ol>
+                    <div id="dcontainer" class="container-fluid data-container"></div>
+                    <div class="page-footer">
+                        <div class="pull-left">
+                            <span>{{COPYRIGHT_YEARS}} <b style="text-transform:uppercase">{{COPYRIGHT_NAME}}</b> {{COPYRIGHT_TEXT}}</span>
+                        </div>
+                        <div class="pull-right">
+                            <span class="totop-btn" onclick="toTheTop();">
+                                <i class="fa fa-angle-up"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="pbxoptions" class="page-sidebar pbx-options" tabindex="-1">
+                    <div class="navbar nav-bar options-nav">
+                        <ul class="nav nav-bar-nav">
+                            <li>
+                                <a href="#" class="options-close">
+                                    <i class="fa fa-remove fa-fw"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav nav-bar-nav pull-right">
+                            <li>
+                                <a href="#" id="logout-btn" title="{{LOGOUT}}">
+                                    <i class="fa fa-sign-out fa-fw"></i>
+                                    <span>{{LOGOUT}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="mainopt-tab" class="tab-pane active" role="tabpanel">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <ul class="tab-toggles">
+                                    <li>
+                                        <a href="#branch_options" title="{{SETTINGS.GENERAL_SETTS}}">
+                                            <i class="fa fa-cog fa-fw"></i>
+                                            <span>{{SETTINGS.SETTINGS}}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#rec_settings" title="{{SETTINGS.REC_SETTINGS}}">
+                                            <i class="fa fa-microphone fa-fw"></i>
+                                            <span>{{SETTINGS.REC_SETTINGS}}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#services" title="{{SETTINGS.BRANCH_SERVICES}}">
+                                            <i class="fa fa-plug fa-fw"></i>
+                                            <span>{{SETTINGS.BRANCH_SERVICES}}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#storages" title="{{SETTINGS.USAGE_SETTINGS}}">
+                                            <i class="fa fa-database fa-fw"></i>
+                                            <span>{{SETTINGS.USAGE_SETTINGS}}</span>
+                                        </a>
+                                    </li>
+                                    <li class="branch-mode mode-single">
+                                        <a href="#billing" title="{{SETTINGS.BILLING}}">
+                                            <i class="fa fa-credit-card fa-fw"></i>
+                                            <span>{{SETTINGS.BILLING}}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#certificates" title="{{CERTIFICATES.CERTIFICATES_SETTS}}">
+                                            <i class="fa fa-lock fa-fw"></i>
+                                            <span>{{CERTIFICATES.CERTIFICATES_SETTS}}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#customers" title="{{KINDS.customers}}">
+                                            <i class="fa fa-users fa-fw"></i>
+                                            <span>{{KINDS.customers}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </script>
+        </div>
+        <script type="text/javascript" src="/badmin/js/vendors/react.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/react-dom.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/mustache.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/jquery.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/bootstrap.min.js"></script>
+        <!-- <script type="text/javascript" src="/badmin/js/vendors/bootstrap-tour.min.js"></script> -->
+        <script type="text/javascript" src="/badmin/js/vendors/flot.all.min.js"></script>
+        <!--<script type="text/javascript" src="/badmin/js/vendors/fastclick.min.js"></script>-->
+        <script type="text/javascript" src="/badmin/js/vendors/sortable.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/excellentexport.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/sorttable.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/rome-moment.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/moment-timezone-with-data-2010-2020.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/flatpickr.all.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/select2.full.min.js"></script>
+        <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/c3.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/react-select-utils.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/react-select.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/vendors/driver.min.js"></script>
+        <script type="text/javascript" src="/badmin/js/main.js"></script>
+        <script type="text/javascript" src="/badmin/js/components.js"></script>
+
+        <script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "//cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
+
+        <script type="text/javascript">
+            var _iub = _iub || [];
+            _iub.csConfiguration = {
+                cookiePolicyId: 92894652,
+                siteId: 1049981,
+                consentOnScroll: false,
+                consentOnButton: true,
+                lang: "en",
+                preferenceCookie: {
+                    expireAfter: 365
+                }, 
+                banner: {
+                    backgroundColor: "#fff",
+                    textColor: "#333"
+                },
+                callback: {
+                    onConsentGiven: function(){
+                        jQuery(document).trigger('consent-given');
+                        dataLayer.push({'event': 'iubenda_consent_given'});
+                    }
+                }
+            };
+        </script>
+        <script type="text/javascript" src="//cdn.iubenda.com/cookie_solution/safemode/iubenda_cs.js" charset="UTF-8"></script>
+    </body>
+</html>
