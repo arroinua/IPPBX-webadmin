@@ -11,8 +11,8 @@
 		doSort: React.PropTypes.bool,
 		activeServices: React.PropTypes.array,
 		onImportUsers: React.PropTypes.func,
-		onSort: React.PropTypes.func,
-		addSteps: React.PropTypes.func
+		onSort: React.PropTypes.func
+		// addSteps: React.PropTypes.func
 	},
 
 	componentWillMount: function() {
@@ -21,22 +21,22 @@
 		});		
 	},
 
-	componentDidMount: function() {
-		console.log('GroupMembersComponent componentDidMount');
-		var frases = this.props.frases;
+	// componentDidMount: function() {
+	// 	console.log('GroupMembersComponent componentDidMount');
+	// 	var frases = this.props.frases;
 
-		if(this.props.addSteps) {
-			this.props.addSteps([{
-				element: '#new-users-btns .btn-primary',
-				popover: {
-					title: frases.GET_STARTED.CREATE_USERS.STEPS["1"].TITLE,
-					description: frases.GET_STARTED.CREATE_USERS.STEPS["1"].DESC,
-					position: 'bottom',
-					showButtons: false
-				}
-			}]);
-		}
-	},
+	// 	if(this.props.addSteps) {
+	// 		this.props.addSteps([{
+	// 			element: '#new-users-btns .btn-primary',
+	// 			popover: {
+	// 				title: frases.GET_STARTED.CREATE_USERS.STEPS["1"].TITLE,
+	// 				description: frases.GET_STARTED.CREATE_USERS.STEPS["1"].DESC,
+	// 				position: 'bottom',
+	// 				showButtons: false
+	// 			}
+	// 		}]);
+	// 	}
+	// },
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
@@ -47,20 +47,22 @@
 	_getInfoFromState: function(state, group){
 	    var status, className;
 
-	    if(state == 1) {
-	        className = 'success';
-	    } else if(state == 8) {
-	        className = 'connected';
-	    } else if(state == 2 || state == 5) {
+	    if(state == 1) { // Idle
+	        // className = 'success';
+	        className = 'info';
+	    } else if(state == 8) { // Connected
+	        // className = 'connected';
+	        className = 'danger';
+	    } else if(state == 2 || state == 5) { // Away
 	        className = 'warning';
-	    } else if(state == 0 || (state == -1 && group)) {
+	    } else if(state == 0 || (state == -1 && group)) { // Offline
 	        // state = '';
 	        className = 'default';
-	    } else if(state == 3) {
+	    } else if(state == 3) { // DND
 	        className = 'danger';
-	    } else if(state == 6 || state == 7) {
-	        className = 'info';        
-	    } else {
+	    } else if(state == 6 || state == 7) { // Calling
+	        className = 'danger';        
+	    } else { // 
 	        className = 'active';
 	    }
 	    status = PbxObject.frases.STATES[state] || '';
@@ -97,7 +99,7 @@
 
 	_onFilter: function(items) {
 		this.setState({
-			filteredMembers: items
+			filteredMembers: [].concat(items)
 		});
 	},
 
@@ -111,7 +113,7 @@
 		newArray.length = members.length;
 		
 		members.forEach(function(item, index, array) {
-			newArray[order.indexOf(item.oid)] = extend({}, item);
+			newArray[order.indexOf(item.oid)] = window.extend({}, item);
 			// newArray.splice(order.indexOf(item.oid), 0, newArray.splice(index, 1)[0]);
 		});
 
@@ -139,58 +141,62 @@
 		var members = this.props.members;
 		var filteredMembers = this.props.doSort ? sortByKey(this.state.filteredMembers, 'number') : this.state.filteredMembers;
 
-		// <FilterInputComponent items={members} onChange={this._onFilter} />
-
 		return (
-			<div className="row">
-		    	<div className="col-xs-12" id="new-users-btns">
-		    		{
-		    			this.props.onAddMembers && (
-				    		<button type="button" role="button" className="btn btn-primary" style={{ margin: "10px 5px" }} onClick={this.props.onAddMembers}><i className="fa fa-user-plus"></i> {frases.ADD_USER}</button>
-		    			)
-		    		}
+			<div>
+				<div className="row">
+			    	<div className="col-sm-6" id="new-users-btns">
+			    		{
+			    			this.props.onAddMembers && (
+					    		<button type="button" role="button" className="btn btn-primary" style={{ margin: "0 10px 10px 0" }} onClick={this.props.onAddMembers}><i className="fa fa-user-plus"></i> {frases.ADD_USER}</button>
+			    			)
+			    		}
 
-		    		{
-		    			(this.props.activeServices && this.props.activeServices.length) ? (
-		    				<ImportUsersButtonsComponent frases={frases} services={this.props.activeServices} onClick={this._onImportFromService} />
-		    			) : null
-		    		}
-		    	</div>
-		    	<div className="col-xs-12">
-					<div className="panel">
-						<div className="panel-body" style={{ padding: "0" }}>
-						    <div className="table-responsive">
-						        <table className={"table table-hover" + ((filteredMembers.length && this.props.sortable) ? "" : "")} id="group-extensions" style={{ marginBottom: "0" }}>
-						            
-						            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
-						            	{
-						            		filteredMembers.length ? (
+			    		{
+			    			(this.props.activeServices && this.props.activeServices.length) ? (
+			    				<ImportUsersButtonsComponent frases={frases} services={this.props.activeServices} onClick={this._onImportFromService} />
+			    			) : null
+			    		}
+			    	</div>
+			    	<div className="col-sm-6">
+						<FilterInputComponent items={members} onChange={this._onFilter} />
+			    	</div>
+			    </div>
+			    <div className="row">
+			    	<div className="col-xs-12">
+						<div className="panel">
+							<div className="panel-body" style={{ padding: "0" }}>
+							    <div className="table-responsive">
+							        <table className={"table table-hover" + ((filteredMembers.length && this.props.sortable) ? "" : "")} id="group-extensions" style={{ marginBottom: "0" }}>
+							            
+							            <tbody ref={this._tableRef} onTouchEnd={this._onSortEnd} onDragEnd={this._onSortEnd}>
+							            	{
+							            		filteredMembers.length ? (
 
-						            			filteredMembers.map(function(item, index) {
+							            			filteredMembers.map(function(item, index) {
 
-						            				item.icon = this._getKindIcon(item.kind);
+							            				return <GroupMemberComponent 
+							            					key={item.oid} 
+							            					sortable={this.props.sortable} 
+							            					item={item} 
+							            					icon={this._getKindIcon(item.kind)}
+							            					withGroup={this.props.withGroups} 
+							            					itemState={this._getInfoFromState(item.state)} 
+							            					getExtension={this.props.getExtension} 
+							            					deleteMember={this.props.deleteMember} 
+							            				/>
 
-						            				return <GroupMemberComponent 
-						            					key={item.oid} 
-						            					sortable={this.props.sortable} 
-						            					item={item} 
-						            					withGroup={this.props.withGroups} 
-						            					itemState={this._getInfoFromState(item.state)} 
-						            					getExtension={this.props.getExtension} 
-						            					deleteMember={this.props.deleteMember} 
-						            				/>
+							            			}.bind(this))
 
-						            			}.bind(this))
-
-						            		) : (
-						            			<tr>
-						            				<td colSpan="5">{frases.CHAT_CHANNEL.NO_MEMBERS}</td>
-						            			</tr>
-						            		)
-						            	}
-						            </tbody>
-						        </table>
-						    </div>
+							            		) : (
+							            			<tr>
+							            				<td colSpan="5">{frases.CHAT_CHANNEL.NO_MEMBERS}</td>
+							            			</tr>
+							            		)
+							            	}
+							            </tbody>
+							        </table>
+							    </div>
+							</div>
 						</div>
 					</div>
 				</div>

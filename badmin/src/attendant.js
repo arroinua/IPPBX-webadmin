@@ -55,12 +55,12 @@ function load_attendant(result){
         PbxObject.attendant.routes = routes;
     });
 
-    // Render route parameters
-    renderObjRoute({
-        routes: result.routes || [],
-        frases: PbxObject.frases,
-        onChange: setCurrObjRoute
-    });
+    // // Render route parameters
+    // renderObjRoute({
+    //     routes: result.routes || [],
+    //     frases: PbxObject.frases,
+    //     onChange: setCurrObjRoute
+    // });
 
     // sortByKey(PbxObject.attendant.connectors, 'ext');
     // addAttBreadcrumb('<i class="fa fa-home"></i>', '');
@@ -302,8 +302,9 @@ function setAttSettings(params, temp){
         if(obj.key === 'jsonString'){
             // value = strToJson(obj.value);
             value = obj.value;
-            objects = JSON.parse(value);
+            objects = JSON.parse(value, function(key, value) { return value === 'null' ? null : value; });
             PbxObject.attendant.objects = objects;
+        
         } else if(obj.key === 'connectors'){
             // value = strToJson(obj.value);
             value = obj.value;
@@ -349,6 +350,7 @@ function buildSchema(objects){
         }
     }
     sortByKey(array, 'oid');
+
     array.forEach(function(item){
         keyParent = item.oid.substr(0, item.oid.length-1);
         if(item.oid === '0'){
@@ -362,6 +364,7 @@ function buildSchema(objects){
 }
 
 function addToSchema(oid, params, listEl){
+    if(oid === null || oid === undefined || oid === 'null') return;
     var parentId = oid.substr(0, oid.length-1), li, el;
     if(listEl)
         el = listEl;
@@ -428,7 +431,7 @@ function addAttObjects(objects, id){
     if(objects){
         for(key in objects){
             if(objects.hasOwnProperty(key)){
-                if(key.substr(0, key.length-1) == id)
+                if(key.substr(0, key.length-1) === id)
                     addAttObject(objects[key]);
             }
         }
@@ -440,7 +443,7 @@ function addAttObject(params, instance){
         activeCanvas = document.querySelector('.att-canvas.active'),
         oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0),
         msg = '', prevOid;
-    
+
     if(!params.button){
         var initBtn = activeCanvas.querySelector('.att-init-button');
         if(initBtn && isMainEl()) initBtn.parentNode.removeChild(initBtn); //remove init button if main element created
@@ -459,6 +462,8 @@ function addAttObject(params, instance){
     } else{
         activeCanvas.insertBefore(obj, activeCanvas.lastChild);
     }
+
+    if(params.connector) params.data = params.data.split(' - ')[0]; // get number part
 
     params.oid = oid;
     if(PbxObject.attendant.objects[oid] !== params){
@@ -648,7 +653,6 @@ function showAttObjectSetts(params, object){
 
     var renderParams = formAttParams(params);
 
-    console.log('showAttObjectSetts data: ', renderParams);
     getAttTemplate('attendant_modal', function(temp){
 
         var rendered = Mustache.render(temp, renderParams);
@@ -816,12 +820,11 @@ function formAttParams(data){
     } else if(data.type === PbxObject.attendant.types.mail) {
         // filter only emails
         params.connectors = PbxObject.attendant.connectors.filter(function(item) {
-            console.log('fliter: ', item);
             return item.ext.indexOf('@') !== -1;
         });
     }
     params.connectors = params.connectors.map(formatConnectors);
-    sortByKey(params.connectors, 'ext');
+    // sortByKey(params.connectors, 'value');
 
     return params;
 }
@@ -842,8 +845,6 @@ function generateAttObjName(type, button, objName){
         value = objName || PbxObject.frases.ATTENDANT[type.toUpperCase()];
     }
 
-    console.log('generateAttObjPath: ', value);
-    
     return value;
 }
 
@@ -1002,7 +1003,8 @@ function set_attendant(){
     var jprms, 
         name = document.getElementById('objname').value,
         cont = document.querySelector('.att-container'),
-        objects = PbxObject.attendant.objects;
+        objects = PbxObject.attendant.objects,
+        oid = PbxObject.oid;
 
     var varsFormData = retrieveFormData(document.getElementById('attvariables'));
     var greetings = document.getElementById('attGreetings');
@@ -1010,16 +1012,16 @@ function set_attendant(){
     var connFailedPrompt = document.getElementById('connectionFailed');
     var leaveMsg = document.getElementById('leaveMessage');
     var prefix = PbxObject.options.prefix;
-    var algdir = 'users'+(prefix ? '/'+prefix : '')+'/attendant/'+name+'/';
+    var algdir = 'users'+(prefix ? '/'+prefix : '')+'/attendant/'+oid+'/';
 
     if(greetings.files[0])
-        upload(greetings, '/attendant/'+name+'/'+greetings.files[0].name);
+        upload(greetings, '/attendant/'+oid+'/'+greetings.files[0].name);
     if(ringbackMusic.files[0])
-        upload(ringbackMusic, '/attendant/'+name+'/'+ringbackMusic.files[0].name);
+        upload(ringbackMusic, '/attendant/'+oid+'/'+ringbackMusic.files[0].name);
     if(connFailedPrompt.files[0])
-        upload(connFailedPrompt, '/attendant/'+name+'/'+connFailedPrompt.files[0].name);
+        upload(connFailedPrompt, '/attendant/'+oid+'/'+connFailedPrompt.files[0].name);
     if(leaveMsg.files[0])
-        upload(leaveMsg, '/attendant/'+name+'/'+leaveMsg.files[0].name);
+        upload(leaveMsg, '/attendant/'+oid+'/'+leaveMsg.files[0].name);
 
     if(name)
         jprms = '\"name\":\"'+name+'\",';
@@ -1027,7 +1029,7 @@ function set_attendant(){
         alert(PbxObject.frases.MISSEDNAMEFIELD); //if name field value is empty show alert message
         return false;
     }
-    if(PbxObject.oid) jprms += '"oid":"'+PbxObject.oid+'",';
+    if(PbxObject.oid) jprms += '"oid":"'+oid+'",';
     jprms += '\"kind\":\"attendant\",';
     var enabled = document.getElementById('enabled');
     if(enabled != null) {
@@ -1048,7 +1050,7 @@ function set_attendant(){
             file = objects[key].file;
             if(file){
                 if(file.files.length)
-                    upload(file, '/attendant/'+name+'/'+file.files[0].name);
+                    upload(file, '/attendant/'+oid+'/'+file.files[0].name);
                 
                 delete objects[key].file;
             }
@@ -1082,16 +1084,16 @@ function set_attendant(){
         
         set_object_success(result);
 
-        // Add new route to the object
-        if(result && getTempParams().ext) {
-            var routeParams = {
-                number: getTempParams().ext,
-                target: { oid: result, name: name }
-            };
-            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+        // // Add new route to the object
+        // if(result && getTempParams().ext) {
+        //     var routeParams = {
+        //         number: getTempParams().ext,
+        //         target: { oid: result, name: name }
+        //     };
+        //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-            console.log('set route params: ', routeParams);
-            setObjRoute(routeParams);
-        }
+        //     console.log('set route params: ', routeParams);
+        //     setObjRoute(routeParams);
+        // }
     });
 }

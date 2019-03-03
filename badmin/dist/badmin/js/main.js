@@ -225,12 +225,12 @@ function load_attendant(result){
         PbxObject.attendant.routes = routes;
     });
 
-    // Render route parameters
-    renderObjRoute({
-        routes: result.routes || [],
-        frases: PbxObject.frases,
-        onChange: setCurrObjRoute
-    });
+    // // Render route parameters
+    // renderObjRoute({
+    //     routes: result.routes || [],
+    //     frases: PbxObject.frases,
+    //     onChange: setCurrObjRoute
+    // });
 
     // sortByKey(PbxObject.attendant.connectors, 'ext');
     // addAttBreadcrumb('<i class="fa fa-home"></i>', '');
@@ -472,8 +472,9 @@ function setAttSettings(params, temp){
         if(obj.key === 'jsonString'){
             // value = strToJson(obj.value);
             value = obj.value;
-            objects = JSON.parse(value);
+            objects = JSON.parse(value, function(key, value) { return value === 'null' ? null : value; });
             PbxObject.attendant.objects = objects;
+        
         } else if(obj.key === 'connectors'){
             // value = strToJson(obj.value);
             value = obj.value;
@@ -519,6 +520,7 @@ function buildSchema(objects){
         }
     }
     sortByKey(array, 'oid');
+
     array.forEach(function(item){
         keyParent = item.oid.substr(0, item.oid.length-1);
         if(item.oid === '0'){
@@ -532,6 +534,7 @@ function buildSchema(objects){
 }
 
 function addToSchema(oid, params, listEl){
+    if(oid === null || oid === undefined || oid === 'null') return;
     var parentId = oid.substr(0, oid.length-1), li, el;
     if(listEl)
         el = listEl;
@@ -598,7 +601,7 @@ function addAttObjects(objects, id){
     if(objects){
         for(key in objects){
             if(objects.hasOwnProperty(key)){
-                if(key.substr(0, key.length-1) == id)
+                if(key.substr(0, key.length-1) === id)
                     addAttObject(objects[key]);
             }
         }
@@ -610,7 +613,7 @@ function addAttObject(params, instance){
         activeCanvas = document.querySelector('.att-canvas.active'),
         oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0),
         msg = '', prevOid;
-    
+
     if(!params.button){
         var initBtn = activeCanvas.querySelector('.att-init-button');
         if(initBtn && isMainEl()) initBtn.parentNode.removeChild(initBtn); //remove init button if main element created
@@ -629,6 +632,8 @@ function addAttObject(params, instance){
     } else{
         activeCanvas.insertBefore(obj, activeCanvas.lastChild);
     }
+
+    if(params.connector) params.data = params.data.split(' - ')[0]; // get number part
 
     params.oid = oid;
     if(PbxObject.attendant.objects[oid] !== params){
@@ -818,7 +823,6 @@ function showAttObjectSetts(params, object){
 
     var renderParams = formAttParams(params);
 
-    console.log('showAttObjectSetts data: ', renderParams);
     getAttTemplate('attendant_modal', function(temp){
 
         var rendered = Mustache.render(temp, renderParams);
@@ -986,12 +990,11 @@ function formAttParams(data){
     } else if(data.type === PbxObject.attendant.types.mail) {
         // filter only emails
         params.connectors = PbxObject.attendant.connectors.filter(function(item) {
-            console.log('fliter: ', item);
             return item.ext.indexOf('@') !== -1;
         });
     }
     params.connectors = params.connectors.map(formatConnectors);
-    sortByKey(params.connectors, 'ext');
+    // sortByKey(params.connectors, 'value');
 
     return params;
 }
@@ -1012,8 +1015,6 @@ function generateAttObjName(type, button, objName){
         value = objName || PbxObject.frases.ATTENDANT[type.toUpperCase()];
     }
 
-    console.log('generateAttObjPath: ', value);
-    
     return value;
 }
 
@@ -1172,7 +1173,8 @@ function set_attendant(){
     var jprms, 
         name = document.getElementById('objname').value,
         cont = document.querySelector('.att-container'),
-        objects = PbxObject.attendant.objects;
+        objects = PbxObject.attendant.objects,
+        oid = PbxObject.oid;
 
     var varsFormData = retrieveFormData(document.getElementById('attvariables'));
     var greetings = document.getElementById('attGreetings');
@@ -1180,16 +1182,16 @@ function set_attendant(){
     var connFailedPrompt = document.getElementById('connectionFailed');
     var leaveMsg = document.getElementById('leaveMessage');
     var prefix = PbxObject.options.prefix;
-    var algdir = 'users'+(prefix ? '/'+prefix : '')+'/attendant/'+name+'/';
+    var algdir = 'users'+(prefix ? '/'+prefix : '')+'/attendant/'+oid+'/';
 
     if(greetings.files[0])
-        upload(greetings, '/attendant/'+name+'/'+greetings.files[0].name);
+        upload(greetings, '/attendant/'+oid+'/'+greetings.files[0].name);
     if(ringbackMusic.files[0])
-        upload(ringbackMusic, '/attendant/'+name+'/'+ringbackMusic.files[0].name);
+        upload(ringbackMusic, '/attendant/'+oid+'/'+ringbackMusic.files[0].name);
     if(connFailedPrompt.files[0])
-        upload(connFailedPrompt, '/attendant/'+name+'/'+connFailedPrompt.files[0].name);
+        upload(connFailedPrompt, '/attendant/'+oid+'/'+connFailedPrompt.files[0].name);
     if(leaveMsg.files[0])
-        upload(leaveMsg, '/attendant/'+name+'/'+leaveMsg.files[0].name);
+        upload(leaveMsg, '/attendant/'+oid+'/'+leaveMsg.files[0].name);
 
     if(name)
         jprms = '\"name\":\"'+name+'\",';
@@ -1197,7 +1199,7 @@ function set_attendant(){
         alert(PbxObject.frases.MISSEDNAMEFIELD); //if name field value is empty show alert message
         return false;
     }
-    if(PbxObject.oid) jprms += '"oid":"'+PbxObject.oid+'",';
+    if(PbxObject.oid) jprms += '"oid":"'+oid+'",';
     jprms += '\"kind\":\"attendant\",';
     var enabled = document.getElementById('enabled');
     if(enabled != null) {
@@ -1218,7 +1220,7 @@ function set_attendant(){
             file = objects[key].file;
             if(file){
                 if(file.files.length)
-                    upload(file, '/attendant/'+name+'/'+file.files[0].name);
+                    upload(file, '/attendant/'+oid+'/'+file.files[0].name);
                 
                 delete objects[key].file;
             }
@@ -1252,17 +1254,17 @@ function set_attendant(){
         
         set_object_success(result);
 
-        // Add new route to the object
-        if(result && getTempParams().ext) {
-            var routeParams = {
-                number: getTempParams().ext,
-                target: { oid: result, name: name }
-            };
-            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+        // // Add new route to the object
+        // if(result && getTempParams().ext) {
+        //     var routeParams = {
+        //         number: getTempParams().ext,
+        //         target: { oid: result, name: name }
+        //     };
+        //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-            console.log('set route params: ', routeParams);
-            setObjRoute(routeParams);
-        }
+        //     console.log('set route params: ', routeParams);
+        //     setObjRoute(routeParams);
+        // }
     });
 }
 
@@ -2459,7 +2461,7 @@ function checkHuntMode(e){
 }
 
 var BillingApi = {
-	// url: 'https://a0addce0.ngrok.io/branch/api/',
+	// url: 'https://3aa614ef.ngrok.io/branch/api/',
 	url: 'https://api-web.ringotel.net/branch/api/',
 	cache: {},
 
@@ -4126,33 +4128,19 @@ function load_chatchannel(params) {
 }
 function load_chattrunk(params) {
 
-	console.log('load_chat_trunk: ', PbxObject.kind, params);
-	console.log('window parent: ', window.opener);
-	console.log('window onTokenReceived: ', window.onTokenReceived);
 	var frases = PbxObject.frases;
-	var driver = new Driver({
-		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-	});
-	var driverSteps = [];
+	// var driver = new Driver({
+	// 	nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+	// 	prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+	// 	doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+	// 	closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	// });
+	// var driverSteps = [];
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
 	var services = [
 	{
-	// 	id: 'FacebookMessenger',
-	// 	name: "Instagram",
-	// 	icon: '/badmin/images/channels/instagram.png',
-	// 	params: {
-	// 		// appId: '507766126349295',
-	// 		appId: '1920629758202993',
-	// 		// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
-	// 		redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
-	// 	},
-	// 	component: InstagramTrunkComponent
-	// }, {
 		id: 'FacebookMessenger',
 		name: "Facebook & Messenger",
 		icon: '/badmin/images/channels/facebook.png',
@@ -4163,6 +4151,17 @@ function load_chattrunk(params) {
 			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
+	// }, {
+	// 	id: 'Instagram',
+	// 	name: "Instagram",
+	// 	icon: '/badmin/images/channels/instagram.png',
+	// 	params: {
+	// 		// appId: '507766126349295',
+	// 		appId: '1920629758202993',
+	// 		// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
+	// 		redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
+	// 	},
+	// 	component: InstagramTrunkComponent
 	}, {
 		id: 'Email',
 		name: "Email",
@@ -4226,6 +4225,11 @@ function load_chattrunk(params) {
 		name: 'Webchat',
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebchatTrunkComponent
+	// }, {
+	// 	id: 'WebCall',
+	// 	name: 'Webcall',
+	// 	icon: '/badmin/images/channels/webchat.png',
+	// 	component: WebcallTrunkComponent
 	}
 	// ,{
 	// 	id: 'Twitter',
@@ -4282,7 +4286,7 @@ function load_chattrunk(params) {
 
 		console.log('setObject: ', params);
 		
-		driver.reset();
+		// driver.reset();
 
 	    show_loading_panel();
 
@@ -4393,36 +4397,36 @@ function load_chattrunk(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
 	}
 
-	function addSteps(stepParams) {
-		driverSteps = driverSteps.concat(stepParams);
-	}
+	// function addSteps(stepParams) {
+	// 	driverSteps = driverSteps.concat(stepParams);
+	// }
 
-	function nextStep(stepParams) {
-		driver.moveNext();
-	}
+	// function nextStep(stepParams) {
+	// 	driver.moveNext();
+	// }
 
-	function highlightStep(stepParams) {
-		driver.highlight(stepParams);
-	}
+	// function highlightStep(stepParams) {
+	// 	driver.highlight(stepParams);
+	// }
 
-	function initSteps() {
-		if(!PbxObject.tourStarted) return;
+	// function initSteps() {
+	// 	if(!PbxObject.tourStarted) return;
 
-		driverSteps.push({
-			element: '.object-name-cont .btn-success',
-			popover: {
-				title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
-				description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
-				position: 'bottom'
-			}
-		});
+	// 	driverSteps.push({
+	// 		element: '.object-name-cont .btn-success',
+	// 		popover: {
+	// 			title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
+	// 			description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
+	// 			position: 'bottom'
+	// 		}
+	// 	});
 
-		setTimeout(function() {
-			console.log('initSteps: ', driverSteps);
-			driver.defineSteps(driverSteps);
-			driver.start();
-		}, 500);
-	}
+	// 	setTimeout(function() {
+	// 		console.log('initSteps: ', driverSteps);
+	// 		driver.defineSteps(driverSteps);
+	// 		driver.start();
+	// 	}, 500);
+	// }
 
 	// function onTokenReceived(token) {
 	// 	PbxObject.userAccessToken = token;
@@ -4442,10 +4446,10 @@ function load_chattrunk(params) {
 		    confirmRemoveObject: confirmRemoveObject,
 		    removeObject: removeObject,
 		    confirmPayment: confirmPayment,
-		    initSteps: initSteps,
-		    addSteps: addSteps,
-		    nextStep: nextStep,
-		    highlightStep: highlightStep
+		    // initSteps: initSteps,
+		    // addSteps: addSteps,
+		    // nextStep: nextStep,
+		    // highlightStep: highlightStep
 		    // onTokenReceived: onTokenReceived
 		};
 
@@ -4620,6 +4624,9 @@ function load_customers(params) {
 	console.log('load_customers: ', PbxObject.kind, params);
 	var frases = PbxObject.frases;
 	var customers = [];
+    // var importServices = [{ id: 'csv', name: '.csv' }, { id: 'Zendesk', name: 'Zendesk' }];
+    var importServices = PbxObject.options.services;
+    var availableServices = [{ id: 'csv', name: '.csv' }].concat(filterServices(importServices));
 	var modalCont = document.getElementById('modal-cont');
 	if(!modalCont) {
 		modalCont = document.createElement('div');
@@ -4631,11 +4638,18 @@ function load_customers(params) {
     close_options();
     getCustomers();
 
+    function filterServices(list) {
+        // var integrations = PbxObject.options.services.map(function(item) { return item.id });
+        // return list.filter(function(item) { return integrations.indexOf(item.id) !== -1 || item.id === 'csv' });
+        return list.filter(function(item) { return item.state });
+    }
+
     function getCustomers() {
     	json_rpc_async('getCustomers', null, function(result, err) {
     		console.log('getCustomers: ', err, result);
     		customers = result.reverse();
     		render(customers);
+            show_content();
     	});
     }
 
@@ -4689,312 +4703,188 @@ function load_customers(params) {
     	);
     }
 
+    // function openImportSettings(service, data) {
+    //     var componentParams = {
+    //         frases: PbxObject.frases,
+    //         data: data,
+    //         service: service,
+    //         onSubmit: importCustomers
+    //     };
+
+    //     ReactDOM.render(ImportSettingsComponent(componentParams), document.getElementById('el-loaded-content'));
+    // }
+
+    function importCustomers(params) {
+        show_loading_panel();
+
+        var method = params.service_id ? 'importContacts' : 'importCustomers';
+
+        json_rpc_async(method, params, function(result, error) {
+            console.log('importCustomers error: ', error);
+            if(error && error.message) {
+                var message = JSON.parse(error.message);
+                if(message.error.code === 401) {
+                    openAuthModal({ service_id: params.service_id, path: ('/services/'+params.service_id+'/Contacts') }, function(err, result) {
+                        if(!err) return importCustomers(params);
+                        notify_about('error', err.message);
+                    });
+                } else {
+                    notify_about('error', message.error.message);
+                } 
+            } else {
+                showModal('import_result_modal', { contacts: result, contactsCount: result.length }, function(data, modalObject) {
+                    $(modalObject).modal('hide');
+                    return getCustomers();
+                });
+                // notify_about('success', PbxObject.frases.SAVED);
+            }
+        });
+    }
+
+    function openAuthModal(params, callback){
+        showModal('ldap_auth', { service_id: params.service_id }, function(data, modalObject) {
+            var btn = modalObject.querySelector('button[data-type="submit"]'),
+                prevhtml = btn.innerHTML;
+            
+            btn = $(btn);
+            btn.prop('disabled', true);
+            btn.html('<i class="fa fa-fw fa-spinner fa-spin"></i>');
+
+            authInService(data, params.path, function(err, result) {
+                btn.prop('disabled', false);
+                btn.html(prevhtml);
+
+                $(modalObject).modal('hide');
+                callback(null, result);
+            })
+        });
+    }
+
+    function authInService(authData, path, callback) {
+        // var path = '/services/'+options.service_id+'/Contacts';
+        var params = {
+            url: path
+        };
+        if(authData) {
+            params.method = 'POST';
+            params.data = 'username='+authData.username+'&password='+authData.password;
+        }
+        
+        console.log('authInService', params);
+
+        $.ajax(params).then(function(data){
+            console.log('authInService: ', data);
+            if(data) {
+                if(data.result.location) {
+                    window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
+                    return window.location = data.result.location;
+                }
+                callback(data.result);
+            } else {
+                callback();
+            }
+                
+
+        }, function(err){
+            var error = null;
+
+            if(err.responseJSON.error && err.responseJSON.error.message) {
+                error = JSON.parse(err.responseJSON.error.message).error;
+            }
+            
+            console.log('authInService error: ', error);
+            
+            if(error && error.redirection) {
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
+                window.location = error.redirection;
+            } else if(error && error.code === 401) {
+                callback(error);
+            } else {
+                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
+                window.location = loc.origin + path;
+            }
+        });
+    }
+
+    // function importFromService(service) {
+    //     if(service.id === 'csv') return importFromCSV();
+        
+
+    //     json_rpc_async('importContacts', { service_id: 'Zendesk' }, function(result) {
+    //         console.log('importContacts: ', service, result);
+    //     })
+    // }
+
+    function importFromService(service) {
+        var componentParams = {};
+        var modalCont = document.getElementById('modal-cont');
+
+        if(modalCont) {
+            modalCont.parentNode.removeChild(modalCont);
+        }
+
+        modalCont = document.createElement('div');
+        modalCont.id = "modal-cont";
+        document.body.appendChild(modalCont);
+
+        componentParams = {
+            frases: PbxObject.frases,
+            selectedService: service,
+            onSubmit: importCustomers
+        };
+
+        ReactDOM.render(ImportDataModalComponent(componentParams), modalCont);        
+    }
+
 	function render(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
+            import: importFromService,
+            importServices: availableServices,
 		    openCustomerInfo: openCustomerInfo
 		};
 
 		ReactDOM.render(CustomersComponent(componentParams), document.getElementById('el-loaded-content'));
 
-		show_content();
 	}
 
 }
 function load_dashboard(){
-    PbxObject.Dashboard = new Dashboard();
-}
 
-function Dashboard(){
-    var self = this,
-        loaded = false,
-        inc = document.querySelectorAll('.calls-incoming'),
-        out = document.querySelectorAll('.calls-outgoing'),
-        conn = document.querySelectorAll('.calls-connected'),
-        load = document.querySelectorAll('.calls-load'),
-        ttrunks = document.getElementById('calls-trunks').querySelector('tbody'),
-        tcalls = document.getElementById('calls-table').querySelector('tbody'),
-        lrow = ttrunks.rows.length,
-        trunks = [],
-        insData, outsData, intsData, lostData, linesData, time, item,
-        row, cell, a, picker, chartData, chartOpts;
+    var params = {
+        frases: PbxObject.frases,
+        options: PbxObject.options,
+        profile: PbxObject.profile,
+        fetchData: fetchData,
+        fetchSubscription: fetchSubscription,
+        fetchCallingCredits: fetchCallingCredits
+    };
+    
+    init();
 
-    this.init = function(){
-        var start, interval, params;
-        picker = new Picker();
-        start = picker.today();
-        interval = 3600*1000;
-        params = '\"begin\":'+start+', \"interval\":'+interval;
+    function init(pickerEl) {
+        renderComponent(params);
+    }
 
-        json_rpc_async('getCallStatisticsGraph', params, function(result){
-            self.createGraph(result);
-        });
-        this.update = setInterval(this.checkStates.bind(this), 1000);
-        this.statUpdate = setInterval(this.updateStatistics.bind(this), 1800*1000);
-        addEvent(window, 'hashchange', this.stopUpdate.bind(this));
+    function renderComponent(params) {
+        ReactDOM.render(DashboardComponent(params), document.getElementById('el-loaded-content'));
 
         show_content();
         set_page();
+    }
 
-    };
+    function fetchData(method, params, callback) {
+        json_rpc_async(method, params, callback);
+    }
 
-    this.checkStates = function(){
-        sendData('getCurrentState', null, 6);
-        sendData('getCurrentCalls', null, 5);
-        // json_rpc_async('getCurrentCalls', null, this.setCurrentCalls.bind(this));
-        // json_rpc_async('getCurrentState', null, this.setCurrentState.bind(this));
+    function fetchSubscription(callback) {
+        BillingApi.getSubscription(callback);
+    }
 
-        // console.log('update');
-    };
-
-    this.updateStatistics = function(){
-        var start, interval, params;
-        picker = new Picker();
-        start = picker.today();
-        interval = 3600*1000;
-        params = '\"begin\":'+start+', \"interval\":'+interval;
-
-        json_rpc_async('getCallStatisticsGraph', params, function(result){
-            self.createGraph(result);
-        });
-    };
-
-    this.setCurrentState = function(result){
-        // console.log(loaded);
-        if(loaded === false){
-            show_content();
-            loaded = true;
-            // console.log(loaded);
-        }
-
-        trunks = result.trunks;
-
-        for (var i = 0; i < inc.length; i++) {
-            if(inc[i].textContent != result.in) inc[i].textContent = result.in;
-        }
-        for (var i = 0; i < out.length; i++) {
-            if(out[i].textContent != result.out) out[i].textContent = result.out;
-        }
-        for (var i = 0; i < conn.length; i++) {
-            if(conn[i].textContent != result.conn) conn[i].textContent = result.conn;
-        }
-        for (var i = 0; i < load.length; i++) {
-            // load[i].textContent = Math.round(result.load) + '%';
-            load[i].textContent = parseFloat(result.load).toFixed(1) + '%';
-        }
-
-        for (var i = 0; i < trunks.length; i++) {
-            
-            var className = trunks[i].enabled ? 'success' : 'danger';
-            if(ttrunks.rows[i]){
-                ttrunks.rows[i].cells[0].className = className;
-                if(ttrunks.rows[i].cells[1].firstChild.textContent != trunks[i].name)
-                    ttrunks.rows[i].cells[1].firstChild.textContent = trunks[i].name;
-                if(ttrunks.rows[i].cells[2].textContent != trunks[i].in)
-                    ttrunks.rows[i].cells[2].textContent = trunks[i].in;
-                if(ttrunks.rows[i].cells[3].textContent != trunks[i].out)
-                    ttrunks.rows[i].cells[3].textContent = trunks[i].out;
-                ttrunks.rows[i].cells[4].textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
-                if(ttrunks.rows[i].cells[5].textContent != trunks[i].address)
-                    ttrunks.rows[i].cells[5].textContent = trunks[i].address;
-            } else {
-                row = ttrunks.insertRow(i);
-                
-                cell = row.insertCell(0);
-                cell.className = className;
-
-                cell = row.insertCell(1);
-
-                if(trunks[i].type === 'system') {
-                    cell.innerText = trunks[i].name;
-                } else {
-                    a = document.createElement('a');
-                    a.href = '#trunk/'+trunks[i].oid;
-                    a.textContent = trunks[i].name;
-                    cell.appendChild(a);
-                }
-
-                cell = row.insertCell(2);
-                cell.textContent = trunks[i].in;
-
-                cell = row.insertCell(3);
-                cell.textContent = trunks[i].out;
-
-                cell = row.insertCell(4);
-                cell.textContent = parseFloat(trunks[i].load).toFixed(1) + '%';
-
-                cell = row.insertCell(5);
-                cell.textContent = trunks[i].address;
-            }
-
-        }
-        
-    };
-
-    this.setCurrentCalls = function(result){
-        if(!result) return;
-        if(tcalls.rows.length > result.length) {
-            this.clearTable(tcalls, result.length);
-        }
-        for (var i = 0; i < result.length; i++) {
-
-            if(tcalls.rows[i]){
-                tcalls.rows[i].cells[0].textContent = result[i].caller;
-                tcalls.rows[i].cells[1].textContent = result[i].called;
-                if(result[i].time)
-                    tcalls.rows[i].cells[2].textContent = formatTimeString(result[i].time, 'hh:mm:ss');
-            }
-            else{
-                row = tcalls.insertRow(i);
-                
-                cell = row.insertCell(0);
-                cell.textContent = result[i].caller;
-
-                cell = row.insertCell(1);
-                cell.textContent = result[i].called;
-
-                cell = row.insertCell(2);
-                cell.textContent = formatTimeString(result[i].time, 'hh:mm:ss');
-            }
-
-        }
-
-    };
-
-    this.clearTable = function(table, rows){
-
-        row = rows - 1;
-        while(table.rows.length != rows){
-
-            table.deleteRow(row);
-            row = row - 1;
-
-        }
-
-    };
-
-    this.stopUpdate = function(){
-        clearInterval(this.update);
-        clearInterval(this.statUpdate);
-        removeEvent(window, 'hashchange', this.stopUpdate.bind(this));
-
-    };
-
-    this.createGraph = function(data){
-        // console.log(data);
-        if(!data.length){
-            $("#outCalls-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
-            $("#inAndLost-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
-            $("#intCalls-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
-            $("#linesLoad-graph").html('<h4 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h4>');
-            // var graph = document.getElementById('calls-graph');
-            // graph.innerHTML = '<h2 class="back-msg">'+PbxObject.frases.STATISTICS.NO_DATA+'</h2>';
-        }
-        else {
-            insData = []; outsData = []; intsData = []; lostData = []; linesData = []; time; item;
-            for(var i=0, length = data.length; i<length; i++){
-                item = data[i];
-                time = item.t;
-                insData.push([time, item.i]);
-                outsData.push([time, item.o]);
-                intsData.push([time, item.l]);
-                lostData.push([time, item.m]);
-                linesData.push([time, item.p]);
-            }
-            var barsOpts = {
-                show: true,
-                barWidth: 3600*1000,
-                lineWidth: 0,
-                // order: 1,
-                fill: 0.7
-                // fillColor: false
-            };
-            insAndLostData = [{
-                label: PbxObject.frases.STATISTICS.CONNECTEDCALLS,
-                stack: 0,
-                bars: barsOpts,
-                data: insData,
-                color: "#3c763d"
-            }, {
-                label: PbxObject.frases.STATISTICS.LOSTCALLS,
-                stack: 0,
-                bars: barsOpts,
-                data: lostData,
-                color: "#AA4643"
-            }];
-            outsData = [{
-                label: PbxObject.frases.SETTINGS.OUTCALLS,
-                bars: barsOpts,
-                data: outsData,
-                color: "#4572A7"
-            }];
-            intsData = [{
-                label: PbxObject.frases.SETTINGS.INTCALLS,
-                bars: barsOpts,
-                data: intsData,
-                color: "#BADABA"
-            }];
-            linesData = [{
-                label: PbxObject.frases.STATISTICS.LINES_PAYLOAD,
-                data: linesData,
-                lines: {
-                    show: true,
-                    fill: false
-                },
-                points: {
-                    show: true
-                },
-                // yaxis: 2,
-                color: "#3c763d"
-            }];
-            chartOpts = {
-                xaxis: {
-                    mode: "time",
-                    timeformat: '%H:%M',
-                    timezone: 'browser',
-                    tickSize: 0,
-                    tickLength: 0 // hide gridlines
-                },
-                yaxis: {
-                    min: 0,
-                    tickFormatter: function (val) {
-                        return val.toFixed(1);
-                    }
-                },
-                grid: {
-                    margin: 0,
-                    hoverable: true,
-                    borderWidth: 0,
-                    color: '#ccc'
-                },
-                legend: false,
-                tooltip: true,
-                tooltipOpts: {
-                    content: '%x <br> %s: %y.1',
-                    yDateFormat: "%H:%M"
-                }
-            };
-            $.plot($("#outCalls-graph"), outsData, chartOpts);
-            $.plot($("#inAndLost-graph"), insAndLostData, chartOpts);
-            $.plot($("#intCalls-graph"), intsData, chartOpts);
-            $.plot($("#linesLoad-graph"), linesData, chartOpts);
-
-            addEvent(window, 'resize', self.resizeChart);
-            addEvent(window, 'hashchange', function(){
-                removeEvent(window, 'resize', self.resizeChart);
-            });
-        }
-    };
-
-    this.resizeChart = function(){
-        $.plot($("#outCalls-graph"), outsData, chartOpts);
-        $.plot($("#inAndLost-graph"), insAndLostData, chartOpts);
-        $.plot($("#intCalls-graph"), intsData, chartOpts);
-        $.plot($("#linesLoad-graph"), linesData, chartOpts);
-    };
-
-    this.init();
+    function fetchCallingCredits(callback) {
+        BillingApi.getCredits(callback);   
+    }
 
 }
 
@@ -5913,6 +5803,8 @@ function load_hunting(params) {
 	var defaultName = getDefaultName();
 	var modalCont;
 
+	if(!objParams.options.huntmode) objParams.options.huntmode = 1; // enable default hunting mode
+
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
@@ -6162,17 +6054,17 @@ function load_icd(params) {
 			}
 
 			// Add new route to the routing table
-			if(props.route && props.route.ext) {
-			    console.log('set route props: ', props.route);
-			    var routeProps = {
-			    	number: props.route.ext,
-			    	target: { oid: PbxObject.oid, name: PbxObject.name }
-			    };
-			    if(params.routes.length) routeProps.oid = params.routes[0].id;
+			// if(props.route && props.route.ext) {
+			//     console.log('set route props: ', props.route);
+			//     var routeProps = {
+			//     	number: props.route.ext,
+			//     	target: { oid: PbxObject.oid, name: PbxObject.name }
+			//     };
+			//     if(params.routes.length) routeProps.oid = params.routes[0].id;
 			    
-			    setObjRoute(routeProps);
+			//     setObjRoute(routeProps);
 			    
-			}
+			// }
 
 			if(handler) handler();
 			if(callback) callback(result);
@@ -6218,7 +6110,7 @@ function Ldap(options){
     console.log('new LDAP: ', options);
 
     var prevValue, newValue, userIndex, obj = {};
-    // var loc = window.location;
+    var loc = window.location;
     // var lastURL = window.location.href;
     var serviceParams = { id: options.service_id, type: options.service_type };
     // var newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
@@ -6235,46 +6127,27 @@ function Ldap(options){
     };
 
     function getUsers(authData, cb){
+        console.log('getUsers: ', authData);
         json_rpc_async('getDirectoryUsers', authData, function(result) {
             console.log('getDirectoryUsers result: ', result);
             if(cb) cb(result);
         });
     }
 
-    function getExternalUsers(cb){
-        // var params = {
-            // url: '/services/'+options.service_id+'/Users'
-            // method: 'GET'
-        // };
-        // if(authData) {
-        //     params.method = 'POST';
-        //     // params.data = {username: authData.username, password: authData.password};
-        //     params.data = 'username='+authData.username+'&password='+authData.password;
-        // }
-        
-        // request(params.method, params.url, params.data, null, function(err, data) {
-        //     if(err) {
-        //         console.log('getExternalUsers error: ', err);
-        //         if(err && err.code === 401) {
-        //             options.external = true;
-        //             openAuthModal();
-        //         } else {
-        //             var loc = window.location,
-        //             newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
-        //             window.sessionStorage.setItem('lastURL', newhref);
-        //             window.location = loc.origin + '/services/'+options.service_id+'/Users';
-        //         }
-        //     } else {
-        //         console.log('getExternalUsers: ', data);
-        //         if(cb) cb(data.result);
-        //         else showUsers(data.result);
-        //     }
-        // })
-        console.log('getExternalUsers');
-
-        $.ajax({
+    function getExternalUsers(authData, cb){
+        var params = {
             url: '/services/'+options.service_id+'/Users'
-        }).then(function(data){
+            // method: 'GET'
+        };
+        if(authData) {
+            params.method = 'POST';
+            // params.data = {username: authData.username, password: authData.password};
+            params.data = 'username='+authData.username+'&password='+authData.password;
+        }
+        
+        console.log('getExternalUsers', params);
+
+        $.ajax(params).then(function(data){
             console.log('getExternalUsers: ', data);
             if(data.result.location) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
@@ -6285,8 +6158,14 @@ function Ldap(options){
             else showUsers(data.result);
 
         }, function(err){
-            var error = err.responseJSON.error;
+            var error = null;
+
+            if(err.responseJSON.error && err.responseJSON.error.message) {
+                error = JSON.parse(err.responseJSON.error.message).error;
+            }
+            
             console.log('getExternalUsers error: ', error);
+            
             if(error && error.redirection) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -6339,6 +6218,8 @@ function Ldap(options){
         btn.html('<i class="fa fa-fw fa-spinner fa-spin"></i>');
         
         options.auth = data;
+
+        console.log('ldapAuth options: ', options, data);
 
         if(options.external) {
             getExternalUsers(data, function(result){
@@ -6568,8 +6449,11 @@ function logout() {
     };
     xhr.send();
 
+    window.localStorage.remove('ringo_tid');
     setLastQuery('');
 }
+
+
 
 function createWebsocket(){
 
@@ -6700,17 +6584,23 @@ function json_rpc_async(method, params, handler, id){
         xhr.abort();
         notify_about('info' , PbxObject.frases.TIMEOUT);
         show_content();
-    }, 60*1000);
+    }, 60*5*1000);
 
     xhr.onreadystatechange = function() {
+
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
             if(xhr.status != 200) {
                 console.error(method, xhr.responseText);
 
-                if(xhr.status === 403 || xhr.status === 302) {
-                    
-                    return window.location = '/';
+                if(xhr.status === 302) {
+                    return window.location = xhr.getResponseHeader('Location');
+                }
+
+                if(xhr.status === 403) {
+                    return logout();
+                    // setLastQuery('');
+                    // return window.location = '/';
                 }
                 if(xhr.responseText) parsedJSON = JSON.parse(xhr.responseText);
 
@@ -6724,7 +6614,13 @@ function json_rpc_async(method, params, handler, id){
             } else {
                 if(xhr.responseText != null) {
                     if(!xhr.responseText) return handler();
-                    parsedJSON = JSON.parse(xhr.responseText);
+
+                    try {
+                        parsedJSON = JSON.parse(xhr.responseText);
+                    } catch(err) {
+                        console.log('response in not JSON');
+                        if(isLoginPage(xhr.responseText)) return logout();
+                    }
 
                     if(parsedJSON.error){
                         if(handler) handler(null, parsedJSON.error);
@@ -6764,34 +6660,72 @@ function request(method, url, data, options, callback){
         xhr.abort();
     }, 60000);
     
-    xhr.onload = function(e) {
-        
-        clearTimeout(requestTimer);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState==4){
+            clearTimeout(requestTimer);
 
-        var redirect = e.target.getAllResponseHeaders();
-        var status = e.target.status;
-        var response = e.target.responseText;
-        if(response) {
-            try {
-                response = JSON.parse(response);
-            } catch(err) {
-                console.log('response in not JSON');
+            response = xhr.response;
+
+            if(response) {
+                try {
+                    response = JSON.parse(response);
+                } catch(err) {
+                    console.log('response in not JSON');
+                    if(isLoginPage(response)) return logout();
+                }
+            }
+
+            if(xhr.status === 200) {
+                if(callback) callback(null, response);
+
+            } else if(xhr.status === 302) {
+                return window.location = xhr.getResponseHeader('Location');
+
+            } else if(xhr.status === 403) {
+                return logout();
+            
+            } else if(xhr.status >= 500) {
+                if(callback) return callback('The service is under maintenance. Please, try again later.');
+
+            } else {
+                if(callback) callback(response ? response.error : null);
+
             }
         }
-            
-        if(status === 403) {
-            logout();
-        } else if(status === 302) {
-            return window.location = '/';
-        } else if(status === 200) {
-            if(callback) callback(null, response);
-        } else if(status >= 500) {
-            if(callback) return callback('The service is under maintenance. Please, try again later.');
-        } else {
-            if(callback) callback(response.error);
-        }
+    }
 
-    };
+    // xhr.onload = function(e) {
+        
+    //     clearTimeout(requestTimer);
+
+    //     // var redirect = e.target.getAllResponseHeaders();
+    //     var status = e.target.status;
+    //     var response = e.target.responseText;
+
+    //     console.log('request response: ', method, url, response, status);
+
+    //     if(response) {
+            
+    //     }
+
+    //     if(status === 200) {
+    //         if(callback) callback(null, response);
+
+    //     } else if(status === 302) {
+    //         return window.location = xhr.getResponseHeader('Location');
+
+    //     } else if(status === 403) {
+    //         return logout();
+        
+    //     } else if(status >= 500) {
+    //         if(callback) return callback('The service is under maintenance. Please, try again later.');
+
+    //     } else {
+    //         if(callback) callback(response.error);
+
+    //     }
+
+    // };
 
     if(data) {
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -6801,6 +6735,10 @@ function request(method, url, data, options, callback){
         xhr.send();
     }
     
+}
+
+function isLoginPage(str) {
+     return str.indexOf('auth-form') !== -1;
 }
 
 function getTranslations(language, callback){
@@ -6962,6 +6900,7 @@ function setupPage() {
                         console.error(err);
                     } else {
                         profile = response.result;
+                        loadFSTracking(profile);
                     }
 
                     console.log('getProfile: ', err, response);
@@ -6997,6 +6936,17 @@ function setupPage() {
 
         });
 
+    });
+}
+
+function loadFSTracking(profile) {
+    // This is an example script - don't forget to change it!
+    FS.identify(profile._id, {
+      displayName: profile._id,
+      // email: profile.email,
+      // TODO: Add your own custom user variables here, details at
+      // http://help.fullstory.com/develop-js/setuservars
+      reviewsWritten_int: 14,
     });
 }
 
@@ -7052,15 +7002,13 @@ function init_page(){
     get_object();
     set_listeners();
 
-    // $('[data-toggle="tooltip"]').tooltip({
-    //     delay: {"show": 1000, "hide": 100}
-    // });
+    $('[data-toggle="tooltip"]').tooltip({
+        delay: {"show": 1000, "hide": 100}
+    });
 
     $('.tab-switcher', '#pbxoptions').click(function(e) {
         switch_options_tab($(this).attr('data-tab'));
     });
-
-    $('[data-toggle="tooltip"]').tooltip();
 
     // var wizzard = Wizzard({frases: PbxObject.frases});
 }
@@ -8433,6 +8381,59 @@ function customize_upload(id, resultFilename){
     };
 }
 
+function parseAsCsv(str, delimiter) {
+    var rows = str.split(/\r\n|\n/);
+    var result = new Array(rows.length);
+    var columns = rows[0].split(delimiter);
+    var i = 0, j = 0;
+
+    function splitStr(str, delimiter, numParts) {
+        var result = [];
+        var quote = false;
+        var lastCursor = 0;
+        // var parts = numParts || [];
+
+        // if(parts.length === numParts) return parts;
+
+        for(var i=0; i<str.length; i++) {
+            if(str[i] === '"') quote = !quote;
+            
+            if(i === str.length-1 || (str[i] === delimiter && (!quote || (str[i-1] === '"' || str[i+1] === '"')))) {
+                result.push(str.substring(lastCursor, i));
+                lastCursor = i+1;
+            }
+        }
+
+        if(result.length < numParts) {
+            result.length = numParts;
+        }
+
+        return result;
+    }
+
+    while(j<rows.length) {
+        result[j] = splitStr(rows[j], delimiter, columns);
+        j++;
+    }
+    
+    return result;
+}
+
+function readFile(file, params, callback) {
+    var cb = typeof params === 'function' ? params : callback;
+    var reader = new FileReader();
+    // reader.readAsText(file, 'UTF-8');
+    reader.readAsText(file, params.encoding || 'UTF-8');
+    reader.onload = function(e) {
+        cb(null, e.target.result);
+    }
+
+    reader.onerror = function(e) {
+        cb(e);
+    }
+
+}
+
 function upload(inputid, urlString){
     var upload;
     if(isElement(inputid))
@@ -8784,17 +8785,39 @@ function objFromString(obj, i){
 }
 
 function formatTimeString(time, format){
-    var h, m, s, newtime;
+    var h, m, s, desc = {}, newtime = [];
     h = Math.floor(time / 3600);
     time = time - h * 3600;
     m = Math.floor(time / 60);
-    newtime = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
-    if(format == 'hh:mm:ss'){
-        s = time - m * 60;
-        newtime += ':' + (s < 10 ? '0'+s : s);
+    s = Math.floor(time - m * 60);
+
+    switch (format) {
+        case 'hh:mm':
+            newtime = newtime.concat([h, m]);
+        case 'mm:ss':
+            m = h * 60 + m;
+            newtime = newtime.concat([m, s]);
+            break;
+        default:
+            newtime = newtime.concat([h, m, s]);
     }
-    return newtime;
+
+    return newtime.map(function(i) { if(i < 10) i = '0'+i; return i }).join(':');
+
 }
+
+// function formatTimeString(time, format){
+//     var h, m, s, newtime;
+//     h = Math.floor(time / 3600);
+//     time = time - h * 3600;
+//     m = Math.floor(time / 60);
+//     newtime = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+//     if(format == 'hh:mm:ss'){
+//         s = time - m * 60;
+//         newtime += ':' + (s < 10 ? '0'+s : s);
+//     }
+//     return newtime;
+// }
 
 function formatDateString(date){
     var p = (parseInt(date)) !== 'NaN' ? parseInt(date) : date;
@@ -8867,14 +8890,30 @@ function getOffset( el ) {
     return el.getBoundingClientRect();
 }
 
-function extend( a, b ) {
-    for( var key in b ) {
-        if( b.hasOwnProperty( key ) ) {
-            a[key] = b[key];
+function extend( a, bs ) {
+    if(arguments.length <= 1) return a;
+    var i, b, key;
+    for(i=1; i < arguments.length; i++) {
+        b = arguments[i];
+        for( key in b ) {
+            if( b.hasOwnProperty( key ) ) {
+                a[key] = b[key];
+            }
         }
     }
+    
     return a;
+
 }
+
+// function extend( a, b ) {
+//     for( var key in b ) {
+//         if( b.hasOwnProperty( key ) ) {
+//             a[key] = b[key];
+//         }
+//     }
+//     return a;
+// }
 
 function deepExtend(destination, source) {
     for (var property in source) {
@@ -8982,7 +9021,7 @@ function getCodecsString(elementOrId){
 }
 
 function getFriendlyCodeName(code){
-    return PbxObject.frases.CODES[code.toString()];
+    return PbxObject.frases.CODES[code.toString()] || code;
 }
 
 function fill_select_items(selectId, items){
@@ -9078,10 +9117,11 @@ function switchVisibility(selector, isVisible){
     else $(selector).hide();
 }
 
-function get_protocol_opts(protocol, params){
+function get_protocol_opts(protocol, params, type){
     
     var proto = protocol == 'h323' ? 'h323' : 'sip';
-    var options = params.parameters;
+    // var options = params.parameters;
+    var options = params;
     var opts = Object.keys(PbxObject.protocolOpts).length !== 0 ? PbxObject.protocolOpts : options;
     var sipModes = [
         {mode: 'sip info', sel: 'sip info' === opts.dtmfmode},
@@ -9096,7 +9136,7 @@ function get_protocol_opts(protocol, params){
     ];
     var data = {
         opts: opts,
-        internal: params.type === 'internal',
+        internal: (type === 'internal'),
         frases: PbxObject.frases
     };
     data.opts.dtmfmodes = proto == 'h323' ? h323Modes : sipModes;
@@ -9196,22 +9236,41 @@ function updateConference(data){
 function getInfoFromState(state, group){
     var status, className;
 
-    if(state == 1) {
-        className = 'success';
-    } else if(state == 8) {
-        className = 'connected';
-    } else if(state == 2 || state == 5) {
+    if(state == 1) { // Idle
+        // className = 'success';
+        className = 'info';
+    } else if(state == 8) { // Connected
+        // className = 'connected';
+        className = 'danger';
+    } else if(state == 2 || state == 5) { // Away
         className = 'warning';
-    } else if(state == 0 || (state == -1 && group)) {
+    } else if(state == 0 || (state == -1 && group)) { // Offline
         // state = '';
         className = 'default';
-    } else if(state == 3) {
+    } else if(state == 3) { // DND
         className = 'danger';
-    } else if(state == 6 || state == 7) {
-        className = 'info';        
-    } else {
+    } else if(state == 6 || state == 7) { // Calling
+        className = 'danger';        
+    } else { // 
         className = 'active';
     }
+
+    // if(state == 1) {
+    //     className = 'success';
+    // } else if(state == 8) {
+    //     className = 'connected';
+    // } else if(state == 2 || state == 5) {
+    //     className = 'warning';
+    // } else if(state == 0 || (state == -1 && group)) {
+    //     // state = '';
+    //     className = 'default';
+    // } else if(state == 3) {
+    //     className = 'danger';
+    // } else if(state == 6 || state == 7) {
+    //     className = 'info';        
+    // } else {
+    //     className = 'active';
+    // }
     status = PbxObject.frases.STATES[state] || '';
 
     return {
@@ -9487,7 +9546,7 @@ function Pagination(options){
 }
 function Picker(pickrElement, defaults){
 
-    var pickr = document.getElementById(pickrElement),
+    var pickr = (typeof pickrElement === 'string' ? document.getElementById(pickrElement) : pickrElement),
         frases = PbxObject.frases,
         rangeEl,
         button,
@@ -9615,7 +9674,8 @@ function Picker(pickrElement, defaults){
         else if(option === 'custom'){
             this._setCustomRange();
         }
-        this._setButtonText();
+        
+        if(pickrElement) this._setButtonText();
     };
 
     this._rangeToString = function(){
@@ -9902,6 +9962,83 @@ function Player(){
 
     init();
     return global;
+}
+function load_realtime(){
+    
+    var realTimeInterval = null;
+    // var statInterval = null;
+    var data = {
+        extensions: [],
+        state: {
+            inc: 0,
+            out: 0,
+            conn: 0,
+            load: 0
+        },
+        trunks: [],
+        calls: []
+        // graph: [],
+        // channels: []
+    };
+
+    init();
+
+    function init() {
+
+        getExtensions(function(result) {
+            data.extensions = result;
+
+            realTimeInterval = setInterval(fetchRealTimeData, 1000);
+            // statInterval = setInterval(fetchStatistics, 1800*1000);
+            addEvent(window, 'hashchange', stopUpdate);
+
+            renderComponent();
+            show_content();
+            set_page();
+        });
+    }
+
+    function renderComponent() {
+        ReactDOM.render(RealtimeDashboardComponent({
+            frases: PbxObject.frases,
+            data: data
+        }), document.getElementById('el-loaded-content'));
+    }
+
+    function fetchRealTimeData() {
+        // sendData('getCurrentState', null, 6);
+        // sendData('getCurrentCalls', null, 5);
+
+        json_rpc_async('getCurrentCalls', null, setCurrentCalls);
+        json_rpc_async('getCurrentState', null, setCurrentState);
+    }
+
+    function setCurrentState(result) {
+        data.state = result;
+        data.trunks = result.trunks;
+        renderComponent(data);
+        // var trunks = result.trunks;
+        // var inc = result.in;
+        // var out = result.out;
+        // var conn = result.conn;
+        // var load = result.load;
+        
+    }
+
+    function setCurrentCalls(result) { // time, caller, called
+        if(!result) return;
+        data.calls = result;
+        renderComponent(data);
+
+    }
+
+    function stopUpdate(){
+        clearInterval(realTimeInterval);
+        // clearInterval(statInterval);
+        removeEvent(window, 'hashchange', stopUpdate);
+
+    }
+
 }
 function load_rec_settings(){
 
@@ -10354,40 +10491,45 @@ function load_reg_history(params) {
 }
 function renderSidebar(params) {
 
+	var profile = PbxObject.profile;
+
 	_init(params);
 
 	function _getMenuItems() {
 	    var menuItems = [
 	        {
 	            name: 'dashboard',
-	            iconClass: 'fa fa-fw fa-pie-chart'
+	            iconClass: 'fa fa-fw fa-pie-chart',
+				objects: [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }, { kind: 'realtime', iconClass: 'fa fa-fw fa-heart' }]
 	        }, {
-	            name: 'users',
+	        //     name: 'users',
+	        //     iconClass: 'fa fa-fw fa-users',
+	        //     fetchKinds: ['users']
+	        // }, {
+	            name: 'servicegroup',
+	            // iconClass: 'fa fa-fw fa-comments-o',
 	            iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['users']
+	            objects: [{ kind: 'extensions' }],
+	            fetchKinds: ['users', 'hunting', 'icd', 'chatchannel']
 	        }, {
 	            name: 'chattrunk',
 	            iconClass: 'fa fa-fw fa-whatsapp',
 	            fetchKinds: ['chattrunk']
 	        }, {
-	            name: 'servicegroup',
-	            iconClass: 'fa fa-fw fa-comments-o',
-	            fetchKinds: ['hunting', 'icd', 'chatchannel']
+	            name: 'trunk',
+	            iconClass: 'fa fa-fw fa-cloud',
+	            fetchKinds: ['trunk']
 	        }, {
 	            name: 'attendant',
 	            iconClass: 'icon-room_service',
 	            fetchKinds: ['attendant']
-	        }, {
-	            name: 'trunk',
-	            iconClass: 'fa fa-fw fa-cloud',
-	            fetchKinds: ['trunk']
 	        }, {
 	            name: 'equipment',
 	            iconClass: 'fa fa-fw fa-fax',
 	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'timer',
-	            iconClass: 'fa fa-fw fa-calendar',
+	            iconClass: 'fa fa-fw fa-clock-o',
 	            fetchKinds: ['timer']
 	        }, {
 	            name: 'routes',
@@ -10395,7 +10537,8 @@ function renderSidebar(params) {
 	            fetchKinds: ['routes']
 	        }, {
 	            name: 'settings',
-	            shouldRender: false
+	            shouldRender: false,
+	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
 	        }
 	    ];
 
@@ -10405,30 +10548,45 @@ function renderSidebar(params) {
 	function _getMenuObjects(menu, branchOptions, callback) {
 		var objects = [];
 
+		// switch(menu.name) {
+		// 	case 'dashboard':
+		// 		objects = [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'realtime', iconClass: 'fa fa-fw fa-heart' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }];
+		// 		break;
+		// 	case 'settings':
+		// 		objects = [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }];
+		// 		break;
+		// 	case 'users':
+		// 		objects = [{ kind: 'extensions', iconClass: 'fa fa-fw fa-users' }]
+		// 	default:
+		// 		objects = []
+		// }
+
 		if(menu.fetchKinds && menu.fetchKinds.length) {
 		    window.getObjects(menu.fetchKinds, function(result) {
-		    	objects = result || [];
+		    	objects = result ? objects.concat(result) : objects;
 		        return callback(objects);
 		    });
 		} else {
-			switch(menu.name) {
-				case 'dashboard':
-					objects = [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }];
-					break;
-				case 'settings':
-					objects = [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: (branchOptions.mode === 0 ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }];
-					break;
-				default:
-					objects = []
-			}
+			// switch(menu.name) {
+			// 	case 'dashboard':
+			// 		objects = [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'realtime', iconClass: 'fa fa-fw fa-heart' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }];
+			// 		break;
+			// 	case 'settings':
+			// 		objects = [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }];
+			// 		break;
+			// 	case 'users':
+			// 		objects = [{ kind: 'extensions', iconClass: 'fa fa-fw fa-users' }]
+			// 	default:
+			// 		objects = []
+			// }
 
 			return callback(objects);
 		}
 	}
 
 	function _getActiveKind(kind) {
-	    if(kind.match('hunting|icd|chatchannel')) return 'servicegroup';
-	    else if(kind.match('statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    if(kind.match('hunting|icd|chatchannel|extensions|users')) return 'servicegroup';
+	    else if(kind.match('realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
 	    else return kind;
 	}
@@ -10436,6 +10594,7 @@ function renderSidebar(params) {
 	function _selectKind(kind) {
 		var newParams = extend({}, params);
 		newParams.activeKind = kind;
+		newParams.activeItem = params.activeItem || params.activeKind;
 		_init(newParams);
 	}
 
@@ -10445,6 +10604,8 @@ function renderSidebar(params) {
 	    var activeItem = params.activeItem || params.activeKind;
 	    var menuParams = menuItems.filter(function(item) { return item.name === activeKind })[0];
 	    
+	    console.log('_init: ', activeKind, activeItem, params);
+
 	    _getMenuObjects(menuParams, params.branchOptions, function(result) {
 	    	componentParams = {
 	    	    frases: PbxObject.frases,
@@ -11525,10 +11686,23 @@ function Statistics(){
 
     this._setCharts = function(data) {
 
-        data = data.map(function(item) {
-            item['s'] = item.i - item.m;
-            return item;
-        });
+        var sameDay = moment(picker.date.start).isSame(picker.date.end, 'day');
+        var dayDiff = moment(picker.date.end).diff(picker.date.start, 'day');
+        var daily = picker.interval === 86400*1000;
+        var tickFormat = "%d-%m-%Y";
+        var showXAxis = isSmallScreen() ? false : ((dayDiff >= 7 && !daily) ? false : true);
+
+        console.log('_setCharts:', picker, daily, sameDay, dayDiff);
+
+        if(!daily) {
+            if(sameDay) tickFormat = "%H:%M";
+            else tickFormat = "%d-%m-%Y %H:%M";
+        }
+
+        // data = data.map(function(item) {
+        //     item['s'] = item.i - item.m;
+        //     return item;
+        // });
 
         console.log('statistics charts data: ', data);
 
@@ -11543,10 +11717,15 @@ function Statistics(){
             },
             axis: {
                 x: {
+                    show: showXAxis,
                     type: 'timeseries',
                     tick: {
-                        format: '%d-%m-%Y'
+                        culling: { max: 7 },
+                        format: tickFormat
                     }
+                },
+                y: {
+                    min: 0
                 }
             }
         });
@@ -11557,7 +11736,7 @@ function Statistics(){
                 x: 'intervals',
                 columns: [
                     self.getColumns(data, 'intervals', ['t']),
-                    self.getColumns(data, PbxObject.frases.SETTINGS.INCALLS, ['s']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.INCALLS, ['i']),
                     self.getColumns(data, PbxObject.frases.STATISTICS.LOSTCALLS, ['m']),
                 ],
                 type: 'bar',
@@ -11565,10 +11744,15 @@ function Statistics(){
             },
             axis: {
                 x: {
+                    show: showXAxis,
                     type: 'timeseries',
                     tick: {
-                        format: '%d-%m-%Y'
+                        culling: { max: 7 },
+                        format: tickFormat
                     }
+                },
+                y: {
+                    min: 0
                 }
             }
         });
@@ -11584,10 +11768,15 @@ function Statistics(){
             },
             axis: {
                 x: {
+                    show: showXAxis,
                     type: 'timeseries',
                     tick: {
-                        format: '%d-%m-%Y'
+                        culling: { max: 7 },
+                        format: tickFormat
                     }
+                },
+                y: {
+                    min: 0
                 }
             }
         });
@@ -12049,9 +12238,10 @@ function timer_target_row(oid, name, action){
     tr.appendChild(td);
     
     td = document.createElement('td');
+    td.className = 'text-center';
     var button = document.createElement('button');
-    button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = '<i class="fa fa-minus"></i>';
+    button.className = 'btn btn-danger btn-link btn-sm';
+    button.innerHTML = '<i class="fa fa-trash"></i>';
     button.onclick = function(){
         remove_listener(oid);
     };
@@ -12437,7 +12627,7 @@ function load_trunk(result){
         append_transform(null, 'transforms4');
     }
     
-    switch_presentation((result.type ? result.type : 'external'), null, 'pl-trunk-kind');
+    switch_presentation(((result.type && result.type !== 'undefined') ? result.type : 'external'), null, 'pl-trunk-kind');
     show_content();
     set_page();
 
@@ -12462,7 +12652,7 @@ function getProtocolOptions(params) {
 
     console.log('getProtocolOptions: ', params, type);
 
-    get_protocol_opts(protocols.value, { parameters: params, type: type });
+    get_protocol_opts(protocols.value, params, type);
 }
 
 function changeTrunkRegState(up) {
@@ -12470,70 +12660,70 @@ function changeTrunkRegState(up) {
     up ? enabled.classList.remove('unregistered') : enabled.classList.add('unregistered');
 }
 
-function getCurrIncRoutes(transform) {
-    return (transform.number === '.' && transform.strip && transform.prefix);
-}
+// function getCurrIncRoutes(transform) {
+//     return (transform.number === '.' && transform.strip && transform.prefix);
+// }
 
-function getRouteOptions(cb) {
-    if(PbxObject.extensions.length) {
-        cb(PbxObject.extensions);
-    } else {
-        getExtensions(function(result) {
-            cb(result);
-        });
-    }
-}
+// function getRouteOptions(cb) {
+//     if(PbxObject.extensions.length) {
+//         cb(PbxObject.extensions);
+//     } else {
+//         getExtensions(function(result) {
+//             cb(result);
+//         });
+//     }
+// }
 
-function renderTrunkIncRoute(params) {
+// function renderTrunkIncRoute(params) {
 
-    var routes = null;
+//     var routes = null;
 
-    getRouteOptions(function(options) {
-        if(params.route) {
-            routes = options.filter(function(item) {
-                return (item.ext === params.route.prefix);
-            })[0];
-        }
+//     getRouteOptions(function(options) {
+//         if(params.route) {
+//             routes = options.filter(function(item) {
+//                 return (item.ext === params.route.prefix);
+//             })[0];
+//         }
 
-        console.log('renderTrunkIncRoute: ', routes);
+//         console.log('renderTrunkIncRoute: ', routes);
 
-        // Render incoming route parameter
-        ReactDOM.render(
-            TrunkIncRoute({
-                // options: options,
-                // routes: routes,
-                routes: result.inboundbnumbertransforms,
-                frases: params.frases,
-                onChange: setTrunkIncRoute
-            }),
-            document.getElementById('trunk-inc-route')
-        );
-    });
+//         // Render incoming route parameter
+//         ReactDOM.render(
+//             TrunkIncRoute({
+//                 // options: options,
+//                 // routes: routes,
+//                 routes: result.inboundbnumbertransforms,
+//                 frases: params.frases,
+//                 onChange: setTrunkIncRoute
+//             }),
+//             document.getElementById('trunk-inc-route')
+//         );
+//     });
     
-    clearTempParams();
+//     clearTempParams();
     
-}
+// }
 
-function renderTrunkOutRoute() {
-    // Render incoming route parameter
-    ReactDOM.render(
-        TrunkOutRoutes({
-            frases: PbxObject.frases,
-            onChange: setTrunkOutRoute
-        }),
-        document.getElementById('trunk-out-routes')
-    );
-}
+// function renderTrunkOutRoute() {
+//     // Render incoming route parameter
+//     ReactDOM.render(
+//         TrunkOutRoutes({
+//             frases: PbxObject.frases,
+//             onChange: setTrunkOutRoute
+//         }),
+//         document.getElementById('trunk-out-routes')
+//     );
+// }
 
-function setTrunkIncRoute(route) {
-    console.log('setTrunkIncRoute: ', route);
-    updateTempParams(route);
-}
+// function setTrunkIncRoute(route) {
+//     console.log('setTrunkIncRoute: ', route);
+//     updateTempParams(route);
+// }
 
-function setTrunkOutRoute(route) {
-    console.log('setTrunkOutRoute: ', route);
+// function setTrunkOutRoute(route) {
+//     console.log('setTrunkOutRoute: ', route);
     
-}
+// }
 
 // function setTrunkState(oid, state, callback) {
 //     json_rpc_async('setObjectState', {
@@ -12643,25 +12833,25 @@ function set_trunk(){
     outATrasf = transformsToArray('transforms3');
     outBTrasf = transformsToArray('transforms4');
 
-    if(getTempParams().ext) {
-        incRoute = incBTrasf.filter(getCurrIncRoutes)[0];
+    // if(getTempParams().ext) {
+    //     incRoute = incBTrasf.filter(getCurrIncRoutes)[0];
 
-        if(!incRoute) {
-            incBTrasf.push({ number: '.', strip: true, prefix: getTempParams().ext});
-            // append_transform(null, 'transforms1', { number: '.', strip: true, prefix: getTempParams().ext });
-        } else {
-            incBTrasf.map(function(item) {
-                if(item == incRoute) 
-                    return item.prefix = getTempParams().ext;
-                else 
-                    return item;
-            });
-        }
+    //     if(!incRoute) {
+    //         incBTrasf.push({ number: '.', strip: true, prefix: getTempParams().ext});
+    //         // append_transform(null, 'transforms1', { number: '.', strip: true, prefix: getTempParams().ext });
+    //     } else {
+    //         incBTrasf.map(function(item) {
+    //             if(item == incRoute) 
+    //                 return item.prefix = getTempParams().ext;
+    //             else 
+    //                 return item;
+    //         });
+    //     }
 
-        clearTable(document.querySelector('#transforms2 tbody'));
-        append_transforms('transforms2', incBTrasf);
+    //     clearTable(document.querySelector('#transforms2 tbody'));
+    //     append_transforms('transforms2', incBTrasf);
 
-    }
+    // }
 
     jprms += '},';
     jprms += '"inboundanumbertransforms":';
@@ -12743,7 +12933,7 @@ function load_users(params) {
 	function openNewUserForm() {
 		console.log('openNewUserForm');
 
-		if(driver) driver.reset(); // close the tour
+		// if(driver) driver.reset(); // close the tour
 
 		modalCont = document.getElementById('modal-cont');
 
@@ -12780,6 +12970,8 @@ function load_users(params) {
 	function addUser(userParams, callback) {
 		console.log('addUser: ', params);
 
+		userParams = extend({}, userParams);
+
 		if(!PbxObject.name) {
 			return setObject({
 				name: objParams.name,
@@ -12795,9 +12987,12 @@ function load_users(params) {
 
 		json_rpc_async('setObject', userParams, function(result, error) {
 
-			if(error) return notify_about('error', error.message);
+			if(error) {
+				callback(error);
+				return notify_about('error', error.message);
+			}
 
-			$('#modal-cont .modal').modal('hide');
+			// $('#modal-cont .modal').modal('hide');
 
 			userParams.oid = result;
 			userParams.reg = "";
@@ -12815,7 +13010,7 @@ function load_users(params) {
 				onFirstUserCreated();
 			}
 
-			if(callback) callback(result);
+			if(callback) callback(null, result);
 
 		});
 	}
@@ -12887,7 +13082,7 @@ function load_users(params) {
 		    onaddusers: setExternalUsers
 		});
 
-	    if(serviceParams.type === 1 || serviceParams.types === 1) {
+	    if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
 	        PbxObject.LdapConnection.getExternalUsers();
 	    } else {
 	        json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {

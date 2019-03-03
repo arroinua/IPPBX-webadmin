@@ -64,7 +64,7 @@ var FileUpload = React.createClass({
 	        } else {
 	            name = ' '+ArrayOrString;
 	        }
-	        return name;
+	        return name.trim();
 	    }
 	    return '';
 	},

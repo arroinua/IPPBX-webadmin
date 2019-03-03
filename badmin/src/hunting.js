@@ -6,6 +6,8 @@ function load_hunting(params) {
 	var defaultName = getDefaultName();
 	var modalCont;
 
+	if(!objParams.options.huntmode) objParams.options.huntmode = 1; // enable default hunting mode
+
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 

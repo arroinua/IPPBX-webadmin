@@ -14,12 +14,12 @@
         </script> -->
         <!-- <script async src='https://www.google-analytics.com/analytics.js'></script> -->
         <!-- End Google Analytics -->
-        <script>
+        <!-- <script>
           !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
           analytics.load("FLp9OXDzMMi4RDxAaNKAAPvOflNlXr3U");
           analytics.page();
           }}();
-        </script>
+        </script> -->
                       <!-- Google Tag Manager -->
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -27,9 +27,31 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-N2LKPNF');</script>
         <!-- End Google Tag Manager -->
+        
+        <!-- FullStory Start -->
+        <script>
+        window['_fs_debug'] = false;
+        window['_fs_host'] = 'fullstory.com';
+        window['_fs_org'] = 'HEBVT';
+        window['_fs_namespace'] = 'FS';
+        (function(m,n,e,t,l,o,g,y){
+            if (e in m) {if(m.console && m.console.log) { m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');} return;}
+            g=m[e]=function(a,b,s){g.q?g.q.push([a,b,s]):g._api(a,b,s);};g.q=[];
+            o=n.createElement(t);o.async=1;o.src='https://'+_fs_host+'/s/fs.js';
+            y=n.getElementsByTagName(t)[0];y.parentNode.insertBefore(o,y);
+            g.identify=function(i,v,s){g(l,{uid:i},s);if(v)g(l,v,s)};g.setUserVars=function(v,s){g(l,v,s)};g.event=function(i,v,s){g('event',{n:i,p:v},s)};
+            g.shutdown=function(){g("rec",!1)};g.restart=function(){g("rec",!0)};
+            g.consent=function(a){g("consent",!arguments.length||a)};
+            g.identifyAccount=function(i,v){o='account';v=v||{};v.acctId=i;g(o,v)};
+            g.clearUserCookie=function(){};
+        })(window,document,window['_fs_namespace'],'script','user');
+        </script>
+        <!-- FullStory End -->
+
         <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/badmin/fonts/css/icomoon.css" />
-        <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
+        <link rel="stylesheet" href="/public/styles/bootstrap.min.css" type="text/css" />
+        <!-- <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" /> -->
         <link rel="stylesheet" href="/badmin/css/vendors/bootstrap-tour.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/rome.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/flatpickr.min.css" type="text/css" />
@@ -37,7 +59,7 @@
         <link rel="stylesheet" href="/badmin/css/vendors/react-select.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/c3.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/driver.min.css" type="text/css" />
-        <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" />
+        <link rel="stylesheet" href="/public/styles/main.min.css" type="text/css" />
     </head>
     <body>
         <!-- Google Tag Manager (noscript) -->
@@ -81,31 +103,5 @@
         <script type="text/javascript" src="/badmin/js/main.js"></script>
         <script type="text/javascript" src="/badmin/js/components.js"></script>
 
-        <script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src = "//cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>
-
-        <script type="text/javascript">
-            var _iub = _iub || [];
-            _iub.csConfiguration = {
-                cookiePolicyId: 92894652,
-                siteId: 1049981,
-                consentOnScroll: false,
-                consentOnButton: true,
-                lang: "en",
-                preferenceCookie: {
-                    expireAfter: 365
-                }, 
-                banner: {
-                    backgroundColor: "#fff",
-                    textColor: "#333"
-                },
-                callback: {
-                    onConsentGiven: function(){
-                        jQuery(document).trigger('consent-given');
-                        dataLayer.push({'event': 'iubenda_consent_given'});
-                    }
-                }
-            };
-        </script>
-        <script type="text/javascript" src="//cdn.iubenda.com/cookie_solution/safemode/iubenda_cs.js" charset="UTF-8"></script>
     </body>
 </html>

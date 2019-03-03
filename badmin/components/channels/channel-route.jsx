@@ -5,7 +5,7 @@ var ChannelRouteComponent = React.createClass({
 		type: React.PropTypes.string,
 		routes: React.PropTypes.array,
 		onChange: React.PropTypes.func,
-		addSteps: React.PropTypes.func
+		// addSteps: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -24,21 +24,21 @@ var ChannelRouteComponent = React.createClass({
 	componentDidMount: function() {
 		var frases = this.props.frases;
 
-		this.props.addSteps([{
-			element: '.channel-routes',
-			popover: {
-				title: frases.GET_STARTED.STEPS.ALLOCATE_TO["1"].TITLE,
-				description: frases.GET_STARTED.STEPS.ALLOCATE_TO["1"].DESC,
-				position: 'bottom'
-			}
-		}, {
-			element: '.create-group-links',
-			popover: {
-				title: frases.GET_STARTED.STEPS.ALLOCATE_TO["2"].TITLE,
-				description: frases.GET_STARTED.STEPS.ALLOCATE_TO["2"].DESC,
-				position: 'top'
-			}
-		}]);
+		// this.props.addSteps([{
+		// 	element: '.channel-routes',
+		// 	popover: {
+		// 		title: frases.GET_STARTED.STEPS.ALLOCATE_TO["1"].TITLE,
+		// 		description: frases.GET_STARTED.STEPS.ALLOCATE_TO["1"].DESC,
+		// 		position: 'bottom'
+		// 	}
+		// }, {
+		// 	element: '.create-group-links',
+		// 	popover: {
+		// 		title: frases.GET_STARTED.STEPS.ALLOCATE_TO["2"].TITLE,
+		// 		description: frases.GET_STARTED.STEPS.ALLOCATE_TO["2"].DESC,
+		// 		position: 'top'
+		// 	}
+		// }]);
 			
 	},
 
@@ -84,17 +84,23 @@ var ChannelRouteComponent = React.createClass({
 	_getAvailableRoutes: function(type, callback) {
 		// var type = this.props.type;
 		console.log('_getAvailableRoutes: ', type);
-		var groupType = type === 'Telephony' ? ['hunting', 'icd', 'attendant'] : ['chatchannel'];
-		var extensions = [];
+		var isTelephonyChannel = (type === 'Telephony' || type === 'WebCall');
+		var groupType = isTelephonyChannel ? ['hunting', 'icd', 'attendant'] : ['chatchannel'];
+		var routes = [];
 
-		getExtensions(function(result) {
-			extensions = filterObject(result, ['user', 'phone']);
 
-			getObjects(groupType, function(result) {
-				var routes = result.concat(extensions);
+		getObjects(groupType, function(result) {
+			routes = routes.concat(result);
 
+			if(isTelephonyChannel) {
+				getExtensions(function(extensions) {
+					routes = routes.concat(filterObject(extensions, ['user', 'phone']));
+					callback(routes);
+				})
+			} else {
 				callback(routes);
-			});
+			}
+			
 		});
 			
 	},
@@ -176,10 +182,11 @@ var ChannelRouteComponent = React.createClass({
 					}
 					<div className="col-sm-1 text-center"><strong>{frases.OR}</strong></div>
 					{
-						this.props.type === 'Telephony' ? (
+						(this.props.type === 'Telephony' || this.props.type === 'WebCall') ? (
 							<div className="col-sm-4 create-group-links">
 								<a href="#hunting/hunting" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_HUNTING_GROUP}</a>
 								<a href="#icd/icd" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_ICD_GROUP}</a>
+								<a href="#attendant/attendant" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_ATTENDANT}</a>
 							</div>
 						) : (
 							<div className="col-sm-4 create-group-links">

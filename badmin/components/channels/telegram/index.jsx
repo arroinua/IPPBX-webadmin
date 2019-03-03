@@ -5,8 +5,6 @@ var TelegramTrunkComponent = React.createClass({
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
-		addSteps: React.PropTypes.func,
-		nextStep: React.PropTypes.func,
 		isNew: React.PropTypes.bool
 	},
 
@@ -22,19 +20,7 @@ var TelegramTrunkComponent = React.createClass({
 
 	componentDidMount: function() {
 		var frases = this.props.frases;
-
-		if(this.props.isNew && this.props.addSteps) {
-
-			this.props.addSteps([{
-				element: '#ctc-select-2',
-				popover: {
-					title: frases.GET_STARTED.CONNECT_TELEGRAM.STEPS["1"].TITLE,
-					description: frases.GET_STARTED.CONNECT_TELEGRAM.STEPS["1"].DESC,
-					position: 'top'
-				}
-			}]);
-
-		}
+		
 	},
 
 	// componentWillReceiveProps: function(props) {

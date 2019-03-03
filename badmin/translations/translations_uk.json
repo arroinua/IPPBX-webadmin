@@ -124,6 +124,20 @@
 			}
 		}
 	},
+	"DASHBOARD": {
+		"SUBSCRIPTION_PANEL": {
+			"TITLE": "Підписка",
+			"ACTION_BTN": "Оновити"
+		},
+		"CHANNELS_PANEL": {
+			"TITLE": "Обслуговування",
+			"ACTION_BTN": "Показати більше"
+		},
+		"CALLS_PANEL": {
+			"TITLE": "Дзвінки",
+			"ACTION_BTN": "Показати більше"
+		}
+	},
 	"OBJECT" : "Об'єкт",	
 	"EXTENSIONS" : "Внутрішні номери",
 	"EXTENSION" : "Внутрішній номер",
@@ -368,6 +382,7 @@
 	"ADD_EQUIPMENT" : "Додати обладнання",
 	"USERTYPE" : "Тип користувача",
 	"ADD": "Додати",
+	"ADD_AND_CLOSE": "Додати та закрити",
 	"ADD_GROUP": "Додати групу",
 	"BACK" : "Назад",
     "CREATE": "Створити",
@@ -572,7 +587,12 @@
 		"ON_DELETE_WARNING": "Ви збираєтеся повністю видалити дані клієнта. Ця дія незворотня. Ви хочете продовжити?",
 		"ON_DELETED_MSG": "Клієнт видалений",
 		"HAS_CONSENT_MSG": "Так",
-		"NO_CONSENT_MSG": "Ні"
+		"NO_CONSENT_MSG": "Ні",
+		"SERVICE_AUTH": {
+			"CONFIRM_IMPORT_FROM": "Ви підтверджуєте імпорт всіх контактів з",
+			"IMPORT_SUCCESS": "Кількість імпортованих контактів: ",
+			"NOTHING_TO_IMPORT": "Немає контактів для імпорту"
+		}
 	},
 	"TIMERSNAME": "Ім'я Таймера",
 	"PICKADATE": "Виберіть дату та час",
@@ -619,7 +639,7 @@
     	"branch_options": "Налаштування",
     	"services": "Інтеграції",
         "trunk": "Транки",
-        "users": "Групи користувачів",
+        "users": "Користувачі",
         "user": "Користувач",
         "equipment": "Обладнання",
         "phone": "Обладнання",
@@ -639,21 +659,22 @@
         "chattrunk": "Канали",
         "calls": "Панель моніторингу",
         "dashboard": "Панель моніторингу",
+        "realtime": "У реальному часі",
         "records": "Журнал викликів",
         "rec_settings": "Налашт. запису розмов",
         "statistics": "Статистика дзвінків",
         "reg_history": "Історія реєстрацій",
         "channel_statistics": "Статистика каналів",
         "reports": "Звіти",
-        "extensions": "Внутрішні номери",
-        "attendant": "Автосекретар",
+        "extensions": "Всі користувачі",
+        "attendant": "IVR меню",
         "certificates": "Сертифікати",
         "storages": "Сховища",
         "billing": "Білінг",
         "usage": "Використання ліцензій",
         "channel_records": "Записи Каналу",
         "customers": "Клієнти",
-        "servicegroup": "Сервіс групи",
+        "servicegroup": "Користувачі та групи",
         "settings": "Налаштування"
     },
     "CODES": {
@@ -687,12 +708,14 @@
         "28": "невірний формат",
         "29": "facility rejected",
         "30": "normal unspecified",
+        "31": "тимчасово недоступний",
         "34": "no channel available",
         "38": "network out of order",
         "41": "temporary failure",
         "42": "switch congestion",
         "44": "circuit not available",
         "47": "resource unavailable",
+        "55": "виклик відхилино",
         "63": "service not available",
         "81": "invalid call reference",
         "88": "incompatible destination",
@@ -743,10 +766,11 @@
 	    "NUMBER_OF_CALLS" : "Кількість викликів",
 	    "EXT_STATS" : "Статистика внутрішніх номерів",
 	    "NO_DATA" : "За обраний період немає даних",
-	    "LINES_PAYLOAD" : "Кількість зайнятих ліній",
+	    "LINES_PAYLOAD" : "Завантаження ліній",
 	    "LOST_AND_SERVED" : "Втрачені та з'єднані",
 	    "INCOMING_CALLS": "Вхідні",
 	    "OUTGOING_CALLS": "Вихідні",
+	    "INTERNAL_CALLS": "Внутрішні",
 	    "TRNUK_QOS": {
 	    	"TC": "Загальна кількість дзвінків",
 	    	"CC": "Кількість з'єднаних дзвінків",
@@ -762,6 +786,15 @@
 	    	"RFE": "R-factor на стороні транка",
 	    	"RNE": "R-factor на стороні сервера"
 	    }
+    },
+    "REALTIME": {
+    	"TRUNKS_PANEL": {
+    		"TITLE": "Транки"
+    	},
+    	"CALLS_PANEL": {
+    		"TITLE": "Дзвінки"
+    	},
+    	"NO_DATA": "Немає даних"
     },
     "REG_HISTORY": {
     	"SELECT_USER_PLACEHOLDER": "Вибрати користувача...",
@@ -976,6 +1009,21 @@
     			"phone": "Введіть Ваш номер телефону",
     			"consent": ""
     		},
+    		"CHANNELS": {
+    			"CHAT": "Чат з агентом",
+    			"CALLBACK": "Зворотній виклик"
+    		},
+    		"LANG": "Мова інтерфейсу",
+    		"LANG_OPTIONS": {
+    			"AUTO": "На основі налаштувань браузеру",
+    			"EN": "English",
+    			"UK": "Українська",
+    			"RU": "Русский"
+    		},
+    		"OFFER_CHECKBOX": "Привітання",
+    		"OFFER_FROM_LABEL": "Від",
+    		"OFFER_MESSAGE_LABEL": "Повідомлення",
+    		"OFFER_TIMEOUT_LABEL": "Показати через",
     		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайту",
     		"CODE_SNIPPET_MODAL_TEXT": "Додайте цей скрипт на кожну веб-сторінку, де ви хочете, щоб віджет з'явився. Ви можете помістити скрипт в будь-якому місці в межах <HEAD> або <BODY> тегів.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопіювати в буфер",
@@ -1169,6 +1217,31 @@
     	"NEW_USER_SUBJECT_LABEL": "Тема повідомлення",
     	"NEW_USER_BODY_LABEL": "Зміст повідомлення",
     	"NEW_USER_BODY_HELPER": "Де %% - це данні для входу в обліковий запис"
+    },
+    "IMPORT_DATA": {
+    	"TITLE": "Імпорт даних",
+    	"STEP_1": "1/3. Перенесіть або виберіть .csv файл",
+    	"STEP_2": "2/3. Налаштування імпорту",
+    	"STEP_3": "3/3. Співставлення параметрів",
+    	"STEP_3_DESC": "Співставте колонки з іменами параметрів",
+    	"DRAG_AND_DROP_TITLE_1": "Перенесіть файл",
+    	"DRAG_AND_DROP_TITLE_2": "Перенесіть файл",
+    	"DRAG_AND_DROP_SUBTITLE": "або",
+    	"DRAG_AND_DROP_INFO": "Макс. розмір файлу 2МБ",
+    	"OPTIONS": {
+    		"ENCODING": "Кодування",
+    		"DELIMITER": "Розділювач",
+    		"HAS_HEADER": "Перший рядок є заголовком"
+    	},
+    	"RECORDS": "Всього записів",
+    	"SHOW_SAMPLE_BTN": "Показати вибірку",
+    	"SHOW_ISSUES_BTN": "Показати невідповідності",
+    	"ISSUES_WARNING": "Записи з невідповідностями не будуть імпортовані",
+    	"SELECT_PARAMETER_OPTION": "Виберіть параметр",
+    	"ERRORS": {
+    		"wrongSize": "Перевищено максимальний розмір файлу",
+    		"wrongFile": "Тип файлу повинен відповідати text/csv"
+    	}
     },
     "TOURS": {
     	"NEXT_STEP": "Далі",

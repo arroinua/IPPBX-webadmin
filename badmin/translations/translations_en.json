@@ -124,6 +124,20 @@
 			}
 		}
 	},
+	"DASHBOARD": {
+		"SUBSCRIPTION_PANEL": {
+			"TITLE": "Subscription",
+			"ACTION_BTN": "Upgrade now"
+		},
+		"CHANNELS_PANEL": {
+			"TITLE": "Customer service",
+			"ACTION_BTN": "More insights"
+		},
+		"CALLS_PANEL": {
+			"TITLE": "Calls",
+			"ACTION_BTN": "More insights"
+		}
+	},
 	"OBJECT" : "Object",
 	"EXTENSIONS" : "Extensions",
 	"EXTENSION" : "Extension",
@@ -366,6 +380,7 @@
 	"ADD_EQUIPMENT" : "Add equipment",
 	"USERTYPE" : "User type",
 	"ADD": "Add",
+	"ADD_AND_CLOSE": "Add and close",
 	"ADD_GROUP": "Add group",
 	"BACK" : "Back",
     "CREATE": "Create",
@@ -570,7 +585,12 @@
 		"ON_DELETE_WARNING": "You are going to completely delete customer data. This action is irreversible. Do you want to proceed?",
 		"ON_DELETED_MSG": "Customer has been deleted",
 		"HAS_CONSENT_MSG": "Yes",
-		"NO_CONSENT_MSG": "No"
+		"NO_CONSENT_MSG": "No",
+		"SERVICE_AUTH": {
+			"CONFIRM_IMPORT_FROM": "Do you want to import all contacts from",
+			"IMPORT_SUCCESS": "Number of successfuly imported contacts: ",
+			"NOTHING_TO_IMPORT": "There are no contacts to import."
+		}
 	},
 	"TIMERSNAME": "Timer name",
 	"PICKADATE": "Select date and time",
@@ -617,7 +637,7 @@
     	"branch_options": "Settings",
     	"services": "Integrations",
         "trunk": "Trunks",
-        "users": "User Groups",
+        "users": "Users",
         "user": "User",
         "equipment": "Equipment",
         "phone": "Equipment",
@@ -637,21 +657,22 @@
         "chattrunk": "Channels",
         "calls": "Dashboard",
         "dashboard": "Dashboard",
+        "realtime": "Real-time",
         "records": "Call Records",
         "rec_settings": "Recording settings",
         "statistics": "Calls statistics",
         "reg_history": "Registration history",
         "channel_statistics": "Channel statistics",
         "reports": "Reports",
-        "extensions": "Extensions",
-        "attendant": "Auto-attendant",
+        "extensions": "All extensions",
+        "attendant": "IVR Menu",
         "certificates": "Certificates",
         "storages": "Storages",
         "billing": "Billing",
         "usage": "License usage",
         "channel_records": "Channel Records",
         "customers": "Customers",
-        "servicegroup": "Service Groups",
+        "servicegroup": "Users and Groups",
         "settings": "Settings"
     },
     "CODES": {
@@ -685,12 +706,14 @@
         "28": "invalid number format",
         "29": "facility rejected",
         "30": "normal unspecified",
+        "31": "temporary unavailable",
         "34": "no channel available",
         "38": "network out of order",
         "41": "temporary failure",
         "42": "switch congestion",
         "44": "circuit not available",
         "47": "resource unavailable",
+        "55": "decline",
         "63": "service not available",
         "81": "invalid call reference",
         "88": "incompatible destination",
@@ -745,6 +768,7 @@
 	    "LOST_AND_SERVED" : "Lost and Connected",
 	    "INCOMING_CALLS": "Incoming",
 	    "OUTGOING_CALLS": "Outgoing",
+	    "INTERNAL_CALLS": "Internal",
 	    "TRNUK_QOS": {
 	    	"TC": "Total calls",
 	    	"CC": "Connected calls",
@@ -760,6 +784,15 @@
 	    	"RFE": "R-factor (trnuk)",
 	    	"RNE": "R-factor (server)"
 	    }
+    },
+    "REALTIME": {
+    	"TRUNKS_PANEL": {
+    		"TITLE": "Trunks"
+    	},
+    	"CALLS_PANEL": {
+    		"TITLE": "Calls"
+    	},
+    	"NO_DATA": "No data yet"
     },
     "REG_HISTORY": {
     	"SELECT_USER_PLACEHOLDER": "Select user...",
@@ -887,6 +920,7 @@
     	"CREATE_HUNTING_GROUP": "Create a Hunting group",
     	"CREATE_TRUNK": "Create a Trunk",
     	"CREATE_ICD_GROUP": "Create a Hotline",
+    	"CREATE_ATTENDANT": "Create IVR Menu",
     	"NO_SERVICE_GROUP": "You don't have service groups yet.",
     	"SERVICE_GROUP_NOT_SELECTED": "Service group is not selected",
     	"FACEBOOK": {
@@ -974,6 +1008,21 @@
     			"phone": "Enter your phone number",
     			"consent": ""
     		},
+    		"CHANNELS": {
+    			"CHAT": "Chat with agent",
+    			"CALLBACK": "Callback"
+    		},
+    		"LANG": "Widget language",
+    		"LANG_OPTIONS": {
+    			"AUTO": "Get from browser settings",
+    			"EN": "English",
+    			"UK": "Українська",
+    			"RU": "Русский"
+    		},
+    		"OFFER_CHECKBOX": "Greetings",
+    		"OFFER_FROM_LABEL": "From",
+    		"OFFER_MESSAGE_LABEL": "Message",
+    		"OFFER_TIMEOUT_LABEL": "Show in",
     		"CODE_SNIPPET_MODAL_TITLE": "Code snippet",
     		"CODE_SNIPPET_MODAL_TEXT": "Add this script to every webpage where you want the widget to appear. You can place the script anywhere within the <head> or <body> tags.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Copy to clipboard",
@@ -1080,7 +1129,7 @@
     	"MONTHLY_TOTAL": "Monthly total",
     	"ANNUALLY_TOTAL": "Annually total",
     	"NEXT_CHARGE": "Next charge",
-    	"TRIAL_EXPIRES": "expires",
+    	"TRIAL_EXPIRES": "Trial expires",
     	"EDIT_PAYMENT_METHOD": "Update",
     	"PAYMENT_METHOD_WARNING_P1": "To change plan and add licenses please",
     	"PAYMENT_METHOD_WARNING_P2": "to your account",
@@ -1167,6 +1216,31 @@
     	"NEW_USER_SUBJECT_LABEL": "Email subject",
     	"NEW_USER_BODY_LABEL": "Email body",
     	"NEW_USER_BODY_HELPER": "Where %% is a login credentials"
+    },
+    "IMPORT_DATA": {
+    	"TITLE": "Import data",
+    	"STEP_1": "1/3. Drag-and-drop or select a .csv file",
+    	"STEP_2": "2/3. Import settings",
+    	"STEP_3": "3/3. Matching parameters",
+    	"STEP_3_DESC": "Match columns with parameter's name",
+    	"DRAG_AND_DROP_TITLE_1": "Drag a file",
+    	"DRAG_AND_DROP_TITLE_2": "Drop a file",
+    	"DRAG_AND_DROP_SUBTITLE": "or",
+    	"DRAG_AND_DROP_INFO": "Max file size 2MB",
+    	"OPTIONS": {
+    		"ENCODING": "Encoding",
+    		"DELIMITER": "Delimiter",
+    		"HAS_HEADER": "First row is a header"
+    	},
+    	"RECORDS": "Records",
+    	"SHOW_SAMPLE_BTN": "Show sample",
+    	"SHOW_ISSUES_BTN": "Show issues",
+    	"ISSUES_WARNING": "Records with issues will not be imported",
+    	"SELECT_PARAMETER_OPTION": "Select parameter",
+    	"ERRORS": {
+    		"wrongSize": "File size exceeds the limit",
+    		"wrongFile": "File type must be text/csv"
+    	}
     },
     "TOURS": {
     	"NEXT_STEP": "Next",
@@ -1294,7 +1368,7 @@
     "ATT__CONN_MISSED" : "Connector is not selected",
     "ATT__AUDIO_FILE_MISSED" : "Audio file is not selected",
     "ATT__DEBUG" : "Enable log",
-    "ATT__GREETINGS" : "Audio file that is played after the connection with auto-attendant. The file format must be .wav/8khz/16bit.",
+    "ATT__GREETINGS" : "Audio file that is played after the connection. The file format must be .wav/8khz/16bit.",
     "ATT__MSG_TOUT" : "Maximum duration of the voice message",
     "ATT__BACK_BTN" : "Button to move to the previous menu",
     "ATT__MAIN_MENU_BTN" : "Button to move to the main menu",

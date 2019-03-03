@@ -4,6 +4,15 @@
     margin-bottom: 20px;
     // overflow: hidden;
 
+    &.panel-primary {
+        background-color: $primary-color;
+        border-color: transparent;
+
+        .panel-header {
+            color: #fff;
+        }
+    }
+
     &.minimized{
 	    .panel-body{
 		    display: none;
@@ -52,17 +61,23 @@
 .panel-header{
     margin: 0;
     padding: 15px;
-    text-transform: uppercase;
+    // text-transform: uppercase;
     // background-color: $secondary-color;
-    border-bottom: 1px solid #eee;
+    // border-bottom: 1px solid #eee;
     // color: $primary-text-color-2;
     cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #999;
 
     > i:last-child{
     	@extend .context-icon;
    		color: $primary-text-color-2;
     }
 }
+
 .panel-body{
     position: relative;
     padding: 15px;

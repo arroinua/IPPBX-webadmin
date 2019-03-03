@@ -6,8 +6,6 @@ var InstagramTrunkComponent = React.createClass({
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
 		// onTokenReceived: React.PropTypes.func,
-		addSteps: React.PropTypes.func,
-		nextStep: React.PropTypes.func,
 		isNew: React.PropTypes.bool
 	},
 
@@ -32,29 +30,6 @@ var InstagramTrunkComponent = React.createClass({
 	componentDidMount: function() {
 		console.log('InstagramTrunkComponent props: ', this.props);
 		var frases = this.props.frases;
-
-		if(this.props.isNew && this.props.addSteps) {
-
-			console.log('InstagramTrunkComponent componentDidMount: ', this.state.pages);
-
-			this.props.addSteps([{
-				element: '.fb-button',
-				popover: {
-					title: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["1"].TITLE,
-					showButtons: false,
-					description: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["1"].DESC,
-					position: 'bottom'
-				}
-			}, {
-				element: '#ctc-select-1',
-				popover: {
-					title: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["2"].TITLE,
-					description: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["2"].DESC,
-					position: 'top'
-				}
-			}]);
-
-		}
 
 		this._initService();
 
@@ -291,9 +266,7 @@ var InstagramTrunkComponent = React.createClass({
 				    						pages.map(function(item) {
 
 					    						return (
-
-					    							<option key={item.id} value={item.id}>{item.name}</option>
-
+					    							<option key={item.id} value={item.id}>{item.name + " ("+item.category+")"}</option>
 					    						);
 
 					    					})

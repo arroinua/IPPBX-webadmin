@@ -33,7 +33,7 @@ var WebchatScriptComponent = React.createClass({
 	    			"w[a]=w[a]||{};w[a].clientPath=w[a].clientPath||l;",
        				"if(w[g]){w[g](w[a]||{})}else{b=d.createElement(s),o=d.getElementsByTagName(s)[0];",
        				"b.async=1;b.src=l+'wchat.min.js';o.parentNode.insertBefore(b,o)}",
-   				"})(window,document,'script','https://cdn.smile-soft.com/wchat/v1/','Wchat','WchatSettings');",
+   				"})(window,document,'script','https://static.ringotel.co/wchat/v1/','Wchat','WchatSettings');",
    			"\n</script>"
 		].join('');
 		return paramsStr;

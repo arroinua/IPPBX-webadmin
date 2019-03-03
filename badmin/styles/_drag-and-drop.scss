@@ -1,0 +1,17 @@
+.dragndrop-area {
+	padding: 20px;
+	text-align: center;
+	border: 5px dashed #eee;
+
+	&.dragged {
+		background-color: #eee;
+	}
+
+	p:first-child {
+		font-size: 2em;
+	}
+
+	input {
+		margin: auto;
+	}
+}

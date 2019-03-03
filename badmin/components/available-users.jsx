@@ -11,6 +11,7 @@ var AvailableUsersComponent = React.createClass({
 	getInitialState: function() {
 		return {
 			data: [],
+			filteredData: [],
 			init: false
 		};
 	},
@@ -20,7 +21,7 @@ var AvailableUsersComponent = React.createClass({
 		this._getAvailableUsers(params, function(result) {
 			var data = result.length ? this._sortItems(result, 'ext') : result;
 			console.log('AvailableUsersComponent componentWillMount: ', data);
-			this.setState({ data: data, init: true });
+			this.setState({ data: data, filteredData: data, init: true });
 		}.bind(this));
 	},
 
@@ -32,7 +33,7 @@ var AvailableUsersComponent = React.createClass({
 
 			this._getAvailableUsers(params, function(result) {
 				var data = result.length ? this._sortItems(result, 'ext') : result;
-				this.setState({ data: data, init: true });
+				this.setState({ data: data, filteredData: data, init: true });
 			}.bind(this));
 		}
 			
@@ -53,14 +54,14 @@ var AvailableUsersComponent = React.createClass({
 	},
 
 	_saveChanges: function() {
-		var selectedMembers = this.state.data.filter(function(item) { return item.selected; });
+		var selectedMembers = this.state.filteredData.filter(function(item) { return item.selected; });
 
 		this.props.onChange(selectedMembers);
 		// this.props.onSubmit(selectedMembers);
 	},
 
 	_selectMember: function(item) {
-		var data = this.state.data;
+		var data = this.state.filteredData;
 		data[item].selected = !data[item].selected;
 		this.setState({ data: data });
 
@@ -69,7 +70,7 @@ var AvailableUsersComponent = React.createClass({
 
 	_selectAllMembers: function(e) {
 		e.preventDefault();
-		var data = this.state.data;
+		var data = this.state.filteredData;
 		data.map(function(item) {
 			item.selected = !item.selected;
 			return item;
@@ -80,18 +81,23 @@ var AvailableUsersComponent = React.createClass({
 	},
 
 	_filterItems: function(e) {
-		// var value = e.target.value;
-		// var data = this.state.data;
+		var value = e.target.value;
+		var data = this.state.data;
+		var filteredData = [];
 
-		// data = data.filter(function(item) {
-		// 	if(item.ext.indexOf(value) !== -1 || item.name.indexOf(value) !== -1) {
-		// 		return item;
-		// 	}
-		// });
-
-		// this.setState({
-		// 	data: data
-		// });
+		if(!value) {
+			filteredData = data;
+		} else {
+			filteredData = data.filter(function(item) {
+				if(item.ext.indexOf(value) !== -1 || item.name.indexOf(value) !== -1) {
+					return item;
+				}
+			});
+		}
+			
+		this.setState({
+			filteredData: filteredData
+		});
 	},
 
 	render: function() {
@@ -108,7 +114,7 @@ var AvailableUsersComponent = React.createClass({
 									<a href="#" style={{ display: "block", padding: "8px 10px" }} onClick={this._selectAllMembers}>{ frases.CHAT_CHANNEL.SELECT_ALL }</a>
 								</li>
 								{
-									this.state.data.map(function(item, index) {
+									this.state.filteredData.map(function(item, index) {
 										return (
 											<li key={item.ext} style={{ padding: "8px 10px", color: "#333", cursor: "pointer", background: (item.selected ? '#c2f0ff' : 'none') }} onClick={this._selectMember.bind(this, index)}>
 												<span>{ item.ext }</span>

@@ -6,8 +6,8 @@ var FacebookTrunkComponent = React.createClass({
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
 		// onTokenReceived: React.PropTypes.func,
-		addSteps: React.PropTypes.func,
-		nextStep: React.PropTypes.func,
+		// addSteps: React.PropTypes.func,
+		// nextStep: React.PropTypes.func,
 		isNew: React.PropTypes.bool
 	},
 
@@ -33,28 +33,28 @@ var FacebookTrunkComponent = React.createClass({
 		console.log('FacebookTrunkComponent props: ', this.props);
 		var frases = this.props.frases;
 
-		if(this.props.isNew && this.props.addSteps) {
+		// if(this.props.isNew && this.props.addSteps) {
 
-			console.log('FacebookTrunkComponent componentDidMount: ', this.state.pages);
+		// 	console.log('FacebookTrunkComponent componentDidMount: ', this.state.pages);
 
-			this.props.addSteps([{
-				element: '.fb-button',
-				popover: {
-					title: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["1"].TITLE,
-					showButtons: false,
-					description: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["1"].DESC,
-					position: 'bottom'
-				}
-			}, {
-				element: '#ctc-select-1',
-				popover: {
-					title: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["2"].TITLE,
-					description: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["2"].DESC,
-					position: 'top'
-				}
-			}]);
+		// 	this.props.addSteps([{
+		// 		element: '.fb-button',
+		// 		popover: {
+		// 			title: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["1"].TITLE,
+		// 			showButtons: false,
+		// 			description: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["1"].DESC,
+		// 			position: 'bottom'
+		// 		}
+		// 	}, {
+		// 		element: '#ctc-select-1',
+		// 		popover: {
+		// 			title: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["2"].TITLE,
+		// 			description: frases.GET_STARTED.CONNECT_MESSENGER.STEPS["2"].DESC,
+		// 			position: 'top'
+		// 		}
+		// 	}]);
 
-		}
+		// }
 
 		this._initService();
 

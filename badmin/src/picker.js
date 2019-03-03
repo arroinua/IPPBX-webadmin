@@ -1,6 +1,6 @@
 function Picker(pickrElement, defaults){
 
-    var pickr = document.getElementById(pickrElement),
+    var pickr = (typeof pickrElement === 'string' ? document.getElementById(pickrElement) : pickrElement),
         frases = PbxObject.frases,
         rangeEl,
         button,
@@ -128,7 +128,8 @@ function Picker(pickrElement, defaults){
         else if(option === 'custom'){
             this._setCustomRange();
         }
-        this._setButtonText();
+        
+        if(pickrElement) this._setButtonText();
     };
 
     this._rangeToString = function(){

@@ -3,7 +3,9 @@ var CustomersComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		params: React.PropTypes.array,
-		openCustomerInfo: React.PropTypes.func
+		importServices: React.PropTypes.array,
+		openCustomerInfo: React.PropTypes.func,
+		import: React.PropTypes.func
 	},
 
 	componentWillMount: function() {
@@ -34,7 +36,11 @@ var CustomersComponent = React.createClass({
 				<div className="row">
 					<div className="col-xs-12">
 						<FilterInputComponent frases={frases} items={params} onChange={this._onFilter} />
-						
+						{
+							(this.props.importServices && this.props.importServices.length) ? (
+			    				<ImportUsersButtonsComponent frases={frases} services={this.props.importServices} onClick={this.props.import} />
+			    			) : null
+						}
 					</div>
 				</div>
 				<div className="table-responsive">

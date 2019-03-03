@@ -10,8 +10,10 @@ var ModalComponent = React.createClass({
 		cancelText: React.PropTypes.string,
 		closeOnSubmit: React.PropTypes.bool,
 		submit: React.PropTypes.func,
+		disabled: React.PropTypes.bool,
 		onClose: React.PropTypes.func,
 		body: React.PropTypes.element,
+		footer: React.PropTypes.element,
 		children: React.PropTypes.array,
 		cont: React.PropTypes.bool,
 		fetching: React.PropTypes.bool
@@ -98,12 +100,17 @@ var ModalComponent = React.createClass({
 						<div className="modal-body">
 							{this.props.body || this.props.children}
 						</div>
-						{ this.props.submit ? 
-						<div className="modal-footer">
-							<button className={"btn btn-"+(this.props.type || "primary")} onClick={this._submitModal} disabled={this.props.fetching ? true : false}>{ this.props.fetching ? <span className="fa fa-spinner fa-spin fa-fw"></span> : this.props.submitText}</button>
-							<button className="btn btn-link" data-dismiss="modal">{this.props.cancelText}</button>
-						</div>
-						: null }
+						{ 	this.props.footer ? (
+								this.props.footer
+							) : (
+								this.props.submit  ? (
+									<div className="modal-footer">
+										<button className={"btn btn-"+(this.props.type || "primary")} onClick={this._submitModal} disabled={(this.props.fetching || this.props.disabled) ? true : false}>{ this.props.fetching ? <span className="fa fa-spinner fa-spin fa-fw"></span> : this.props.submitText}</button>
+										<button className="btn btn-link" data-dismiss="modal">{this.props.cancelText}</button>
+									</div>
+								) : null
+							)
+						}
 					</div>
 				</div>
 			</div>

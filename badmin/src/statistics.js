@@ -228,10 +228,23 @@ function Statistics(){
 
     this._setCharts = function(data) {
 
-        data = data.map(function(item) {
-            item['s'] = item.i - item.m;
-            return item;
-        });
+        var sameDay = moment(picker.date.start).isSame(picker.date.end, 'day');
+        var dayDiff = moment(picker.date.end).diff(picker.date.start, 'day');
+        var daily = picker.interval === 86400*1000;
+        var tickFormat = "%d-%m-%Y";
+        var showXAxis = isSmallScreen() ? false : ((dayDiff >= 7 && !daily) ? false : true);
+
+        console.log('_setCharts:', picker, daily, sameDay, dayDiff);
+
+        if(!daily) {
+            if(sameDay) tickFormat = "%H:%M";
+            else tickFormat = "%d-%m-%Y %H:%M";
+        }
+
+        // data = data.map(function(item) {
+        //     item['s'] = item.i - item.m;
+        //     return item;
+        // });
 
         console.log('statistics charts data: ', data);
 
@@ -246,10 +259,15 @@ function Statistics(){
             },
             axis: {
                 x: {
+                    show: showXAxis,
                     type: 'timeseries',
                     tick: {
-                        format: '%d-%m-%Y'
+                        culling: { max: 7 },
+                        format: tickFormat
                     }
+                },
+                y: {
+                    min: 0
                 }
             }
         });
@@ -260,7 +278,7 @@ function Statistics(){
                 x: 'intervals',
                 columns: [
                     self.getColumns(data, 'intervals', ['t']),
-                    self.getColumns(data, PbxObject.frases.SETTINGS.INCALLS, ['s']),
+                    self.getColumns(data, PbxObject.frases.SETTINGS.INCALLS, ['i']),
                     self.getColumns(data, PbxObject.frases.STATISTICS.LOSTCALLS, ['m']),
                 ],
                 type: 'bar',
@@ -268,10 +286,15 @@ function Statistics(){
             },
             axis: {
                 x: {
+                    show: showXAxis,
                     type: 'timeseries',
                     tick: {
-                        format: '%d-%m-%Y'
+                        culling: { max: 7 },
+                        format: tickFormat
                     }
+                },
+                y: {
+                    min: 0
                 }
             }
         });
@@ -287,10 +310,15 @@ function Statistics(){
             },
             axis: {
                 x: {
+                    show: showXAxis,
                     type: 'timeseries',
                     tick: {
-                        format: '%d-%m-%Y'
+                        culling: { max: 7 },
+                        format: tickFormat
                     }
+                },
+                y: {
+                    min: 0
                 }
             }
         });

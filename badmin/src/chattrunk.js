@@ -1,32 +1,18 @@
 function load_chattrunk(params) {
 
-	console.log('load_chat_trunk: ', PbxObject.kind, params);
-	console.log('window parent: ', window.opener);
-	console.log('window onTokenReceived: ', window.onTokenReceived);
 	var frases = PbxObject.frases;
-	var driver = new Driver({
-		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-	});
-	var driverSteps = [];
+	// var driver = new Driver({
+	// 	nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+	// 	prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+	// 	doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+	// 	closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	// });
+	// var driverSteps = [];
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
 	var services = [
 	{
-	// 	id: 'FacebookMessenger',
-	// 	name: "Instagram",
-	// 	icon: '/badmin/images/channels/instagram.png',
-	// 	params: {
-	// 		// appId: '507766126349295',
-	// 		appId: '1920629758202993',
-	// 		// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
-	// 		redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
-	// 	},
-	// 	component: InstagramTrunkComponent
-	// }, {
 		id: 'FacebookMessenger',
 		name: "Facebook & Messenger",
 		icon: '/badmin/images/channels/facebook.png',
@@ -37,6 +23,17 @@ function load_chattrunk(params) {
 			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
+	// }, {
+	// 	id: 'Instagram',
+	// 	name: "Instagram",
+	// 	icon: '/badmin/images/channels/instagram.png',
+	// 	params: {
+	// 		// appId: '507766126349295',
+	// 		appId: '1920629758202993',
+	// 		// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
+	// 		redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
+	// 	},
+	// 	component: InstagramTrunkComponent
 	}, {
 		id: 'Email',
 		name: "Email",
@@ -100,6 +97,11 @@ function load_chattrunk(params) {
 		name: 'Webchat',
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebchatTrunkComponent
+	// }, {
+	// 	id: 'WebCall',
+	// 	name: 'Webcall',
+	// 	icon: '/badmin/images/channels/webchat.png',
+	// 	component: WebcallTrunkComponent
 	}
 	// ,{
 	// 	id: 'Twitter',
@@ -156,7 +158,7 @@ function load_chattrunk(params) {
 
 		console.log('setObject: ', params);
 		
-		driver.reset();
+		// driver.reset();
 
 	    show_loading_panel();
 
@@ -267,36 +269,36 @@ function load_chattrunk(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
 	}
 
-	function addSteps(stepParams) {
-		driverSteps = driverSteps.concat(stepParams);
-	}
+	// function addSteps(stepParams) {
+	// 	driverSteps = driverSteps.concat(stepParams);
+	// }
 
-	function nextStep(stepParams) {
-		driver.moveNext();
-	}
+	// function nextStep(stepParams) {
+	// 	driver.moveNext();
+	// }
 
-	function highlightStep(stepParams) {
-		driver.highlight(stepParams);
-	}
+	// function highlightStep(stepParams) {
+	// 	driver.highlight(stepParams);
+	// }
 
-	function initSteps() {
-		if(!PbxObject.tourStarted) return;
+	// function initSteps() {
+	// 	if(!PbxObject.tourStarted) return;
 
-		driverSteps.push({
-			element: '.object-name-cont .btn-success',
-			popover: {
-				title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
-				description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
-				position: 'bottom'
-			}
-		});
+	// 	driverSteps.push({
+	// 		element: '.object-name-cont .btn-success',
+	// 		popover: {
+	// 			title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
+	// 			description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
+	// 			position: 'bottom'
+	// 		}
+	// 	});
 
-		setTimeout(function() {
-			console.log('initSteps: ', driverSteps);
-			driver.defineSteps(driverSteps);
-			driver.start();
-		}, 500);
-	}
+	// 	setTimeout(function() {
+	// 		console.log('initSteps: ', driverSteps);
+	// 		driver.defineSteps(driverSteps);
+	// 		driver.start();
+	// 	}, 500);
+	// }
 
 	// function onTokenReceived(token) {
 	// 	PbxObject.userAccessToken = token;
@@ -316,10 +318,10 @@ function load_chattrunk(params) {
 		    confirmRemoveObject: confirmRemoveObject,
 		    removeObject: removeObject,
 		    confirmPayment: confirmPayment,
-		    initSteps: initSteps,
-		    addSteps: addSteps,
-		    nextStep: nextStep,
-		    highlightStep: highlightStep
+		    // initSteps: initSteps,
+		    // addSteps: addSteps,
+		    // nextStep: nextStep,
+		    // highlightStep: highlightStep
 		    // onTokenReceived: onTokenReceived
 		};
 

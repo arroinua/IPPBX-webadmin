@@ -67,8 +67,11 @@ function logout() {
     };
     xhr.send();
 
+    window.localStorage.remove('ringo_tid');
     setLastQuery('');
 }
+
+
 
 function createWebsocket(){
 
@@ -199,17 +202,23 @@ function json_rpc_async(method, params, handler, id){
         xhr.abort();
         notify_about('info' , PbxObject.frases.TIMEOUT);
         show_content();
-    }, 60*1000);
+    }, 60*5*1000);
 
     xhr.onreadystatechange = function() {
+
         if (xhr.readyState==4){
             clearTimeout(requestTimer);
             if(xhr.status != 200) {
                 console.error(method, xhr.responseText);
 
-                if(xhr.status === 403 || xhr.status === 302) {
-                    
-                    return window.location = '/';
+                if(xhr.status === 302) {
+                    return window.location = xhr.getResponseHeader('Location');
+                }
+
+                if(xhr.status === 403) {
+                    return logout();
+                    // setLastQuery('');
+                    // return window.location = '/';
                 }
                 if(xhr.responseText) parsedJSON = JSON.parse(xhr.responseText);
 
@@ -223,7 +232,13 @@ function json_rpc_async(method, params, handler, id){
             } else {
                 if(xhr.responseText != null) {
                     if(!xhr.responseText) return handler();
-                    parsedJSON = JSON.parse(xhr.responseText);
+
+                    try {
+                        parsedJSON = JSON.parse(xhr.responseText);
+                    } catch(err) {
+                        console.log('response in not JSON');
+                        if(isLoginPage(xhr.responseText)) return logout();
+                    }
 
                     if(parsedJSON.error){
                         if(handler) handler(null, parsedJSON.error);
@@ -263,34 +278,72 @@ function request(method, url, data, options, callback){
         xhr.abort();
     }, 60000);
     
-    xhr.onload = function(e) {
-        
-        clearTimeout(requestTimer);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState==4){
+            clearTimeout(requestTimer);
 
-        var redirect = e.target.getAllResponseHeaders();
-        var status = e.target.status;
-        var response = e.target.responseText;
-        if(response) {
-            try {
-                response = JSON.parse(response);
-            } catch(err) {
-                console.log('response in not JSON');
+            response = xhr.response;
+
+            if(response) {
+                try {
+                    response = JSON.parse(response);
+                } catch(err) {
+                    console.log('response in not JSON');
+                    if(isLoginPage(response)) return logout();
+                }
+            }
+
+            if(xhr.status === 200) {
+                if(callback) callback(null, response);
+
+            } else if(xhr.status === 302) {
+                return window.location = xhr.getResponseHeader('Location');
+
+            } else if(xhr.status === 403) {
+                return logout();
+            
+            } else if(xhr.status >= 500) {
+                if(callback) return callback('The service is under maintenance. Please, try again later.');
+
+            } else {
+                if(callback) callback(response ? response.error : null);
+
             }
         }
-            
-        if(status === 403) {
-            logout();
-        } else if(status === 302) {
-            return window.location = '/';
-        } else if(status === 200) {
-            if(callback) callback(null, response);
-        } else if(status >= 500) {
-            if(callback) return callback('The service is under maintenance. Please, try again later.');
-        } else {
-            if(callback) callback(response.error);
-        }
+    }
 
-    };
+    // xhr.onload = function(e) {
+        
+    //     clearTimeout(requestTimer);
+
+    //     // var redirect = e.target.getAllResponseHeaders();
+    //     var status = e.target.status;
+    //     var response = e.target.responseText;
+
+    //     console.log('request response: ', method, url, response, status);
+
+    //     if(response) {
+            
+    //     }
+
+    //     if(status === 200) {
+    //         if(callback) callback(null, response);
+
+    //     } else if(status === 302) {
+    //         return window.location = xhr.getResponseHeader('Location');
+
+    //     } else if(status === 403) {
+    //         return logout();
+        
+    //     } else if(status >= 500) {
+    //         if(callback) return callback('The service is under maintenance. Please, try again later.');
+
+    //     } else {
+    //         if(callback) callback(response.error);
+
+    //     }
+
+    // };
 
     if(data) {
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -300,6 +353,10 @@ function request(method, url, data, options, callback){
         xhr.send();
     }
     
+}
+
+function isLoginPage(str) {
+     return str.indexOf('auth-form') !== -1;
 }
 
 function getTranslations(language, callback){
@@ -461,6 +518,7 @@ function setupPage() {
                         console.error(err);
                     } else {
                         profile = response.result;
+                        loadFSTracking(profile);
                     }
 
                     console.log('getProfile: ', err, response);
@@ -496,6 +554,17 @@ function setupPage() {
 
         });
 
+    });
+}
+
+function loadFSTracking(profile) {
+    // This is an example script - don't forget to change it!
+    FS.identify(profile._id, {
+      displayName: profile._id,
+      // email: profile.email,
+      // TODO: Add your own custom user variables here, details at
+      // http://help.fullstory.com/develop-js/setuservars
+      reviewsWritten_int: 14,
     });
 }
 
@@ -1930,6 +1999,59 @@ function customize_upload(id, resultFilename){
     };
 }
 
+function parseAsCsv(str, delimiter) {
+    var rows = str.split(/\r\n|\n/);
+    var result = new Array(rows.length);
+    var columns = rows[0].split(delimiter);
+    var i = 0, j = 0;
+
+    function splitStr(str, delimiter, numParts) {
+        var result = [];
+        var quote = false;
+        var lastCursor = 0;
+        // var parts = numParts || [];
+
+        // if(parts.length === numParts) return parts;
+
+        for(var i=0; i<str.length; i++) {
+            if(str[i] === '"') quote = !quote;
+            
+            if(i === str.length-1 || (str[i] === delimiter && (!quote || (str[i-1] === '"' || str[i+1] === '"')))) {
+                result.push(str.substring(lastCursor, i));
+                lastCursor = i+1;
+            }
+        }
+
+        if(result.length < numParts) {
+            result.length = numParts;
+        }
+
+        return result;
+    }
+
+    while(j<rows.length) {
+        result[j] = splitStr(rows[j], delimiter, columns);
+        j++;
+    }
+    
+    return result;
+}
+
+function readFile(file, params, callback) {
+    var cb = typeof params === 'function' ? params : callback;
+    var reader = new FileReader();
+    // reader.readAsText(file, 'UTF-8');
+    reader.readAsText(file, params.encoding || 'UTF-8');
+    reader.onload = function(e) {
+        cb(null, e.target.result);
+    }
+
+    reader.onerror = function(e) {
+        cb(e);
+    }
+
+}
+
 function upload(inputid, urlString){
     var upload;
     if(isElement(inputid))
@@ -2281,17 +2403,39 @@ function objFromString(obj, i){
 }
 
 function formatTimeString(time, format){
-    var h, m, s, newtime;
+    var h, m, s, desc = {}, newtime = [];
     h = Math.floor(time / 3600);
     time = time - h * 3600;
     m = Math.floor(time / 60);
-    newtime = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
-    if(format == 'hh:mm:ss'){
-        s = time - m * 60;
-        newtime += ':' + (s < 10 ? '0'+s : s);
+    s = Math.floor(time - m * 60);
+
+    switch (format) {
+        case 'hh:mm':
+            newtime = newtime.concat([h, m]);
+        case 'mm:ss':
+            m = h * 60 + m;
+            newtime = newtime.concat([m, s]);
+            break;
+        default:
+            newtime = newtime.concat([h, m, s]);
     }
-    return newtime;
+
+    return newtime.map(function(i) { if(i < 10) i = '0'+i; return i }).join(':');
+
 }
+
+// function formatTimeString(time, format){
+//     var h, m, s, newtime;
+//     h = Math.floor(time / 3600);
+//     time = time - h * 3600;
+//     m = Math.floor(time / 60);
+//     newtime = (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+//     if(format == 'hh:mm:ss'){
+//         s = time - m * 60;
+//         newtime += ':' + (s < 10 ? '0'+s : s);
+//     }
+//     return newtime;
+// }
 
 function formatDateString(date){
     var p = (parseInt(date)) !== 'NaN' ? parseInt(date) : date;
@@ -2364,14 +2508,30 @@ function getOffset( el ) {
     return el.getBoundingClientRect();
 }
 
-function extend( a, b ) {
-    for( var key in b ) {
-        if( b.hasOwnProperty( key ) ) {
-            a[key] = b[key];
+function extend( a, bs ) {
+    if(arguments.length <= 1) return a;
+    var i, b, key;
+    for(i=1; i < arguments.length; i++) {
+        b = arguments[i];
+        for( key in b ) {
+            if( b.hasOwnProperty( key ) ) {
+                a[key] = b[key];
+            }
         }
     }
+    
     return a;
+
 }
+
+// function extend( a, b ) {
+//     for( var key in b ) {
+//         if( b.hasOwnProperty( key ) ) {
+//             a[key] = b[key];
+//         }
+//     }
+//     return a;
+// }
 
 function deepExtend(destination, source) {
     for (var property in source) {
@@ -2479,7 +2639,7 @@ function getCodecsString(elementOrId){
 }
 
 function getFriendlyCodeName(code){
-    return PbxObject.frases.CODES[code.toString()];
+    return PbxObject.frases.CODES[code.toString()] || code;
 }
 
 function fill_select_items(selectId, items){
@@ -2575,10 +2735,11 @@ function switchVisibility(selector, isVisible){
     else $(selector).hide();
 }
 
-function get_protocol_opts(protocol, params){
+function get_protocol_opts(protocol, params, type){
     
     var proto = protocol == 'h323' ? 'h323' : 'sip';
-    var options = params.parameters;
+    // var options = params.parameters;
+    var options = params;
     var opts = Object.keys(PbxObject.protocolOpts).length !== 0 ? PbxObject.protocolOpts : options;
     var sipModes = [
         {mode: 'sip info', sel: 'sip info' === opts.dtmfmode},
@@ -2593,7 +2754,7 @@ function get_protocol_opts(protocol, params){
     ];
     var data = {
         opts: opts,
-        internal: params.type === 'internal',
+        internal: (type === 'internal'),
         frases: PbxObject.frases
     };
     data.opts.dtmfmodes = proto == 'h323' ? h323Modes : sipModes;
@@ -2693,22 +2854,41 @@ function updateConference(data){
 function getInfoFromState(state, group){
     var status, className;
 
-    if(state == 1) {
-        className = 'success';
-    } else if(state == 8) {
-        className = 'connected';
-    } else if(state == 2 || state == 5) {
+    if(state == 1) { // Idle
+        // className = 'success';
+        className = 'info';
+    } else if(state == 8) { // Connected
+        // className = 'connected';
+        className = 'danger';
+    } else if(state == 2 || state == 5) { // Away
         className = 'warning';
-    } else if(state == 0 || (state == -1 && group)) {
+    } else if(state == 0 || (state == -1 && group)) { // Offline
         // state = '';
         className = 'default';
-    } else if(state == 3) {
+    } else if(state == 3) { // DND
         className = 'danger';
-    } else if(state == 6 || state == 7) {
-        className = 'info';        
-    } else {
+    } else if(state == 6 || state == 7) { // Calling
+        className = 'danger';        
+    } else { // 
         className = 'active';
     }
+
+    // if(state == 1) {
+    //     className = 'success';
+    // } else if(state == 8) {
+    //     className = 'connected';
+    // } else if(state == 2 || state == 5) {
+    //     className = 'warning';
+    // } else if(state == 0 || (state == -1 && group)) {
+    //     // state = '';
+    //     className = 'default';
+    // } else if(state == 3) {
+    //     className = 'danger';
+    // } else if(state == 6 || state == 7) {
+    //     className = 'info';        
+    // } else {
+    //     className = 'active';
+    // }
     status = PbxObject.frases.STATES[state] || '';
 
     return {

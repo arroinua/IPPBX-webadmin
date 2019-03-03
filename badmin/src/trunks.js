@@ -193,7 +193,7 @@ function load_trunk(result){
         append_transform(null, 'transforms4');
     }
     
-    switch_presentation((result.type ? result.type : 'external'), null, 'pl-trunk-kind');
+    switch_presentation(((result.type && result.type !== 'undefined') ? result.type : 'external'), null, 'pl-trunk-kind');
     show_content();
     set_page();
 
@@ -218,7 +218,7 @@ function getProtocolOptions(params) {
 
     console.log('getProtocolOptions: ', params, type);
 
-    get_protocol_opts(protocols.value, { parameters: params, type: type });
+    get_protocol_opts(protocols.value, params, type);
 }
 
 function changeTrunkRegState(up) {
@@ -226,70 +226,70 @@ function changeTrunkRegState(up) {
     up ? enabled.classList.remove('unregistered') : enabled.classList.add('unregistered');
 }
 
-function getCurrIncRoutes(transform) {
-    return (transform.number === '.' && transform.strip && transform.prefix);
-}
+// function getCurrIncRoutes(transform) {
+//     return (transform.number === '.' && transform.strip && transform.prefix);
+// }
 
-function getRouteOptions(cb) {
-    if(PbxObject.extensions.length) {
-        cb(PbxObject.extensions);
-    } else {
-        getExtensions(function(result) {
-            cb(result);
-        });
-    }
-}
+// function getRouteOptions(cb) {
+//     if(PbxObject.extensions.length) {
+//         cb(PbxObject.extensions);
+//     } else {
+//         getExtensions(function(result) {
+//             cb(result);
+//         });
+//     }
+// }
 
-function renderTrunkIncRoute(params) {
+// function renderTrunkIncRoute(params) {
 
-    var routes = null;
+//     var routes = null;
 
-    getRouteOptions(function(options) {
-        if(params.route) {
-            routes = options.filter(function(item) {
-                return (item.ext === params.route.prefix);
-            })[0];
-        }
+//     getRouteOptions(function(options) {
+//         if(params.route) {
+//             routes = options.filter(function(item) {
+//                 return (item.ext === params.route.prefix);
+//             })[0];
+//         }
 
-        console.log('renderTrunkIncRoute: ', routes);
+//         console.log('renderTrunkIncRoute: ', routes);
 
-        // Render incoming route parameter
-        ReactDOM.render(
-            TrunkIncRoute({
-                // options: options,
-                // routes: routes,
-                routes: result.inboundbnumbertransforms,
-                frases: params.frases,
-                onChange: setTrunkIncRoute
-            }),
-            document.getElementById('trunk-inc-route')
-        );
-    });
+//         // Render incoming route parameter
+//         ReactDOM.render(
+//             TrunkIncRoute({
+//                 // options: options,
+//                 // routes: routes,
+//                 routes: result.inboundbnumbertransforms,
+//                 frases: params.frases,
+//                 onChange: setTrunkIncRoute
+//             }),
+//             document.getElementById('trunk-inc-route')
+//         );
+//     });
     
-    clearTempParams();
+//     clearTempParams();
     
-}
+// }
 
-function renderTrunkOutRoute() {
-    // Render incoming route parameter
-    ReactDOM.render(
-        TrunkOutRoutes({
-            frases: PbxObject.frases,
-            onChange: setTrunkOutRoute
-        }),
-        document.getElementById('trunk-out-routes')
-    );
-}
+// function renderTrunkOutRoute() {
+//     // Render incoming route parameter
+//     ReactDOM.render(
+//         TrunkOutRoutes({
+//             frases: PbxObject.frases,
+//             onChange: setTrunkOutRoute
+//         }),
+//         document.getElementById('trunk-out-routes')
+//     );
+// }
 
-function setTrunkIncRoute(route) {
-    console.log('setTrunkIncRoute: ', route);
-    updateTempParams(route);
-}
+// function setTrunkIncRoute(route) {
+//     console.log('setTrunkIncRoute: ', route);
+//     updateTempParams(route);
+// }
 
-function setTrunkOutRoute(route) {
-    console.log('setTrunkOutRoute: ', route);
+// function setTrunkOutRoute(route) {
+//     console.log('setTrunkOutRoute: ', route);
     
-}
+// }
 
 // function setTrunkState(oid, state, callback) {
 //     json_rpc_async('setObjectState', {
@@ -399,25 +399,25 @@ function set_trunk(){
     outATrasf = transformsToArray('transforms3');
     outBTrasf = transformsToArray('transforms4');
 
-    if(getTempParams().ext) {
-        incRoute = incBTrasf.filter(getCurrIncRoutes)[0];
+    // if(getTempParams().ext) {
+    //     incRoute = incBTrasf.filter(getCurrIncRoutes)[0];
 
-        if(!incRoute) {
-            incBTrasf.push({ number: '.', strip: true, prefix: getTempParams().ext});
-            // append_transform(null, 'transforms1', { number: '.', strip: true, prefix: getTempParams().ext });
-        } else {
-            incBTrasf.map(function(item) {
-                if(item == incRoute) 
-                    return item.prefix = getTempParams().ext;
-                else 
-                    return item;
-            });
-        }
+    //     if(!incRoute) {
+    //         incBTrasf.push({ number: '.', strip: true, prefix: getTempParams().ext});
+    //         // append_transform(null, 'transforms1', { number: '.', strip: true, prefix: getTempParams().ext });
+    //     } else {
+    //         incBTrasf.map(function(item) {
+    //             if(item == incRoute) 
+    //                 return item.prefix = getTempParams().ext;
+    //             else 
+    //                 return item;
+    //         });
+    //     }
 
-        clearTable(document.querySelector('#transforms2 tbody'));
-        append_transforms('transforms2', incBTrasf);
+    //     clearTable(document.querySelector('#transforms2 tbody'));
+    //     append_transforms('transforms2', incBTrasf);
 
-    }
+    // }
 
     jprms += '},';
     jprms += '"inboundanumbertransforms":';

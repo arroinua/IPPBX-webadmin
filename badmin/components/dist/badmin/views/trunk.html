@@ -1,0 +1,375 @@
+<div id="el-loaded-content">
+    <div class="row">
+        <div class="col-xs-12 col-custom">
+            <div class="panel object-name-cont">
+                <div class="panel-body">
+                    <div class="input-group object-name">
+                        <input type="text" id="objname" class="form-control" placeholder="{{TRUNKSNAME}}" autofocus>
+                        <span class="input-group-addon">
+                            <div class="switch switch-md">
+                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox">
+                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" id="el-set-object" class="btn btn-success"><i class="fa fa-checked fa-fw"></i> {{SAVE}}</button>
+                    <button type="button" id="el-delete-object" class="btn btn-link btn-danger pull-right"><i class="fa fa-trash fa-fw"></i> {{DELETE}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="prefixes">
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">{{SETTINGS.INCALLS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" autocomplete="off">
+                        <!-- <div class="form-group" autocomplete="off">
+                            <label for="t-inc-route" class="col-lg-4 control-label">{{TRUNK.INC_ROUTE}}</label>
+                            <div class="col-lg-8" id="trunk-inc-route"></div>
+                        </div>
+                        <hr> -->
+                        <div class="form-group">
+                            <div class="col-lg-offset-4 col-lg-8">
+                              <div class="checkbox">
+                                <label>
+                                  <input type="checkbox" id="inmode" checked> {{ALLOWINCCALLS}}
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">
+                                {{SETTINGS.MAXCONN}}
+                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__MAX_CONN}}"></a>
+                            </label>
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" id="maxinbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <p class="text-center">
+                        <a data-toggle="collapse" href="#trunkIncAdvanceSetts" aria-expanded="false" aria-controls="collapseAdvancedSettings">
+                          {{TRUNK.ADVANCED_SETTINGS_BTN}}
+                        </a>
+                    </p>
+                    <div class="collapse" id="trunkIncAdvanceSetts">
+                        <div class="table-responsive">
+                            <table class="table" id="transforms1">
+                                <thead>
+                                    <tr><th colspan="4">{{SETTINGS.CALLINGTRANSF}}</th></tr>
+                                    <tr>
+                                        <th>{{NUMBER}}</th>
+                                        <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                        <th>{{PREFIX}}</th>
+                                        <th>
+                                            <a href="#" class="add-clr transrow">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table" id="transforms2">
+                                <thead>
+                                    <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
+                                    <tr>
+                                        <th>{{NUMBER}}</th>
+                                        <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                        <th>{{PREFIX}}</th>
+                                        <th>
+                                            <a href="#" class="add-clr transrow">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">{{SETTINGS.OUTCALLS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" autocomplete="off">
+                        <!-- <div class="form-group">
+                            <label for="t-out-route" class="col-lg-4 control-label">{{TRUNK.OUT_ROUTE}}</label>
+                            <div class="col-lg-8" id="trunk-out-routes"></div>
+                        </div>
+                        <hr> -->
+                        <div class="form-group">
+                            <div class="col-lg-offset-4 col-lg-8">
+                              <div class="checkbox">
+                                <label>
+                                  <input type="checkbox" id="outmode" checked> {{ALLOWOUTCALLS}}
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">    
+                            <label class="col-lg-4 control-label">
+                                {{SETTINGS.MAXCONN}}
+                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__MAX_CONN}}"></a>
+                            </label>
+                            <div class="col-lg-4">
+                                <input type="text" class="form-control" id="maxoutbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <p class="text-center">
+                        <a data-toggle="collapse" href="#trunkOutAdvanceSetts" aria-expanded="false" aria-controls="collapseAdvancedSettings">
+                          {{TRUNK.ADVANCED_SETTINGS_BTN}}
+                        </a>
+                    </p>
+                    <div class="collapse" id="trunkOutAdvanceSetts">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="table-responsive">
+                                    <table class="table" id="transforms3">
+                                        <thead>
+                                            <tr><th colspan="4">{{SETTINGS.CALLINGTRANSF}}</th></tr>
+                                            <tr>
+                                                <th>{{NUMBER}}</th>
+                                                <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                                <th>{{PREFIX}}</th>
+                                                <th>
+                                                    <a href="#" class="add-clr transrow">
+                                                        <i class="fa fa-plus"></i>
+                                                    </a>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr>
+                                <div class="table-responsive">
+                                    <table class="table" id="transforms4">
+                                        <thead>
+                                            <tr><th colspan="4">{{SETTINGS.CALLEDTRANSF}}</th></tr>
+                                            <tr>
+                                                <th>{{NUMBER}}</th>
+                                                <th><i class="fa fa-cut fa-rotate-90"></i></th>
+                                                <th>{{PREFIX}}</th>
+                                                <th>
+                                                    <a href="#" class="add-clr transrow">
+                                                        <i class="fa fa-plus"></i>
+                                                    </a>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="connection">
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">{{REGSETTINGS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" autocomplete="off">
+                        <div class="form-group">
+                            <label class="col-md-5 control-label">
+                                {{PROTOCOL}}
+                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{GRP__PROTOCOL}}"></a>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <select id="protocols" class="form-control"></select>
+                                    <span class="input-group-btn">
+                                        <button type="button" id="get-proto-opts" class="btn btn-default btn-md">{{OPTIONS}}</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-5 control-label">
+                                {{TRUNK_TYPE}}
+                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK_TYPE_TITLE}}"></a>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default active" onclick="switch_presentation('external', null, 'pl-trunk-kind')">
+                                        <input type="radio" name="trunkType" autocomplete="off" value="external" checked> {{EXTERNAL}}
+                                    </label>
+                                    <label class="btn btn-default" onclick="switch_presentation('internal', null, 'pl-trunk-kind')">
+                                        <input type="radio" name="trunkType" autocomplete="off" value="internal"> {{INTERNAL}}
+                                    </label>
+                                </div>
+                            </div>
+                            <hr class="col-xs-12">
+                        </div>
+                        <div class="pl-trunk-kind pl-internal">
+                            <div class="form-group">    
+                                <label class="col-md-5 control-label">
+                                    {{NAME}}
+                                    <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__USERNAME}}"></a>
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="int-trunk-user" placeholder="{{NAME}}" readonly="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">
+                                    {{PASSWORD}}
+                                    <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__PWD}}"></a>
+                                </label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}" autocomplete="off">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                <i class="fa fa-eye" data-toggle="tooltip" title="{{frases.REVEAL_PWD}}"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default" onclick="generatePassword(this)">
+                                                <i class="fa fa-refresh" data-toggle="tooltip" title="{{frases.GENERATE_PWD}}"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pl-trunk-kind pl-external">
+                            <div class="form-group">    
+                                <label class="col-md-5 control-label">
+                                    {{DOMAIN}}
+                                    <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__DOMAIN}}"></a>
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="domain" placeholder="{{DOMAIN}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-offset-5 col-md-4">
+                                  <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="register"> {{REGISTRATION}}
+                                    </label>
+                                  </div>
+                                </div>
+                            </div>
+                            <div id="reg-setts">
+                                <div class="form-group">    
+                                    <label class="col-md-5 control-label">
+                                        {{NAME}}
+                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__USERNAME}}"></a>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" id="user" placeholder="{{NAME}}" class="reg-setts-el" autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-5 control-label">
+                                        {{AUTHNAME}}
+                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTHNAME}}"></a>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}" class="reg-setts-el" autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="form-group">    
+                                    <label class="col-md-5 control-label">
+                                        {{PASSWORD}}
+                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__PWD}}"></a>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}" class="reg-setts-el" autocomplete="off">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                    <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-5 control-label">
+                                        {{REGEXPIRES}}
+                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTH_PERIOD}}"></a>
+                                    </label>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" id="regexpires" placeholder="{REGEXPIRES}" class="reg-setts-el">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="proxy-settings">
+                                <div class="form-group">
+                                    <div class="col-md-offset-5 col-md-4">
+                                      <div class="checkbox">
+                                        <label>
+                                          <input type="checkbox" id="proxy"> {{PROXY}}
+                                        </label>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div id="proxy-setts">
+                                    <div class="form-group">    
+                                        <label class="col-md-5 control-label">
+                                            {{PROXYADDRESS}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__DOMAIN}}"></a>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" name="proxy" id="paddr" placeholder="{{PROXYADDRESS}}" disabled="disabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">    
+                                        <label class="col-md-5 control-label">
+                                            {{AUTHNAME}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTHNAME}}"></a>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" name="proxy" id="pauth" placeholder="{{AUTHNAME}}" disabled="disabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">    
+                                        <label class="col-md-5 control-label">
+                                            {{PASSWORD}}
+                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__PWD}}"></a>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" autocomplete="off" disabled>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                        <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

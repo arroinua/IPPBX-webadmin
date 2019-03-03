@@ -8,7 +8,7 @@ function Ldap(options){
     console.log('new LDAP: ', options);
 
     var prevValue, newValue, userIndex, obj = {};
-    // var loc = window.location;
+    var loc = window.location;
     // var lastURL = window.location.href;
     var serviceParams = { id: options.service_id, type: options.service_type };
     // var newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
@@ -25,46 +25,27 @@ function Ldap(options){
     };
 
     function getUsers(authData, cb){
+        console.log('getUsers: ', authData);
         json_rpc_async('getDirectoryUsers', authData, function(result) {
             console.log('getDirectoryUsers result: ', result);
             if(cb) cb(result);
         });
     }
 
-    function getExternalUsers(cb){
-        // var params = {
-            // url: '/services/'+options.service_id+'/Users'
-            // method: 'GET'
-        // };
-        // if(authData) {
-        //     params.method = 'POST';
-        //     // params.data = {username: authData.username, password: authData.password};
-        //     params.data = 'username='+authData.username+'&password='+authData.password;
-        // }
-        
-        // request(params.method, params.url, params.data, null, function(err, data) {
-        //     if(err) {
-        //         console.log('getExternalUsers error: ', err);
-        //         if(err && err.code === 401) {
-        //             options.external = true;
-        //             openAuthModal();
-        //         } else {
-        //             var loc = window.location,
-        //             newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
-        //             window.sessionStorage.setItem('lastURL', newhref);
-        //             window.location = loc.origin + '/services/'+options.service_id+'/Users';
-        //         }
-        //     } else {
-        //         console.log('getExternalUsers: ', data);
-        //         if(cb) cb(data.result);
-        //         else showUsers(data.result);
-        //     }
-        // })
-        console.log('getExternalUsers');
-
-        $.ajax({
+    function getExternalUsers(authData, cb){
+        var params = {
             url: '/services/'+options.service_id+'/Users'
-        }).then(function(data){
+            // method: 'GET'
+        };
+        if(authData) {
+            params.method = 'POST';
+            // params.data = {username: authData.username, password: authData.password};
+            params.data = 'username='+authData.username+'&password='+authData.password;
+        }
+        
+        console.log('getExternalUsers', params);
+
+        $.ajax(params).then(function(data){
             console.log('getExternalUsers: ', data);
             if(data.result.location) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
@@ -75,8 +56,14 @@ function Ldap(options){
             else showUsers(data.result);
 
         }, function(err){
-            var error = err.responseJSON.error;
+            var error = null;
+
+            if(err.responseJSON.error && err.responseJSON.error.message) {
+                error = JSON.parse(err.responseJSON.error.message).error;
+            }
+            
             console.log('getExternalUsers error: ', error);
+            
             if(error && error.redirection) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -129,6 +116,8 @@ function Ldap(options){
         btn.html('<i class="fa fa-fw fa-spinner fa-spin"></i>');
         
         options.auth = data;
+
+        console.log('ldapAuth options: ', options, data);
 
         if(options.external) {
             getExternalUsers(data, function(result){

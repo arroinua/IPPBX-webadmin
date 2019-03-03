@@ -12,9 +12,10 @@ var SideBarComponent = React.createClass({
 
 	componentDidMount: function() {
     	$('.side-panel [data-toggle="tooltip"]').tooltip({
-    		delay: { "show": 1000 },
+    		delay: { "show": 200 },
     		trigger: 'hover'
     	});
+
 	},
 
 	_logOut: function() {
@@ -51,10 +52,12 @@ var SideBarComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var activeKind = this.props.activeKind;
-		var activeItem = this.props.activeItem || activeKind;
+		var activeItem = this.props.activeItem;
 		var selectedMenu = this.props.selectedMenu;
 		var objects = this.props.objects;
 		var sortedObjects = this._sortObjects(objects);
+
+		console.log('sidebar render params: ', activeKind, activeItem, selectedMenu);
 
 		return (
 			<div className="sidebar-wrapper">
@@ -68,36 +71,27 @@ var SideBarComponent = React.createClass({
 					<div className="nav-bottom">
 						<a 
 							href="#" 
-							className="nav-link" 
-							onClick={function(e) { e.preventDefault(); this._logOut()}.bind(this)}
-							data-toggle="tooltip" data-placement="right"
-							title={frases.LOGOUT}
-						><i className="fa fa-fw fa-sign-out"></i></a>
-						<a 
-							href="#" 
 							className={"nav-link " + (activeKind === 'settings' ? 'active' : '')} 
 							onClick={function(e) { e.preventDefault(); this._selectMenu('settings')}.bind(this)}
 							data-toggle="tooltip" data-placement="right"
 							title={frases.KINDS['settings']}
 						><i className="fa fa-fw fa-bars"></i></a>
+						<a 
+							href="#" 
+							className="nav-link" 
+							onClick={function(e) { e.preventDefault(); this._logOut()}.bind(this)}
+							data-toggle="tooltip" data-placement="right"
+							title={frases.LOGOUT}
+						><i className="fa fa-fw fa-sign-out"></i></a>
 					</div>
 				</div>
 				<div className="nav-list">
+
 					{
-						selectedMenu.fetchKinds ? (
-							selectedMenu.fetchKinds.map(function(kind) {
-								return (
-									<ul key={kind}>
-										<li><span className="nav-header">{ frases.KINDS[kind] }</span></li>
-										<li><a href={"#"+kind+"/"+kind} className="nav-link"><i className="fa fa-fw fa-plus-circle"></i> {frases.CREATE}</a></li>
-										{ sortedObjects[kind] ? (this._buildItemsMenu(sortedObjects[kind], activeItem)) : null }
-									</ul>
-								)
-							}.bind(this))
-						) : (
+						selectedMenu.objects ? (
 							<ul>
 								{
-									objects.map(function(item) {
+									selectedMenu.objects.map(function(item) {
 										if(item.kind) {
 											return (
 												<li key={item.kind}>
@@ -114,13 +108,28 @@ var SideBarComponent = React.createClass({
 										} else {
 											return null
 										}
-											
+									
 									})
 								}
 							</ul>
-						)
+						) : null
+					}
+
+					{
+						selectedMenu.fetchKinds ? (
+							selectedMenu.fetchKinds.map(function(kind) {
+								return (
+									<ul key={kind}>
+										<li><span className="nav-header">{ frases.KINDS[kind] }</span></li>
+										<li><a href={"#"+kind+"/"+kind} className="nav-link"><i className="fa fa-fw fa-plus-circle"></i> {frases.CREATE}</a></li>
+										{ sortedObjects[kind] ? (this._buildItemsMenu(sortedObjects[kind], activeItem)) : null }
+									</ul>
+								)
+							}.bind(this))
+						) : null
 					}
 				</div>
+
 			</div>
 		);
 	}

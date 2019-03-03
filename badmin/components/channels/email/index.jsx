@@ -6,7 +6,7 @@ var EmailTrunkComponent = React.createClass({
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
 		addSteps: React.PropTypes.func,
-		nextStep: React.PropTypes.func,
+		// nextStep: React.PropTypes.func,
 		highlightStep: React.PropTypes.func,
 		isNew: React.PropTypes.bool
 	},
@@ -66,7 +66,10 @@ var EmailTrunkComponent = React.createClass({
 
 		data[target.name] = value;
 
-		if(target.name === 'username') data.id = value;
+		if(target.name === 'username') {
+			data.id = value;
+			if(this.state.provider !== 'other') data.usermail = value;
+		}
 
 		this.setState({
 			data: data
@@ -90,16 +93,17 @@ var EmailTrunkComponent = React.createClass({
 			state.data.protocol = "imap";
 			state.data.hostname = "";
 			state.data.port = "";
+			state.data.usermail = "";
 		}
 
 		this.setState(state);
 
-		if(!this.state.stepsShown) {
-			setTimeout(function() {
-				this.props.nextStep();
-				this.setState({ stepsShown: true });
-			}.bind(this), 200);
-		}
+		// if(!this.state.stepsShown) {
+		// 	setTimeout(function() {
+		// 		this.props.nextStep();
+		// 		this.setState({ stepsShown: true });
+		// 	}.bind(this), 200);
+		// }
 			
 	},
 

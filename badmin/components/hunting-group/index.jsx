@@ -66,7 +66,7 @@ var HuntingGroupComponent = React.createClass({
 	},
 
 	_handleOnChange: function(e) {
-		var options = this.state.options;
+		var options = extend({}, this.state.options);
 		var target = e.target;
 		var type = target.getAttribute('data-type') || target.type;
 		var value = type === 'checkbox' ? target.checked : target.value;
@@ -196,7 +196,7 @@ var HuntingGroupComponent = React.createClass({
 			    			            <span>{frases.HUNT_TOUT} </span>
 			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.GRP__CALL_TOUT}></a>
 			    			        </label>
-			    			        <div className="col-sm-4">
+			    			        <div className="col-sm-2">
 			    			            <input type="number" className="form-control" value={ this.state.options.timeout } name="timeout" onChange={ this._handleOnChange } />
 			    			        </div>
 			    			    </div>
@@ -210,21 +210,20 @@ var HuntingGroupComponent = React.createClass({
 			    			            </div>
 			    			        </div>
 			    			    </div>
+			    			    <hr/>
 			    			    <div className="form-group">
 			    			        <label className="col-sm-4 control-label">
 			    			            <span>{frases.GREETNAME} </span>
-			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.UNIT__GREETINGS}></a>
 			    			        </label>
-			    			        <div className="col-md-8 col-sm-4">
+			    			        <div className="col-sm-6">
 			    			            <FileUpload frases={frases} name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
 			    			        </div>
 			    			    </div>
 			    			    <div className="form-group">
 			    			        <label className="col-sm-4 control-label">
 			    			            <span>{frases.WAIT_MUSIC} </span>
-			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.UNIT__WAITMUSIC}></a>
 			    			        </label>
-			    			        <div className="col-md-8 col-sm-4">
+			    			        <div className="col-sm-6">
 			    			            <FileUpload frases={frases} name="waitmusic" value={this.state.options.waitmusic} onChange={this._onFileUpload} />
 			    			        </div>
 			    			    </div>

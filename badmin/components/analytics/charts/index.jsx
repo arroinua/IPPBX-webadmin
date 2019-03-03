@@ -108,7 +108,7 @@
 	},
 
 	render: function() {		
-		console.log('ChartsComponent render: ', this.state);
+		console.log('ChartsComponent render: ', this.state, this.props);
 		return React.createElement('div');
 	}
 });

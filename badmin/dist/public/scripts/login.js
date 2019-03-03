@@ -7,7 +7,7 @@
     var loginInput = document.querySelector('input[name="login"]');
     var loginBtn = document.querySelector('input[type="submit"]');
     var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    // var apiGateway = 'https://a0addce0.ngrok.io/branch/api';
+    // var apiGateway = 'https://3aa614ef.ngrok.io/branch/api';
     var host = window.location.host;
     var prefix = host.substr(0, host.indexOf('.'));
 

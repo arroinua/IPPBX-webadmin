@@ -55,7 +55,7 @@ function load_users(params) {
 	function openNewUserForm() {
 		console.log('openNewUserForm');
 
-		if(driver) driver.reset(); // close the tour
+		// if(driver) driver.reset(); // close the tour
 
 		modalCont = document.getElementById('modal-cont');
 
@@ -92,6 +92,8 @@ function load_users(params) {
 	function addUser(userParams, callback) {
 		console.log('addUser: ', params);
 
+		userParams = extend({}, userParams);
+
 		if(!PbxObject.name) {
 			return setObject({
 				name: objParams.name,
@@ -107,9 +109,12 @@ function load_users(params) {
 
 		json_rpc_async('setObject', userParams, function(result, error) {
 
-			if(error) return notify_about('error', error.message);
+			if(error) {
+				callback(error);
+				return notify_about('error', error.message);
+			}
 
-			$('#modal-cont .modal').modal('hide');
+			// $('#modal-cont .modal').modal('hide');
 
 			userParams.oid = result;
 			userParams.reg = "";
@@ -127,7 +132,7 @@ function load_users(params) {
 				onFirstUserCreated();
 			}
 
-			if(callback) callback(result);
+			if(callback) callback(null, result);
 
 		});
 	}
@@ -199,7 +204,7 @@ function load_users(params) {
 		    onaddusers: setExternalUsers
 		});
 
-	    if(serviceParams.type === 1 || serviceParams.types === 1) {
+	    if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
 	        PbxObject.LdapConnection.getExternalUsers();
 	    } else {
 	        json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {

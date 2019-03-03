@@ -1,0 +1,126 @@
+<div id="el-loaded-content">
+	<div class="row">
+	    <div class="col-xs-12 col-custom">
+	        <div class="panel">
+	            <div class="panel-body">
+	            	<button type="button" id="set-rec-settings" class="btn btn-success btn-md">
+	            		<i class="fa fa-check fa-fw"></i> {{SAVE}}
+	            	</button>
+	            	<hr>
+	            	<p>{{REC__PAGE_DECR}}</p>
+	            	<!-- <p class="bg-warning" style="padding:10px;">{{REC__PAGE_WARNING}}</p> -->
+	            	<br><br>
+	            	<div class="col-md-6">
+	            		<fieldset>
+	            			<legend>{{KINDS.trunk}}</legend>
+	            			<div class="form-group">
+	            			    <label>
+	            			    	{{SETTINGS.REC_MODE.REC_MODE}}: 
+	            			    	<!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{REC_MODE_TOOLTIP}}"></a> -->
+	            			    </label>
+	            			    <br>
+            			        <div id="trunks-rec-mode" class="btn-group">
+            			        	<div class="radio">
+            			        		<label>
+            			        		    <input type="radio" name="recMode" autocomplete="off" value="0"> {{SETTINGS.REC_MODE.REC_LIST}}
+            			        		    <span class="help-block">{{REC__LIST_MODE_HELPER}}</span>
+            			        		</label>
+            			        	</div>
+            			        	<div class="radio">
+            			        		<label>
+            			        		    <input type="radio" name="recMode" autocomplete="off" value="1"> {{SETTINGS.REC_MODE.EXCEPTION_LIST}}
+            			        		    <span class="help-block">{{REC__EXCEPTION_MODE_HELPER}}</span>
+            			        		</label>
+            			        	</div>
+            			        </div>
+            			        <!-- <div class="btn-group" data-toggle="buttons" id="trunks-rec-mode">
+            			            <label class="btn btn-default active">
+            			                <input type="radio" name="recMode" autocomplete="off" value="0"> {{SETTINGS.REC_MODE.REC_LIST}}
+            			            </label>
+            			            <label class="btn btn-default">
+            			                <input type="radio" name="recMode" autocomplete="off" value="1"> {{SETTINGS.REC_MODE.EXCEPTION_LIST}}
+            			            </label>
+            			        </div> -->
+	            			</div>
+	            			<br>
+		            		<div class="selectable-cont">
+		            		    <div class="selectable-box selectable-ext">
+		            		        <p class="panel-header">{{AVAILABLE}}
+		            		            <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="av-trunks">
+		            		        </p>
+		            		        <ul class="available" id="av-trunks"></ul>
+		            		    </div>
+		            		    <div>
+		            		        <p><button type="button" class="btn btn-default btn-sm assign-all">>></button></p>
+		            		        <p><button type="button" class="btn btn-default btn-sm unassign-all"><<</button></p>
+		            		    </div>
+		            		    <div class="selectable-box selectable-ext">
+		            		        <p class="panel-header">{{SELECTED}}
+		            		            <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="rec-trunks">
+		            		        </p>
+		            		        <ul class="members" id="rec-trunks"></ul>
+		            		    </div>
+		            		</div>
+	            		</fieldset>
+	            	</div>
+	            	<p class="visible-xs-block visible-sm-block"></p>
+					<div class="col-md-6">
+						<fieldset>
+							<legend>{{KINDS.extensions}}</legend>
+							<div class="form-group">
+							    <label>
+							    	{{SETTINGS.REC_MODE.REC_MODE}}
+							    	<!-- <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{REC_MODE_TOOLTIP}}"></a> -->
+							    </label>
+							    <br>
+						        <div id="ext-rec-mode" class="btn-group">
+						        	<div class="radio">
+						        		<label>
+	            			                <input type="radio" name="extRecMode" autocomplete="off" value="0"> {{SETTINGS.REC_MODE.REC_LIST}}
+	            			                <span class="help-block">{{REC__LIST_MODE_HELPER}}</span>
+	            			            </label>
+						        	</div>
+						        	<div class="radio">
+						        		<label>
+	            			                <input type="radio" name="extRecMode" autocomplete="off" value="1"> {{SETTINGS.REC_MODE.EXCEPTION_LIST}}
+	            			                <span class="help-block">{{REC__EXCEPTION_MODE_HELPER}}</span>
+	            			            </label>
+						        	</div>
+						        </div>
+							    <!-- <div class="col-lg-8">
+							        <div class="btn-group" data-toggle="buttons" id="ext-rec-mode">
+							            <label class="btn btn-default active">
+	            			                <input type="radio" name="recMode" autocomplete="off" value="0"> {{SETTINGS.REC_MODE.REC_LIST}}
+	            			            </label>
+	            			            <label class="btn btn-default">
+	            			                <input type="radio" name="recMode" autocomplete="off" value="1"> {{SETTINGS.REC_MODE.EXCEPTION_LIST}}
+	            			            </label>
+							        </div>
+							    </div> -->
+							</div>
+							<br>
+							<div class="selectable-cont">
+							    <div class="selectable-box selectable-ext">
+							        <p class="panel-header">{{AVAILABLE}}
+							            <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="av-ext">
+							        </p>
+							        <ul class="available" id="av-ext"></ul>
+							    </div>
+							    <div>
+							        <p><button type="button" class="btn btn-default btn-sm assign-all">>></button></p>
+							        <p><button type="button" class="btn btn-default btn-sm unassign-all"><<</button></p>
+							    </div>
+							    <div class="selectable-box selectable-ext">
+							        <p class="panel-header">{{SELECTED}}
+							            <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="rec-ext">
+							        </p>
+							        <ul class="members" id="rec-ext"></ul>
+							    </div>
+							</div>	
+						</fieldset>
+					</div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+</div>

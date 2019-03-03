@@ -25,7 +25,7 @@ function GroupMemberComponent(props) {
 	    			</td>
 	    		)
 	    	}
-	    	<td style={{ textAlign: "center" }}><span className={"fa " + item.icon}></span></td>
+	    	<td style={{ textAlign: "center" }}><span className={"fa " + props.icon}></span></td>
 	    	<td data-cell="status" style={{ "textAlign": "left" }}><span className={"label label-"+itemState.className}>{ itemState.rstatus }</span></td>
 	    	<td data-cell="ext">{item.number || item.ext}</td>
 	    	<td data-cell="name">{item.name}</td>

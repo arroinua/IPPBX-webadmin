@@ -222,9 +222,10 @@ function timer_target_row(oid, name, action){
     tr.appendChild(td);
     
     td = document.createElement('td');
+    td.className = 'text-center';
     var button = document.createElement('button');
-    button.className = 'btn btn-danger btn-sm';
-    button.innerHTML = '<i class="fa fa-minus"></i>';
+    button.className = 'btn btn-danger btn-link btn-sm';
+    button.innerHTML = '<i class="fa fa-trash"></i>';
     button.onclick = function(){
         remove_listener(oid);
     };

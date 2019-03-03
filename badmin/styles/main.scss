@@ -41,6 +41,8 @@ $main-gradient: linear-gradient(180deg, rgba(68,187,253,0.5) 0%, rgba(127,199,25
 @import 'object-name';
 @import 'Select3';
 @import 'sidebar';
+@import 'stat';
+@import 'drag-and-drop';
 
 html,body{
     overflow-x: hidden;
@@ -78,6 +80,8 @@ input[type="checkbox"]:checked + .help-block {
 }
 .last-icon{
     float: right;
+    color: #999;
+    font-size: 12px;
     // font-size: .7em;
     
     @include transition-all(300ms);
@@ -216,7 +220,7 @@ input[type="checkbox"]:checked + .help-block {
 /*Loading Panel Styles*/
 
 .el-loading-panel{
-    position: absolute;
+    position: fixed;
     display: -webkit-box;
     display: -moz-box;
     display: -ms-flexbox;

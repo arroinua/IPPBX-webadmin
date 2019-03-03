@@ -15,44 +15,27 @@ var NewUsersModalComponent = React.createClass({
 			userParams: {},
 			validationError: false,
 			init: false,
-			fetching: false
+			fetching: false,
+			closeOnSave: false,
+			passwordRevealed: false,
+			tkn: Date.now()
 		};
 	},
 
 	componentWillMount: function() {
-		// var params = this.props.groupid ? { groupid: this.props.groupid } : null;
 		this.setState({
-			params: this.props.params
+			userParams: window.extend({}, this._getDefaultUserParams())
 		});
-		
 	},
 
-	_getBody: function() {
-		console.log('_getBody');
-		var frases = this.props.frases;
-		return (
-			<NewUsersComponent 
-				frases={frases} 
-				params={this.state.params} 
-				validationError={this.state.validationError} 
-				validateEmail={this._validateEmail} 
-				onChange={this._onChange} 
-				generatePassword={this.props.generatePassword} 
-				groupid={this.props.groupid} 
-				convertBytes={this.props.convertBytes}
-			/>
-		);
-	},
-
-	_onChange: function(params) {
-		this.setState({
-			userParams: params
-		});
+	_onChange: function(userParams) {
+		this.setState({ userParams: userParams });
 	},
 
 	_saveChanges: function() {
 		var userParams = this.state.userParams;
 		var errors = {};
+		var closeOnSave = this.state.closeOnSave;
 
 		if(!userParams.name || !userParams.login || !userParams.info.email || !this._validateEmail(userParams.info.email)) {
 			this.setState({
@@ -65,11 +48,19 @@ var NewUsersModalComponent = React.createClass({
 		this.setState({
 			validationError: false,
 			fetching: true
-		});			
+		});
 
-		this.props.onSubmit(this.state.userParams, function() {
-			this.setState({ opened: false, fetching: false });
+
+		this.props.onSubmit(this.state.userParams, function(error, result) {
+			if(error) return this.setState({ fetching: false, closeOnSave: false });
+			this.setState({ opened: (closeOnSave ? false : true), fetching: false, closeOnSave: false, userParams: window.extend({}, this._getDefaultUserParams()) });
 		}.bind(this));
+	},
+
+	_saveChangesAndClose: function() {
+		var saveChanges = this._saveChanges;
+		this.setState({ closeOnSave: true });
+		setTimeout(saveChanges, 100)
 	},
 
 	_validateEmail: function(string) {
@@ -77,10 +68,50 @@ var NewUsersModalComponent = React.createClass({
         return re.test(string);
 	},
 
+	_revealPassword: function() {
+		this.setState({ passwordRevealed: !this.state.passwordRevealed })
+	},
+
+	_getDefaultUserParams: function() {
+		return {
+			info: {},
+			storelimit: (this.props.params.storelimit || this.props.convertBytes(1, 'GB', 'Byte')),
+			password: this.props.generatePassword()
+		}
+	},
+
+	_getBody: function() {
+		return (
+			<NewUsersComponent 
+				frases={this.props.frases}
+				params={this.props.params}
+				userParams={this.state.userParams}
+				validationError={this.state.validationError} 
+				validateEmail={this._validateEmail} 
+				onChange={this._onChange} 
+				generatePassword={this.props.generatePassword} 
+				revealPassword={this._revealPassword} 
+				passwordRevealed={this.state.passwordRevealed} 
+				groupid={this.props.groupid}
+				convertBytes={this.props.convertBytes}
+				tkn={this.state.tkn}
+			/>
+		);
+	},
+
+	_getFooter: function() {
+		var frases = this.props.frases;
+		return (
+			<div className="modal-footer">
+				<button className="btn btn-success" onClick={this._saveChangesAndClose} disabled={this.props.fetching ? true : false}>{ this.props.fetching ? <span className="fa fa-spinner fa-spin fa-fw"></span> : frases.ADD_AND_CLOSE}</button>
+				<button className="btn btn-success" onClick={this._saveChanges} disabled={this.props.fetching ? true : false}>{ this.props.fetching ? <span className="fa fa-spinner fa-spin fa-fw"></span> : frases.ADD}</button>
+				<button className="btn btn-link pull-right" data-dismiss="modal">{frases.CLOSE}</button>
+			</div>
+		)
+	},
+
 	render: function() {
 		var frases = this.props.frases;
-		console.log('NewUsersModalComponent');
-
 		return (
 			<ModalComponent 
 				size="md"
@@ -91,6 +122,7 @@ var NewUsersModalComponent = React.createClass({
 				cancelText={frases.CLOSE} 
 				submit={this._saveChanges} 
 				body={this._getBody()}
+				footer={this._getFooter()}
 				open={this.state.opened}
 			>
 			</ModalComponent>

@@ -65,9 +65,9 @@ var RecQosTable = React.createClass({
 						        </thead>
 						        <tbody>
 					        		<tr>
-					        			<td>{ data.lat1 }</td>
 					        			<td>{ data.jfe1 }</td>
 					        			<td>{ data.jne1 }</td>
+					        			<td>{ data.lat1 }</td>
 					        			<td>{ data.lfe1 }</td>
 					        			<td>{ data.lne1 }</td>
 					        			<td>{ data.mfe1 }</td>
@@ -97,9 +97,9 @@ var RecQosTable = React.createClass({
 						        </thead>
 						        <tbody>
 					        		<tr>
-					        			<td>{ data.lat2 }</td>
 					        			<td>{ data.jfe2 }</td>
 					        			<td>{ data.jne2 }</td>
+					        			<td>{ data.lat2 }</td>
 					        			<td>{ data.lfe2 }</td>
 					        			<td>{ data.lne2 }</td>
 					        			<td>{ data.mfe2 }</td>

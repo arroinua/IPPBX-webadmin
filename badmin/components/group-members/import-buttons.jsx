@@ -6,9 +6,9 @@ function ImportUsersButtonsComponent(props) {
 	}
 
 	return (
-	    <div className="btn-group" style={{ margin: "10px 5px" }}>
+	    <div className="btn-group" style={{ marginBottom: "10px" }}>
 			<button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i className="fa fa-cloud-download fa-fw"></i> {props.frases.IMPORT_USERS} <span className="caret"></span>
+				<i className="fa fa-cloud-download fa-fw"></i> {props.frases.IMPORT} <span className="caret"></span>
 			</button>
 			<ul className="dropdown-menu">
 				{

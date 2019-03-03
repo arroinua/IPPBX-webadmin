@@ -103,17 +103,17 @@ function load_icd(params) {
 			}
 
 			// Add new route to the routing table
-			if(props.route && props.route.ext) {
-			    console.log('set route props: ', props.route);
-			    var routeProps = {
-			    	number: props.route.ext,
-			    	target: { oid: PbxObject.oid, name: PbxObject.name }
-			    };
-			    if(params.routes.length) routeProps.oid = params.routes[0].id;
+			// if(props.route && props.route.ext) {
+			//     console.log('set route props: ', props.route);
+			//     var routeProps = {
+			//     	number: props.route.ext,
+			//     	target: { oid: PbxObject.oid, name: PbxObject.name }
+			//     };
+			//     if(params.routes.length) routeProps.oid = params.routes[0].id;
 			    
-			    setObjRoute(routeProps);
+			//     setObjRoute(routeProps);
 			    
-			}
+			// }
 
 			if(handler) handler();
 			if(callback) callback(result);

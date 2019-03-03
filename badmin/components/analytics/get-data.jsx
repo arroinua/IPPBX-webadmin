@@ -18,7 +18,10 @@
 	},
 
 	componentWillMount: function() {
-		this._getData(this.props.method, this.props.fetch);
+		this._getData(this.props.method, this.props.fetch, function(result) {
+			this.setState({ fetching: false })
+			this._setData(result);
+		}.bind(this));
 	},
 
 	componentWillReceiveProps: function(props) {
@@ -54,6 +57,8 @@
 		var frases = this.props.frases;
 		var data = this.state.data;
 		var Component = this.props.component;
+
+		console.log('GetAndRenderAnalyticsDataComponent: ', this.props.method, data);
 
 		return (
 			data ? <Component frases={frases} fetching={this.state.fetching} data={data} onLoad={this.props.onComponentLoad} onUpdate={this.props.onComponentUpdate} /> : null

@@ -1,0 +1,39 @@
+.stat-index-cont {
+	padding: 10px;
+
+	.stat-index-icon {
+		display: inline-block;
+		font-size: 1em;
+		padding: 4px 7px;
+		background-color: #eee;
+		border-radius: 50%;
+	}
+
+	.stat-index-index {
+		display: block;
+		padding-bottom: 10px;
+		font-size: 1.8em;
+		font-weight: bold;
+		color: #333;
+	}
+
+	.stat-index-desc {
+		display: block;
+		font-size: 12px;
+		font-weight: bold;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		color: #999;
+	}
+
+	&.inverse {
+		.stat-index-icon {
+			background-color: #fff;
+		}
+
+		.stat-index-index,
+		.stat-index-desc {
+			color: #fff;
+		}
+	}
+}

@@ -49,10 +49,10 @@
 						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: data.rr, desc: frases.CHANNEL_STATISTICS.INDEXES.TOTAL_REPLIES }} /></div>
 					</div>
 					<div className="row">
-						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: data.atfr, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY, format: "ms" }} /></div>
-						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: data.art, desc: frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME, format: "ms" }} /></div>
-						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: data.atrm, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_REPLY, format: "ms" }} /></div>
-						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: data.atta, desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_ASSIGN, format: "ms" }} /></div>
+						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: (data.atfr/1000), desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_FIRST_REPLY, format: "hh:mm:ss" }} /></div>
+						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: (data.art/1000), desc: frases.CHANNEL_STATISTICS.INDEXES.RESOLUTION_TIME, format: "hh:mm:ss" }} /></div>
+						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: (data.atrm/1000), desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_REPLY, format: "hh:mm:ss" }} /></div>
+						<div className="col-sm-3 col-xs-6"><SingleIndexAnalyticsComponent params={{ index: (data.atta/1000), desc: frases.CHANNEL_STATISTICS.INDEXES.TIME_TO_ASSIGN, format: "hh:mm:ss" }} /></div>
 					</div>
 				</div>
 			)

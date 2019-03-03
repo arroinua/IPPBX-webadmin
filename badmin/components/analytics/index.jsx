@@ -50,27 +50,30 @@ var AnalyticsComponent = React.createClass({
 				<div className="row" style={{margin: "20px 0"}}>
 				    <div id="chatstat-date-picker" className="col-sm-4 cdropdown custom-dropdown"></div>
 				</div>
-				<div className="row">
-					<div className="col-xs-12">
-						<GetAndRenderAnalyticsDataComponent 
-							component={ActivityAnalyticsComponent} 
-							frases={this.props.frases} 
-							fetch={this.state.fetch} 
-							method="getActivityStatistics"
-							onComponentLoad={this._onComponentLoad}
-							onComponentUpdate={this._onComponentUpdate}
-						/>
-					</div>
-				</div>
-					<div className="row" style={{ margin: "20px 0" }}>
-						<div className="col-sm-4">
-							<select className="form-control" onChange={this._onChartTypeSelect}>
-								<option value="chatGroup">{frases.CHANNEL_STATISTICS.SHOW_BY.CHAT_GROUP}</option>
-								<option value="channelName">{frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_NAME}</option>
-								<option value="channelType">{frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_TYPE}</option>
-							</select>
+				<PanelComponent>
+					<div className="row">
+						<div className="col-xs-12">
+
+							<GetAndRenderAnalyticsDataComponent 
+								component={ActivityAnalyticsComponent} 
+								frases={this.props.frases} 
+								fetch={this.state.fetch} 
+								method="getActivityStatistics"
+								onComponentLoad={this._onComponentLoad}
+								onComponentUpdate={this._onComponentUpdate}
+							/>
 						</div>
 					</div>
+				</PanelComponent>
+				<div className="row" style={{ margin: "20px 0" }}>
+					<div className="col-sm-4">
+						<select className="form-control" onChange={this._onChartTypeSelect}>
+							<option value="chatGroup">{frases.CHANNEL_STATISTICS.SHOW_BY.CHAT_GROUP}</option>
+							<option value="channelName">{frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_NAME}</option>
+							<option value="channelType">{frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_TYPE}</option>
+						</select>
+					</div>
+				</div>
 
 					{
 						showChartType === 'chatGroup' ? (

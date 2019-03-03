@@ -1,5 +1,6 @@
 var gulp = require('gulp'),
-    sass = require('gulp-ruby-sass'),
+    // sass = require('gulp-ruby-sass'),
+    sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     sourcemaps = require('gulp-sourcemaps'),
     minifycss = require('gulp-minify-css'),
@@ -25,7 +26,8 @@ var getDateString = function(){
 }
 
 gulp.task('styles', function() {
-  return sass('badmin/styles/main.scss', { style: 'expanded' })
+  return gulp.src('badmin/styles/*.scss', { style: 'expanded' })
+    .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
     .pipe(gulp.dest('badmin/dist/badmin/css'))
     .pipe(rename({suffix: '.min'}))
@@ -34,15 +36,16 @@ gulp.task('styles', function() {
     // .pipe(notify({ message: 'Styles task complete' }));
 });
 
-gulp.task('styles2', function() {
-  return sass('badmin/styles/init.scss', { style: 'expanded' })
-    .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
-    .pipe(gulp.dest('badmin/dist/badmin/css'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(minifycss())
-    .pipe(gulp.dest('badmin/dist/badmin/css'));
-    // .pipe(notify({ message: 'Styles2 task complete' }));
-});
+// gulp.task('styles2', function() {
+//   return sass('badmin/styles/init.scss', { style: 'expanded' })
+//     .pipe(sass().on('error', sass.logError))
+//     .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
+//     .pipe(gulp.dest('badmin/dist/badmin/css'))
+//     .pipe(rename({suffix: '.min'}))
+//     .pipe(minifycss())
+//     .pipe(gulp.dest('badmin/dist/badmin/css'));
+//     // .pipe(notify({ message: 'Styles2 task complete' }));
+// });
 
 gulp.task('scripts', function() {
   // return gulp.src(['badmin/src/*.js'])
@@ -147,7 +150,7 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('default', ['clean'], function() {
-    gulp.start('styles', 'styles2', 'scripts', 'views', 'flot', 'flatpickr');
+    gulp.start('styles', 'scripts', 'views', 'flot', 'flatpickr');
 });
 
 gulp.task('watch', function() {

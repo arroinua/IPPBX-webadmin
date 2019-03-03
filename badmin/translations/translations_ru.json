@@ -124,6 +124,20 @@
 			}
 		}
 	},
+	"DASHBOARD": {
+		"SUBSCRIPTION_PANEL": {
+			"TITLE": "Подписка",
+			"ACTION_BTN": "Обновить"
+		},
+		"CHANNELS_PANEL": {
+			"TITLE": "Обслуживание",
+			"ACTION_BTN": "Показать больше"
+		},
+		"CALLS_PANEL": {
+			"TITLE": "Звонки",
+			"ACTION_BTN": "Показать больше"
+		}
+	},
 	"OBJECT" : "Объект",
 	"EXTENSIONS" : "Внутренние номера",
 	"EXTENSION" : "Внутренний номер",
@@ -367,6 +381,7 @@
 	"ADD_EQUIPMENT" : "Добавить оборудованиe",
 	"USERTYPE" : "Тип пользователя",
 	"ADD": "Добавить",
+	"ADD_AND_CLOSE": "Добавить и закрыть",
 	"ADD_GROUP": "Добавить группу",
 	"BACK" : "Назад",
     "CREATE": "Создать",
@@ -571,7 +586,12 @@
 		"ON_DELETE_WARNING": "Вы собираетесь полностью удалить данные клиента. Это действие необратимо. Вы хотите продолжить?",
 		"ON_DELETED_MSG": "Клиент удален",
 		"HAS_CONSENT_MSG": "Да",
-		"NO_CONSENT_MSG": "Нет"
+		"NO_CONSENT_MSG": "Нет",
+		"SERVICE_AUTH": {
+			"CONFIRM_IMPORT_FROM": "Вы подтверждаете импорт всех контактов из",
+			"IMPORT_SUCCESS": "Количество импортированных контактов: ",
+			"NOTHING_TO_IMPORT": "Нет контактов для импорта"
+		}
 	},
 	"TIMERSNAME": "Имя Таймера",
 	"PICKADATE": "Выберите дату и время",
@@ -618,7 +638,7 @@
     	"branch_options": "Настройки",
     	"services": "Интеграции",
         "trunk": "Транки",
-        "users": "Группы пользователей",
+        "users": "Пользователи",
         "user": "Пользователь",
         "equipment": "Оборудование",
         "phone": "Оборудование",
@@ -638,21 +658,22 @@
         "chattrunk": "Каналы",
         "calls": "Панель мониторинга",
         "dashboard": "Панель мониторинга",
+        "realtime": "В реальном времени",
         "records": "Журнал вызовов",
         "rec_settings": "Настр. записи разговоров",
         "statistics": "Статистика звонков",
         "reg_history": "История регистраций",
         "channel_statistics": "Статистика каналов",
         "reports": "Отчеты",
-        "extensions": "Внутренние номера",
-        "attendant": "Авто-секретарь",
+        "extensions": "Все пользователи",
+        "attendant": "IVR меню",
         "certificates": "Сертификаты",
         "storages": "Хранилища",
         "billing": "Биллинг",
         "usage": "Использование лицензий",
         "channel_records": "Записи Канала",
         "customers": "Клиенты",
-        "servicegroup": "Сервис группы",
+        "servicegroup": "Пользователи и группы",
         "settings": "Настройки"
     },
     "CODES": {
@@ -686,12 +707,14 @@
         "28": "неверный формат",
         "29": "facility rejected",
         "30": "normal unspecified",
+        "31": "временно недоступен",
         "34": "no channel available",
         "38": "network out of order",
         "41": "temporary failure",
         "42": "switch congestion",
         "44": "circuit not available",
         "47": "resource unavailable",
+        "55": "вызов отклонен",
         "63": "service not available",
         "81": "invalid call reference",
         "88": "incompatible destination",
@@ -742,10 +765,11 @@
 	    "NUMBER_OF_CALLS" : "Количество вызовов",
 	    "EXT_STATS" : "Статистика внутренних номеров",
 	    "NO_DATA" : "За выбранный период данных нет",
-	    "LINES_PAYLOAD" : "Количество занятых линий",
+	    "LINES_PAYLOAD" : "Загрузка линий",
 	    "LOST_AND_SERVED" : "Потерянные и соединенные",
 	    "INCOMING_CALLS": "Входящие",
 	    "OUTGOING_CALLS": "Исходящие",
+	    "INTERNAL_CALLS": "Внутренние",
 	    "TRNUK_QOS": {
 	    	"TC": "Общее количество звонков",
 	    	"CC": "Количество соединенных звонков",
@@ -761,6 +785,15 @@
 	    	"RFE": "R-factor на стороне транка",
 	    	"RNE": "R-factor на стороне сервера"
 	    }
+    },
+    "REALTIME": {
+    	"TRUNKS_PANEL": {
+    		"TITLE": "Транки"
+    	},
+    	"CALLS_PANEL": {
+    		"TITLE": "Звонки"
+    	},
+    	"NO_DATA": "Нет данных"
     },
     "REG_HISTORY": {
     	"SELECT_USER_PLACEHOLDER": "Выбрать пользователя...",
@@ -888,6 +921,7 @@
     	"CREATE_HUNTING_GROUP": "Создать группу распределения вызовов",
     	"CREATE_TRUNK": "Создать Транк",
     	"CREATE_ICD_GROUP": "Создать горячую линию",
+    	"CREATE_ATTENDANT": "Создать IVR меню",
     	"NO_SERVICE_GROUP": "У вас еще нет групп обслуживания",
     	"SERVICE_GROUP_NOT_SELECTED": "Группа обслуживания не выбрана",
     	"FACEBOOK": {
@@ -975,6 +1009,21 @@
     			"phone": "Введите Ваш номер телефона",
     			"consent": ""
     		},
+    		"CHANNELS": {
+    			"CHAT": "Чат с агентом",
+    			"CALLBACK": "Обратный звонок"
+    		},
+    		"LANG": "Язык интерфейса",
+    		"LANG_OPTIONS": {
+    			"AUTO": "Исходя из настроек браузера",
+    			"EN": "English",
+    			"UK": "Українська",
+    			"RU": "Русский"
+    		},
+    		"OFFER_CHECKBOX": "Приветствие",
+    		"OFFER_FROM_LABEL": "От",
+    		"OFFER_MESSAGE_LABEL": "Сообщение",
+    		"OFFER_TIMEOUT_LABEL": "Показать через",
     		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайта",
     		"CODE_SNIPPET_MODAL_TEXT": "Добавьте этот скрипт на каждую веб-страницу, где вы хотите, чтобы виджет появился. Вы можете поместить скрипт в любом месте в пределах <HEAD> или <BODY> тегов.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопировать в буфер",
@@ -1168,6 +1217,31 @@
     	"NEW_USER_SUBJECT_LABEL": "Тема сообщения",
     	"NEW_USER_BODY_LABEL": "Содержимое сообщения",
     	"NEW_USER_BODY_HELPER": "Где %% - это данные для входа в аккаунт"
+    },
+    "IMPORT_DATA": {
+    	"TITLE": "Импорт данных",
+    	"STEP_1": "1/3. Перенесите или выберите .csv файл",
+    	"STEP_2": "2/3. Настройка импорта",
+    	"STEP_3": "3/3. Сопоставление параметров",
+    	"STEP_3_DESC": "Сопоставьте колонки с именами параметров",
+    	"DRAG_AND_DROP_TITLE_1": "Перенесите файл",
+    	"DRAG_AND_DROP_TITLE_2": "Перенесите файл",
+    	"DRAG_AND_DROP_SUBTITLE": "или",
+    	"DRAG_AND_DROP_INFO": "Макс. размер файла 2МБ",
+    	"OPTIONS": {
+    		"ENCODING": "Кодировка",
+    		"DELIMITER": "Разделитель",
+    		"HAS_HEADER": "Первая строка является заголовком"
+    	},
+    	"RECORDS": "Всего записей",
+    	"SHOW_SAMPLE_BTN": "Показать выборку",
+    	"SHOW_ISSUES_BTN": "Показать несоответствия",
+    	"ISSUES_WARNING": "Записи с несоответствиями не будут импортированы",
+    	"SELECT_PARAMETER_OPTION": "Выберите параметр",
+    	"ERRORS": {
+    		"wrongSize": "Превышен максимальный размер файла",
+    		"wrongFile": "Тип файла должен соответствовать text/csv"
+    	}
     },
     "TOURS": {
     	"NEXT_STEP": "Далее",

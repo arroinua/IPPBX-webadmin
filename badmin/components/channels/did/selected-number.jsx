@@ -5,6 +5,10 @@ var SelectedDidNumberComponent = React.createClass({
 		number: React.PropTypes.object
 	},
 
+	updateStatusInterval: null,
+
+	updateRegInterval: null,
+
 	getInitialState: function() {
 		return {
 			number: {},
@@ -14,27 +18,51 @@ var SelectedDidNumberComponent = React.createClass({
 	},
 
 	componentWillMount: function() {
-		var state = {
-			number: this.props.number
-		};
+		var number = this.props.number
+		this.setState({ number: number });
 
-		if(this.props.number.status !== 'active') {
-			BillingApi.updateDidStatus({ number: this.props.number.number }, function(err, response) {
-				if(err) return notify_about('error', err);
-				this._updateStatus(response.result.status);
-			}.bind(this));
-			state.fetchingStatus = true;
+		if(number.status !== 'active') {
+			this.updateStatusInterval = window.setInterval(function() {
+				this._fetchUpdateStatus(number.number);
+			}.bind(this), 1000);
+			// BillingApi.updateDidStatus({ number: this.props.number.number }, function(err, response) {
+			// 	if(err) return notify_about('error', err);
+			// 	this._updateStatus(response.result.status);
+			// }.bind(this));
+			// state.fetchingStatus = true;
 		}
 
-		if(this.props.number.awaitingRegistration) {
-			BillingApi.updateDidRegistration({ number: this.props.number.number }, function(err, response) {
-				if(err) return notify_about('error', err);
-				this._updateRegistration(response.result.awaitingRegistration);
-			}.bind(this));
-			state.fetchingRegistration = true;
+		if(number.awaitingRegistration) {
+			this.updateRegInterval = window.setInterval(function() {
+				this._fetchUpdateRegistration(number.number);
+			}.bind(this), 1000);
+			// BillingApi.updateDidRegistration({ number: this.props.number.number }, function(err, response) {
+			// 	if(err) return notify_about('error', err);
+			// 	this._updateRegistration(response.result.awaitingRegistration);
+			// }.bind(this));
+			// state.fetchingRegistration = true;
 		}
 		
-		this.setState(state);
+	},
+
+	_fetchUpdateStatus: function(number) {
+		BillingApi.updateDidStatus({ number: number }, function(err, response) {
+			if(err) return notify_about('error', err);
+			this._updateStatus(response.result.status);
+			if(response.result.status === 'active') window.clearInterval(this.updateStatusInterval);
+		}.bind(this));
+
+		this.setState({ fetchingStatus: true });
+	},
+
+	_fetchUpdateRegistration: function(number) {
+		BillingApi.updateDidRegistration({ number: number }, function(err, response) {
+			if(err) return notify_about('error', err);
+			this._updateRegistration(response.result.awaitingRegistration);
+			if(!response.result.awaitingRegistration) window.clearInterval(this.updateRegInterval);
+		}.bind(this));
+
+		this.setState({ fetchingRegistration: true });
 	},
 
 	_updateStatus: function(status) {

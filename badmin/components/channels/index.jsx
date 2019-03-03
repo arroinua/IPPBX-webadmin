@@ -13,11 +13,11 @@
 		confirmRemoveObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func,
 		confirmPayment: React.PropTypes.func,
-		addSteps: React.PropTypes.func,
-		nextStep: React.PropTypes.func,
-		highlightStep: React.PropTypes.func,
-		onTokenReceived: React.PropTypes.func,
-		initSteps: React.PropTypes.func
+		onTokenReceived: React.PropTypes.func
+		// addSteps: React.PropTypes.func,
+		// nextStep: React.PropTypes.func,
+		// highlightStep: React.PropTypes.func,
+		// initSteps: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -42,8 +42,8 @@
 		this._setService(this.props.selected || type);
 	},
 
-	componentDidMount: function() {
-		if(this.props.addSteps && !this.props.params.pageid) {
+	// componentDidMount: function() {
+		// if(this.props.addSteps && !this.props.params.pageid) {
 			// this.props.addSteps([{
 			// 	element: '.sessiontimeout',
 			// 	popover: {
@@ -53,9 +53,9 @@
 			// 	}
 			// }]);
 
-			this.props.initSteps();
-		}
-	},
+			// this.props.initSteps();
+		// }
+	// },
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
@@ -258,7 +258,7 @@
 					onChange={this._onNameChange}
 					onSubmit={this._setObject}
 					onCancel={this.state.params.pageid ? this._removeObject : null}
-					addSteps={this.props.addSteps}
+					// addSteps={this.props.addSteps}
 				/>
 				<PanelComponent>
 					{
@@ -297,9 +297,9 @@
 											onTokenReceived={this.props.onTokenReceived}
 											isNew={!params.pageid}
 											pageid={params.pageid}
-											addSteps={this.props.addSteps}
-											nextStep={this.props.nextStep}
-											highlightStep={this.props.highlightStep}
+											// addSteps={this.props.addSteps}
+											// nextStep={this.props.nextStep}
+											// highlightStep={this.props.highlightStep}
 											getObjects={this.props.getObjects}
 										/>
 
@@ -312,14 +312,14 @@
 													type={type} 
 													routes={this.props.params.routes} 
 													onChange={this._selectRoute} 
-													addSteps={this.props.addSteps} 
+													// addSteps={this.props.addSteps} 
 												/>
 											</div>
 
 											<hr />
 
 											{
-												type !== 'Telephony' && (
+												(type !== 'Telephony' && type !== 'Webcall') && (
 													<div className="form-group">
 														<label htmlFor="ctc-select-2" className="col-sm-4 control-label">{frases.CHAT_TRUNK.REPLY_TIMEOUT}</label>
 														<div className="col-sm-3">
