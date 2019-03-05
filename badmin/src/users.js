@@ -204,14 +204,14 @@ function load_users(params) {
 		    onaddusers: setExternalUsers
 		});
 
-	    if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
+	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
 	        PbxObject.LdapConnection.getExternalUsers();
-	    } else {
-	        json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
-	            console.log('getExternalUsers result: ', result);
-	            if(result) PbxObject.LdapConnection.showUsers(result);
-	        });
-	    }
+	    // } else {
+	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
+	    //         console.log('getExternalUsers result: ', result);
+	    //         if(result) PbxObject.LdapConnection.showUsers(result);
+	    //     });
+	    // }
 	}
 
 	function setExternalUsers(users){

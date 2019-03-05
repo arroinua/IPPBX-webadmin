@@ -6135,6 +6135,7 @@ function Ldap(options){
     }
 
     function getExternalUsers(authData, cb){
+        var location = "";
         var params = {
             url: '/services/'+options.service_id+'/Users'
             // method: 'GET'
@@ -6145,22 +6146,24 @@ function Ldap(options){
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
         
-        console.log('getExternalUsers', params);
+        console.log('getExternalUsers params', params);
 
-        $.ajax(params).then(function(data){
-            console.log('getExternalUsers: ', data);
+        $.ajax(params).then(function(data, text, response){
+            console.log('getExternalUsers response: ', data);
             if(data.result.location) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
                 return window.location = data.result.location;
             }
+
             if(cb) cb(data.result);
             else showUsers(data.result);
 
         }, function(err){
+            console.log('getExternalUsers error: ', err);
             var error = null;
 
-            if(err.responseJSON.error && err.responseJSON.error.message) {
+            if(err.responseJSON && err.responseJSON.error && err.responseJSON.error.message) {
                 error = JSON.parse(err.responseJSON.error.message).error;
             }
             
@@ -6168,16 +6171,21 @@ function Ldap(options){
             
             if(error && error.redirection) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
-                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
-                window.location = error.redirection;
+                location = error.redirection;
+            } else if(err.statusCode() >=300 && err.statusCode() < 400) {
+                location = err.getResponseHeader('Location');
             } else if(error && error.code === 401) {
                 options.external = true;
-                openAuthModal();
+                return openAuthModal();
             } else {
-                // window.sessionStorage.setItem('lastURL', lastURL);
-                window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
-                window.location = loc.origin + '/services/'+options.service_id+'/Users';
+                location = loc.origin + '/services/'+options.service_id+'/Users';
             }
+
+            if(!location) return;
+
+            window.location = location;
+            window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
+
         });
     }
 
@@ -13082,14 +13090,14 @@ function load_users(params) {
 		    onaddusers: setExternalUsers
 		});
 
-	    if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
+	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
 	        PbxObject.LdapConnection.getExternalUsers();
-	    } else {
-	        json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
-	            console.log('getExternalUsers result: ', result);
-	            if(result) PbxObject.LdapConnection.showUsers(result);
-	        });
-	    }
+	    // } else {
+	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
+	    //         console.log('getExternalUsers result: ', result);
+	    //         if(result) PbxObject.LdapConnection.showUsers(result);
+	    //     });
+	    // }
 	}
 
 	function setExternalUsers(users){
