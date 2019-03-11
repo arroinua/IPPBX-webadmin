@@ -43,7 +43,7 @@ function load_services() {
 
 			if(response.result.location) {
 				window.location = response.result.location;
-			} else if(response.result.status === 200) {
+			} else {
 				set_object_success();
 				services = services.map(function(item) {
 					if(item.id === serviceOptions.id) 

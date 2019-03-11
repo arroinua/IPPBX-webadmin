@@ -7,7 +7,8 @@ var Select3 = React.createClass({
     readonly: React.PropTypes.bool,
     options: React.PropTypes.array,
     inputStyles: React.PropTypes.object,
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    onMenuClose: React.PropTypes.func
   },
 
   getDefaultProps: function() {
@@ -60,7 +61,9 @@ var Select3 = React.createClass({
         menuOpened: false
       });
 
-    }.bind(this), 100);
+      if(this.props.onMenuClose) this.props.onMenuClose();
+
+    }.bind(this), 1000);
     
   },
 
@@ -187,7 +190,7 @@ var Select3 = React.createClass({
               <Select3Menu 
                 getMenuRef={this.getMenuRef}
                 onSelect={this.selectValue} 
-                selectedIndex={this.state.highlightedIndex} 
+                selectedIndex={this.state.highlightedIndex}
                 options={this.state.options} 
               />
           </div>

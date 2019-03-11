@@ -10,9 +10,9 @@ var UsersGroupComponent = React.createClass({
 		onImportUsers: React.PropTypes.func,
 		getExtension: React.PropTypes.func,
 		activeServices: React.PropTypes.array,
-		deleteMember: React.PropTypes.func,
-		addSteps: React.PropTypes.func,
-		initSteps: React.PropTypes.func
+		deleteMember: React.PropTypes.func
+		// addSteps: React.PropTypes.func
+		// initSteps: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -32,9 +32,9 @@ var UsersGroupComponent = React.createClass({
 		});
 	},
 
-	componentDidMount: function() {
-		if(!this.props.params.name) this.props.initSteps(); // start tour if the group is new
-	},
+	// componentDidMount: function() {
+	// 	if(!this.props.params.name) this.props.initSteps(); // start tour if the group is new
+	// },
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
@@ -99,7 +99,7 @@ var UsersGroupComponent = React.createClass({
 			    	onChange={this._onNameChange}
 			    	onSubmit={this._setObject}
 			    	onCancel={this.state.removeObject}
-			    	addSteps={this.props.addSteps}
+			    	// addSteps={this.props.addSteps}
 			    />
 			    <div className="row">
 			    	<div className="col-xs-12">
@@ -113,7 +113,7 @@ var UsersGroupComponent = React.createClass({
 			    			onImportUsers={this.props.onImportUsers} 
 			    			activeServices={this.props.activeServices}
 			    			deleteMember={this.props.deleteMember} 
-			    			addSteps={this.props.addSteps}
+			    			// addSteps={this.props.addSteps}
 			    		/>
 			    	</div>
 			    	<div className="col-xs-12">

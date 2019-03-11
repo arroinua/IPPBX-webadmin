@@ -373,6 +373,8 @@
 	"IMPORT_USER" : "Импорт пользователя",
 	"IMPORT_USERS" : "Импорт пользователей",
 	"IMPORT_USERS_FROM" : "Импорт из",
+	"ASSOCIATE_WITH_USER": "Ассоциировать с пользователем",
+	"CREATE_NEW_USER": "Добавить нового пользователя",
 	"CREATE_USER" : "Создать пользователя",
 	"CREATE_USERS" : "Создать пользователей",
 	"CREATE_EXTENSION" : "Создать внутренний номер",

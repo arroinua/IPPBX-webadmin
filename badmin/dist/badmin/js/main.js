@@ -6102,18 +6102,27 @@ function load_icd(params) {
 }
 function Ldap(options){
     var options = options || {},
-    available = [],
-    ldapUsers = [],
-    selectedUsers = [],
-    modal = null;
+    modal = null,
+    prevValue, newValue, userIndex, obj = {},
+    loc = window.location,
+    // var lastURL = window.location.href;
+    serviceParams = { id: options.service_id, type: options.service_type };
+    // available = [],
+    // ldapUsers = [],
+    // selectedUsers = [];
+    // var newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
+
+    // if(options.available && options.available.length) {
+    //     available = options.available.map(function(item, index){
+    //         return {
+    //             id: index+1,
+    //             text: item
+    //         };
+    //     });
+    //     available.unshift({ id: 0, text: '----------' });
+    // }
 
     console.log('new LDAP: ', options);
-
-    var prevValue, newValue, userIndex, obj = {};
-    var loc = window.location;
-    // var lastURL = window.location.href;
-    var serviceParams = { id: options.service_id, type: options.service_type };
-    // var newhref = loc.origin + loc.pathname + (loc.search ? loc.search : '?') + '&service_id='+options.service_id+'&service_type='+options.service_type + loc.hash;
 
     return {
         options: options,
@@ -6150,6 +6159,11 @@ function Ldap(options){
 
         $.ajax(params).then(function(data, text, response){
             console.log('getExternalUsers response: ', data);
+
+            if(data && typeof data === 'string' && isLoginPage(data)) return logout();
+
+            window.sessionStorage.removeItem('serviceParams');
+            
             if(data.result.location) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -6162,6 +6176,8 @@ function Ldap(options){
         }, function(err){
             console.log('getExternalUsers error: ', err);
             var error = null;
+
+            window.sessionStorage.removeItem('serviceParams');
 
             if(err.responseJSON && err.responseJSON.error && err.responseJSON.error.message) {
                 error = JSON.parse(err.responseJSON.error.message).error;
@@ -6199,8 +6215,9 @@ function Ldap(options){
 
     function setExternalUsers(data, cb){
         console.log('setExternalUsers: ', data);
-        json_rpc_async('setExternalUsers', data, function(result) {
+        json_rpc_async('setExternalUsers', data, function(result, err) {
             console.log('setExternalUsers result: ', result);
+            if(err) return notify_about('error', (err.message || PbxObject.frases.ERROR));
             if(cb) cb(result);
         });
     }
@@ -6255,133 +6272,136 @@ function Ldap(options){
     }
 
     function showUsers(users){
-        var usersArray = users.map(function(item, index) {
-            item.index = index;
-            return item;
-        });
         
-        ldapUsers = users;
-        available = options.available.map(function(item, index){
-            return {
-                id: index+1,
-                text: item
-            };
-        });
-        available.unshift({ id: 0, text: '----------' });
+        var modalCont = document.getElementById('modal-cont');
+        if(!modalCont) {
+            modalCont = document.createElement('div');
+            modalCont.id = "modal-cont";
+            document.body.appendChild(modalCont);
+        }
+        
+        // ldapUsers = users;
+        // available.unshift({ value: 0, label: 'Cancel' });
 
-        console.log('showModal: ', PbxObject.available, options.available, available);
+        ReactDOM.render(ImportUsersListModalComponent({
+            frases: PbxObject.frases,
+            externalUsers: users,
+            available: options.available,
+            onSubmit: addLdapUsers
+        }), modalCont); 
 
-        showModal('ldap_users', {
-            users: usersArray,
-        }, addLdapUsers, onLdapModalOpen, onLdapModalClose);
+        // showModal('ldap_users', {
+        //     users: usersArray,
+        // }, addLdapUsers, onLdapModalOpen, onLdapModalClose);
     }
 
-    function addLdapUsers(data, modalObject){
+    // function addLdapUsers(data, modalObject){
+    function addLdapUsers(selectedUsers){
         console.log('addLdapUsers: ', selectedUsers);
 
-        function hasExt(item){
-            return item.hasOwnProperty('ext');
-        }
+        // function hasExt(item){
+        //     return item.hasOwnProperty('ext');
+        // }
 
-        modal = modalObject;
-
-        options.onaddusers(selectedUsers.filter(hasExt));
+        // options.onaddusers(selectedUsers.filter(hasExt));
+        options.onaddusers(selectedUsers);
 
     }
 
-    function onLdapModalOpen(modalObject){
-            
-        $(modalObject).on('click', function(e){
-            e.preventDefault();
-            var targ = e.target;
-            if(targ.name !== 'add-ldap-user') targ = targ.parentNode;
-            if(targ.name === 'add-ldap-user') addExtSelection(targ);
-        });
+    // function onLdapModalOpen(modalObject){
 
-        modal = modalObject;
+    //     $(modalObject).on('click', function(e){
+    //         e.preventDefault();
+    //         var targ = e.target;
+    //         if(targ.name !== 'add-ldap-user') targ = targ.parentNode;
+    //         if(targ.name === 'add-ldap-user') addExtSelection(targ);
+    //         if(targ.name === 'associate-ldap-user') addExtSelection(targ);
+    //     });
 
-        TableSortable.sortables_init();
-    }
+    //     modal = modalObject;
 
-    function addExtSelection(el){
-        var id,
-            $select,
-            $el = $(el),
-            $cont = $el.next();
+    //     TableSortable.sortables_init();
+    // }
 
-        userIndex = parseInt(el.getAttribute('data-index'), 10);
-        prevValue = $el.data('data-selected');
+    // function addExtSelection(el){
+    //     var id,
+    //         $select,
+    //         $el = $(el),
+    //         $cont = $el.next();
 
-        $cont.html('<select style="width: 100%;"></select>');
-        $select = $cont.children(':first');
+    //     userIndex = parseInt(el.getAttribute('data-index'), 10);
+    //     prevValue = $el.data('data-selected');
+
+    //     $cont.html('<select style="width: 100%;"></select>');
+    //     $select = $cont.children(':first');
         
-        $el.hide();
-        $select.select2({
-            data: sortByKey(available, 'id')
-        });
+    //     $el.hide();
+    //     $select.select2({
+    //         data: sortByKey(available, 'id')
+    //     });
 
-        console.log('available: ', available);
+    //     console.log('available: ', available);
 
-        $select.on('select2:open', onSelectOpen);
-        $select.on('select2:close', onSelectSelected);
-        $select.on('select2:close', function(){
-            if(newValue && newValue.id !== 0) {
-                $el.text(newValue.text);
-                id = newValue.id;
-            } else if(newValue && newValue.id === 0){
-                $el.html('<i class="fa fa-plus-circle fa-fw fa-lg"></i>');
-                id = newValue.id;
-            } else {
-                $el.text(prevValue.text);
-                id = prevValue.id;
-            }
-            $el.data('data-selected', id);
-            $el.show();
-            $cont.hide();
-        });
+    //     $select.on('select2:open', onSelectOpen);
+    //     $select.on('select2:close', onSelectSelected);
+    //     $select.on('select2:close', function(){
+    //         if(newValue && newValue.id !== 0) {
+    //             $el.text(newValue.text);
+    //             id = newValue.id;
+    //         } else if(newValue && newValue.id === 0){
+    //             $el.html('<i class="fa fa-plus-circle fa-fw fa-lg"></i>');
+    //             id = newValue.id;
+    //         } else {
+    //             $el.text(prevValue.text);
+    //             id = prevValue.id;
+    //         }
+    //         $el.data('data-selected', id);
+    //         $el.show();
+    //         $cont.hide();
+    //     });
 
-        $cont.show();
-        if(prevValue) $select.val(prevValue).trigger('change');
-        $select.select2('open');
+    //     $cont.show();
+    //     if(prevValue) $select.val(prevValue).trigger('change');
+    //     $select.select2('open');
 
-    }
+    // }
 
-    function onSelectOpen(e){
-        prevValue = available[parseInt(this.value, 10)];
-        newValue = null;
-    }
+    // function onSelectOpen(e){
+    //     prevValue = available[parseInt(this.value, 10)];
+    //     newValue = null;
+    // }
 
-    function onSelectSelected(e){
-        newValue = available[parseInt(this.value, 10)];
+    // function onSelectSelected(e){
+    //     newValue = available[parseInt(this.value, 10)];
 
-        if(prevValue.id !== newValue.id) {
-            if(prevValue.id !== 0) {
-                prevValue.disabled = false;
+    //     if(prevValue.id !== newValue.id) {
+    //         if(prevValue.id !== 0) {
+    //             prevValue.disabled = false;
 
-                selectedUsers.splice(selectedUsers.indexOf(userIndex), 1);
-            }
-            if(newValue.id !== 0) {
-                newValue.disabled = true;
+    //             selectedUsers.splice(selectedUsers.indexOf(userIndex), 1);
+    //         }
+    //         if(newValue.id !== 0) {
+    //             newValue.disabled = true;
 
-                obj = ldapUsers[userIndex];
-                obj.ext = newValue.text;
-                delete obj.index;
+    //             obj = ldapUsers[userIndex];
+    //             obj.ext = newValue.text;
+    //             delete obj.index;
                 
-                selectedUsers.push(obj);
-            }
-        }
+    //             selectedUsers.push(obj);
+    //         }
+    //     }
 
-        $(this).off('select2:open', onSelectOpen);
-        $(this).off('select2:close', onSelectSelected);
-        // destroy select element
-        $(this).select2('destroy');
-    }
+    //     $(this).off('select2:open', onSelectOpen);
+    //     $(this).off('select2:close', onSelectSelected);
+    //     // destroy select element
+    //     $(this).select2('destroy');
+    // }
 
     function onLdapModalClose(modalObject){
         console.log('LDAP modal closed');
-        available = [];
-        ldapUsers = [];
-        selectedUsers = [];
+        // available = [];
+        // ldapUsers = [];
+        // selectedUsers = [];
     }
 
     function closeModal(){
@@ -6422,7 +6442,7 @@ window.onerror = function(msg, url, linenumber) {
     };
  }
 
- init();
+init();
 
 function init(){
     var fn = setupPage;
@@ -6460,8 +6480,6 @@ function logout() {
     window.localStorage.remove('ringo_tid');
     setLastQuery('');
 }
-
-
 
 function createWebsocket(){
 
@@ -6686,7 +6704,7 @@ function request(method, url, data, options, callback){
             if(xhr.status === 200) {
                 if(callback) callback(null, response);
 
-            } else if(xhr.status === 302) {
+            } else if(xhr.status >= 300 && xhr.status < 400) {
                 return window.location = xhr.getResponseHeader('Location');
 
             } else if(xhr.status === 403) {
@@ -6882,8 +6900,8 @@ function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
         query = location.hash.substring(1),
-        profile = {};
-        // search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
+        profile = {},
+        search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
 
@@ -6922,7 +6940,7 @@ function setupPage() {
 
                         // if(search) PbxObject.lastSearch = getQueryParams(search);
 
-                        window.location.hash = window.sessionStorage.query;
+                        window.location.hash = window.sessionStorage.query + (search ? search : "");
                     }
 
                     PbxObject.profile = profile;
@@ -11407,7 +11425,7 @@ function load_services() {
 
 			if(response.result.location) {
 				window.location = response.result.location;
-			} else if(response.result.status === 200) {
+			} else {
 				set_object_success();
 				services = services.map(function(item) {
 					if(item.id === serviceOptions.id) 
@@ -12888,14 +12906,14 @@ function load_users(params) {
 
 	console.log('load_users: ', params);
 	var frases = PbxObject.frases;
-	var driver;
-	var driverSettings = {
-		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-	};
-	var driverSteps = [];
+	// var driver;
+	// var driverSettings = {
+	// 	nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+	// 	prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+	// 	doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+	// 	closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	// };
+	// var driverSteps = [];
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
@@ -12903,7 +12921,11 @@ function load_users(params) {
 	var activeServices = PbxObject.options.services.filter(function(service){
 	    return service.state;
 	});
-	var tourStarted = false;
+	// var tourStarted = false;
+	var serviceParams = window.sessionStorage.serviceParams;
+
+	$(document).off('onmessage.object.add', updateUsersList);
+	$(document).on('onmessage.object.add', updateUsersList);
 
 	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
 		activeServices.unshift({
@@ -13014,29 +13036,29 @@ function load_users(params) {
 
 			init(objParams);
 
-			if(tourStarted) {
-				onFirstUserCreated();
-			}
+			// if(tourStarted) {
+			// 	onFirstUserCreated();
+			// }
 
 			if(callback) callback(null, result);
 
 		});
 	}
 
-	function onFirstUserCreated() {
-		console.log('onFirstUserCreated');
+	// function onFirstUserCreated() {
+		// console.log('onFirstUserCreated');
 
-		driverSettings.onReset = showGSLink;
-		driver = new Driver(driverSettings);
-		driver.highlight({
-			element: '#group-extensions',
-			popover: {
-				title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
-				description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
-				position: 'bottom'
-			}
-		});
-	}
+		// driverSettings.onReset = showGSLink;
+		// driver = new Driver(driverSettings);
+		// driver.highlight({
+		// 	element: '#group-extensions',
+		// 	popover: {
+		// 		title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
+		// 		description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
+		// 		position: 'bottom'
+		// 	}
+		// });
+	// }
 
 	function onImportUsers(serviceParams) {
 		console.log('onImportUsers: ', serviceParams);
@@ -13061,8 +13083,8 @@ function load_users(params) {
 
 	    console.log('onAddUsers: ', users);
 
-	    var ldapConn = PbxObject.LdapConnection,
-	        availableSelect = document.getElementById('available-users');
+	    var ldapConn = PbxObject.LdapConnection;
+	        // availableSelect = document.getElementById('available-users');
 	    
 	    ldapConn.setUsers({
 	        groupid: PbxObject.oid,
@@ -13074,9 +13096,10 @@ function load_users(params) {
 	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 	        
-	        refreshUsersTable(function(availableUsers){
-	            ldapConn.options.available = availableUsers;
-	        });
+
+	        // refreshUsersTable(function(availableUsers){
+	        //     ldapConn.options.available = availableUsers;
+	        // });
 	    });
 	}
 
@@ -13091,7 +13114,7 @@ function load_users(params) {
 		});
 
 	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
-	        PbxObject.LdapConnection.getExternalUsers();
+	    PbxObject.LdapConnection.getExternalUsers();
 	    // } else {
 	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
 	    //         console.log('getExternalUsers result: ', result);
@@ -13106,6 +13129,8 @@ function load_users(params) {
 	        return;
 	    }
 
+	    show_loading_panel();
+
 	    console.log('setExternalUsers: ', users);
 
 	    var ldapConn = PbxObject.LdapConnection;
@@ -13117,10 +13142,10 @@ function load_users(params) {
 	    }, function(result) {
 	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
-	        
-	        refreshUsersTable(function(availableUsers){
-	            ldapConn.options.available = availableUsers;
-	        });
+			if(result === 'OK') set_object_success();
+	        // refreshUsersTable(function(availableUsers){
+	        //     ldapConn.options.available = availableUsers;
+	        // });
 	    });
 	}
 
@@ -13173,37 +13198,43 @@ function load_users(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
 	}
 
-	function addSteps(stepParams) {
-		driverSteps = driverSteps.concat(stepParams);
-	}
+	// function addSteps(stepParams) {
+	// 	driverSteps = driverSteps.concat(stepParams);
+	// }
 
-	function initSteps() {
-		console.log('initSteps: ', driverSteps);
-		if(PbxObject.tourStarted && driverSteps.length) {
-			tourStarted = true;
-			driverSettings.onReset = showGSLink;
-			driver = new Driver(driverSettings);
-			driver.defineSteps(driverSteps);
-			driver.start();
-		}
-	}
+	// function initSteps() {
+	// 	console.log('initSteps: ', driverSteps);
+	// 	if(PbxObject.tourStarted && driverSteps.length) {
+	// 		tourStarted = true;
+	// 		driverSettings.onReset = showGSLink;
+	// 		driver = new Driver(driverSettings);
+	// 		driver.defineSteps(driverSteps);
+	// 		driver.start();
+	// 	}
+	// }
 
-	function showGSLink() {
-		console.log('showGSLink');
-		driver = new Driver({
-			nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-			prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-			doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-			closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-		});
-		driver.highlight({
-			element: '.init-gs-btn',
-			popover: {
-				title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].TITLE,
-				description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].DESC,
-				position: 'right'
-			}
-		});
+	// function showGSLink() {
+	// 	console.log('showGSLink');
+	// 	driver = new Driver({
+	// 		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
+	// 		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
+	// 		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
+	// 		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
+	// 	});
+	// 	driver.highlight({
+	// 		element: '.init-gs-btn',
+	// 		popover: {
+	// 			title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].TITLE,
+	// 			description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].DESC,
+	// 			position: 'right'
+	// 		}
+	// 	});
+	// }
+
+	function updateUsersList(e, user) {
+		console.log('updateUsersList: ', user);
+		objParams.members.push(user);
+		init(objParams);
 	}
 
 	function init(params) {
@@ -13216,9 +13247,9 @@ function load_users(params) {
 		    getExtension: getExtension,
 		    activeServices: activeServices,
 		    onImportUsers: onImportUsers,
-		    deleteMember: deleteMember,
-		    addSteps: addSteps,
-		    initSteps: initSteps
+		    deleteMember: deleteMember
+		    // addSteps: addSteps
+		    // initSteps: initSteps
 		};
 
 		if(params.name) {
@@ -13226,6 +13257,10 @@ function load_users(params) {
 		}
 
 		ReactDOM.render(UsersGroupComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		if(serviceParams && serviceParams.id && getQueryParams().success === 1) {
+			getExternalUsers(serviceParams);
+		}
 	}	
 
 }

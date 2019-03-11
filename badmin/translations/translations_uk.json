@@ -374,6 +374,8 @@
 	"IMPORT_USER" : "Імпорт користувача",
 	"IMPORT_USERS" : "Імпорт користувачів",
 	"IMPORT_USERS_FROM" : "Імпорт з",
+	"ASSOCIATE_WITH_USER": "Асоціювати з користувачем",
+	"CREATE_NEW_USER": "Додати нового користувача",
 	"CREATE_USER" : "Створити користувача",
 	"CREATE_USERS" : "Створити користувачів",
 	"CREATE_EXTENSION" : "Створити внутрішній номер",

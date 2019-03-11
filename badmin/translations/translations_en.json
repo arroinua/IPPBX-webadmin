@@ -372,6 +372,8 @@
 	"IMPORT_USER" : "Import user",
 	"IMPORT_USERS" : "Import users",
 	"IMPORT_USERS_FROM" : "Import from",
+	"ASSOCIATE_WITH_USER": "Associate with existing user",
+	"CREATE_NEW_USER": "Create new user",
 	"CREATE_USER" : "Create user",
 	"CREATE_USERS" : "Create users",
 	"CREATE_EXTENSION" : "Create extension",

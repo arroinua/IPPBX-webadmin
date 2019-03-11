@@ -32,7 +32,7 @@ window.onerror = function(msg, url, linenumber) {
     };
  }
 
- init();
+init();
 
 function init(){
     var fn = setupPage;
@@ -70,8 +70,6 @@ function logout() {
     window.localStorage.remove('ringo_tid');
     setLastQuery('');
 }
-
-
 
 function createWebsocket(){
 
@@ -296,7 +294,7 @@ function request(method, url, data, options, callback){
             if(xhr.status === 200) {
                 if(callback) callback(null, response);
 
-            } else if(xhr.status === 302) {
+            } else if(xhr.status >= 300 && xhr.status < 400) {
                 return window.location = xhr.getResponseHeader('Location');
 
             } else if(xhr.status === 403) {
@@ -492,8 +490,8 @@ function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
         query = location.hash.substring(1),
-        profile = {};
-        // search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
+        profile = {},
+        search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
 
@@ -532,7 +530,7 @@ function setupPage() {
 
                         // if(search) PbxObject.lastSearch = getQueryParams(search);
 
-                        window.location.hash = window.sessionStorage.query;
+                        window.location.hash = window.sessionStorage.query + (search ? search : "");
                     }
 
                     PbxObject.profile = profile;

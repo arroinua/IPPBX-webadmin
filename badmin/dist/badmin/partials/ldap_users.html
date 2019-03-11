@@ -27,8 +27,16 @@
                                     {{/ext}}
                                     {{^ext}}
                                         <td>
-                                            <a href="#" name="add-ldap-user" data-index="{{index}}"><i class="fa fa-plus-circle fa-fw fa-lg"></i></a>
+                                            <div class="btn-group">
+                                              <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus-circle fa-fw fa-lg"></i></a>
+                                              <ul class="dropdown-menu">
+                                                <li><a href="#" name="add-ldap-user" data-index="{{index}}">Create a new user</a></li>
+                                                <li><a href="#" name="associate-ldap-user" data-index="{{index}}">Associate with existing user</a></li>
+                                              </ul>
+                                            </div>
                                             <div style="display: none;"></div>
+                                            <a href="#" name="add-ldap-user" data-index="{{index}}"><i class="fa fa-plus-circle fa-fw fa-lg"></i></a>
+                                            
                                         </td>
                                     {{/ext}}
                                     <td>{{login}}</td>
