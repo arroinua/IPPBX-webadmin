@@ -162,7 +162,8 @@ function load_users(params) {
 			PbxObject.LdapConnection = Ldap({
 			    domains: serviceParams.props.directoryDomains.split(' '),
 			    available: objParams.available,
-			    onaddusers: onAddLdapUsers
+			    onaddusers: onAddLdapUsers,
+			    members: objParams.members
 			});
 			PbxObject.LdapConnection.auth();
 		} else {
@@ -206,7 +207,8 @@ function load_users(params) {
 		    service_id: serviceParams.id,
 		    service_type: serviceParams.type,
 		    available: objParams.available,
-		    onaddusers: setExternalUsers
+		    onaddusers: setExternalUsers,
+		    members: objParams.members
 		});
 
 	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {

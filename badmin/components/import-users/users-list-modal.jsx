@@ -3,45 +3,40 @@ var ImportUsersListModalComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		available: React.PropTypes.array,
-		users: React.PropTypes.array,
+		members: React.PropTypes.array,
 		externalUsers: React.PropTypes.array,
 		onSubmit: React.PropTypes.func
 	},
 
 	getInitialState: function() {
 		return {
-			users: null,
+			available: [],
+			members: [],
 			currentIndex: null,
 			externalUsers: []
 		};
 	},
 
 	componentWillMount: function() {
-		var extensions = [];
 		var available = this.props.available.sort().map(function(item, index){
 		    return {
 		        value: item,
 		        label: item
 		    };
 		});
-		getExtensions(function(result) {
-			console.log('getExtensions result', result);
-			
-			extensions = filterObject(result, ['user', 'phone']).map(function(item) {
-				return {
-					value: item.ext,
-					label: (item.ext + " - " + item.name)
-				}
-			});
 
-			this.setState({ 
-				externalUsers: [].concat(this.props.externalUsers),
-				available: available,
-				extensions: extensions
-			});
+		var members = this.props.members.map(function(item) {
+			return {
+				value: item.number,
+				label: (item.number + " - " + item.name)
+			}
+		});
 
-		}.bind(this))
-
+		this.setState({ 
+			externalUsers: [].concat(this.props.externalUsers),
+			available: available,
+			members: sortByKey(members, 'value')
+		});
 	},
 
 	_saveChanges: function() {
@@ -65,16 +60,16 @@ var ImportUsersListModalComponent = React.createClass({
 	},
 
 	_clearList: function() {
-		this.setState({ users: null, currentIndex: null });
+		this.setState({ currentIndex: null });
 	},
 
 	_setList: function(index, create) {
-		var list = (create ? this.state.available : this.state.extensions);
+		var list = (create ? this.state.available : this.state.members);
 		var external = this.state.externalUsers.reduce(function(array, next) { array.push(next.ext); return array }, []);
 
 		list = list.filter(function(item) { return external.indexOf(item.value) === -1; });
 
-		console.log('_setList: ', external, list);
+		console.log('_setList: ', external, list, this.state.members);
 
 		this.setState({ users: list, currentIndex: index });
 	},
@@ -88,6 +83,7 @@ var ImportUsersListModalComponent = React.createClass({
 			frases={this.props.frases} 
 			usersList={this.state.users} 
 			externalUsers={this.props.externalUsers} 
+			hasMembers={this.state.members.length}
 			onSelect={this._onSelect}
 			onDeselect={this._onDeselect}
 			setList={this._setList}

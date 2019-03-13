@@ -185,6 +185,7 @@ function Ldap(options){
             frases: PbxObject.frases,
             externalUsers: users,
             available: options.available,
+            members: options.members,
             onSubmit: addLdapUsers
         }), modalCont); 
 
