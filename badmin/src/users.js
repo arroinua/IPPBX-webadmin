@@ -329,9 +329,10 @@ function load_users(params) {
 	// 	});
 	// }
 
-	function updateUsersList(e, user) {
-		console.log('updateUsersList: ', user);
-		objParams.members.push(user);
+	function updateUsersList(e, object) {
+		console.log('updateUsersList: ', object);
+		if(object.ext === undefined) return;
+		objParams.members.push(object);
 		init(objParams);
 	}
 
