@@ -2,10 +2,12 @@ var ImportUsersListModalComponent = React.createClass({
 
 	propTypes: {
 		frases: React.PropTypes.object,
+		service: React.PropTypes.object,
 		available: React.PropTypes.array,
 		members: React.PropTypes.array,
 		externalUsers: React.PropTypes.array,
-		onSubmit: React.PropTypes.func
+		onSubmit: React.PropTypes.func,
+		deleteAssociation: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -51,6 +53,17 @@ var ImportUsersListModalComponent = React.createClass({
 		console.log('_onSelect externalUsers: ', externalUsers);
 	},
 
+	_onDeleteAssociation: function(index) {
+		var externalUsers = [].concat(this.state.externalUsers);
+		var externalUser = externalUsers[index];
+		var user = this.props.members.filter(function(item) { return item.number === externalUser.ext })[0];
+
+		this.props.deleteAssociation({ service_id: this.props.service.id, user_id: user.oid }, function() {
+			delete externalUser.ext;
+			this.setState({ externalUsers: externalUsers });
+		}.bind(this));
+	},
+
 	_onDeselect: function(index) {
 		var externalUsers = [].concat(this.state.externalUsers);
 		delete externalUsers[index].ext;
@@ -86,6 +99,7 @@ var ImportUsersListModalComponent = React.createClass({
 			hasMembers={this.state.members.length}
 			onSelect={this._onSelect}
 			onDeselect={this._onDeselect}
+			onDeleteAssociation={this._onDeleteAssociation}
 			setList={this._setList}
 			clearList={this._clearList}
 			currentIndex={this.state.currentIndex}

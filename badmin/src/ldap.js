@@ -183,10 +183,12 @@ function Ldap(options){
 
         ReactDOM.render(ImportUsersListModalComponent({
             frases: PbxObject.frases,
+            service: serviceParams,
             externalUsers: users,
             available: options.available,
             members: options.members,
-            onSubmit: addLdapUsers
+            onSubmit: addLdapUsers,
+            deleteAssociation: deleteAssociation
         }), modalCont); 
 
         // showModal('ldap_users', {
@@ -295,6 +297,14 @@ function Ldap(options){
     //     // destroy select element
     //     $(this).select2('destroy');
     // }
+
+    function deleteAssociation(params, callback) {
+        json_rpc_async('deleteUserService', { user_id: params.user_id }, function(result, err) {
+            console.log('deleteAssociation:', result);
+            if(err) return notify_about('error', err.message);
+            callback();
+        });
+    }
 
     function onLdapModalClose(modalObject){
         console.log('LDAP modal closed');

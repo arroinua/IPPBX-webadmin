@@ -1745,16 +1745,35 @@ function newObjectAdded(event, data){
 }
 
 function updateMenu(event, data) {
-    var ul = document.getElementById('ul-'+data.kind);
-    var anchors = [];
-    if(ul) {
-        anchors = anchors.slice.call(ul.querySelectorAll('li a'));
-        anchors.forEach(function(a) {
-            if(a.href.indexOf(data.oid) !== -1) {
-                a.textContent = data.name;
+    json_rpc_async('getObjects', { kind: 'all' }, function(result) {
+        
+        PbxObject.objects = result.map(function(item) {
+            if(!item.ext && item.oid === data.oid) {
+                item.name = data.name;
+                item.enabled = data.enabled;
+                if(data.up !== undefined) item.up = data.up;
             }
+            return item;
+        })
+
+        renderSidebar({
+            branchOptions: PbxObject.options,
+            activeKind: PbxObject.kind,
+            activeItem: PbxObject.oid
         });
-    }
+        
+    });
+    
+    // var ul = document.getElementById('ul-'+data.kind);
+    // var anchors = [];
+    // if(ul) {
+    //     anchors = anchors.slice.call(ul.querySelectorAll('li a'));
+    //     anchors.forEach(function(a) {
+    //         if(a.href.indexOf(data.oid) !== -1) {
+    //             a.textContent = data.name;
+    //         }
+    //     });
+    // }
 }
 
 function objectDeleted(data){

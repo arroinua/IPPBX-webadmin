@@ -13,7 +13,7 @@ var DidTrunkComponent = React.createClass({
 	getInitialState: function() {
 		return {
 			init: false,
-			fetch: true,
+			fetch: false,
 			sub: null,
 			isTrial: null,
 			// cycleDays: 0,
@@ -42,49 +42,51 @@ var DidTrunkComponent = React.createClass({
 	},
 
 	componentWillMount: function() {
-		BillingApi.getSubscription(function(err, response) {
-			console.log('getSubscription response: ', err, response);
-			if(err) return notify_about('error' , err.message);
+		var state = { fetch: true };
 
-			var sub = response.result;
-			// var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
-			// var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
+		if(this.props.properties && this.props.properties.number) {
+			
+			this.setState(state);
 
-			this.setState({ 
-				init: true,
-				isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
-				sub: response.result
-				// cycleDays: cycleDays,
-				// proratedDays: proratedDays
-			});
+			BillingApi.getSubscription(function(err, response) {
+				if(err) return notify_about('error' , err.message);
 
-			if(this.props.properties && this.props.properties.number) {
-				this.setState({ fetch: false });
+				var sub = response.result;
+
+				state = { 
+					init: true,
+					isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
+					sub: response.result,
+					fetch: false
+				};
 
 				this._getDid(this.props.properties.number, function(err, response) {
 					if(err) return notify_about('error', err);
-					this.setState({
-						showNewDidSettings: true,
-						selectedNumber: response.result
-					});
-
+					state.showNewDidSettings = true;
+					state.selectedNumber = response.result;
+					this.setState(state);
 				}.bind(this));
 
-			} else if(this._isTrunkChannel(this.props.properties.id)) {
-				this.setState({ 
-					fetch: false,
-					showConnectTrunkSettings: true
-				});
-			}
+			}.bind(this));
 
-		}.bind(this));
+		} else {
+			state = {
+				init: true,
+				fetch: false
+			};
+
+			if(this._isTrunkChannel(this.props.properties.id)) {
+				state.showConnectTrunkSettings = true;
+				this.setState(state);
+			} else {
+				this.setState(state);
+			}
+		}
+		
 
 	},
 
 	componentWillReceiveProps: function(props) {
-
-		console.log('DidTrunkComponent componentWillReceiveProps', props);
-
 		if(this.state.fetch && props.properties && props.properties.number) {
 			this.setState({ fetch: false });
 

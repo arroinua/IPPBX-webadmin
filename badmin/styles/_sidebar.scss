@@ -108,7 +108,7 @@
 
 	.nav-list {
 		flex: 4;
-		padding: 20px 15px 0;
+		padding: 20px 20px 0;
 		background: #fff;
 		overflow-y: auto;
 
@@ -128,7 +128,7 @@
 
 		.nav-link {
 			// margin: 7px 0;
-			padding: 7px 0 7px 25px;
+			padding: 7px 7px;
 			font-size: 1.15em;
 			color: #444;
 			border-radius: 25px;
@@ -136,10 +136,33 @@
 			-webkit-transition: transform .2s;
 
 			&:hover {
-				-ms-transform: translateX(-10px); /* IE 9 */
-				-webkit-transform: translateX(-10px); /* Safari */
-				transform: translateX(-10px);
+				background-color: #efefef;
+				// -ms-transform: translateX(-10px); /* IE 9 */
+				// -webkit-transform: translateX(-10px); /* Safari */
+				// transform: translateX(-10px);
 			}
+
+			&:not(.active) ~ span {
+				position: absolute;
+				width: 5px;
+				height: 5px;
+				right: 10px;
+				margin-top: -21px;
+				border-radius: 50%;
+			}
+
+			&.enabled {
+				~ span {
+					background-color: #8ce196;
+				}
+
+				&.unregistered {
+					~ span {
+						background-color: #fdf03a;
+					}
+				}
+			}
+
 		}
 
 		.nav-link.active {

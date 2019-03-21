@@ -1,13 +1,7 @@
 function load_chattrunk(params) {
 
+	var queryParams = getQueryParams();
 	var frases = PbxObject.frases;
-	// var driver = new Driver({
-	// 	nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-	// 	prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-	// 	doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-	// 	closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-	// });
-	// var driverSteps = [];
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'FacebookMessenger';
@@ -17,9 +11,7 @@ function load_chattrunk(params) {
 		name: "Facebook & Messenger",
 		icon: '/badmin/images/channels/facebook.png',
 		params: {
-			// appId: '507766126349295',
 			appId: '1920629758202993',
-			// redirectUri: 'https://m2.ringotel.net/chatbot/FacebookMessenger'
 			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
@@ -112,19 +104,7 @@ function load_chattrunk(params) {
 	// 		oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
 	// 	}
 	];
-
-	var modalCont = document.getElementById('create-service-group');
-	if(!modalCont) {
-		modalCont = document.createElement('div');
-		modalCont.id = "create-service-group";
-		document.body.appendChild(modalCont);
-	}
-
-	var query = window.location.href;
-	var search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
-	var queryParams = getQueryParams(search);
-	var selectedService = queryParams.channel;
-	var userAccessToken = search ? queryParams.access_token : null;
+	var userAccessToken = queryParams.access_token || null;
 
 	if(window.opener && window.opener.onTokenReceived) {
 		return window.opener.onTokenReceived(userAccessToken);
@@ -195,6 +175,7 @@ function load_chattrunk(params) {
 	}
 
 	function confirmRemoveObject(type, callback) {
+		var modalCont = document.getElementById('modal-cont');
 		var props = {
 			frases: PbxObject.frases,
 			name: PbxObject.name,
@@ -204,6 +185,12 @@ function load_chattrunk(params) {
 			),
 			onSubmit: callback
 		};
+
+		if(!modalCont) {
+			modalCont = document.createElement('div');
+			modalCont.id = "modal-cont";
+			document.body.appendChild(modalCont);
+		}
 
 		ReactDOM.render(DeleteObjectModalComponent(props), modalCont);
 	}
@@ -310,7 +297,7 @@ function load_chattrunk(params) {
 			services: services,
 			frases: PbxObject.frases,
 		    params: params,
-		    selected: selectedService,
+		    selected: queryParams.channel,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
 		    setObject: setObject,

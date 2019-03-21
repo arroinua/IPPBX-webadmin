@@ -1061,6 +1061,7 @@
     	"BUTTON" : "Button",
     	"MAIN_MENU": "Main Menu",
     	"INPUT_TRIES" : "Input tries",
+    	"INPUT_TOUT" : "Digit input timeout",
     	"MSG_TOUT" : "Max Record Duration",
     	"PREV_MENU" : "Prev Menu",
     	"BACK_BTN" : "Back Button",

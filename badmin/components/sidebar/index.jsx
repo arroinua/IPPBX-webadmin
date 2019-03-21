@@ -35,14 +35,23 @@ var SideBarComponent = React.createClass({
 	},
 
 	_buildItemsMenu: function(objects, activeItem) {
+		function getItemClass(item) {
+			var className = "ellipsis nav-link ";
+			className += (activeItem === item.oid ? "active " : " ");
+			if(item.enabled !== undefined) className += (item.enabled ? "enabled" : "");
+			if(item.up !== undefined) className += (item.up ? "" : "unregistered")
+			return className;
+		}
+
 		return objects.map(function(item) {
 			return (
 				<li key={item.oid}>
 					<a 
 						href={"#"+item.kind+(item.oid ? ("/"+item.oid) : "")} 
-						className={"ellipsis nav-link "+(activeItem === item.oid ? "active" : "")}
+						className={ getItemClass(item) }
 						title={item.name}
 					>{item.name}</a>
+					<span></span>
 				</li>
 			)
 		});
