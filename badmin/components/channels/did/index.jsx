@@ -43,46 +43,49 @@ var DidTrunkComponent = React.createClass({
 
 	componentWillMount: function() {
 		var state = { fetch: true };
+		var sub = {};
 
-		if(this.props.properties && this.props.properties.number) {
-			
-			this.setState(state);
+		this.setState(state);
 
-			BillingApi.getSubscription(function(err, response) {
-				if(err) return notify_about('error' , err.message);
+		BillingApi.getSubscription(function(err, response) {
 
-				var sub = response.result;
+			if(err) return notify_about('error' , err.message);
 
-				state = { 
-					init: true,
-					isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
-					sub: response.result,
-					fetch: false
-				};
+			sub = response.result;
+
+			this.setState({
+				init: true,
+				isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
+				sub: response.result,
+				fetch: false
+			});
+
+			if(this.props.properties && this.props.properties.number) {
 
 				this._getDid(this.props.properties.number, function(err, response) {
 					if(err) return notify_about('error', err);
-					state.showNewDidSettings = true;
-					state.selectedNumber = response.result;
+					state = {
+						showNewDidSettings: true,
+						selectedNumber: response.result
+					}
 					this.setState(state);
 				}.bind(this));
 
-			}.bind(this));
-
-		} else {
-			state = {
-				init: true,
-				fetch: false
-			};
-
-			if(this._isTrunkChannel(this.props.properties.id)) {
-				state.showConnectTrunkSettings = true;
-				this.setState(state);
 			} else {
-				this.setState(state);
+				state = {
+					init: true,
+					fetch: false
+				};
+
+				if(this._isTrunkChannel(this.props.properties.id)) {
+					state.showConnectTrunkSettings = true;
+					this.setState(state);
+				} else {
+					this.setState(state);
+				}
 			}
-		}
 		
+		}.bind(this));
 
 	},
 
