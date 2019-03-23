@@ -34,7 +34,15 @@ function ImportUsersListComponent(props) {
     							<tr key={index}>
     								{
     									user.ext ? (
-    										<td><span>{user.ext}</span> { user.new ? <a href="#" onClick={function(e) { return onDeselect(e, index) }}>{frases.CANCEL}</a> : <a href="#" className="text-danger" onClick={function(e) { return onDeleteAssociation(e, index) }}>{frases.DELETE}</a> }</td>
+    										<td>
+                                                <span>{user.ext}</span>
+                                                <br/>
+                                                {
+                                                    user.new ?
+                                                        <a href="#" onClick={function(e) { return onDeselect(e, index) }}>{frases.CANCEL}</a> : 
+                                                        <a href="#" className="text-danger" onClick={function(e) { return onDeleteAssociation(e, index) }}>{frases.DELETE}</a> 
+                                                }
+                                            </td>
     									) : (
     										(props.usersList && props.currentIndex === index) ? (
     											<td>

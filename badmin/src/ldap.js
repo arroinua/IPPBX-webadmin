@@ -299,7 +299,7 @@ function Ldap(options){
     // }
 
     function deleteAssociation(params, callback) {
-        json_rpc_async('deleteUserService', { user_id: params.user_id }, function(result, err) {
+        json_rpc_async('deleteUserService', params, function(result, err) {
             console.log('deleteAssociation:', result);
             if(err) return notify_about('error', err.message);
             callback();
