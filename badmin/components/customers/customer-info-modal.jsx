@@ -39,7 +39,7 @@ var CustomerInfoModalComponent = React.createClass({
 				<div className="col-xs-12">
 					<CustomerInfoComponent frases={this.props.frases} params={this.props.params} getPrivacyPrefs={this.props.getPrivacyPrefs} onDelete={this.props.onDelete} />
 				</div>
-				<div className="col-xs-12 text-right">
+				<div className="col-xs-12">
 					<a href={exportLink} className="btn btn-link" target="_blank" onClick={this._onExport}>{frases.CUSTOMERS.EXPORT_BTN}</a>
 					<button type="button" className="btn btn-link btn-danger" onClick={this._onDelete}>{frases.CUSTOMERS.DELETE_BTN}</button>
 				</div>

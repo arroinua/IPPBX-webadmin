@@ -432,6 +432,7 @@
 	"REGSETTINGS" : "Registration settings",
 	"AUTHNAME" : "Authentication name",
 	"REGEXPIRES" : "Authentication period",
+	"CONNECTED_TO": "Connected to",
 	"ADDRESS" : "Address",
 	"PROXY" : "Proxy",
 	"NETWORK": "Network",
@@ -901,7 +902,7 @@
     	"DEFAULT_NAME": "Service group",
     	"NO_MEMBERS": "No members in the group",
     	"ADD_MEMBERS": "Add members",
-    	"ADD_SELECTED": "Add selected",
+    	"ADD_SELECTED": "Submit changes",
     	"MEMBERS": "Members",
     	"AVAILABLE_USERS": "Available users",
     	"SELECT_ALL": "Select all"

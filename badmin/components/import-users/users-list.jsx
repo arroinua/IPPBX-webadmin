@@ -58,7 +58,10 @@ function ImportUsersListComponent(props) {
     											    <div className="btn-group" style={{ position: "absolute" }}>
     											      <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i className="fa fa-plus-circle fa-fw fa-lg"></i> {frases.ADD}</a>
     											      <ul className="dropdown-menu">
-    											        <li><a href="#" onClick={function(){ props.setList(index, 1) }}>{frases.CREATE_NEW_USER}</a></li>
+                                                        {
+                                                            (user.ext && !(user.services && user.services.length)) ? null :
+                                                            <li><a href="#" onClick={function(){ props.setList(index, 1) }}>{frases.CREATE_NEW_USER}</a></li>
+                                                        }
     											        {
     											        	(props.hasMembers) ? 
     											        	(<li><a href="#" onClick={function(){ props.setList(index, 0) }}>{frases.ASSOCIATE_WITH_USER}</a></li>) : null

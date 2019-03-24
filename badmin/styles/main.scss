@@ -216,6 +216,13 @@ input[type="checkbox"]:checked + .help-block {
     margin: 7px;
 }
 
+.user-connected-services img {
+    display: inline-block;
+    margin: 5px;
+    width: 20;
+    height: 20px;
+}
+
 /*Loading Panel Styles*/
 
 .el-loading-panel{

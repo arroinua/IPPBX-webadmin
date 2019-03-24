@@ -43,7 +43,7 @@ var ImportUsersListModalComponent = React.createClass({
 	},
 
 	_saveChanges: function() {
-		this.props.onSubmit({ externalUsers: this.state.externalUsers.filter(this._filterNew), deAssociationList: this.state.deAssociationList });
+		this.props.onSubmit({ selectedUsers: this.state.externalUsers.filter(this._filterNew), deAssociationList: this.state.deAssociationList });
 	},
 
 	_onSelect: function(ext, index) {
@@ -58,11 +58,11 @@ var ImportUsersListModalComponent = React.createClass({
 		var externalUsers = [].concat(this.state.externalUsers);
 		var externalUser = externalUsers[index];
 		var user = this.props.members.filter(function(item) { return item.number === externalUser.ext })[0];
-		var deAssociationList = [this.state.deAssociationList].concat([{ service_id: this.props.service.id, userid: user.userid }]);
+		var deAssociationList = this.state.deAssociationList.concat([{ service_id: this.props.service.id, userid: user.userid }]);
 
 		// this.props.deleteAssociation({ service_id: this.props.service.id, userid: user.userid }, function() {
 			delete externalUser.ext;
-			this.setState({ externalUsers: externalUsers });
+			this.setState({ externalUsers: externalUsers, deAssociationList: deAssociationList });
 		// }.bind(this));
 	},
 
@@ -80,11 +80,18 @@ var ImportUsersListModalComponent = React.createClass({
 
 	_setList: function(index, create) {
 		var list = (create ? this.state.available : this.state.members);
-		var external = this.state.externalUsers.reduce(function(array, next) { array.push(next.ext); return array }, []);
+		var user = this.props.externalUsers[index];
+		var strict = (user.ext && !(user.services && user.services.length));
+		var notAvailable = [];
 
-		list = list.filter(function(item) { return external.indexOf(item.value) === -1; });
+		if(!create && strict) {
+			list = list.filter(function(item) { return item.value === user.ext; });			
+		} else {
+			notAvailable = this.state.externalUsers.reduce(function(array, next) { array.push(next.ext); return array }, []);
+			list = list.filter(function(item) { return notAvailable.indexOf(item.value) === -1; });
+		}
 
-		console.log('_setList: ', external, list, this.state.members);
+		console.log('_setList: ', list, this.state.members);
 
 		this.setState({ users: list, currentIndex: index });
 	},
@@ -111,13 +118,13 @@ var ImportUsersListModalComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var body = this._getBody();
-		var selected = this.state.externalUsers.filter(this._filterNew);
+		var hasChanges = (this.state.externalUsers.filter(this._filterNew).length || this.state.deAssociationList.length);
 
 		return (
 			<ModalComponent 
 				size="lg"
 				type="success"
-				disabled={!selected.length}
+				disabled={!hasChanges}
 				title={ frases.CHAT_CHANNEL.AVAILABLE_USERS }
 				submitText={frases.CHAT_CHANNEL.ADD_SELECTED} 
 				cancelText={frases.CANCEL} 

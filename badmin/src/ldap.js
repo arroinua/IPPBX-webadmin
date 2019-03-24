@@ -187,8 +187,8 @@ function Ldap(options){
             externalUsers: users,
             available: options.available,
             members: options.members,
-            onSubmit: addLdapUsers,
-            deleteAssociation: deleteAssociation
+            onSubmit: addLdapUsers
+            // deleteAssociation: deleteAssociation
         }), modalCont); 
 
         // showModal('ldap_users', {
@@ -197,106 +197,23 @@ function Ldap(options){
     }
 
     // function addLdapUsers(data, modalObject){
-    function addLdapUsers(selectedUsers){
-        console.log('addLdapUsers: ', selectedUsers);
+    function addLdapUsers(params){
+        console.log('addLdapUsers: ', params);
 
-        // function hasExt(item){
-        //     return item.hasOwnProperty('ext');
-        // }
-
-        // options.onaddusers(selectedUsers.filter(hasExt));
-        options.onaddusers(selectedUsers);
+        if(params.deAssociationList && params.deAssociationList.length) {
+            Utils.each(params.deAssociationList, function(cb, item) {
+                deleteAssociation(item, function(result, err) {
+                    cb();
+                })
+            }, function(err) {
+                if(err) return notify_about('error', err.message);
+                options.onaddusers(params.selectedUsers);        
+            })
+        } else {
+            options.onaddusers(params.selectedUsers);
+        }
 
     }
-
-    // function onLdapModalOpen(modalObject){
-
-    //     $(modalObject).on('click', function(e){
-    //         e.preventDefault();
-    //         var targ = e.target;
-    //         if(targ.name !== 'add-ldap-user') targ = targ.parentNode;
-    //         if(targ.name === 'add-ldap-user') addExtSelection(targ);
-    //         if(targ.name === 'associate-ldap-user') addExtSelection(targ);
-    //     });
-
-    //     modal = modalObject;
-
-    //     TableSortable.sortables_init();
-    // }
-
-    // function addExtSelection(el){
-    //     var id,
-    //         $select,
-    //         $el = $(el),
-    //         $cont = $el.next();
-
-    //     userIndex = parseInt(el.getAttribute('data-index'), 10);
-    //     prevValue = $el.data('data-selected');
-
-    //     $cont.html('<select style="width: 100%;"></select>');
-    //     $select = $cont.children(':first');
-        
-    //     $el.hide();
-    //     $select.select2({
-    //         data: sortByKey(available, 'id')
-    //     });
-
-    //     console.log('available: ', available);
-
-    //     $select.on('select2:open', onSelectOpen);
-    //     $select.on('select2:close', onSelectSelected);
-    //     $select.on('select2:close', function(){
-    //         if(newValue && newValue.id !== 0) {
-    //             $el.text(newValue.text);
-    //             id = newValue.id;
-    //         } else if(newValue && newValue.id === 0){
-    //             $el.html('<i class="fa fa-plus-circle fa-fw fa-lg"></i>');
-    //             id = newValue.id;
-    //         } else {
-    //             $el.text(prevValue.text);
-    //             id = prevValue.id;
-    //         }
-    //         $el.data('data-selected', id);
-    //         $el.show();
-    //         $cont.hide();
-    //     });
-
-    //     $cont.show();
-    //     if(prevValue) $select.val(prevValue).trigger('change');
-    //     $select.select2('open');
-
-    // }
-
-    // function onSelectOpen(e){
-    //     prevValue = available[parseInt(this.value, 10)];
-    //     newValue = null;
-    // }
-
-    // function onSelectSelected(e){
-    //     newValue = available[parseInt(this.value, 10)];
-
-    //     if(prevValue.id !== newValue.id) {
-    //         if(prevValue.id !== 0) {
-    //             prevValue.disabled = false;
-
-    //             selectedUsers.splice(selectedUsers.indexOf(userIndex), 1);
-    //         }
-    //         if(newValue.id !== 0) {
-    //             newValue.disabled = true;
-
-    //             obj = ldapUsers[userIndex];
-    //             obj.ext = newValue.text;
-    //             delete obj.index;
-                
-    //             selectedUsers.push(obj);
-    //         }
-    //     }
-
-    //     $(this).off('select2:open', onSelectOpen);
-    //     $(this).off('select2:close', onSelectSelected);
-    //     // destroy select element
-    //     $(this).select2('destroy');
-    // }
 
     function deleteAssociation(params, callback) {
         json_rpc_async('deleteUserService', params, function(result, err) {

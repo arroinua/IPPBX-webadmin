@@ -375,6 +375,7 @@ function load_extension(result){
     // $("#ext-cont").html(rendered);
     $(cont).html(rendered);
 
+    var connServicesEl = document.querySelector('.user-connected-services');
     var storelimitCont = document.getElementById('ext-storelimit-cont');
     // var storeLimitTrigger = document.getElementById('ext-trigger-storelimit');
     var state = document.querySelector('#el-extension .user-state-ind');
@@ -469,6 +470,12 @@ function load_extension(result){
         if(e) e.preventDefault();
         getUserInfo(result.userid);
     };
+
+    if(result.services) {
+        result.services.forEach(function(item) {
+            connServicesEl.insertAdjacentHTML('beforeend', '<img src="/badmin/images/services/'+item+'.png" alt="'+item+'" title="'+PbxObject.frases.CONNECTED_TO+' '+item+'" />')
+        })
+    }
 
     show_content();
     $('#el-extension [data-toggle="popover"]').popover({

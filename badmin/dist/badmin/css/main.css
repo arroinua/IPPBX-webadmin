@@ -1523,6 +1523,12 @@ input[type="checkbox"]:checked + .help-block {
   border-radius: 10px;
   margin: 7px; }
 
+.user-connected-services img {
+  display: inline-block;
+  margin: 5px;
+  width: 20;
+  height: 20px; }
+
 /*Loading Panel Styles*/
 .el-loading-panel {
   position: fixed;

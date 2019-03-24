@@ -19,7 +19,7 @@ function CustomerPrivacyPrefs(props) {
 			</dl>
 			<dl className="dl-horizontal">
 				<dt>{frases.CUSTOMERS.PRIVACY_PREFS.CREATED}</dt>
-				<dd>{new Date(params.created).toLocaleString()}</dd>
+				<dd>{params.created ? (new Date(params.created).toLocaleString()) : ""}</dd>
 			</dl>
 		</div>
 	)
