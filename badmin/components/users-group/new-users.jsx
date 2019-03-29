@@ -91,7 +91,7 @@ function NewUsersComponent(props) {
 						    		<input autoComplete="none" name="hidden" type="hidden" value="stopautofill" style={{display:"none"}} />
 						            <div className={"form-group "+((validationError && !userParams.login) ? 'has-error' : '')}>
 						                <label className="control-label">{frases.USERS_GROUP.LOGIN}</label>
-						                <input type="text" className="form-control" name={"login_"+tkn} value={userParams.login || ""} placeholder="" onFocus={_onFocus} onChange={_onChange} readOnly={!hasDomain} required autoComplete="none" />
+						                <input type="text" className="form-control" name={"login_"+tkn} value={userParams.login || ""} placeholder="" onFocus={_onFocus} onChange={_onChange} required autoComplete="none" />
 						            </div>
 						    	</div>
 						    	<div className="col-sm-6">

@@ -122,7 +122,7 @@ var DashboardComponent = React.createClass({
 		return (
 			<div>
 				{
-					(!this.props.profile.partnerid && planId) ? (
+					(this.props.profile && !this.props.profile.partnerid && planId) ? (
 						<PanelComponent 
 							static={true}
 							header={this._getSubHeader(frases.DASHBOARD.SUBSCRIPTION_PANEL.TITLE, (showUpgradeBtn ? frases.DASHBOARD.SUBSCRIPTION_PANEL.ACTION_BTN : frases.BILLING.BILLING), '#billing', (showUpgradeBtn ? true : false))}
