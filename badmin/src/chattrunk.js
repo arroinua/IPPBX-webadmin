@@ -104,7 +104,8 @@ function load_chattrunk(params) {
 	// 		oauth_nonce: 'ASLAfjiaFOIJFIFJfnfnoie399'+Date.now()
 	// 	}
 	];
-	var userAccessToken = queryParams.access_token || null;
+
+	var userAccessToken = (getQueryParams().access_token || getQueryParams(window.location.hash.substr(window.location.hash.indexOf('?'))).access_token) || null;
 
 	if(window.opener && window.opener.onTokenReceived) {
 		return window.opener.onTokenReceived(userAccessToken);
