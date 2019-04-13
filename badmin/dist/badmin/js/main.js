@@ -4135,8 +4135,13 @@ function load_chattrunk(params) {
 	var type = params.type || 'FacebookMessenger';
 	var services = [
 	{
+		id: 'Telephony',
+		name: frases.CHAT_TRUNK.DID.SERVICE_NAME,
+		icon: '/badmin/images/channels/did.png',
+		component: DidTrunkComponent
+	}, {
 		id: 'FacebookMessenger',
-		name: "Facebook & Messenger",
+		name: frases.CHAT_TRUNK.FACEBOOK.SERVICE_NAME,
 		icon: '/badmin/images/channels/facebook.png',
 		params: {
 			appId: '1920629758202993',
@@ -4156,7 +4161,7 @@ function load_chattrunk(params) {
 	// 	component: InstagramTrunkComponent
 	}, {
 		id: 'Email',
-		name: "Email",
+		name: frases.CHAT_TRUNK.EMAIL.SERVICE_NAME,
 		icon: '/badmin/images/channels/email.png',
 		providers: {
 			gmail: {
@@ -4208,13 +4213,8 @@ function load_chattrunk(params) {
 		icon: '/badmin/images/channels/telegram.png',
 		component: TelegramTrunkComponent
 	}, {
-		id: 'Telephony',
-		name: 'Number',
-		icon: '/badmin/images/channels/did.png',
-		component: DidTrunkComponent
-	}, {
 		id: 'WebChat',
-		name: 'Webchat',
+		name: frases.CHAT_TRUNK.WEBCHAT.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebchatTrunkComponent
 	// }, {
@@ -6819,6 +6819,10 @@ function getPbxOptions(callback) {
     }
 }
 
+function getInstanceMode() {
+    return PbxObject.mode;
+}
+
 function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
@@ -6843,7 +6847,7 @@ function setupPage() {
 
             // PbxObject.frases = translations;
 
-            if(options.mode !== 1) { // if cloud branch
+            if(getInstanceMode() !== 1) { // if cloud branch
                 BillingApi.getProfile(function(err, response) {
                     if(err) {
                         console.error(err);
@@ -10468,7 +10472,7 @@ function renderSidebar(params) {
 	        {
 	            name: 'dashboard',
 	            iconClass: 'fa fa-fw fa-pie-chart',
-				objects: [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }, { kind: 'realtime', iconClass: 'fa fa-fw fa-heart' }]
+				objects: [{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
 	        }, {
 	        //     name: 'users',
 	        //     iconClass: 'fa fa-fw fa-users',
@@ -12885,6 +12889,8 @@ function load_users(params) {
 		document.body.appendChild(modalCont);
 	}
 
+	objParams.available.sort();
+
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
@@ -13097,10 +13103,11 @@ function load_users(params) {
 		var oid = params.oid;
 		var msg = PbxObject.frases.DODELETE + ' ' + params.name + '?';
         var conf = confirm(msg);
-		
+
 		if(conf) {
 			json_rpc_async('deleteObject', { oid: oid }, function(){
 				objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+				objParams.available = objParams.available.concat([params.ext]).sort();
 				init(objParams);
 			});
 			

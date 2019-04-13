@@ -925,9 +925,11 @@
     	"CREATE_TRUNK": "Создать Транк",
     	"CREATE_ICD_GROUP": "Создать горячую линию",
     	"CREATE_ATTENDANT": "Создать IVR меню",
+    	"CREATE_ATTENDANT": "Создать IVR меню",
     	"NO_SERVICE_GROUP": "У вас еще нет групп обслуживания",
     	"SERVICE_GROUP_NOT_SELECTED": "Группа обслуживания не выбрана",
     	"FACEBOOK": {
+    		"SERVICE_NAME": "Facebook и Messenger",
     		"LOGIN_MSG": "Подключите ваш Facebook аккаунт. Вам нужен аккаунт Facebook с разрешениями для управления опубликованной страницей Facebook.",
     		"NO_PAGES_MSG": "Похоже, вы еще не создали и / или не управляете ни одной страницей Facebook",
     		"LEARN_MORE_LINK": "Узнайте, как создать страницу в Facebook",
@@ -935,6 +937,7 @@
     		"SELECTED_PAGE": "Выбранная страница"
     	},
     	"EMAIL": {
+    		"SERVICE_NAME": "Email",
     		"SELECT_ACCOUNT_PROVIDER": "Провайдер учетной записи",
     		"NOT_SELECTED": "Не выбран",
     		"OTHER_PROVIDER": "Другой провайдер",
@@ -946,6 +949,7 @@
     		"SSL": "Подключение через TLS/SSL"
     	},
     	"DID": {
+    		"SERVICE_NAME": "Телефонный номер",
     		"LOCATION": "Регион/город",
     		"NUMBER": "Номер",
     		"STATUS": "Статус",
@@ -987,6 +991,7 @@
     		}
     	},
     	"WEBCHAT": {
+    		"SERVICE_NAME": "Онлайн чат",
     		"CODE_SNIPPET": "Код для веб-сайта",
     		"SHOW_CODE_BTN": "Показать код",
     		"SHOW_CODE_BTN_WARNING": "сначала создайте канал",

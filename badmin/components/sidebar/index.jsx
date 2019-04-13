@@ -38,7 +38,7 @@ var SideBarComponent = React.createClass({
 		function getItemClass(item) {
 			var className = "ellipsis nav-link ";
 			className += (activeItem === item.oid ? "active " : " ");
-			if(item.enabled !== undefined) className += (item.enabled ? "enabled" : "");
+			// if(item.enabled !== undefined) className += (item.enabled === false ? "disabled" : "");
 			if(item.up !== undefined) className += (item.up ? "" : "unregistered")
 			return className;
 		}

@@ -486,6 +486,10 @@ function getPbxOptions(callback) {
     }
 }
 
+function getInstanceMode() {
+    return PbxObject.mode;
+}
+
 function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
@@ -510,7 +514,7 @@ function setupPage() {
 
             // PbxObject.frases = translations;
 
-            if(options.mode !== 1) { // if cloud branch
+            if(getInstanceMode() !== 1) { // if cloud branch
                 BillingApi.getProfile(function(err, response) {
                     if(err) {
                         console.error(err);

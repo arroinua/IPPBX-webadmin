@@ -159,8 +159,8 @@ var FacebookTrunkComponent = React.createClass({
     	var dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
 		var windowWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
 	    var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-	    var poupHeight = 500;
-	    var popupWidth = 700;
+	    var poupHeight = 750;
+	    var popupWidth = 650;
 	    var left = ((windowWidth / 2) - (popupWidth / 2)) + dualScreenLeft;
 	    var top = ((windowHeight / 2) - (popupWidth / 2)) + dualScreenTop;
 

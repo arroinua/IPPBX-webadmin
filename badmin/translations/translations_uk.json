@@ -925,9 +925,11 @@
     	"CREATE_HUNTING_GROUP": "Створити групу розподілу викликів",
     	"CREATE_TRUNK": "Створити Транк",
     	"CREATE_ICD_GROUP": "Створити гарячу лінію",
+    	"CREATE_ATTENDANT": "Створити IVR меню",
     	"NO_SERVICE_GROUP": "У вас ще немає груп обслуговування",
     	"SERVICE_GROUP_NOT_SELECTED": "Група обслуговування не вибрана",
     	"FACEBOOK": {
+    		"SERVICE_NAME": "Facebook та Messenger",
     		"LOGIN_MSG": "Підключіть ваш Facebook аккаунт. Вам потрібен обліковий запис Facebook із дозволами для керування опублікованою сторінкою Facebook.",
     		"NO_PAGES_MSG": "Схоже, ви ще не створили та/або не керуєте жодною сторінкою Facebook.",
     		"LEARN_MORE_LINK": "Дізнайтеся, як створити сторінку в Facebook",
@@ -935,6 +937,7 @@
     		"SELECTED_PAGE": "Вибрана сторінка"
     	},
     	"EMAIL": {
+    		"SERVICE_NAME": "Email",
     		"SELECT_ACCOUNT_PROVIDER": "Провайдер облікового запису",
     		"NOT_SELECTED": "Не вибран",
     		"OTHER_PROVIDER": "Інший провайдер",
@@ -946,6 +949,7 @@
     		"SSL": "Підключення через TLS/SSL"
     	},
     	"DID": {
+    		"SERVICE_NAME": "Телефонний номер",
     		"LOCATION": "Регіон/місто",
     		"NUMBER": "Номер",
     		"STATUS": "Статус",
@@ -986,7 +990,8 @@
     			"8": "Форма реєстрації повинна бути заповнена та підписана кінцевим користувачем. Під час реєстрації вам буде надано необхідну форму."
     		}
     	},
-    	"WEBCHAT": {    		
+    	"WEBCHAT": {
+    		"SERVICE_NAME": "Онлайн чат",		
     		"CODE_SNIPPET": "Код для веб-сайту",
     		"SHOW_CODE_BTN": "Показати код",
     		"SHOW_CODE_BTN_WARNING": "спочатку створіть канал",

@@ -39,6 +39,8 @@ function load_users(params) {
 		document.body.appendChild(modalCont);
 	}
 
+	objParams.available.sort();
+
 	PbxObject.oid = params.oid;
 	PbxObject.name = params.name;
 
@@ -251,10 +253,11 @@ function load_users(params) {
 		var oid = params.oid;
 		var msg = PbxObject.frases.DODELETE + ' ' + params.name + '?';
         var conf = confirm(msg);
-		
+
 		if(conf) {
 			json_rpc_async('deleteObject', { oid: oid }, function(){
 				objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+				objParams.available = objParams.available.concat([params.ext]).sort();
 				init(objParams);
 			});
 			

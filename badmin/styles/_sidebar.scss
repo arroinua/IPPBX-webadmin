@@ -120,6 +120,10 @@
 			margin-bottom: 40px;
 		}
 
+		li {
+			position: relative;
+		}
+
 		.nav-header {
 			font-size: 1.2em;
 			margin: 10px 0;
@@ -146,7 +150,7 @@
 				position: absolute;
 				width: 5px;
 				height: 5px;
-				right: 10px;
+				right: -10px;
 				margin-top: -21px;
 				border-radius: 50%;
 			}
@@ -160,6 +164,12 @@
 					~ span {
 						background-color: #fdf03a;
 					}
+				}
+			}
+
+			&.disabled {
+				~ span {
+					background-color: #c9302c;
 				}
 			}
 

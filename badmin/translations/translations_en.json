@@ -927,6 +927,7 @@
     	"NO_SERVICE_GROUP": "You don't have service groups yet.",
     	"SERVICE_GROUP_NOT_SELECTED": "Service group is not selected",
     	"FACEBOOK": {
+    		"SERVICE_NAME": "Facebook & Messenger",
     		"LOGIN_MSG": "Connect your Facebook account. You need a Facebook account with permissions to manage a published Facebook page.",
     		"NO_PAGES_MSG": "It seams that you haven't created or managed any Facebook Page yet.",
     		"LEARN_MORE_LINK": "Learn how to create one",
@@ -934,6 +935,7 @@
     		"SELECTED_PAGE": "Selected Page"
     	},
     	"EMAIL": {
+    		"SERVICE_NAME": "Email",
     		"SELECT_ACCOUNT_PROVIDER": " Mail account provider",
     		"NOT_SELECTED": "Not selected",
     		"OTHER_PROVIDER": "Other provider",
@@ -945,6 +947,7 @@
     		"SSL": "Use TLS/SSL"
     	},
     	"DID": {
+    		"SERVICE_NAME": "Phone number",
     		"LOCATION": "Location",
     		"NUMBER": "Number",
     		"STATUS": "Status",
@@ -986,6 +989,7 @@
     		}
     	},
     	"WEBCHAT": {
+    		"SERVICE_NAME": "Live chat",
     		"CODE_SNIPPET": "Code snippet",
     		"SHOW_CODE_BTN": "Show code",
     		"SHOW_CODE_BTN_WARNING": "create a channel first",

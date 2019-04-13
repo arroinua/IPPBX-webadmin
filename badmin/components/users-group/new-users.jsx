@@ -14,11 +14,11 @@ function NewUsersComponent(props) {
 		props.onChange(userParams); 
 	}
 
-	function _onExtChange(params) {
-		console.log('_onExtChange: ', params);
-		userParams.number = params.ext;
-		props.onChange(userParams);
-	}
+	// function _onExtChange(params) {
+	// 	console.log('_onExtChange: ', params);
+	// 	userParams.number = params.ext;
+	// 	props.onChange(userParams);
+	// }
 
 	function _parseInput(e) {
 		var target = e.target;
@@ -36,7 +36,7 @@ function NewUsersComponent(props) {
 		var input = _parseInput(e);
 		if(input.name === 'storelimit') input.value = props.convertBytes(input.value, 'GB', 'Byte');
 
-		if(input.name.match('name|login|password|storelimit')) {
+		if(input.name.match('name|login|password|storelimit|number')) {
 			userParams[input.name] = input.value;
 			if(input.name === 'name') userParams.display = input.value;
 
@@ -116,7 +116,13 @@ function NewUsersComponent(props) {
 						    	<div className="col-sm-4">
 						    		<div className="form-group">
 						                <label className="control-label">{frases.USERS_GROUP.EXTENSION}</label>
-						                <ObjectRoute frases={frases} extOnly={true} routes={available} onChange={_onExtChange} />
+						                <select className="form-control" name="number" value={userParams.number} onChange={_onChange} required>
+						                	{
+						                		available.map(function(item) {
+						                			return <option key={item} value={item}>{item}</option>
+						                		})
+						                	}
+						                </select>
 						            </div>
 						    	</div>
 						    	<div className="col-sm-offset-2 col-sm-4">

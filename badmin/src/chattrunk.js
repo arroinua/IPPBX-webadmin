@@ -7,8 +7,13 @@ function load_chattrunk(params) {
 	var type = params.type || 'FacebookMessenger';
 	var services = [
 	{
+		id: 'Telephony',
+		name: frases.CHAT_TRUNK.DID.SERVICE_NAME,
+		icon: '/badmin/images/channels/did.png',
+		component: DidTrunkComponent
+	}, {
 		id: 'FacebookMessenger',
-		name: "Facebook & Messenger",
+		name: frases.CHAT_TRUNK.FACEBOOK.SERVICE_NAME,
 		icon: '/badmin/images/channels/facebook.png',
 		params: {
 			appId: '1920629758202993',
@@ -28,7 +33,7 @@ function load_chattrunk(params) {
 	// 	component: InstagramTrunkComponent
 	}, {
 		id: 'Email',
-		name: "Email",
+		name: frases.CHAT_TRUNK.EMAIL.SERVICE_NAME,
 		icon: '/badmin/images/channels/email.png',
 		providers: {
 			gmail: {
@@ -80,13 +85,8 @@ function load_chattrunk(params) {
 		icon: '/badmin/images/channels/telegram.png',
 		component: TelegramTrunkComponent
 	}, {
-		id: 'Telephony',
-		name: 'Number',
-		icon: '/badmin/images/channels/did.png',
-		component: DidTrunkComponent
-	}, {
 		id: 'WebChat',
-		name: 'Webchat',
+		name: frases.CHAT_TRUNK.WEBCHAT.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebchatTrunkComponent
 	// }, {

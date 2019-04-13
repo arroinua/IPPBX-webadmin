@@ -9,7 +9,7 @@ function renderSidebar(params) {
 	        {
 	            name: 'dashboard',
 	            iconClass: 'fa fa-fw fa-pie-chart',
-				objects: [{ kind: 'dashboard', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }, { kind: 'realtime', iconClass: 'fa fa-fw fa-heart' }]
+				objects: [{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
 	        }, {
 	        //     name: 'users',
 	        //     iconClass: 'fa fa-fw fa-users',

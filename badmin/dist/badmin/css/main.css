@@ -1324,6 +1324,8 @@ input.cmn-toggle-round:checked + label:before {
         padding-top: 70px; } }
     .sidebar-wrapper .nav-list ul {
       margin-bottom: 40px; }
+    .sidebar-wrapper .nav-list li {
+      position: relative; }
     .sidebar-wrapper .nav-list .nav-header {
       font-size: 1.2em;
       margin: 10px 0;
@@ -1341,13 +1343,15 @@ input.cmn-toggle-round:checked + label:before {
         position: absolute;
         width: 5px;
         height: 5px;
-        right: 10px;
+        right: -10px;
         margin-top: -21px;
         border-radius: 50%; }
       .sidebar-wrapper .nav-list .nav-link.enabled ~ span {
         background-color: #8ce196; }
       .sidebar-wrapper .nav-list .nav-link.enabled.unregistered ~ span {
         background-color: #fdf03a; }
+      .sidebar-wrapper .nav-list .nav-link.disabled ~ span {
+        background-color: #c9302c; }
     .sidebar-wrapper .nav-list .nav-link.active {
       background: #54c3f0;
       color: #fff; }

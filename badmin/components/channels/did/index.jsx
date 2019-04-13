@@ -43,28 +43,29 @@ var DidTrunkComponent = React.createClass({
 
 	componentWillMount: function() {
 		var state = { fetch: true };
-		var sub = {};
+		// var sub = {};
 
 		this.setState(state);
 
-		BillingApi.getSubscription(function(err, response) {
+		// BillingApi.getSubscription(function(err, response) {
 
-			if(err) return notify_about('error' , err.message);
+			// if(err) return notify_about('error' , err.message);
 
-			sub = response.result;
+			// sub = response.result;
 
-			this.setState({
-				init: true,
-				isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
-				sub: response.result,
-				fetch: false
-			});
+			// this.setState({
+				// init: true,
+				// isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
+				// sub: response.result,
+				// fetch: false
+			// });
 
 			if(this.props.properties && this.props.properties.number) {
 
 				this._getDid(this.props.properties.number, function(err, response) {
 					if(err) return notify_about('error', err);
 					state = {
+						init: true,
 						showNewDidSettings: true,
 						selectedNumber: response.result
 					}
@@ -77,7 +78,7 @@ var DidTrunkComponent = React.createClass({
 					fetch: false
 				};
 
-				if(this._isTrunkChannel(this.props.properties.id)) {
+				if(this._isTrunkChannel(this.props.properties.id) || getInstanceMode() === 1) {
 					state.showConnectTrunkSettings = true;
 					this.setState(state);
 				} else {
@@ -85,7 +86,7 @@ var DidTrunkComponent = React.createClass({
 				}
 			}
 		
-		}.bind(this));
+		// }.bind(this));
 
 	},
 
@@ -98,7 +99,7 @@ var DidTrunkComponent = React.createClass({
 				this.setState({ selectedNumber: response.result });
 
 			}.bind(this));
-		} else if(this._isTrunkChannel(props.properties.id)) {
+		} else if(this._isTrunkChannel(props.properties.id) || getInstanceMode() === 1) {
 			this.setState({ 
 				fetch: false,
 				showConnectTrunkSettings: true
@@ -272,6 +273,18 @@ var DidTrunkComponent = React.createClass({
 	// 	BillingApi.('getAssignedDids', null, callback);
 	// },
 
+	_getSubscription: function(number, callback) {
+		var sub = this.state.sub;
+		if(sub) return callback(null, sub);
+		BillingApi.getSubscription(function(err, response) {
+			if(!err && result) {
+				sub = response;
+				this.setState({ sub: sub, isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0) });
+				callback(null, sub);
+			}
+		}.bind(this));
+	},
+
 	_getDid: function(number, callback) {
 		BillingApi.getDid({ number: number }, callback);
 	},
@@ -312,23 +325,27 @@ var DidTrunkComponent = React.createClass({
 		e.preventDefault();
 		this.setState({ showNewDidSettings: !this.state.showNewDidSettings, fetchingCountries: true });
 
-		var sub = this.state.sub;
-		var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
+		this._getSubscription(function(err, response) {
 
-		BillingApi.hasDids(function(err, count) {
-			if(err) return notify_about('error', err);
+			var sub = response;
+			var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
 
-			if(count.result >= maxdids) {
-				this.setState({ limitReached: true, countries: [], fetchingCountries: false });
-				return;
-			}
+			BillingApi.hasDids(function(err, count) {
+				if(err) return notify_about('error', err);
 
-			if(!this.state.countries.length) {
-				this._getDidCountries(function(err, response) {
-					if(err) return notify_about('error', err);
-					this.setState({ countries: response.result, fetchingCountries: false });
-				}.bind(this));
-			}
+				if(count.result >= maxdids) {
+					this.setState({ limitReached: true, countries: [], fetchingCountries: false });
+					return;
+				}
+
+				if(!this.state.countries.length) {
+					this._getDidCountries(function(err, response) {
+						if(err) return notify_about('error', err);
+						this.setState({ countries: response.result, fetchingCountries: false });
+					}.bind(this));
+				}
+			}.bind(this));
+
 		}.bind(this));
 				
 	},
@@ -583,7 +600,7 @@ var DidTrunkComponent = React.createClass({
 									<div className="form-group">
 										<div className="col-sm-8 col-sm-offset-4">
 											<button type="button" className="btn btn-primary" onClick={this._showNewDidSettings}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.DID.ADD_NUMBER_BTN}</button>
-											<span> or </span>
+											<span> {frases.OR} </span>
 											<button type="button" className="btn btn-primary" onClick={this._showConnectTrunkSettings}><i className="fa fa-plug"></i> {frases.CHAT_TRUNK.DID.CONNECT_TRUNK_BTN}</button>
 										</div>
 									</div>

@@ -24,7 +24,13 @@ var NewUsersModalComponent = React.createClass({
 
 	componentWillMount: function() {
 		this.setState({
-			userParams: window.extend({}, this._getDefaultUserParams())
+			userParams: window.extend({}, this._getDefaultUserParams(this.props))
+		});
+	},
+
+	componentWillReceiveProps: function(props) {
+		this.setState({
+			userParams: window.extend({}, this._getDefaultUserParams(props))
 		});
 	},
 
@@ -37,7 +43,9 @@ var NewUsersModalComponent = React.createClass({
 		var errors = {};
 		var closeOnSave = this.state.closeOnSave;
 
-		if(!userParams.name || !userParams.login || !userParams.info.email || !this._validateEmail(userParams.info.email)) {
+		console.log('_saveChanges: ', userParams);
+
+		if(!userParams.number || !userParams.name || !userParams.login || !userParams.info.email || !this._validateEmail(userParams.info.email)) {
 			this.setState({
 				validationError: true
 			});
@@ -53,7 +61,7 @@ var NewUsersModalComponent = React.createClass({
 
 		this.props.onSubmit(this.state.userParams, function(error, result) {
 			if(error) return this.setState({ fetching: false, closeOnSave: false });
-			this.setState({ opened: (closeOnSave ? false : true), fetching: false, closeOnSave: false, userParams: window.extend({}, this._getDefaultUserParams()) });
+			this.setState({ opened: (closeOnSave ? false : true), fetching: false, closeOnSave: false, userParams: window.extend({}, this._getDefaultUserParams(this.props)) });
 		}.bind(this));
 	},
 
@@ -72,11 +80,12 @@ var NewUsersModalComponent = React.createClass({
 		this.setState({ passwordRevealed: !this.state.passwordRevealed })
 	},
 
-	_getDefaultUserParams: function() {
+	_getDefaultUserParams: function(props) {
 		return {
 			info: {},
-			storelimit: (this.props.params.storelimit || this.props.convertBytes(1, 'GB', 'Byte')),
-			password: this.props.generatePassword()
+			storelimit: (props.params.storelimit || props.convertBytes(1, 'GB', 'Byte')),
+			password: props.generatePassword(),
+			number: (props.params.available && props.params.available.length) ? props.params.available[0] : ""
 		}
 	},
 
@@ -112,6 +121,9 @@ var NewUsersModalComponent = React.createClass({
 
 	render: function() {
 		var frases = this.props.frases;
+
+		console.log('NewUsersComponent render ', this.state.userParams);
+
 		return (
 			<ModalComponent 
 				size="md"
