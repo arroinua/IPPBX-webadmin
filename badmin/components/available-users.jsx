@@ -3,6 +3,8 @@ var AvailableUsersComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		groupid: React.PropTypes.string,
+		availableList: React.PropTypes.array,
+		excludeList: React.PropTypes.array,
 		// data: React.PropTypes.array,
 		onChange: React.PropTypes.func
 		// modalId: React.PropTypes.string
@@ -17,10 +19,19 @@ var AvailableUsersComponent = React.createClass({
 	},
 
 	componentWillMount: function() {
-		var params = this.props.groupid ? { groupid: this.props.groupid } : null;
+		var data = [];
+		var params = null;
+
+		if(this.props.availableList) {
+			data = this.props.excludeList ? this._exclude(this.props.availableList, this.props.excludeList) : this.props.availableList;
+			return this.setState({ data: data, filteredData: data, init: true });
+		}
+
+		params = this.props.groupid ? { groupid: this.props.groupid } : null;
 		this._getAvailableUsers(params, function(result) {
-			var data = result.length ? this._sortItems(result, 'ext') : result;
-			console.log('AvailableUsersComponent componentWillMount: ', data);
+			data = this._exclude(result, this.props.excludeList);
+			data = this._sortItems(data, 'ext');
+			
 			this.setState({ data: data, filteredData: data, init: true });
 		}.bind(this));
 	},
@@ -32,7 +43,8 @@ var AvailableUsersComponent = React.createClass({
 			this.setState({ init: false });
 
 			this._getAvailableUsers(params, function(result) {
-				var data = result.length ? this._sortItems(result, 'ext') : result;
+				var data = this._exclude(result, props.excludeList);
+				data = this._sortItems(result, 'ext');
 				this.setState({ data: data, filteredData: data, init: true });
 			}.bind(this));
 		}
@@ -41,16 +53,22 @@ var AvailableUsersComponent = React.createClass({
 
 	_getAvailableUsers: function(params, callback) {
 	    json_rpc_async('getAvailableUsers', params || null, function(result){
-			console.log('getAvailableUsers: ', result);
 			callback(result);
 		}.bind(this));
 	},
 
 	_sortItems: function(array, sortBy) {
+		if(!array.length) return array;
 		return array.sort(function(a, b) {
 			return parseFloat(a[sortBy]) - parseFloat(b[sortBy]);
 		});
 
+	},
+
+	_exclude: function(array, excludeList) {
+		if(!excludeList || !excludeList.length) return array;
+		var elist = excludeList.reduce(function(array, item) { array = array.concat([item.ext]); return array }, []);
+		return array.filter(function(item) { return elist.indexOf(item.ext) === -1 });
 	},
 
 	_saveChanges: function() {
@@ -60,35 +78,35 @@ var AvailableUsersComponent = React.createClass({
 		// this.props.onSubmit(selectedMembers);
 	},
 
-	_selectMember: function(item) {
-		var data = this.state.filteredData;
-		data[item].selected = !data[item].selected;
-		this.setState({ data: data });
+	_selectMember: function(index) {
+		var data = [].concat(this.state.filteredData);
+		var item = extend({}, data[index]);
+		item.selected = !item.selected;
+		data[index] = item;
+		this.setState({ data: data, filteredData: data });
 
 		this._saveChanges();
 	},
 
 	_selectAllMembers: function(e) {
 		e.preventDefault();
-		var data = this.state.filteredData;
-		data.map(function(item) {
+		var data = this.state.filteredData.map(function(item) {
 			item.selected = !item.selected;
 			return item;
 		});
-		this.setState({ data: data });
+		this.setState({ data: data, filteredData: data });
 
 		this._saveChanges();
 	},
 
 	_filterItems: function(e) {
 		var value = e.target.value;
-		var data = this.state.data;
 		var filteredData = [];
 
 		if(!value) {
-			filteredData = data;
+			filteredData = [].concat(this.state.data);
 		} else {
-			filteredData = data.filter(function(item) {
+			filteredData = this.state.filter(function(item) {
 				if(item.ext.indexOf(value) !== -1 || item.name.indexOf(value) !== -1) {
 					return item;
 				}

@@ -3,9 +3,15 @@ function load_storages(){
 		availableStorages,
 		fileStorage,
 		storageInfo,
+		extensions,
 		totalStorage,
-		modalCont = document.getElementById('storage-settings-cont');
+		modalCont = document.getElementById('modal-cont');
 
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+	}
 
 	if(PbxObject.options.mode === 1 || !PbxObject.options.prefix) {
 		getStorages(function (result){
@@ -17,52 +23,51 @@ function load_storages(){
 	}
 
 	getStorageInfo(function (result){
+		
 		storageInfo = result;
-		init();
+		
+		getExtensions(function(list) {
+
+			extensions = list;
+
+			init();
+		})
 	});
 
-	function openStorageSettings(data) {
-		if(modalCont) // TODO: find a solution
-			modalCont.parentNode.removeChild(modalCont);
+	function openStorageSettings(params) {
+		var data = extend({}, params);
 
-		// if(!modalCont) {
-			modalCont = document.createElement('div');
-			modalCont.id = "storage-settings-cont";
-			document.body.appendChild(modalCont);
-		// }
-
-		if(data.maxsize)
-			data.maxsize = convertBytes(data.maxsize, 'Byte', 'GB');
+		if(data.maxsize) data.maxsize = convertBytes(data.maxsize, 'Byte', 'GB');
 
 		ReactDOM.render(StorageComponent({
 		    frases: PbxObject.frases,
 		    data: data,
 		    onSubmit: saveStorage
 		}), modalCont);
-
-		$('#storage-settings').modal();
 	}
 
-	function saveStorage(data){
+	function saveStorage(data, callback){
 		console.log('saveStorage: ', data);
 		if(!data.path) return;
 		if(!data.id) delete data.id;
 		if(data.maxsize !== undefined) data.maxsize = convertBytes(data.maxsize, 'GB', 'Byte');
 		data.state = parseInt(data.state, 10);
 
-	    json_rpc_async('setFileStore', data, function(result){
-			if(result){
-				getStorages(function (result){
-					fileStorage = result;
+	    json_rpc_async('setFileStore', data, function(result, err){
+	    	if(err) return callback(err);
+			
+			notify_about('success', PbxObject.frases.SAVED);
+			
+			getStorages(function (result){
+				fileStorage = result;
 
-					getTotalStorage(function (result){
-						PbxObject.options = result;
-	
-						renderUI();
-						$('#storage-settings').modal('hide');
-					});
+				getTotalStorage(function (result){
+					PbxObject.options = result;
+
+					renderUI();
+					if(callback) callback();
 				});
-			}
+			});
 		});
 	}
 
@@ -83,6 +88,7 @@ function load_storages(){
     	    frases: PbxObject.frases,
     	    storageInfo: storageInfo,
     	    fileStorage: fileStorage,
+    	    extensions: extensions,
     	    getTotalStorage: getTotalStorage,
     	    utils: {
     	    	convertBytes: convertBytes,

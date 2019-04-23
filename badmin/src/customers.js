@@ -26,7 +26,7 @@ function load_customers(params) {
     function getCustomers() {
     	json_rpc_async('getCustomers', null, function(result, err) {
     		console.log('getCustomers: ', err, result);
-    		customers = sortByKey(result, 'name');
+    		customers = sortByKey(result || [], 'name');
     		render(customers);
             show_content();
     	});

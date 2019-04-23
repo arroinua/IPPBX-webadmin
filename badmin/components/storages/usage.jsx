@@ -73,7 +73,7 @@ var StorageUsageComponent = React.createClass({
         		        		href="#licensesCollapse" 
         		        		aria-expanded="false" 
         		        		aria-controls="licensesCollapse"
-        		        	>Add/Remove Licenses</a>
+        		        	>{frases.BILLING.MANAGE_LICENSES_BTN}</a>
         		        	<br/>
         		        	<div className="collapse" id="licensesCollapse">
         		        		{

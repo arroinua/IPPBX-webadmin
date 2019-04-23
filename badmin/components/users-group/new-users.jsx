@@ -51,7 +51,7 @@ function NewUsersComponent(props) {
 
 	function _onFocus(e) {
 		var email = userParams.info.email;
-		if(email && window.PbxObject.options.domain) {
+		if(email) {
 			userParams.login = email.substr(0,email.indexOf('@'));
 			props.onChange(userParams);
 		}

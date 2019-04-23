@@ -17,17 +17,12 @@
 
     function submitForm(e) {
         e.preventDefault();
-        var submitted = false;
-        // var login = e.target.login.value;
         var pass = e.target.password.value;
         var login = e.target.login.value;
-        // var login = prefix;
-
-        console.log('submitForm: ', login, pass);
 
         hideInfo();
 
-        if(!pass) return;
+        // if(!pass) return;
 
         if(!login) {
             showInfo('Login is required', 'error');
@@ -36,27 +31,26 @@
 
         toggleDisableState(formEl.submit, true);
 
-        authorize({ login: login, password: pass }, function(err, result) {
-            console.log('request callback: ', err, result);
+        logIn({ login: login, password: pass }, function(err, result) {
+            console.log('logIn callback: ', err, result);
             if(err) {
                 if(err === 'INVALID_LOGIN_PASSWORD') showInfo('Login or password is incorrect', 'error');
                 else showInfo('The service is under maintenance. Please, contact our support team support@ringotel.co for more details.', 'error');
                 toggleDisableState(formEl.submit, false);
-                // return;
-            }
-            if(result && result.token) window.localStorage.setItem('ringo_tid', result.token);
 
-            logIn({ login: login, password: pass }, function(err, result) {
-                console.log('request2 callback: ', err, result);
-                if(err) {
-                    if(err === 'INVALID_LOGIN_PASSWORD') showInfo('Login or password is incorrect', 'error');
-                    else showInfo('The service is under maintenance. Please, contact our support team support@ringotel.co for more details.', 'error');
-                    toggleDisableState(formEl.submit, false);
-                    // return toggleDisableState(formEl.submit, false);
-                } else {
-                    window.location = '/badmin.html';
-                }
-            });
+            } else {
+                getOptions(function(err, result) {
+                    if(result && result.mode !== 1) {
+                        authorize({ login: login, password: pass }, function(err, result) {
+                            console.log('authorize callback: ', err, result);
+                            if(result && result.token) window.localStorage.setItem('ringo_tid', result.token);
+                            window.location = '/badmin.html';
+                        })
+                    } else {
+                        window.location = '/badmin.html';
+                    }
+                })
+            }
         });
             
     }
@@ -77,6 +71,16 @@
             '/',
             null,
             { headers: [{ name: 'Authorization', value: 'Basic '+btoa((params.login+':'+params.password)) }] },
+            cb
+        );
+    }
+
+    function getOptions(cb) {
+        request(
+            'POST',
+            '/',
+            { method: 'getPbxOptions', id: 1 },
+            { headers: [{ name: 'Content-type', value: 'application/json' }] },
             cb
         );
     }

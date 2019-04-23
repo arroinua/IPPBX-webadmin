@@ -153,7 +153,6 @@ var HuntingGroupComponent = React.createClass({
 		//<div className="form-group">
 		//    <label className="col-sm-4 control-label">
 		  //      <span>{frases.EXTENSION} </span>
-		    //    <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.EXTENSION}></a>
 		    //</label>
 		    //<div className="col-sm-8">
 		    //	<ObjectRoute frases={frases} routes={params.routes} removeRoute={this._onRouteRemove} onChange={this._onRouteChange} />
@@ -182,7 +181,6 @@ var HuntingGroupComponent = React.createClass({
 			    			    <div className="form-group">
 			    			        <label className="col-sm-4 control-label">
 			    			            <span>{frases.HUNTINGTYPE.HUNTINGTYPE} </span>
-			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.GRP__HUNT_MODE}></a>
 			    			        </label>
 			    			        <div className="col-sm-4">
 			    			            <select data-type="number" name="huntmode" value={ this.state.options.huntmode } onChange={ this._handleOnChange } className="form-control">
@@ -194,10 +192,12 @@ var HuntingGroupComponent = React.createClass({
 			    			    <div className="form-group">
 			    			        <label className="col-sm-4 control-label">
 			    			            <span>{frases.HUNT_TOUT} </span>
-			    			            <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.GRP__CALL_TOUT}></a>
 			    			        </label>
-			    			        <div className="col-sm-2">
-			    			            <input type="number" className="form-control" value={ this.state.options.timeout } name="timeout" onChange={ this._handleOnChange } />
+			    			        <div className="col-sm-4">
+			    			        	<div className="input-group">
+			    			        	    <input type="number" className="form-control" value={ this.state.options.timeout } name="timeout" onChange={ this._handleOnChange } />
+			    			        	    <span className="input-group-addon">{frases.SECONDS}</span>
+			    			        	</div>
 			    			        </div>
 			    			    </div>
 			    			    <div className="form-group">

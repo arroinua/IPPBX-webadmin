@@ -3,6 +3,8 @@ var AvailableUsersModalComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		groupid: React.PropTypes.string,
+		availableList: React.PropTypes.array,
+		excludeList: React.PropTypes.array,
 		onSubmit: React.PropTypes.func,
 		modalId: React.PropTypes.string
 	},
@@ -23,7 +25,7 @@ var AvailableUsersModalComponent = React.createClass({
 
 	_getBody: function() {
 		var frases = this.props.frases;
-		return <AvailableUsersComponent frases={frases} onChange={this._onUsersSelected} groupid={this.props.groupid} />;
+		return <AvailableUsersComponent frases={frases} onChange={this._onUsersSelected} availableList={this.props.availableList} excludeList={this.props.excludeList} groupid={this.props.groupid} />;
 	},
 
 	render: function() {

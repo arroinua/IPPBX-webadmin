@@ -43,14 +43,12 @@ var NewUsersModalComponent = React.createClass({
 		var errors = {};
 		var closeOnSave = this.state.closeOnSave;
 
-		console.log('_saveChanges: ', userParams);
-
 		if(!userParams.number || !userParams.name || !userParams.login || !userParams.info.email || !this._validateEmail(userParams.info.email)) {
 			this.setState({
 				validationError: true
 			});
 
-			return;
+			return notify_about('error', this.props.frases.MISSEDFILED);
 		}
 		
 		this.setState({
@@ -121,8 +119,6 @@ var NewUsersModalComponent = React.createClass({
 
 	render: function() {
 		var frases = this.props.frases;
-
-		console.log('NewUsersComponent render ', this.state.userParams);
 
 		return (
 			<ModalComponent 

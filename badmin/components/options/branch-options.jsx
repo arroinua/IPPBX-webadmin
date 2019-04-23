@@ -114,7 +114,7 @@ var BranchOptionsComponent = React.createClass({
                         <div className="col-sm-4 col-sm-offset-4">
                             <div className="checkbox">
                                 <label>
-                                    <input type="checkbox" name="enabled" data-model="wss" value={params.wss ? params.wss.enabled : ''} onChange={this._onChange} /> {frases.ENABLE}
+                                    <input type="checkbox" name="enabled" data-model="wss" checked={params.wss ? params.wss.enabled : ''} onChange={this._onChange} /> {frases.ENABLE}
                                 </label>
                             </div>
                         </div>

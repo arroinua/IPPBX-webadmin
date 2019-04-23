@@ -3,6 +3,7 @@ var UsersStorageComponent = React.createClass({
 
 	propTypes: {
 		data: React.PropTypes.array,
+        extensions: React.PropTypes.object,
 		frases: React.PropTypes.object
 	},
 
@@ -16,11 +17,22 @@ var UsersStorageComponent = React.createClass({
 	    return value * coefficients[fromUnits] / coefficients[toUnits];
 	},
 
+    _getExtension: function(oid) {
+        return getExtension(oid);
+    },
+
+    _onRef: function(el) {
+        if(el) new Sortable(el);
+    },
+
 	render: function() {
 		var frases = this.props.frases;
 		var data = this.props.data;
+        var extensions = this.props.extensions;
         var size;
         var limit;
+
+        console.log('UserStorageComponent render', extensions, data);
 
 		return (
 	        <div className="panel">
@@ -30,12 +42,13 @@ var UsersStorageComponent = React.createClass({
 	            <div className="panel-body">
                     <div className="col-xs-12 col-custom">
                         <div className="table-responsive">
-                            <table className="table table-condensed sortable">
+                            <table className="table table-condensed sortable" ref={this._onRef}>
                                 <thead>
                                     <tr>
-                                        <th>{frases.NUMBER}</th>
+                                        <th>{frases.USER}</th>
                                         <th>{frases.STORAGE.USED_SPACE} (GB)</th>
-                                        <th style={{ width: "180px" }} className="unsortable">{frases.STORAGE.TOTAL_SPACE} (GB)</th>
+                                        <th>{frases.STORAGE.TOTAL_SPACE} (GB)</th>
+                                        <th>{frases.STORAGE.FREE_SPACE} (GB)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -49,9 +62,11 @@ var UsersStorageComponent = React.createClass({
 
                                 				<UserStorageComponent 
                                                     key={index.toString()}
-                                					user={ item.user } 
-                                					size={ item.size ? size.toFixed(2) : "0.00" } 
+                                					user={ extensions[item.user] } 
+                                                    size={ item.size ? size.toFixed(2) : "0.00" } 
+                                					free={ item.size ? (limit-size).toFixed(2) : limit.toFixed(2) } 
                                 					limit={ limit.toFixed(2) }
+                                                    getExtension={this._getExtension}
                                 				/>
 
                                 			);

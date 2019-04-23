@@ -20,6 +20,180 @@
             </div>
         </div>
     </div>
+    <div class="row" id="connection">
+        <div class="col-xs-12 col-custom">
+            <div class="panel">
+                <div class="panel-header">{{REGSETTINGS}}
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal" autocomplete="off">
+                        <div class="form-group">
+                            <label class="col-md-5 control-label">
+                                {{PROTOCOL}}
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <select id="protocols" class="form-control"></select>
+                                    <span class="input-group-btn">
+                                        <button type="button" id="get-proto-opts" class="btn btn-default btn-md">{{OPTIONS}}</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-5 control-label">
+                                {{TRUNK_TYPE}}
+                            </label>
+                            <div class="col-md-4">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default active" onclick="switch_presentation('external', null, 'pl-trunk-kind')">
+                                        <input type="radio" name="trunkType" autocomplete="off" value="external" checked> {{EXTERNAL}}
+                                    </label>
+                                    <label class="btn btn-default" onclick="switch_presentation('internal', null, 'pl-trunk-kind')">
+                                        <input type="radio" name="trunkType" autocomplete="off" value="internal"> {{INTERNAL}}
+                                    </label>
+                                </div>
+                            </div>
+                            <hr class="col-xs-12">
+                        </div>
+                        <div class="pl-trunk-kind pl-internal">
+                            <div class="form-group">    
+                                <label class="col-md-5 control-label">
+                                    {{NAME}}
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="int-trunk-user" placeholder="{{NAME}}" readonly="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">
+                                    {{PASSWORD}}
+                                </label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}" autocomplete="off">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                <i class="fa fa-eye" data-toggle="tooltip" title="{{frases.REVEAL_PWD}}"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-default" onclick="generatePassword(this)">
+                                                <i class="fa fa-refresh" data-toggle="tooltip" title="{{frases.GENERATE_PWD}}"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pl-trunk-kind pl-external">
+                            <div class="form-group">    
+                                <label class="col-md-5 control-label">
+                                    {{DOMAIN}}
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="domain" placeholder="{{DOMAIN}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-offset-5 col-md-4">
+                                  <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="register"> {{REGISTRATION}}
+                                    </label>
+                                  </div>
+                                </div>
+                            </div>
+                            <div id="reg-setts">
+                                <div class="form-group">    
+                                    <label class="col-md-5 control-label">
+                                        {{NAME}}
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" id="user" placeholder="{{NAME}}" class="reg-setts-el" autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-5 control-label">
+                                        {{AUTHNAME}}
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}" class="reg-setts-el" autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="form-group">    
+                                    <label class="col-md-5 control-label">
+                                        {{PASSWORD}}
+                                    </label>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}" class="reg-setts-el" autocomplete="off">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                    <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-5 control-label">
+                                        {{REGEXPIRES}}
+                                    </label>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" id="regexpires" placeholder="{REGEXPIRES}" class="reg-setts-el">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="proxy-settings">
+                                <div class="form-group">
+                                    <div class="col-md-offset-5 col-md-4">
+                                      <div class="checkbox">
+                                        <label>
+                                          <input type="checkbox" id="proxy"> {{PROXY}}
+                                        </label>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div id="proxy-setts">
+                                    <div class="form-group">    
+                                        <label class="col-md-5 control-label">
+                                            {{PROXYADDRESS}}
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" name="proxy" id="paddr" placeholder="{{PROXYADDRESS}}" disabled="disabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">    
+                                        <label class="col-md-5 control-label">
+                                            {{AUTHNAME}}
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" name="proxy" id="pauth" placeholder="{{AUTHNAME}}" disabled="disabled">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">    
+                                        <label class="col-md-5 control-label">
+                                            {{PASSWORD}}
+                                        </label>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" autocomplete="off" disabled>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-default" onclick="revealPassword(this)">
+                                                        <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row" id="prefixes">
         <div class="col-md-6 col-xs-12 col-custom">
             <div class="panel">
@@ -45,7 +219,6 @@
                         <div class="form-group">
                             <label class="col-lg-4 control-label">
                                 {{SETTINGS.MAXCONN}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__MAX_CONN}}"></a>
                             </label>
                             <div class="col-lg-4">
                                 <input type="text" class="form-control" id="maxinbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
@@ -124,7 +297,6 @@
                         <div class="form-group">    
                             <label class="col-lg-4 control-label">
                                 {{SETTINGS.MAXCONN}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__MAX_CONN}}"></a>
                             </label>
                             <div class="col-lg-4">
                                 <input type="text" class="form-control" id="maxoutbounds" value="4" placeholder="{{SETTINGS.MAXCONN}}">
@@ -182,192 +354,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row" id="connection">
-        <div class="col-xs-12 col-custom">
-            <div class="panel">
-                <div class="panel-header">{{REGSETTINGS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal" autocomplete="off">
-                        <div class="form-group">
-                            <label class="col-md-5 control-label">
-                                {{PROTOCOL}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{GRP__PROTOCOL}}"></a>
-                            </label>
-                            <div class="col-md-4">
-                                <div class="input-group">
-                                    <select id="protocols" class="form-control"></select>
-                                    <span class="input-group-btn">
-                                        <button type="button" id="get-proto-opts" class="btn btn-default btn-md">{{OPTIONS}}</button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-md-5 control-label">
-                                {{TRUNK_TYPE}}
-                                <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK_TYPE_TITLE}}"></a>
-                            </label>
-                            <div class="col-md-4">
-                                <div class="btn-group" data-toggle="buttons">
-                                    <label class="btn btn-default active" onclick="switch_presentation('external', null, 'pl-trunk-kind')">
-                                        <input type="radio" name="trunkType" autocomplete="off" value="external" checked> {{EXTERNAL}}
-                                    </label>
-                                    <label class="btn btn-default" onclick="switch_presentation('internal', null, 'pl-trunk-kind')">
-                                        <input type="radio" name="trunkType" autocomplete="off" value="internal"> {{INTERNAL}}
-                                    </label>
-                                </div>
-                            </div>
-                            <hr class="col-xs-12">
-                        </div>
-                        <div class="pl-trunk-kind pl-internal">
-                            <div class="form-group">    
-                                <label class="col-md-5 control-label">
-                                    {{NAME}}
-                                    <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__USERNAME}}"></a>
-                                </label>
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" id="int-trunk-user" placeholder="{{NAME}}" readonly="">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-5 control-label">
-                                    {{PASSWORD}}
-                                    <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__PWD}}"></a>
-                                </label>
-                                <div class="col-md-4">
-                                    <div class="input-group">
-                                        <input type="password" name="int-trunk-pass" class="form-control" id="int-trunk-pass" placeholder="{{PASSWORD}}" autocomplete="off">
-                                        <span class="input-group-btn">
-                                            <button type="button" class="btn btn-default" onclick="revealPassword(this)">
-                                                <i class="fa fa-eye" data-toggle="tooltip" title="{{frases.REVEAL_PWD}}"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-default" onclick="generatePassword(this)">
-                                                <i class="fa fa-refresh" data-toggle="tooltip" title="{{frases.GENERATE_PWD}}"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pl-trunk-kind pl-external">
-                            <div class="form-group">    
-                                <label class="col-md-5 control-label">
-                                    {{DOMAIN}}
-                                    <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__DOMAIN}}"></a>
-                                </label>
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" id="domain" placeholder="{{DOMAIN}}">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-md-offset-5 col-md-4">
-                                  <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="register"> {{REGISTRATION}}
-                                    </label>
-                                  </div>
-                                </div>
-                            </div>
-                            <div id="reg-setts">
-                                <div class="form-group">    
-                                    <label class="col-md-5 control-label">
-                                        {{NAME}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__USERNAME}}"></a>
-                                    </label>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" id="user" placeholder="{{NAME}}" class="reg-setts-el" autocomplete="off" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-5 control-label">
-                                        {{AUTHNAME}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTHNAME}}"></a>
-                                    </label>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" id="auth" placeholder="{{AUTHNAME}}" class="reg-setts-el" autocomplete="off" />
-                                    </div>
-                                </div>
-                                <div class="form-group">    
-                                    <label class="col-md-5 control-label">
-                                        {{PASSWORD}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__PWD}}"></a>
-                                    </label>
-                                    <div class="col-md-4">
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="pass" placeholder="{{PASSWORD}}" class="reg-setts-el" autocomplete="off">
-                                            <span class="input-group-btn">
-                                                <button type="button" class="btn btn-default" onclick="revealPassword(this)">
-                                                    <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
-                                                </button>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-5 control-label">
-                                        {{REGEXPIRES}}
-                                        <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTH_PERIOD}}"></a>
-                                    </label>
-                                    <div class="col-md-2">
-                                        <input type="text" class="form-control" id="regexpires" placeholder="{REGEXPIRES}" class="reg-setts-el">
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="proxy-settings">
-                                <div class="form-group">
-                                    <div class="col-md-offset-5 col-md-4">
-                                      <div class="checkbox">
-                                        <label>
-                                          <input type="checkbox" id="proxy"> {{PROXY}}
-                                        </label>
-                                      </div>
-                                    </div>
-                                </div>
-                                <div id="proxy-setts">
-                                    <div class="form-group">    
-                                        <label class="col-md-5 control-label">
-                                            {{PROXYADDRESS}}
-                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__DOMAIN}}"></a>
-                                        </label>
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" name="proxy" id="paddr" placeholder="{{PROXYADDRESS}}" disabled="disabled">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">    
-                                        <label class="col-md-5 control-label">
-                                            {{AUTHNAME}}
-                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__AUTHNAME}}"></a>
-                                        </label>
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" name="proxy" id="pauth" placeholder="{{AUTHNAME}}" disabled="disabled">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">    
-                                        <label class="col-md-5 control-label">
-                                            {{PASSWORD}}
-                                            <a tabindex="0" role="button" class="popover-trigger info" data-toggle="popover" data-content="{{TRUNK__PWD}}"></a>
-                                        </label>
-                                        <div class="col-md-4">
-                                            <div class="input-group">
-                                                <input type="password" name="proxy" class="form-control" id="ppass" placeholder="{{PASSWORD}}" autocomplete="off" disabled>
-                                                <span class="input-group-btn">
-                                                    <button type="button" class="btn btn-default" onclick="revealPassword(this)">
-                                                        <i class="fa fa-eye" data-toggle="tooltip" title="{{REVEAL_PWD}}"></i>
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>

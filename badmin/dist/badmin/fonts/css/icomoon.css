@@ -1,69 +1,102 @@
 @font-face {
-    font-family: 'icomoon';
-    src:    url('../fonts/icomoon.eot?3z0oxj');
-    src:    url('../fonts/icomoon.eot?3z0oxj#iefix') format('embedded-opentype'),
-        url('../fonts/icomoon.ttf?3z0oxj') format('truetype'),
-        url('../fonts/icomoon.woff?3z0oxj') format('woff'),
-        url('../fonts/icomoon.svg?3z0oxj#icomoon') format('svg');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'icomoon';
+  src:  url('../fonts/icomoon.eot?cph3ru');
+  src:  url('../fonts/icomoon.eot?cph3ru#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon.ttf?cph3ru') format('truetype'),
+    url('../fonts/icomoon.woff?cph3ru') format('woff'),
+    url('../fonts/icomoon.svg?cph3ru#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
 
 [class^="icon-"], [class*=" icon-"] {
-    /* use !important to prevent issues with browser extensions that change fonts */
-    font-family: 'icomoon' !important;
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
 
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-assignment_ind:before {
-    content: "\e85e";
-}
-.icon-call_split:before {
-    content: "\e0b6";
-}
-.icon-change_history:before {
-    content: "\e86b";
-}
-.icon-find_replace:before {
-    content: "\e881";
-}
-.icon-fingerprint:before {
-    content: "\e90d";
-}
-.icon-headset_mic:before {
-    content: "\e311";
+.icon-dialer_sip:before {
+  content: "\e906";
 }
 .icon-hearing:before {
-    content: "\e023";
+  content: "\e023";
 }
-.icon-ondemand_video:before {
-    content: "\e63a";
-}
-.icon-perm_phone_msg:before {
-    content: "\e8a8";
-}
-.icon-phone_missed:before {
-    content: "\e61f";
-}
-.icon-room_service:before {
-    content: "\eb49";
+.icon-call_split:before {
+  content: "\e0b6";
 }
 .icon-voicemail:before {
-    content: "\e0d9";
+  content: "\e0d9";
+}
+.icon-headset_mic:before {
+  content: "\e311";
+}
+.icon-phone_missed:before {
+  content: "\e61f";
+}
+.icon-ondemand_video:before {
+  content: "\e63a";
+}
+.icon-assignment_ind:before {
+  content: "\e85e";
+}
+.icon-change_history:before {
+  content: "\e86b";
+}
+.icon-find_replace:before {
+  content: "\e881";
+}
+.icon-perm_phone_msg:before {
+  content: "\e8a8";
+}
+.icon-fingerprint:before {
+  content: "\e90d";
 }
 .icon-podcast:before {
-    content: "\e91c";
+  content: "\e91c";
 }
 .icon-user-tie:before {
-    content: "\e976";
+  content: "\e976";
 }
-
+.icon-room_service:before {
+  content: "\eb49";
+}
+.icon-channels:before {
+  content: "\e900";
+  color: #fff;
+}
+.icon-chats:before {
+  content: "\e901";
+  color: #fff;
+}
+.icon-contact:before {
+  content: "\e902";
+  color: #fff;
+}
+.icon-external:before {
+  content: "\e903";
+  color: #455a64;
+}
+.icon-group .path1:before {
+  content: "\e904";
+  color: #fff;
+}
+.icon-group .path2:before {
+  content: "\e905";
+  margin-left: -1.099609375em;
+  color: #ccc;
+}
+.icon-bell:before {
+  content: "\f0f3";
+}
+.icon-bell-slash:before {
+  content: "\f1f6";
+}

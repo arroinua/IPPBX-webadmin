@@ -72,7 +72,7 @@ var SideBarComponent = React.createClass({
 			<div className="sidebar-wrapper">
 				<div className="side-panel">
 					<div className="nav-top">
-						<a href="#dashboard" className="small-logo"><img src="/badmin/images/small-logo.png" alt="logo" /></a>
+						<a href="#realtime" className="small-logo"><img src="/badmin/images/small-logo.png" alt="logo" /></a>
 					</div>
 					<div className="nav-menu">
 						<SideMenuComponent frases={frases} menuItems={this.props.menuItems} selectMenu={this._selectMenu} activeKind={activeKind} />
@@ -84,7 +84,7 @@ var SideBarComponent = React.createClass({
 							onClick={function(e) { e.preventDefault(); this._selectMenu('settings')}.bind(this)}
 							data-toggle="tooltip" data-placement="right"
 							title={frases.KINDS['settings']}
-						><i className="fa fa-fw fa-bars"></i></a>
+						><i className="fa fa-fw fa-cog"></i></a>
 						<a 
 							href="#" 
 							className="nav-link" 
@@ -127,6 +127,8 @@ var SideBarComponent = React.createClass({
 					{
 						selectedMenu.fetchKinds ? (
 							selectedMenu.fetchKinds.map(function(kind) {
+								if(!kind) return null;
+
 								return (
 									<ul key={kind}>
 										<li><span className="nav-header">{ frases.KINDS[kind] }</span></li>

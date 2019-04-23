@@ -487,7 +487,7 @@ function getPbxOptions(callback) {
 }
 
 function getInstanceMode() {
-    return PbxObject.mode;
+    return PbxObject.options.mode;
 }
 
 function setupPage() {
@@ -522,6 +522,8 @@ function setupPage() {
                         profile = response.result;
                         loadFSTracking(profile);
                     }
+
+                    loadStripeJs();
 
                     console.log('getProfile: ', err, response);
 
@@ -560,6 +562,7 @@ function setupPage() {
 }
 
 function loadFSTracking(profile) {
+    if(!window.FS) return;
     // This is an example script - don't forget to change it!
     FS.identify(profile._id, {
       displayName: profile._id,
@@ -587,8 +590,6 @@ function init_page(){
     setPageHeight();
     subscribeToEvents();
     
-    if(PbxObject.options.mode !== 1) loadStripeJs();
-
     // new GetStarted().init();
 
     // PbxObject.groups = {};
@@ -615,7 +616,7 @@ function init_page(){
     
     //set default loading page
     if(!location.hash.substring(1))
-        location.hash = 'dashboard';
+        location.hash = 'realtime';
 
     // load_pbx_options(PbxObject.options);
     
@@ -796,7 +797,7 @@ function get_object(e){
         if(modal) modal.parentNode.removeChild(modal);
 
         // var groupKinds = ['equipment', 'unit', 'users', 'hunting', 'icd', 'conference', 'selector', 'channel', 'pickup'];
-        var groupKinds = ['equipment', 'unit', 'conference', 'selector', 'channel', 'pickup'];
+        var groupKinds = ['equipment', 'unit', 'conference', 'channel', 'pickup'];
         if(groupKinds.indexOf(kind) != -1){
             kind = 'bgroup';
         }

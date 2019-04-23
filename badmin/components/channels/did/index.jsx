@@ -176,7 +176,6 @@ var DidTrunkComponent = React.createClass({
 
 		if(state.needRegion) {
 			BillingApi.request('getDidRegions', { country: country.id }, function(err, response) {
-				console.log('getDidRegions: ', err, response);
 				this.setState({ regions: response.result || [] });
 			}.bind(this));
 		} else {
@@ -225,7 +224,6 @@ var DidTrunkComponent = React.createClass({
 		this.setState(state);
 
 		this._getAvailableNumbers({ dgid: selectedLocation._id }, function(err, response) {
-			console.log('getAvailableNumbers: ', err, response);
 			if(err) return notify_about('error', err);
 
 			this.setState({  availableNumbers: response.result });
@@ -237,7 +235,6 @@ var DidTrunkComponent = React.createClass({
 		var value = e.target.value;
 		var state = this.state;
 
-		console.log('_onAvailableNumberSelect: ', value, state.availableNumbers);
 
 		if(value) {
 			state.selectedAvailableNumber = state.availableNumbers.filter(function(item) { return item.id === value; })[0];
@@ -273,12 +270,12 @@ var DidTrunkComponent = React.createClass({
 	// 	BillingApi.('getAssignedDids', null, callback);
 	// },
 
-	_getSubscription: function(number, callback) {
+	_getSubscription: function(callback) {
 		var sub = this.state.sub;
 		if(sub) return callback(null, sub);
 		BillingApi.getSubscription(function(err, response) {
-			if(!err && result) {
-				sub = response;
+			if(!err && response.result) {
+				sub = response.result;
 				this.setState({ sub: sub, isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0) });
 				callback(null, sub);
 			}
@@ -355,7 +352,6 @@ var DidTrunkComponent = React.createClass({
 	},
 
 	_onTrunkSelect: function(params) {
-		console.log('_onTrunkSelect: ', params);
 		this.props.onChange(params);
 	},
 
@@ -392,8 +388,6 @@ var DidTrunkComponent = React.createClass({
 		// 	proratedAmount = (amount * (state.proratedDays / state.cycleDays)).toFixed(2);
 		// 	maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
 		// }
-
-		console.log('DidTrunkComponent render: ', this.state);
 
 		return (
 			<form className="form-horizontal" autoComplete='off'>

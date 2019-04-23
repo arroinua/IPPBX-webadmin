@@ -37,7 +37,7 @@ function load_icd(params) {
 	// }
 
 	function showAvailableUsers() {
-		console.log('showAvailableUsers: ');
+		console.log('showAvailableUsers: ', objParams);
 		modalCont = document.getElementById('available-users-cont');
 
 		if(modalCont) {
@@ -51,6 +51,7 @@ function load_icd(params) {
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
 		    onSubmit: addMembers,
+		    excludeList: objParams.members,
 		    groupid: PbxObject.name ? PbxObject.oid : null
 		}), modalCont);
 
@@ -60,19 +61,30 @@ function load_icd(params) {
 		objParams.members = objParams.members.concat(array);
 		console.log('addMembers: ', array, objParams);
 
-		setObject(objParams, function(result) {
-			init(objParams);
-		});
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
+			init(objParams);	
+		}
+
 		$('#available-users-modal').modal('hide');
+
 	}
 
 	function deleteMember(params) {
 		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-		setObject(objParams, function(result) {
+
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
 			init(objParams);
-		});
+		}
 	}
 
 	function setObject(props, callback) {

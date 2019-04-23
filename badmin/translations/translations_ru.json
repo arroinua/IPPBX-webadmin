@@ -641,7 +641,7 @@
     	"branch_options": "Настройки",
     	"services": "Интеграции",
         "trunk": "Транки",
-        "users": "Пользователи",
+        "users": "Пользователи и отделы",
         "user": "Пользователь",
         "equipment": "Оборудование",
         "phone": "Оборудование",
@@ -663,7 +663,7 @@
         "dashboard": "Панель мониторинга",
         "realtime": "В реальном времени",
         "records": "Журнал вызовов",
-        "rec_settings": "Настр. записи разговоров",
+        "rec_settings": "Запись разговоров",
         "statistics": "Статистика звонков",
         "reg_history": "История регистраций",
         "channel_statistics": "Статистика каналов",
@@ -676,7 +676,7 @@
         "usage": "Использование лицензий",
         "channel_records": "Записи Канала",
         "customers": "Клиенты",
-        "servicegroup": "Пользователи и группы",
+        "servicegroup": "Группы",
         "settings": "Настройки"
     },
     "CODES": {
@@ -908,6 +908,9 @@
     	"AVAILABLE_USERS": "Доступные пользователи",
     	"SELECT_ALL": "Выбрать всех"
     },
+    "SELECTOR": {
+    	"NO_MEMBERS_FOR_OWNER_MESSAGE": "Добавьте участников в группу"
+    },
     "CHAT_TRUNK": {
     	"OBJ_NAME_PLACEHOLDER" : "Имя канала",
     	"SELECT_SERVICE": "Выберите сервис",
@@ -949,7 +952,7 @@
     		"SSL": "Подключение через TLS/SSL"
     	},
     	"DID": {
-    		"SERVICE_NAME": "Телефонный номер",
+    		"SERVICE_NAME": "Телефония",
     		"LOCATION": "Регион/город",
     		"NUMBER": "Номер",
     		"STATUS": "Статус",
@@ -1151,6 +1154,7 @@
     	"UPDATE_PAYMENT_METHOD": "обновить способ оплаты",
     	"ADDONS": "Дополнительные лицензии",
     	"CALL_CREDITS": "Кредиты",
+    	"MANAGE_LICENSES_BTN": "Управление лицензиями",
     	"AVAILABLE_LICENSES": {
     		"AVAILABLE_LICENSES": "Доступные лицензии",
     		"USERS": "Пользователи",

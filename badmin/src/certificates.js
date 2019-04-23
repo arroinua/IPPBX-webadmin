@@ -92,6 +92,7 @@ function addNewCert(){
 		certInfo.V = parseInt(certInfo.V);
 	    json_rpc_async('createCertificate', certInfo, function(result){
 	    	if(result){
+	    		notify_about('success', PbxObject.frases.SAVED);
 	    		fillCertTable([certInfo.CN]);
 	    		$('#createCertModal').modal('hide');
 	    	}
@@ -120,10 +121,11 @@ function importNewCert(){
 	if(certInfo && Object.keys(certInfo).length !== 0){
 	    json_rpc_async('setCertificate', certInfo, function(result){
 	    	if(result === 'OK'){
+	    		notify_about('success', PbxObject.frases.SAVED);
 	    		$('#importCertModal').modal('hide');
 	    		var table = document.querySelector('#certificates tbody');
 	    		clearTable(table);
-	    		getCertificates();	
+	    		getCertificates();
 	    	}
 	    });
     }
@@ -141,6 +143,7 @@ function showCert(cert){
 
 function removeCert(cert){
 	json_rpc_async('removeCertificate', {alias: cert}, function(result){
+		notify_about('success', PbxObject.frases.SAVED);
 		var row = document.querySelector('#certificates tbody tr[data-cert="'+cert+'"]');
 		row.parentNode.removeChild(row);
 	});

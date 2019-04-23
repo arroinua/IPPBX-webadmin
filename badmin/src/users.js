@@ -20,8 +20,8 @@ function load_users(params) {
 	// var tourStarted = false;
 	var serviceParams = window.sessionStorage.serviceParams;
 
-	$(document).off('onmessage.object.add', updateUsersList);
-	$(document).on('onmessage.object.add', updateUsersList);
+	// $(document).off('onmessage.object.add', updateUsersList);
+	// $(document).on('onmessage.object.add', updateUsersList);
 
 	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
 		activeServices.unshift({
@@ -95,10 +95,10 @@ function load_users(params) {
 		}), modalCont);
 	}
 
-	function addUser(userParams, callback) {
+	function addUser(params, callback) {
 		console.log('addUser: ', params);
 
-		userParams = extend({}, userParams);
+		var userParams = extend({}, params);
 
 		if(!PbxObject.name) {
 			return setObject({
@@ -106,12 +106,12 @@ function load_users(params) {
 				profile: objParams.profile,
 				members: []
 			}, function() {
-				addUser(userParams);
+				addUser(userParams, callback);
 			});
 		}
 
-		userParams.kind = params.kind === 'users' ? 'user' : 'phone';
-		userParams.groupid = params.oid;
+		userParams.kind = objParams.kind === 'users' ? 'user' : 'phone';
+		userParams.groupid = objParams.oid;
 
 		json_rpc_async('setObject', userParams, function(result, error) {
 

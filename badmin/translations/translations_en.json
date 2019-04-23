@@ -640,7 +640,7 @@
     	"branch_options": "Settings",
     	"services": "Integrations",
         "trunk": "Trunks",
-        "users": "Users",
+        "users": "Users & Departments",
         "user": "User",
         "equipment": "Equipment",
         "phone": "Equipment",
@@ -675,7 +675,7 @@
         "usage": "License usage",
         "channel_records": "Channel Records",
         "customers": "Customers",
-        "servicegroup": "Users and Groups",
+        "servicegroup": "Groups",
         "settings": "Settings"
     },
     "CODES": {
@@ -907,6 +907,9 @@
     	"AVAILABLE_USERS": "Available users",
     	"SELECT_ALL": "Select all"
     },
+    "SELECTOR": {
+    	"NO_MEMBERS_FOR_OWNER_MESSAGE": "Add members to a group"
+    },
     "CHAT_TRUNK": {
 		"OBJ_NAME_PLACEHOLDER" : "Channel name",
     	"SELECT_SERVICE": "Select service",
@@ -947,7 +950,7 @@
     		"SSL": "Use TLS/SSL"
     	},
     	"DID": {
-    		"SERVICE_NAME": "Phone number",
+    		"SERVICE_NAME": "Telephony",
     		"LOCATION": "Location",
     		"NUMBER": "Number",
     		"STATUS": "Status",
@@ -1149,6 +1152,7 @@
     	"UPDATE_PAYMENT_METHOD": "update your payment method",
     	"ADDONS": "Add-ons",
     	"CALL_CREDITS": "Calling credits",
+    	"MANAGE_LICENSES_BTN": "Manage licenses",
     	"AVAILABLE_LICENSES": {
     		"AVAILABLE_LICENSES": "Available licenses",
     		"USERS": "Users",

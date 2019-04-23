@@ -25,12 +25,12 @@ function load_bgroup(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
 
-    getObjects(null, function(objs) {
+    // getObjects(null, function(objs) {
         // if(!filterObject(objs, kind).length) {
-            updateTempParams({ tour: true });
+            // updateTempParams({ tour: true });
             // initTour({ kind: kind });
         // }
-    });
+    // });
 
     if(result.name) {
         d.getElementById('objname').value = result.name;
@@ -162,11 +162,11 @@ function load_bgroup(result){
         if(members) fill_list_items('members', members, 'number');
 
         // Render route parameters
-        renderObjRoute({
-            routes: result.routes || [],
-            frases: PbxObject.frases,
-            onChange: setCurrObjRoute
-        });
+        // renderObjRoute({
+        //     routes: result.routes || [],
+        //     frases: PbxObject.frases,
+        //     onChange: setCurrObjRoute
+        // });
     }
 
     if(result.options){
@@ -443,7 +443,7 @@ function load_bgroup(result){
     TableSortable.sortables_init();
     show_content();
     set_page();
-    $(".select2").select2();
+    // $(".select2").select2();
 
     // if ldap server is set in pbx settings, init ldap class
     if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
@@ -926,29 +926,29 @@ function set_bgroup(param, callback){
     }
     jprms += '}';
     
-    json_rpc_async('setObject', jprms, function(result){
+    json_rpc_async('setObject', jprms, function(result, err){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
-        if(!result) enabled.checked = false;
+        // if(!result) enabled.checked = false;
 
-        // Add new route to the object
-        if(result && getTempParams().ext) {
-            var routeParams = {
-                number: getTempParams().ext,
-                target: { oid: result, name: name }
-            };
-            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+        // // Add new route to the object
+        // if(result && getTempParams().ext) {
+        //     var routeParams = {
+        //         number: getTempParams().ext,
+        //         target: { oid: result, name: name }
+        //     };
+        //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-            console.log('set route params: ', routeParams);
-            setObjRoute(routeParams);
-        }
+        //     console.log('set route params: ', routeParams);
+        //     setObjRoute(routeParams);
+        // }
     });
     // console.log(jprms);
 }
 
-function setObjRoute(params) {
-    setRoute(params);
-}
+// function setObjRoute(params) {
+//     setRoute(params);
+// }
 
 function renderObjRoute(params) {
     ReactDOM.render(
@@ -963,10 +963,10 @@ function renderObjRoute(params) {
     );
 }
 
-function setCurrObjRoute(route) {
-    console.log('setCurrObjRoute: ', route);
-    updateTempParams(route);
-}
+// function setCurrObjRoute(route) {
+//     console.log('setCurrObjRoute: ', route);
+//     updateTempParams(route);
+// }
 
 // function clearCurrObjRoute() {
 //     clearTempParams();
@@ -1037,7 +1037,9 @@ function addUser(type, cb){
 
     if(!exts.length) return;
     if(!PbxObject.name) {
-        set_bgroup(type, addUser);
+        set_bgroup(type, function() {
+            addUser(type, cb);
+        });
         return;
     }
     
@@ -1106,6 +1108,7 @@ function addUser(type, cb){
                 
             var select2Cont = document.getElementById('select2-available-users-container');
             var options = [].slice.call(available.options);
+
             for(var i=0; i<available.options.length; i++) {
                 if(available.options[i].value === ext) {
                     available.removeChild(available.options[i]);

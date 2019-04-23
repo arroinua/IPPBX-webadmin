@@ -4,7 +4,7 @@ function load_chattrunk(params) {
 	var frases = PbxObject.frases;
 	var initParams = params;
 	var handler = null;
-	var type = params.type || 'FacebookMessenger';
+	var type = params.type || 'Telephony';
 	var services = [
 	{
 		id: 'Telephony',
@@ -111,7 +111,6 @@ function load_chattrunk(params) {
 		return window.opener.onTokenReceived(userAccessToken);
 	} else if(userAccessToken) {
 		services = services.map(function(item) {
-			console.log('load_chattrunk services:', item);
 			if(item.id === 'FacebookMessenger') item.params.userAccessToken = userAccessToken;
 			// if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
 			return item;
@@ -130,15 +129,12 @@ function load_chattrunk(params) {
 	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result, err) {
-		    console.log('onStateChange: ', state, result, err);
 		    if(callback) callback(err, result);
 		});
 	}
 
 	function setObject(params, cb) {
 
-		console.log('setObject: ', params);
-		
 		// driver.reset();
 
 	    show_loading_panel();
@@ -206,7 +202,6 @@ function load_chattrunk(params) {
 			// currency: params.currency,
 			amount: params.chargeAmount*100,
 			closed: function(result) {
-				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
 
 				if(!PbxObject.stripeToken) return;
 
@@ -220,8 +215,6 @@ function load_chattrunk(params) {
 				show_loading_panel();
 
 				BillingApi.updateBalance(reqParams, function(err, response) {
-
-					console.log('updateBalance: ', err, response);
 
 					remove_loading_panel();
 
@@ -242,9 +235,7 @@ function load_chattrunk(params) {
 	}
 
 	function confirmPayment(params, callback) {
-		console.log('confirmPayment params:', params);
 		showModal('confirm_payment_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
-			console.log('confirm_payment_modal submit:', result);
 
 			$(modal).modal('toggle');
 
@@ -282,7 +273,6 @@ function load_chattrunk(params) {
 	// 	});
 
 	// 	setTimeout(function() {
-	// 		console.log('initSteps: ', driverSteps);
 	// 		driver.defineSteps(driverSteps);
 	// 		driver.start();
 	// 	}, 500);
@@ -312,8 +302,6 @@ function load_chattrunk(params) {
 		    // highlightStep: highlightStep
 		    // onTokenReceived: onTokenReceived
 		};
-
-		console.log('render: ', componentParams);
 
 		ReactDOM.render(ChatTrunkComponent(componentParams), document.getElementById('el-loaded-content'));
 

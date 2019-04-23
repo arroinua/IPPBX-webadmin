@@ -1295,12 +1295,12 @@ function load_bgroup(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
 
-    getObjects(null, function(objs) {
+    // getObjects(null, function(objs) {
         // if(!filterObject(objs, kind).length) {
-            updateTempParams({ tour: true });
+            // updateTempParams({ tour: true });
             // initTour({ kind: kind });
         // }
-    });
+    // });
 
     if(result.name) {
         d.getElementById('objname').value = result.name;
@@ -1432,11 +1432,11 @@ function load_bgroup(result){
         if(members) fill_list_items('members', members, 'number');
 
         // Render route parameters
-        renderObjRoute({
-            routes: result.routes || [],
-            frases: PbxObject.frases,
-            onChange: setCurrObjRoute
-        });
+        // renderObjRoute({
+        //     routes: result.routes || [],
+        //     frases: PbxObject.frases,
+        //     onChange: setCurrObjRoute
+        // });
     }
 
     if(result.options){
@@ -1713,7 +1713,7 @@ function load_bgroup(result){
     TableSortable.sortables_init();
     show_content();
     set_page();
-    $(".select2").select2();
+    // $(".select2").select2();
 
     // if ldap server is set in pbx settings, init ldap class
     if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
@@ -2196,29 +2196,29 @@ function set_bgroup(param, callback){
     }
     jprms += '}';
     
-    json_rpc_async('setObject', jprms, function(result){
+    json_rpc_async('setObject', jprms, function(result, err){
         if(typeof handler === 'function') handler();
         if(typeof callback === 'function') callback(param);
-        if(!result) enabled.checked = false;
+        // if(!result) enabled.checked = false;
 
-        // Add new route to the object
-        if(result && getTempParams().ext) {
-            var routeParams = {
-                number: getTempParams().ext,
-                target: { oid: result, name: name }
-            };
-            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
+        // // Add new route to the object
+        // if(result && getTempParams().ext) {
+        //     var routeParams = {
+        //         number: getTempParams().ext,
+        //         target: { oid: result, name: name }
+        //     };
+        //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-            console.log('set route params: ', routeParams);
-            setObjRoute(routeParams);
-        }
+        //     console.log('set route params: ', routeParams);
+        //     setObjRoute(routeParams);
+        // }
     });
     // console.log(jprms);
 }
 
-function setObjRoute(params) {
-    setRoute(params);
-}
+// function setObjRoute(params) {
+//     setRoute(params);
+// }
 
 function renderObjRoute(params) {
     ReactDOM.render(
@@ -2233,10 +2233,10 @@ function renderObjRoute(params) {
     );
 }
 
-function setCurrObjRoute(route) {
-    console.log('setCurrObjRoute: ', route);
-    updateTempParams(route);
-}
+// function setCurrObjRoute(route) {
+//     console.log('setCurrObjRoute: ', route);
+//     updateTempParams(route);
+// }
 
 // function clearCurrObjRoute() {
 //     clearTempParams();
@@ -2307,7 +2307,9 @@ function addUser(type, cb){
 
     if(!exts.length) return;
     if(!PbxObject.name) {
-        set_bgroup(type, addUser);
+        set_bgroup(type, function() {
+            addUser(type, cb);
+        });
         return;
     }
     
@@ -2376,6 +2378,7 @@ function addUser(type, cb){
                 
             var select2Cont = document.getElementById('select2-available-users-container');
             var options = [].slice.call(available.options);
+
             for(var i=0; i<available.options.length; i++) {
                 if(available.options[i].value === ext) {
                     available.removeChild(available.options[i]);
@@ -3220,6 +3223,7 @@ function addNewCert(){
 		certInfo.V = parseInt(certInfo.V);
 	    json_rpc_async('createCertificate', certInfo, function(result){
 	    	if(result){
+	    		notify_about('success', PbxObject.frases.SAVED);
 	    		fillCertTable([certInfo.CN]);
 	    		$('#createCertModal').modal('hide');
 	    	}
@@ -3248,10 +3252,11 @@ function importNewCert(){
 	if(certInfo && Object.keys(certInfo).length !== 0){
 	    json_rpc_async('setCertificate', certInfo, function(result){
 	    	if(result === 'OK'){
+	    		notify_about('success', PbxObject.frases.SAVED);
 	    		$('#importCertModal').modal('hide');
 	    		var table = document.querySelector('#certificates tbody');
 	    		clearTable(table);
-	    		getCertificates();	
+	    		getCertificates();
 	    	}
 	    });
     }
@@ -3269,6 +3274,7 @@ function showCert(cert){
 
 function removeCert(cert){
 	json_rpc_async('removeCertificate', {alias: cert}, function(result){
+		notify_about('success', PbxObject.frases.SAVED);
 		var row = document.querySelector('#certificates tbody tr[data-cert="'+cert+'"]');
 		row.parentNode.removeChild(row);
 	});
@@ -4002,7 +4008,6 @@ function showParties(targ){
 }
 function load_chatchannel(params) {
 
-	console.log('load_chat_group: ', params);
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
@@ -4050,31 +4055,45 @@ function load_chatchannel(params) {
 		modalCont.id = "available-users-cont";
 		document.body.appendChild(modalCont);
 
-		ReactDOM.render(AvailableUsersModalComponent({
-		    frases: PbxObject.frases,
-		    onSubmit: addMembers,
-		    groupid: PbxObject.name ? PbxObject.oid : null
-		}), modalCont);
+		getExtensions(function(result) {
+			
+		    ReactDOM.render(AvailableUsersModalComponent({
+		        frases: PbxObject.frases,
+		        onSubmit: addMembers,
+		        availableList: result.filter(function(item) { return item.kind === 'user' }),
+		        excludeList: objParams.members,
+		        groupid: PbxObject.name ? PbxObject.oid : null
+		    }), modalCont);
+		})
 
 	}
 
 	function addMembers(array) {
 		objParams.members = objParams.members.concat(array);
-		console.log('addMembers: ', array, objParams);
 
-		setChatChannel(objParams, function(result) {
+		if(PbxObject.name) {
+			setChatChannel(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
 			init(objParams);
-		});
+		}
+
 		$('#available-users-modal').modal('hide');
 	}
 
 	function deleteMember(params) {
 		var oid = params.oid;
-		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-		setChatChannel(objParams, function(result) {
+
+		if(PbxObject.name) {
+			setChatChannel(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
 			init(objParams);
-		});
+		}
+			
 	}
 
 	function setChatChannel(params, callback) {
@@ -4132,7 +4151,7 @@ function load_chattrunk(params) {
 	var frases = PbxObject.frases;
 	var initParams = params;
 	var handler = null;
-	var type = params.type || 'FacebookMessenger';
+	var type = params.type || 'Telephony';
 	var services = [
 	{
 		id: 'Telephony',
@@ -4239,7 +4258,6 @@ function load_chattrunk(params) {
 		return window.opener.onTokenReceived(userAccessToken);
 	} else if(userAccessToken) {
 		services = services.map(function(item) {
-			console.log('load_chattrunk services:', item);
 			if(item.id === 'FacebookMessenger') item.params.userAccessToken = userAccessToken;
 			// if(item.id === 'FacebookMessenger') item.params.userAccessToken = PbxObject.userAccessToken;
 			return item;
@@ -4258,15 +4276,12 @@ function load_chattrunk(params) {
 	function onStateChange(state, callback) {
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result, err) {
-		    console.log('onStateChange: ', state, result, err);
 		    if(callback) callback(err, result);
 		});
 	}
 
 	function setObject(params, cb) {
 
-		console.log('setObject: ', params);
-		
 		// driver.reset();
 
 	    show_loading_panel();
@@ -4334,7 +4349,6 @@ function load_chattrunk(params) {
 			// currency: params.currency,
 			amount: params.chargeAmount*100,
 			closed: function(result) {
-				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
 
 				if(!PbxObject.stripeToken) return;
 
@@ -4348,8 +4362,6 @@ function load_chattrunk(params) {
 				show_loading_panel();
 
 				BillingApi.updateBalance(reqParams, function(err, response) {
-
-					console.log('updateBalance: ', err, response);
 
 					remove_loading_panel();
 
@@ -4370,9 +4382,7 @@ function load_chattrunk(params) {
 	}
 
 	function confirmPayment(params, callback) {
-		console.log('confirmPayment params:', params);
 		showModal('confirm_payment_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
-			console.log('confirm_payment_modal submit:', result);
 
 			$(modal).modal('toggle');
 
@@ -4410,7 +4420,6 @@ function load_chattrunk(params) {
 	// 	});
 
 	// 	setTimeout(function() {
-	// 		console.log('initSteps: ', driverSteps);
 	// 		driver.defineSteps(driverSteps);
 	// 		driver.start();
 	// 	}, 500);
@@ -4440,8 +4449,6 @@ function load_chattrunk(params) {
 		    // highlightStep: highlightStep
 		    // onTokenReceived: onTokenReceived
 		};
-
-		console.log('render: ', componentParams);
 
 		ReactDOM.render(ChatTrunkComponent(componentParams), document.getElementById('el-loaded-content'));
 
@@ -4635,7 +4642,7 @@ function load_customers(params) {
     function getCustomers() {
     	json_rpc_async('getCustomers', null, function(result, err) {
     		console.log('getCustomers: ', err, result);
-    		customers = sortByKey(result, 'name');
+    		customers = sortByKey(result || [], 'name');
     		render(customers);
             show_content();
     	});
@@ -5845,6 +5852,7 @@ function load_hunting(params) {
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
 		    onSubmit: addMembers,
+		    excludeList: objParams.members,
 		    groupid: PbxObject.name ? PbxObject.oid : null
 		}), modalCont);
 
@@ -5855,9 +5863,14 @@ function load_hunting(params) {
 		objParams.members = objParams.members.concat(array);
 		console.log('addMembers: ', array, objParams);
 
-		setObject(objParams, function(result) {
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
 			init(objParams);
-		});
+		}
+			
 		$('#available-users-modal').modal('hide');
 	}
 
@@ -5865,9 +5878,15 @@ function load_hunting(params) {
 		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-		setObject(objParams, function(result) {
+
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
 			init(objParams);
-		});
+		}
+			
 	}
 
 	function setObject(props, callback) {
@@ -5983,7 +6002,7 @@ function load_icd(params) {
 	// }
 
 	function showAvailableUsers() {
-		console.log('showAvailableUsers: ');
+		console.log('showAvailableUsers: ', objParams);
 		modalCont = document.getElementById('available-users-cont');
 
 		if(modalCont) {
@@ -5997,6 +6016,7 @@ function load_icd(params) {
 		ReactDOM.render(AvailableUsersModalComponent({
 		    frases: PbxObject.frases,
 		    onSubmit: addMembers,
+		    excludeList: objParams.members,
 		    groupid: PbxObject.name ? PbxObject.oid : null
 		}), modalCont);
 
@@ -6006,19 +6026,30 @@ function load_icd(params) {
 		objParams.members = objParams.members.concat(array);
 		console.log('addMembers: ', array, objParams);
 
-		setObject(objParams, function(result) {
-			init(objParams);
-		});
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
+			init(objParams);	
+		}
+
 		$('#available-users-modal').modal('hide');
+
 	}
 
 	function deleteMember(params) {
 		var oid = params.oid;
 		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-		setObject(objParams, function(result) {
+
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
 			init(objParams);
-		});
+		}
 	}
 
 	function setObject(props, callback) {
@@ -6820,7 +6851,7 @@ function getPbxOptions(callback) {
 }
 
 function getInstanceMode() {
-    return PbxObject.mode;
+    return PbxObject.options.mode;
 }
 
 function setupPage() {
@@ -6855,6 +6886,8 @@ function setupPage() {
                         profile = response.result;
                         loadFSTracking(profile);
                     }
+
+                    loadStripeJs();
 
                     console.log('getProfile: ', err, response);
 
@@ -6893,6 +6926,7 @@ function setupPage() {
 }
 
 function loadFSTracking(profile) {
+    if(!window.FS) return;
     // This is an example script - don't forget to change it!
     FS.identify(profile._id, {
       displayName: profile._id,
@@ -6920,8 +6954,6 @@ function init_page(){
     setPageHeight();
     subscribeToEvents();
     
-    if(PbxObject.options.mode !== 1) loadStripeJs();
-
     // new GetStarted().init();
 
     // PbxObject.groups = {};
@@ -6948,7 +6980,7 @@ function init_page(){
     
     //set default loading page
     if(!location.hash.substring(1))
-        location.hash = 'dashboard';
+        location.hash = 'realtime';
 
     // load_pbx_options(PbxObject.options);
     
@@ -7129,7 +7161,7 @@ function get_object(e){
         if(modal) modal.parentNode.removeChild(modal);
 
         // var groupKinds = ['equipment', 'unit', 'users', 'hunting', 'icd', 'conference', 'selector', 'channel', 'pickup'];
-        var groupKinds = ['equipment', 'unit', 'conference', 'selector', 'channel', 'pickup'];
+        var groupKinds = ['equipment', 'unit', 'conference', 'channel', 'pickup'];
         if(groupKinds.indexOf(kind) != -1){
             kind = 'bgroup';
         }
@@ -10467,6 +10499,8 @@ function renderSidebar(params) {
 
 	_init(params);
 
+	console.log('renderSidebar', params.branchOptions.config);
+
 	function _getMenuItems() {
 	    var menuItems = [
 	        {
@@ -10474,26 +10508,27 @@ function renderSidebar(params) {
 	            iconClass: 'fa fa-fw fa-pie-chart',
 				objects: [{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
 	        }, {
-	        //     name: 'users',
-	        //     iconClass: 'fa fa-fw fa-users',
-	        //     fetchKinds: ['users']
-	        // }, {
-	            name: 'servicegroup',
-	            // iconClass: 'fa fa-fw fa-comments-o',
-	            iconClass: 'fa fa-fw fa-users',
+	            name: 'users',
+	            iconClass: 'icon-contact',
 	            objects: [{ kind: 'extensions' }],
-	            fetchKinds: ['users', 'hunting', 'icd', 'chatchannel']
+	            fetchKinds: ['users']
+	        }, {
+	            name: 'servicegroup',
+	            iconClass: 'icon-chats',
+	            // iconClass: 'fa fa-fw fa-users',
+	            // fetchKinds: ['hunting', 'icd', 'chatchannel', (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
-	            iconClass: 'fa fa-fw fa-whatsapp',
+	            iconClass: 'icon-channels',
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',
-	            iconClass: 'fa fa-fw fa-cloud',
+	            iconClass: 'icon-dialer_sip',
 	            fetchKinds: ['trunk']
 	        }, {
 	            name: 'attendant',
-	            iconClass: 'icon-room_service',
+	            iconClass: 'fa fa-fw fa-sitemap',
 	            fetchKinds: ['attendant']
 	        }, {
 	            name: 'equipment',
@@ -10557,7 +10592,7 @@ function renderSidebar(params) {
 	}
 
 	function _getActiveKind(kind) {
-	    if(kind.match('hunting|icd|chatchannel|extensions|users')) return 'servicegroup';
+	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
 	    else if(kind.match('realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
 	    else return kind;
@@ -10576,8 +10611,6 @@ function renderSidebar(params) {
 	    var activeItem = params.activeItem || params.activeKind;
 	    var menuParams = menuItems.filter(function(item) { return item.name === activeKind })[0];
 	    
-	    console.log('_init: ', activeKind, activeItem, params);
-
 	    _getMenuObjects(menuParams, params.branchOptions, function(result) {
 	    	componentParams = {
 	    	    frases: PbxObject.frases,
@@ -11326,6 +11359,175 @@ function deleteRoute(routeOid){
     // console.log(jprms);
     json_rpc_async('deleteRoute', jprms, set_object_success);
 }
+function load_selector(params) {
+
+	var objParams = params;
+	var handler = null;
+	var defaultName = getDefaultName();
+	var modalCont;
+	var members = [].concat(objParams.members);
+	var availableList = [];
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	getExtensions(function(result) {
+		availableList = result.filter(function(item) { return (item.kind === 'user' || item.kind === 'phone') });
+		objParams.members = availableList.filter(function(item) { return members.indexOf(item.ext) !== -1 });
+
+		init(objParams);
+		show_content();
+	    set_page();
+	});
+
+	function getDefaultName() {
+		var name = PbxObject.frases.KINDS['selector'] + ' ';
+		name += PbxObject.objects ? filterObject(PbxObject.objects, PbxObject.kind).length+1 : 1;
+		return name;
+	}
+
+	function onNameChange(name) {
+		objParams.name = name;
+	}
+
+	function onStateChange(state) {
+		objParams.enabled = state;
+		if(!PbxObject.name) return;
+		setObjectState(PbxObject.oid, state, function(result) {
+		    console.log('onStateChange: ', state, result);
+		});
+	}
+
+	// function onAddMembers() {
+	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
+
+	//     json_rpc_async('onAddMembers', params, function(result){
+	// 		showAvailableUsers(result);
+	// 	});
+	// }
+
+	function showAvailableUsers() {
+		modalCont = document.getElementById('available-users-cont');
+
+		if(modalCont) {
+			modalCont.parentNode.removeChild(modalCont);
+		}
+
+		modalCont = document.createElement('div');
+		modalCont.id = "available-users-cont";
+		document.body.appendChild(modalCont);
+
+		ReactDOM.render(AvailableUsersModalComponent({
+		    frases: PbxObject.frases,
+		    availableList: availableList,
+		    excludeList: objParams.members,
+		    onSubmit: addMembers,
+		    groupid: PbxObject.name ? PbxObject.oid : null
+		}), modalCont);
+
+		// $('#'+modalId).modal();
+	}
+
+	function addMembers(array) {
+		objParams.members = objParams.members.concat(array);
+
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
+			init(objParams);
+		}
+
+		$('#available-users-modal').modal('hide');
+	}
+
+	function deleteMember(params) {
+		var oid = params.oid;
+		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
+
+		if(PbxObject.name) {
+			setObject(objParams, function(result) {
+				init(objParams);
+			});
+		} else {
+			init(objParams);
+		}
+			
+	}
+
+	function setObject(newParams, callback) {
+
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    }
+
+	    var props = extend({}, newParams);
+	    var objName = props.name || defaultName;
+
+		props.members = props.members.reduce(function(array, item) { array = array.concat([item.ext]); return array; }, []);
+
+		json_rpc_async('setObject', {
+			kind: PbxObject.kind,
+			oid: props.oid,
+			name: objName,
+			owner: props.owner,
+			enabled: props.enabled,
+			options: props.options,
+			members: props.members
+		}, function(result) {
+			PbxObject.name = objParams.name = objName;
+
+			// Upload audio files
+			if(props.files && props.files.length) {
+				props.files.forEach(function(item) {
+					uploadFile(item);
+				})
+
+			}
+
+			// Add new route to the routing table
+			if(props.route && props.route.ext) {
+			    var routeProps = {
+			    	number: props.route.ext,
+			    	target: { oid: PbxObject.oid, name: PbxObject.name }
+			    };
+			    if(params.routes.length) routeProps.oid = params.routes[0].id;
+			    
+			    setObjRoute(routeProps);
+			    
+			}
+
+			if(handler) handler();
+			if(callback) callback(result);
+		});
+	}
+
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	}
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    onAddMembers: showAvailableUsers,
+		    setObject: setObject,
+		    onNameChange: onNameChange,
+		    onStateChange: onStateChange,
+		    getInfoFromState: getInfoFromState,
+		    getExtension: getExtension,
+		    deleteMember: deleteMember
+		};
+
+		if(params.name) {
+			componentParams.removeObject = removeObject;
+		}
+
+		ReactDOM.render(SelectorComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+}
 function load_services() {
 
 	var services = [];
@@ -11866,9 +12068,15 @@ function load_storages(){
 		availableStorages,
 		fileStorage,
 		storageInfo,
+		extensions,
 		totalStorage,
-		modalCont = document.getElementById('storage-settings-cont');
+		modalCont = document.getElementById('modal-cont');
 
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+	}
 
 	if(PbxObject.options.mode === 1 || !PbxObject.options.prefix) {
 		getStorages(function (result){
@@ -11880,52 +12088,51 @@ function load_storages(){
 	}
 
 	getStorageInfo(function (result){
+		
 		storageInfo = result;
-		init();
+		
+		getExtensions(function(list) {
+
+			extensions = list;
+
+			init();
+		})
 	});
 
-	function openStorageSettings(data) {
-		if(modalCont) // TODO: find a solution
-			modalCont.parentNode.removeChild(modalCont);
+	function openStorageSettings(params) {
+		var data = extend({}, params);
 
-		// if(!modalCont) {
-			modalCont = document.createElement('div');
-			modalCont.id = "storage-settings-cont";
-			document.body.appendChild(modalCont);
-		// }
-
-		if(data.maxsize)
-			data.maxsize = convertBytes(data.maxsize, 'Byte', 'GB');
+		if(data.maxsize) data.maxsize = convertBytes(data.maxsize, 'Byte', 'GB');
 
 		ReactDOM.render(StorageComponent({
 		    frases: PbxObject.frases,
 		    data: data,
 		    onSubmit: saveStorage
 		}), modalCont);
-
-		$('#storage-settings').modal();
 	}
 
-	function saveStorage(data){
+	function saveStorage(data, callback){
 		console.log('saveStorage: ', data);
 		if(!data.path) return;
 		if(!data.id) delete data.id;
 		if(data.maxsize !== undefined) data.maxsize = convertBytes(data.maxsize, 'GB', 'Byte');
 		data.state = parseInt(data.state, 10);
 
-	    json_rpc_async('setFileStore', data, function(result){
-			if(result){
-				getStorages(function (result){
-					fileStorage = result;
+	    json_rpc_async('setFileStore', data, function(result, err){
+	    	if(err) return callback(err);
+			
+			notify_about('success', PbxObject.frases.SAVED);
+			
+			getStorages(function (result){
+				fileStorage = result;
 
-					getTotalStorage(function (result){
-						PbxObject.options = result;
-	
-						renderUI();
-						$('#storage-settings').modal('hide');
-					});
+				getTotalStorage(function (result){
+					PbxObject.options = result;
+
+					renderUI();
+					if(callback) callback();
 				});
-			}
+			});
 		});
 	}
 
@@ -11946,6 +12153,7 @@ function load_storages(){
     	    frases: PbxObject.frases,
     	    storageInfo: storageInfo,
     	    fileStorage: fileStorage,
+    	    extensions: extensions,
     	    getTotalStorage: getTotalStorage,
     	    utils: {
     	    	convertBytes: convertBytes,
@@ -12870,8 +13078,8 @@ function load_users(params) {
 	// var tourStarted = false;
 	var serviceParams = window.sessionStorage.serviceParams;
 
-	$(document).off('onmessage.object.add', updateUsersList);
-	$(document).on('onmessage.object.add', updateUsersList);
+	// $(document).off('onmessage.object.add', updateUsersList);
+	// $(document).on('onmessage.object.add', updateUsersList);
 
 	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
 		activeServices.unshift({
@@ -12945,10 +13153,10 @@ function load_users(params) {
 		}), modalCont);
 	}
 
-	function addUser(userParams, callback) {
+	function addUser(params, callback) {
 		console.log('addUser: ', params);
 
-		userParams = extend({}, userParams);
+		var userParams = extend({}, params);
 
 		if(!PbxObject.name) {
 			return setObject({
@@ -12956,12 +13164,12 @@ function load_users(params) {
 				profile: objParams.profile,
 				members: []
 			}, function() {
-				addUser(userParams);
+				addUser(userParams, callback);
 			});
 		}
 
-		userParams.kind = params.kind === 'users' ? 'user' : 'phone';
-		userParams.groupid = params.oid;
+		userParams.kind = objParams.kind === 'users' ? 'user' : 'phone';
+		userParams.groupid = objParams.oid;
 
 		json_rpc_async('setObject', userParams, function(result, error) {
 
@@ -13243,270 +13451,3 @@ var Utils = {
 		items.forEach(iterate);
 	}
 };
-PbxObject.tours = PbxObject.tours || [];
-
-PbxObject.tours.attendant = function(){
-
-    var frases = PbxObject.frases;
-
-    return {
-        storage: window.localStorage,
-        backdrop: false,
-        steps: [
-            {
-                placement: 'bottom',
-                element: "#objname",
-                title: frases.TOURS.ATTENDANT.A.TITLE,
-                content: frases.TOURS.ATTENDANT.A.BODY
-            }, {
-                placement: 'bottom',
-                element: "#object-route-cont",
-                title: frases.TOURS.ATTENDANT.B.TITLE,
-                content: frases.TOURS.ATTENDANT.B.BODY
-            }, {
-                placement: 'left',
-                element: "#enabled-cont",
-                title: frases.TOURS.ATTENDANT.C.TITLE,
-                content: frases.TOURS.ATTENDANT.C.BODY
-            }, {
-                placement: 'right',
-                element: "#attGreetings",
-                title: frases.TOURS.ATTENDANT.D.TITLE,
-                content: frases.TOURS.ATTENDANT.D.BODY
-            }, {
-                placement: 'right',
-                element: "#att-email-setts",
-                title: frases.TOURS.ATTENDANT.E.TITLE,
-                content: frases.TOURS.ATTENDANT.E.BODY
-            }, {
-                placement: 'right',
-                element: "#attconnectors",
-                title: frases.TOURS.ATTENDANT.F.TITLE,
-                content: frases.TOURS.ATTENDANT.F.BODY
-            }, {
-                reflex: true,
-                placement: 'bottom',
-                element: "#att-obj-types",
-                title: frases.TOURS.ATTENDANT.G.TITLE,
-                content: frases.TOURS.ATTENDANT.G.BODY,
-                onShow: function() {
-                    $('#att-container .att-init-button').removeClass('open');
-                },
-                onHidden: function() {
-                    $('#att-container .att-init-button').addClass('open');
-                }
-            }, {
-                reflex: true,
-                backdrop: true,
-                placement: 'bottom',
-                element: "#att-obj-types + .dropdown-menu",
-                title: frases.TOURS.ATTENDANT.H.TITLE,
-                content: frases.TOURS.ATTENDANT.H.BODY,
-                onHidden: function() {
-                    $('#att-container .att-init-button').removeClass('open');
-                }
-            }
-        ]
-    }
-}
-PbxObject.tours = PbxObject.tours || [];
-
-PbxObject.tours.dashboard = function() {
-    return {
-        steps: [
-            {
-                // orphan: true,
-                backdropPadding: { top: 10 },
-                placement: 'top',
-                element: "#dash-tour-cont",
-                title: PbxObject.frases.TOURS.DASHBOARD.A.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.A.BODY
-            }, {
-                backdropPadding: { top: 10 },
-                element: "#dash-graph-cont",
-                title: PbxObject.frases.TOURS.DASHBOARD.B.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.B.BODY,
-                placement: "bottom"
-            }, {
-                backdropPadding: { top: 10 },
-                element: "#dash-monitor-cont",
-                title: PbxObject.frases.TOURS.DASHBOARD.C.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.C.BODY,
-                placement: "top"
-            }, {
-                element: "#dash-trstate-cont",
-                title: PbxObject.frases.TOURS.DASHBOARD.D.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.D.BODY,
-                placement: "top"
-            }, {
-                element: "#dash-callmonitor-cont",
-                title: PbxObject.frases.TOURS.DASHBOARD.E.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.E.BODY,
-                placement: "top"
-            }, {
-                element: "#home-btn",
-                content: PbxObject.frases.TOURS.DASHBOARD.F.BODY,
-                placement: "bottom"
-            }, {
-                element: "#pbxmenu",
-                title: PbxObject.frases.TOURS.DASHBOARD.G.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.G.BODY,
-                placement: "right"
-            }, {
-                element: "#history-dropdown-cont .dropdown-menu",
-                title: PbxObject.frases.TOURS.DASHBOARD.H.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.H.BODY,
-                placement: "left",
-                onShow: function() {
-                	$('#history-dropdown-cont').addClass('open');
-                },
-                onShown: function() {
-                	$('#history-dropdown-cont .tour-step-backdrop').css('position', 'absolute');
-                },
-                onHide: function() {
-                	$('#history-dropdown-cont').removeClass('open');
-                }
-            }, {
-                reflex: true,
-                element: "#open-opts-btn",
-                content: PbxObject.frases.TOURS.DASHBOARD.I.BODY,
-                placement: "left"
-            }, {
-                element: "#pbxoptions",
-                title: PbxObject.frases.TOURS.DASHBOARD.J.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.J.BODY,
-                placement: "left",
-                onShow: function() {
-                    if(!isOptionsOpened()) open_options();
-                },
-                onHide: function() {
-                	if(isOptionsOpened()) close_options();
-                }
-            }, {
-                element: "#get-started-cont",
-                title: PbxObject.frases.TOURS.DASHBOARD.K.TITLE,
-                content: PbxObject.frases.TOURS.DASHBOARD.K.BODY,
-                placement: "bottom"
-            }
-        ]
-    }
-}
-PbxObject.tours = PbxObject.tours || [];
-
-PbxObject.tours.equipment = function(params){
-
-    var frases = params.frases;
-
-    return {
-        storage: window.localStorage,
-        backdrop: false,
-        steps: [
-            {
-                placement: 'bottom',
-                element: "#objname",
-                title: 'Group name',
-                content: 'Enter a group name'
-            }, {
-                backdrop: true,
-                backdropPadding: { bottom: 10 },
-                placement: 'top',
-                element: "#equipment-group-setts",
-                title: 'Group settings',
-                content: 'Select the signaling <b>protocol</b> for devices to connect with. <b>Device type</b> is basicaly the type of devices that would be connected to the server.'
-            }, {
-                reflex: true,
-                placement: 'top',
-                element: "#add-newuser-btn",
-                title: 'Creating new extensions',
-                content: 'Click this button to open the <b>Create extensions</b> form',
-                onHidden: function() {
-                    $('#new-user-form').collapse('show');
-                }
-            }, {
-                backdrop: true,
-                backdropPadding: { bottom: 10 },
-                reflex: 'users.create',
-                placement: 'top',
-                element: "#new-user-form",
-                title: 'Creating new extensions',
-                content: 'To create a new extension, fill in the form with the extension\'s data and then click <b>Create</b> button. After creating a first extension, the equipment group will be created also (<br/> Make sure to fill in the <b>Group name</b> field above). <br/> Click <b>Clear</b> button to clear the form.'
-            }, {
-                backdrop: true,
-                backdropPadding: { bottom: 10 },
-                placement: 'top',
-                element: "#group-extensions",
-                title: 'Extensions list',
-                content: 'All extensions that were added to the group are listed here with the real-time updates of the extensions statuses'
-            }, {
-                placement: 'top',
-                element: "#ext-features-panel",
-                title: 'Extension features',
-                content: 'Select which of the features of IP PBX would be available to the extensions of current group',
-                onShow: function() {
-                    $('#ext-features-panel').removeClass('minimized');
-                }
-            }, {
-                placement: 'bottom',
-                element: "#el-set-object",
-                title: 'Saving changes',
-                content: 'Click <b>Save</b> button to save changes'
-            }
-        ]
-    }
-}
-PbxObject.tours = PbxObject.tours || [];
-
-PbxObject.tours.users = function(params){
-
-    var frases = params.frases;
-
-    return {
-        storage: window.localStorage,
-        backdrop: false,
-        steps: [
-            {
-                placement: 'bottom',
-                element: "#objname",
-                title: 'Group name',
-                content: 'Enter a group name'
-            }, {
-                reflex: true,
-                placement: 'top',
-                element: "#add-newuser-btn",
-                title: 'Creating new users',
-                content: 'Click this button to open the <b>Create users</b> form',
-                onHidden: function() {
-                    $('#new-user-form').collapse('show');
-                }
-            }, {
-                backdrop: true,
-                backdropPadding: { bottom: 10 },
-                reflex: 'users.create',
-                placement: 'top',
-                element: "#new-user-form",
-                title: 'Creating new users',
-                content: 'To create a new user, fill in the form with the user\'s data and then click <b>Create</b> button. After creating a first user, the users group will be created also (<br/> Make sure to fill in the <b>Group name</b> field above). <br/> Click <b>Clear</b> button to clear the form.'
-            }, {
-                backdrop: true,
-                backdropPadding: { bottom: 10 },
-                placement: 'top',
-                element: "#group-extensions",
-                title: 'Users list',
-                content: 'All users that were added to the group are listed here with the real-time updates of the users statuses'
-            }, {
-                placement: 'top',
-                element: "#ext-features-panel",
-                title: 'Extension features',
-                content: 'Select which of the features of IP PBX would be available to the extensions of current group',
-                onShow: function() {
-                    $('#ext-features-panel').removeClass('minimized');
-                }
-            }, {
-                placement: 'bottom',
-                element: "#el-set-object",
-                title: 'Saving changes',
-                content: 'Click <b>Save</b> button to save changes'
-            }
-        ]
-    }
-}

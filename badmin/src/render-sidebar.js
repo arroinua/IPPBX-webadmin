@@ -4,6 +4,8 @@ function renderSidebar(params) {
 
 	_init(params);
 
+	console.log('renderSidebar', params.branchOptions.config);
+
 	function _getMenuItems() {
 	    var menuItems = [
 	        {
@@ -11,26 +13,27 @@ function renderSidebar(params) {
 	            iconClass: 'fa fa-fw fa-pie-chart',
 				objects: [{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
 	        }, {
-	        //     name: 'users',
-	        //     iconClass: 'fa fa-fw fa-users',
-	        //     fetchKinds: ['users']
-	        // }, {
-	            name: 'servicegroup',
-	            // iconClass: 'fa fa-fw fa-comments-o',
-	            iconClass: 'fa fa-fw fa-users',
+	            name: 'users',
+	            iconClass: 'icon-contact',
 	            objects: [{ kind: 'extensions' }],
-	            fetchKinds: ['users', 'hunting', 'icd', 'chatchannel']
+	            fetchKinds: ['users']
+	        }, {
+	            name: 'servicegroup',
+	            iconClass: 'icon-chats',
+	            // iconClass: 'fa fa-fw fa-users',
+	            // fetchKinds: ['hunting', 'icd', 'chatchannel', (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
-	            iconClass: 'fa fa-fw fa-whatsapp',
+	            iconClass: 'icon-channels',
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',
-	            iconClass: 'fa fa-fw fa-cloud',
+	            iconClass: 'icon-dialer_sip',
 	            fetchKinds: ['trunk']
 	        }, {
 	            name: 'attendant',
-	            iconClass: 'icon-room_service',
+	            iconClass: 'fa fa-fw fa-sitemap',
 	            fetchKinds: ['attendant']
 	        }, {
 	            name: 'equipment',
@@ -94,7 +97,7 @@ function renderSidebar(params) {
 	}
 
 	function _getActiveKind(kind) {
-	    if(kind.match('hunting|icd|chatchannel|extensions|users')) return 'servicegroup';
+	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
 	    else if(kind.match('realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
 	    else return kind;
@@ -113,8 +116,6 @@ function renderSidebar(params) {
 	    var activeItem = params.activeItem || params.activeKind;
 	    var menuParams = menuItems.filter(function(item) { return item.name === activeKind })[0];
 	    
-	    console.log('_init: ', activeKind, activeItem, params);
-
 	    _getMenuObjects(menuParams, params.branchOptions, function(result) {
 	    	componentParams = {
 	    	    frases: PbxObject.frases,

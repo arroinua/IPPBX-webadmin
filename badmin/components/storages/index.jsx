@@ -6,6 +6,7 @@ var UsageComponent = React.createClass({
 		frases: React.PropTypes.object,
 		storageInfo: React.PropTypes.array,
 		fileStorage: React.PropTypes.array,
+		extensions: React.PropTypes.array,
 		getTotalStorage: React.PropTypes.func,
 		utils: React.PropTypes.object,
 		openStorageSettings: React.PropTypes.func
@@ -21,11 +22,19 @@ var UsageComponent = React.createClass({
 	    return value * coefficients[fromUnits] / coefficients[toUnits];
 	},
 
+	_normalize: function(list, key) {
+		return list.reduce(function(result, item) {
+			result[item[key]] = item;
+			return result;
+		}, {})
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var options = this.props.options;
-
-    	console.log('storages component: ', this.props.storageInfo, this.props.fileStorage);
+		var storesize = this._convertBytes(options.storesize, 'Byte', 'GB');
+		var storelimit = this._convertBytes(options.storelimit, 'Byte', 'GB');
+		var extensions = this._normalize(this.props.extensions || [], 'ext');
 
 		return (
 			<div>
@@ -39,9 +48,29 @@ var UsageComponent = React.createClass({
 					) : ''
 				}
 				
+				<PanelComponent>
+					<div className="row text-center">
+						<div className="col-sm-4" style={{ marginBottom: "10px" }}>
+							<h3><small>{frases.STORAGE.USED_SPACE}</small></h3>
+						    <h3>{ parseFloat(storesize).toFixed(2) }</h3>
+						    <p>GB</p>
+						</div>
+						<div className="col-sm-4" style={{ marginBottom: "10px" }}>
+							<h3><small>{frases.STORAGE.TOTAL_SPACE}</small></h3>
+						    <h3>{ parseFloat(storelimit).toFixed(2) }</h3>
+						    <p>GB</p>
+						</div>
+						<div className="col-sm-4" style={{ marginBottom: "10px" }}>
+							<h3><small>{frases.STORAGE.FREE_SPACE}</small></h3>
+						    <h3>{ parseFloat(storelimit-storesize).toFixed(2) }</h3>
+						    <p>GB</p>
+						</div>
+					</div>
+				</PanelComponent>
+
 				<div className="row">
 					<div className="col-xs-12">
-						<UsersStorageComponent frases={frases} data={ this.props.storageInfo } />
+						<UsersStorageComponent frases={frases} data={ this.props.storageInfo } extensions={extensions} />
 					</div>
 				</div>
 

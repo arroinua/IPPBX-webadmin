@@ -73,8 +73,6 @@
 
 		state.options[target.name] = type === 'number' ? parseFloat(value) : value;
 
-		console.log('_handleOnChange: ', target, value);
-
 		this.setState({
 			state: state
 		});
@@ -99,8 +97,6 @@
 		state.options[params.name] = params.filename;
 		state.files = files;
 
-		console.log('_onFileUpload: ', params, files);
-
 		this.setState({
 			state: state
 		});	
@@ -115,7 +111,6 @@
 	// 	state.options[target.name] = value;
 	// 	state.files.push(file);
 
-	// 	console.log('_onFileUpload: ', target, value, file);
 
 	// 	this.setState({
 	// 		state: state
@@ -123,7 +118,6 @@
 	// },
 
 	// _onRouteChange: function(route) {
-	// 	console.log('_onRouteChange: ', route);
 	// 	this.setState({
 	// 		route: route
 	// 	});
@@ -143,12 +137,9 @@
 		var members = params.members || [];
 		var filteredMembers = this.state.filteredMembers || [];
 
-		console.log('remder: ', params.name);
-
 		// <div className="form-group">
 		    // <label className="col-sm-4 control-label">
 		        // <span>{frases.EXTENSION} </span>
-		        // <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.EXTENSION}></a>
 		    // </label>
 		    // <div className="col-sm-4">
 		    	// <ObjectRoute frases={frases} routes={params.routes} onChange={this._onRouteChange} />
@@ -184,7 +175,6 @@
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.ROUTEMETH.ROUTEMETH} </span>
-										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__METHOD}></a>
 										    </label>
 										    <div className="col-sm-4">
 										        <select name="method" className="form-control" value={ this.state.options.method } onChange={ this._handleOnChange }>
@@ -198,7 +188,6 @@
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.PRIORITY} </span>
-										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__PRIORITY}></a>
 										    </label>
 										    <div className="col-md-2 col-sm-4">
 										        <input type="text" className="form-control" name="priority" value={ this.state.options.priority } onChange={ this._handleOnChange } />
@@ -216,7 +205,7 @@
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.NOANSTOUT} </span>
 										    </label>
-										    <div className="col-md-2 col-sm-4">
+										    <div className="col-sm-4">
 										        <div className="input-group">
 										            <input type="text" className="form-control" name="natimeout" value={ this.state.options.natimeout } onChange={ this._handleOnChange } />	
 										            <span className="input-group-addon">{frases.SECONDS}</span>
@@ -227,7 +216,7 @@
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.RESUMETIME} </span>
 										    </label>
-										    <div className="col-md-2 col-sm-4">
+										    <div className="col-sm-4">
 										        <div className="input-group">
 										            <input type="text" className="form-control" name="resumetime" value={ this.state.options.resumetime } onChange={ this._handleOnChange } />
 										            <span className="input-group-addon">{frases.SECONDS}</span>
@@ -242,8 +231,6 @@
 										                    <input type="checkbox" name="autologin" checked={ this.state.options.autologin } onChange={ this._handleOnChange } /> 
 										                    <span>{frases.AUTOREG} </span> 
 										                </label>
-										                <span> </span>
-										                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__AUTO_REG}></a>
 										            </div>
 										            <span className="input-group-btn">
 										                <button type="button" className="btn btn-default" name="open-autologin-options" style={{ display: "none" }}>
@@ -301,7 +288,6 @@
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.APPLICATION} </span>
-										        <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__APPLICATION}></a>
 										    </label>
 										    <div className="col-sm-8">
 										        <input type="text" className="form-control" name="application" value={ this.state.options.application } onChange={ this._handleOnChange } />
@@ -315,7 +301,6 @@
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.QUEUELEN} </span>
-								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_LENGTH}></a>
 								            </label>
 								            <div className="col-md-2 col-sm-4">
 								                <input type="text" className="form-control" name="queuelen" value={ this.state.options.queuelen } onChange={ this._handleOnChange } />
@@ -324,7 +309,6 @@
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.OVERFLOWREDIR} </span>
-								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_OVERFLOW_FWD}></a>
 								            </label>
 								            <div className="col-sm-8">
 								                <input type="text" className="form-control" name="overflowredirect" value={ this.state.options.overflowredirect } onChange={ this._handleOnChange } />
@@ -334,7 +318,6 @@
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.MAXQWAIT} </span>
-								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_WAIT}></a>
 								            </label>
 								            <div className="col-md-2 col-sm-4">
 								                <div className="input-group">
@@ -346,7 +329,6 @@
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.OVERTIMEREDIR} </span>
-								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__Q_OVERTIME_FWD}></a>
 								            </label>
 								            <div className="col-sm-8">
 								                <input type="text" className="form-control" name="overtimeredirect" value={ this.state.options.overtimeredirect } onChange={ this._handleOnChange } />
@@ -356,7 +338,6 @@
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.INDICMODE} </span>
-								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__INDICATION}></a>
 								            </label>
 								            <div className="col-md-2 col-sm-4">
 								                <input type="text" className="form-control" name="indicationmode" value={ this.state.options.indicationmode } onChange={ this._handleOnChange } />
@@ -365,7 +346,6 @@
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.INDICTIME} </span>
-								                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content={frases.ICD__INDICATION_TIME}></a>
 								            </label>
 								            <div className="col-md-2 col-sm-4">
 								                <div className="input-group">

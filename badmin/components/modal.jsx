@@ -3,6 +3,7 @@ var ModalComponent = React.createClass({
 
 	propTypes: {
 		frases: React.PropTypes.object,
+		open: React.PropTypes.bool,
 		size: React.PropTypes.string,
 		type: React.PropTypes.string,
 		title: React.PropTypes.string,
@@ -31,7 +32,6 @@ var ModalComponent = React.createClass({
 	},
 
 	// componentDidUpdate: function() {
-	// 	console.log('componentDidUpdate: ', this.props);
 	// 	if(this.props.open === true || this.props.open === undefined) {
 	// 		this._openModal();
 	// 	}
@@ -56,7 +56,6 @@ var ModalComponent = React.createClass({
 	},
 
 	_closeModal: function() {
-		console.log('_closeModal: ', this.el);
 		$(this.el).modal('hide');
 	},
 

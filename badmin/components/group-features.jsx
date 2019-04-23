@@ -155,7 +155,6 @@
 				                <label>
 				                    <input type="checkbox" name="outcallbarring" checked={params.outcallbarring} onChange={this._onChange} /> {frases.USERS_GROUP.FUNCTIONS.OUTBARGING}
 				                </label>
-				                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content="{GRP_OUTBARGING}"></a>
 				            </div>
 				        </div>
 				        <div className="col-xs-12">
@@ -163,7 +162,6 @@
 				                <label>
 				                    <input type="checkbox" name="costroutebarring" checked={params.costroutebarring} onChange={this._onChange} /> {frases.USERS_GROUP.FUNCTIONS.COSTBARGING}
 				                </label>
-				                <a tabIndex="0" role="button" className="popover-trigger info" data-toggle="popover" data-content="{GRP_COSTBARGING}"></a>
 				            </div>
 				        </div>
 				    </div>
