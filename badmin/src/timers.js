@@ -235,7 +235,7 @@ function timer_target_row(oid, name, action){
 }
 
 function add_timer_target() {
-    var table = document.getElementsByTagName('tbody')[0];
+    var table = document.getElementById('targets').getElementsByTagName('tbody')[0];
     var select = document.getElementById('objects');
     var action = document.getElementById('actions');
     var opt = select.options[select.selectedIndex];

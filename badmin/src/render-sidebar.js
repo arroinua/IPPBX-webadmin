@@ -21,8 +21,8 @@ function renderSidebar(params) {
 	            name: 'servicegroup',
 	            iconClass: 'icon-chats',
 	            // iconClass: 'fa fa-fw fa-users',
-	            // fetchKinds: ['hunting', 'icd', 'chatchannel', (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
-	            fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
+	            fetchKinds: ['hunting', 'icd', 'chatchannel', (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
 	            iconClass: 'icon-channels',
@@ -99,6 +99,7 @@ function renderSidebar(params) {
 	function _getActiveKind(kind) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
 	    else if(kind.match('realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    else if(kind.match('extensions')) return 'users';
 	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
 	    else return kind;
 	}

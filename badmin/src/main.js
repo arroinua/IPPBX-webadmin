@@ -1986,10 +1986,7 @@ function getFileName(ArrayOrString){
 
 function customize_upload(id, resultFilename){
     var upl = document.getElementById(id);
-    if(!upl) {
-        console.error('custommize_upload: File element not found');
-        return;
-    }
+    if(!upl) return;
     var uplparent = upl.parentNode,
         uplbtn = document.createElement('button'),
         uplname = document.createElement('span');

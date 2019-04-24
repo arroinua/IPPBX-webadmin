@@ -484,6 +484,7 @@ function AttObject(params){
         wrapper = document.createElement('div'),
         oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0);
 
+    console.log('new AttObject params: ', params, data);
 
     wrapper.className = 'att-obj-wrapper';
     wrapper.innerHTML = rendered;
@@ -670,8 +671,12 @@ function showAttObjectSetts(params, object){
 
         if(connEl && params.connector) connEl.value = params.connector;
         if(btnEl && params.button) btnEl.value = params.button;
-        if(params.type === PbxObject.attendant.types.menu)
+        
+        if(params.type === PbxObject.attendant.types.menu) {
             customize_upload('audioFile', (params.data || ''));
+        } else if(params.type === PbxObject.attendant.types.mail) {
+            customize_upload('audioFile', (params.audio || ''));
+        }
 
         $('#set-att-object').on('click', function(e){
             setAttObject(params, object);
@@ -713,6 +718,8 @@ function showAttObjectSetts(params, object){
 function setAttObject(params, object){
 
     var attParams = collectAttParams(params);
+
+    console.log('setAttObject: ', attParams);
 
     if(!checkParams(attParams)) return;
     if(object){
@@ -775,7 +782,21 @@ function collectAttParams(instParams){
 
     if(objType === PbxObject.attendant.types.mail){
         var subject = cont.querySelector('input[name="subject"]'),
-            body = cont.querySelector('textarea[name="body"]');
+            body = cont.querySelector('textarea[name="body"]'),
+            fileEl = cont.querySelector('input[type="file"]');
+
+        if(fileEl){
+            if(fileEl.files.length){
+                params.file = fileEl;
+                params.audio = fileEl.files[0].name;
+            } else if(instParams.file){
+                params.file = instParams.file;
+            }
+        }
+
+        if(!params.audio && instParams.file){
+            params.audio = instParams.file.files[0].name;
+        }
 
         params.subject = subject.value;
         params.body = body.value;

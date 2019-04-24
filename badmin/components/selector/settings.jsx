@@ -47,7 +47,7 @@ function SelectorSettingsComponent(props) {
 		        </div>
 		    </div>
 		    {
-		    	params.initmode === "2" ? (
+		    	(params.initmode === "2" || params.initmode === 2) ? (
 		    		<div className="form-group">
 		    		    <label className="col-sm-4 control-label">
 		    		        {frases.CONFINIT.GREETFILE}:
