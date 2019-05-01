@@ -5,9 +5,6 @@ var WebchatTrunkComponent = React.createClass({
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
-		addSteps: React.PropTypes.func,
-		nextStep: React.PropTypes.func,
-		highlightStep: React.PropTypes.func,
 		isNew: React.PropTypes.bool,
 		pageid: React.PropTypes.string
 	},
@@ -16,7 +13,7 @@ var WebchatTrunkComponent = React.createClass({
 		return {
 			data: {
 				themeColor: '#33C3F0',
-				title: (window.PbxObject.profile ? window.PbxObject.profile.company : ""),
+				title: (window.PbxObject.profile ? window.PbxObject.profile.company : this.frases.CHAT_TRUNK.WEBCHAT.DEFAULT_TITLE_VALUE),
 				widget: true,
 				chat: true,
 				intro: [],
@@ -47,31 +44,6 @@ var WebchatTrunkComponent = React.createClass({
 		console.log('WebchatTrunkComponent componentWillMount data: ', data);
 		this.setState({ data: data });
 	},
-
-	// componentDidMount: function() {
-		// var frases = this.props.frases;
-
-		// if(this.props.isNew && this.props.addSteps) {
-
-		// 	this.props.addSteps([{
-		// 		element: '.email-provider',
-		// 		popover: {
-		// 			title: frases.GET_STARTED.CONNECT_EMAIL.STEPS["1"].TITLE,
-		// 			description: frases.GET_STARTED.CONNECT_EMAIL.STEPS["1"].DESC,
-		// 			position: 'top',
-		// 			showButtons: false
-		// 		}
-		// 	}, {
-		// 		element: '.email-account-setts',
-		// 		popover: {
-		// 			title: frases.GET_STARTED.CONNECT_EMAIL.STEPS["2"].TITLE,
-		// 			description: frases.GET_STARTED.CONNECT_EMAIL.STEPS["2"].DESC,
-		// 			position: 'top'
-		// 		}
-		// 	}]);
-
-		// }
-	// },
 
 	componentWillReceiveProps: function(props) {
 		var data = extend({}, this.state.data);

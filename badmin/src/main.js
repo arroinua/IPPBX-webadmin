@@ -521,9 +521,8 @@ function setupPage() {
                     } else {
                         profile = response.result;
                         loadFSTracking(profile);
+                        loadStripeJs();
                     }
-
-                    loadStripeJs();
 
                     console.log('getProfile: ', err, response);
 
@@ -905,7 +904,7 @@ function updateTempParams(obj) {
 
 function setTempParams(obj) {
     console.log('setTempParams: ', obj);
-    PbxObject.currentObj = obj;
+    PbxObject.currentObj = extend(PbxObject.currentObj, obj);
 }
 
 function clearTempParams() {
@@ -1409,7 +1408,7 @@ function filterObject(array, kind, reverse) {
 }
 
 function getObjects(kind, callback, reverse) {
-    if(typeof PbxObject.objects === 'object') {
+    if(Array.isArray(PbxObject.objects)) {
         if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
         else callback(PbxObject.objects);
     } else {
@@ -1423,7 +1422,7 @@ function getObjects(kind, callback, reverse) {
 }
 
 // function getAllowedObjects(type, callback) {
-//     if(typeof PbxObject.objects === 'object') {
+//     if(Array.isArray(PbxObject.objects)) {
 //         callback(filterObject(PbxObject.objects, type));
 //     } else {
 //         json_rpc_async('getObjects', '\"kind\":\"all\"', function(result) {
@@ -1736,7 +1735,7 @@ function newObjectAdded(event, data){
     if(setobj) 
         setobj.innerHTML = "<i class=\"fa fa-check fa-fw\"></i> " + PbxObject.frases.SAVE;
     
-    if(typeof PbxObject.objects === 'object') {
+    if(Array.isArray(PbxObject.objects)) {
         PbxObject.objects.push(data);
         sortByKey(PbxObject.objects, 'name');
     }
@@ -1750,7 +1749,7 @@ function newObjectAdded(event, data){
 }
 
 function updateMenu(event, data) {
-    json_rpc_async('getObjects', { kind: 'all' }, function(result) {
+    getObjects(null, function(result) {
         
         PbxObject.objects = result.map(function(item) {
             if(!item.ext && item.oid === data.oid) {
@@ -1810,7 +1809,7 @@ function objectDeleted(data){
         if(itemOid && itemOid === data.oid) item.parentNode.removeChild(item);
     });
 
-    if(typeof PbxObject.objects === 'object') {
+    if(Array.isArray(PbxObject.objects)) {
         PbxObject.objects = PbxObject.objects.filter(function(obj){
             return obj.oid !== data.oid;
         });

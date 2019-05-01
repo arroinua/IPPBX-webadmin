@@ -142,7 +142,7 @@
 	"EXTENSIONS" : "Внутрішні номери",
 	"EXTENSION" : "Внутрішній номер",
 	"GROUPSETTS" : "Налаштування групи",
-	"GROUPSNAME" : "Ім'я групи",
+	"GROUPSNAME" : "Ім'я відділу",
 	"GROUPSNAME_SUBMIT_LABEL" : "Введіть ім'я",
 	"GROUPS" : {
 		"GROUPS" : "Групи",
@@ -994,11 +994,12 @@
     		}
     	},
     	"WEBCHAT": {
-    		"SERVICE_NAME": "Онлайн чат",		
+    		"SERVICE_NAME": "Онлайн чат",
     		"CODE_SNIPPET": "Код для веб-сайту",
     		"SHOW_CODE_BTN": "Показати код",
     		"SHOW_CODE_BTN_WARNING": "спочатку створіть канал",
     		"DOMAIN": "Доменне ім'я' веб-сайту",
+    		"DEFAULT_TITLE_VALUE": "Онлайн чат",
     		"TITLE": "Заголовок віджету",
     		"POSITION": "Розташування на сторінці",
     		"RIGHT_POSITION": "праворуч",
@@ -1035,6 +1036,29 @@
     		"OFFER_FROM_LABEL": "Від",
     		"OFFER_MESSAGE_LABEL": "Повідомлення",
     		"OFFER_TIMEOUT_LABEL": "Показати через",
+    		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайту",
+    		"CODE_SNIPPET_MODAL_TEXT": "Додайте цей скрипт на кожну веб-сторінку, де ви хочете, щоб віджет з'явився. Ви можете помістити скрипт в будь-якому місці в межах <HEAD> або <BODY> тегів.",
+    		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопіювати в буфер",
+    		"CODE_SNIPPET_MODAL_COPIED_BTN": "Скопійовано"
+    	},
+    	"WEBCALL": {
+    		"SERVICE_NAME": "Онлайн виклик",		
+    		"CODE_SNIPPET": "Код для веб-сайту",
+    		"SHOW_CODE_BTN": "Показати код",
+    		"SHOW_CODE_BTN_WARNING": "спочатку створіть канал",
+    		"DEFAULT_TITLE_VALUE": "Онлайн виклик",
+    		"TITLE": "Заголовок віджету",
+    		"POSITION": "Розташування на сторінці",
+    		"RIGHT_POSITION": "праворуч",
+    		"LEFT_POSITION": "ліворуч",
+    		"COLOR_THEME": "Схема кольорів",
+    		"LANG": "Мова інтерфейсу",
+    		"LANG_OPTIONS": {
+    			"AUTO": "На основі налаштувань браузеру",
+    			"EN": "English",
+    			"UK": "Українська",
+    			"RU": "Русский"
+    		},
     		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайту",
     		"CODE_SNIPPET_MODAL_TEXT": "Додайте цей скрипт на кожну веб-сторінку, де ви хочете, щоб віджет з'явився. Ви можете помістити скрипт в будь-якому місці в межах <HEAD> або <BODY> тегів.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопіювати в буфер",

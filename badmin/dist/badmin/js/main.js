@@ -4257,11 +4257,11 @@ function load_chattrunk(params) {
 		name: frases.CHAT_TRUNK.WEBCHAT.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebchatTrunkComponent
-	// }, {
-	// 	id: 'WebCall',
-	// 	name: 'Webcall',
-	// 	icon: '/badmin/images/channels/webchat.png',
-	// 	component: WebcallTrunkComponent
+	}, {
+		id: 'Webcall',
+		name: 'Webcall',
+		icon: '/badmin/images/channels/webchat.png',
+		component: WebcallTrunkComponent
 	}
 	// ,{
 	// 	id: 'Twitter',
@@ -6906,9 +6906,8 @@ function setupPage() {
                     } else {
                         profile = response.result;
                         loadFSTracking(profile);
+                        loadStripeJs();
                     }
-
-                    loadStripeJs();
 
                     console.log('getProfile: ', err, response);
 
@@ -7290,7 +7289,7 @@ function updateTempParams(obj) {
 
 function setTempParams(obj) {
     console.log('setTempParams: ', obj);
-    PbxObject.currentObj = obj;
+    PbxObject.currentObj = extend(PbxObject.currentObj, obj);
 }
 
 function clearTempParams() {
@@ -7794,7 +7793,7 @@ function filterObject(array, kind, reverse) {
 }
 
 function getObjects(kind, callback, reverse) {
-    if(typeof PbxObject.objects === 'object') {
+    if(Array.isArray(PbxObject.objects)) {
         if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
         else callback(PbxObject.objects);
     } else {
@@ -7808,7 +7807,7 @@ function getObjects(kind, callback, reverse) {
 }
 
 // function getAllowedObjects(type, callback) {
-//     if(typeof PbxObject.objects === 'object') {
+//     if(Array.isArray(PbxObject.objects)) {
 //         callback(filterObject(PbxObject.objects, type));
 //     } else {
 //         json_rpc_async('getObjects', '\"kind\":\"all\"', function(result) {
@@ -8121,7 +8120,7 @@ function newObjectAdded(event, data){
     if(setobj) 
         setobj.innerHTML = "<i class=\"fa fa-check fa-fw\"></i> " + PbxObject.frases.SAVE;
     
-    if(typeof PbxObject.objects === 'object') {
+    if(Array.isArray(PbxObject.objects)) {
         PbxObject.objects.push(data);
         sortByKey(PbxObject.objects, 'name');
     }
@@ -8135,7 +8134,7 @@ function newObjectAdded(event, data){
 }
 
 function updateMenu(event, data) {
-    json_rpc_async('getObjects', { kind: 'all' }, function(result) {
+    getObjects(null, function(result) {
         
         PbxObject.objects = result.map(function(item) {
             if(!item.ext && item.oid === data.oid) {
@@ -8195,7 +8194,7 @@ function objectDeleted(data){
         if(itemOid && itemOid === data.oid) item.parentNode.removeChild(item);
     });
 
-    if(typeof PbxObject.objects === 'object') {
+    if(Array.isArray(PbxObject.objects)) {
         PbxObject.objects = PbxObject.objects.filter(function(obj){
             return obj.oid !== data.oid;
         });
@@ -12225,6 +12224,10 @@ function load_timer(result){
     var enabled = document.getElementById('enabled');
     var name = document.getElementById('objname');
     
+    function yearDayToDate(day) {
+        return moment().dayOfYear(day).format('YYYY-MM-DD');
+    }
+
     if(result.name){
         name.value = result.name;
     }
@@ -12299,27 +12302,31 @@ function load_timer(result){
     calendarWrapper.className = "timer-dates-wrapper no-weekdays no-years";
     document.body.appendChild(calendarWrapper);
 
+    console.log('load_timer: ', result.yeardays.map(yearDayToDate));
+
     // init yeardates picker
     pickr = flatpickr('#timer-dates', {
         locale: PbxObject.language || 'en',
         mode: 'multiple',
-        dateFormat: 'd F',
+        dateFormat: 'd.m',
         appendTo: calendarWrapper,
-        minDate: new Date(2017, 0, 1), // not a leap year
-        maxDate: new Date(2017, 11, 31), // not a leap year
+        minDate: new Date(new Date().getFullYear(), 0, 1), // not a leap year
+        maxDate: new Date(new Date().getFullYear(), 11, 31), // not a leap year
+        defaultDate: (result.yeardays ? result.yeardays.map(yearDayToDate) : []),
         onChange: function(selectedDates, dateStr){
             setTempParams({ selectedDates: selectedDates });
         }
     });
 
     // format yeardates and set them in picker
-    if(result.yeardays) {
-        result.yeardays.forEach(function(item){
-            yeardays.push(moment().dayOfYear(item).format());
-        })
+    // if(result.yeardays) {
+    //     result.yeardays.forEach(function(item){
+    //         yeardays.push(moment().dayOfYear(item).format());
+    //     })
         
-        pickr.setDate(yeardays);
-    }
+    //     pickr.setDate(yeardays);
+    // }
+
 }
 
 function setTimezones(cont, selected) {
@@ -12398,8 +12405,6 @@ function set_timer(){
         });
         jprms += '],';
     }
-        
-
 
     var targets = document.getElementById('targets').getElementsByTagName('tbody')[0];
     

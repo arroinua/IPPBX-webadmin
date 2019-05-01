@@ -10,6 +10,10 @@ function load_timer(result){
     var enabled = document.getElementById('enabled');
     var name = document.getElementById('objname');
     
+    function yearDayToDate(day) {
+        return moment().dayOfYear(day).format('YYYY-MM-DD');
+    }
+
     if(result.name){
         name.value = result.name;
     }
@@ -84,27 +88,31 @@ function load_timer(result){
     calendarWrapper.className = "timer-dates-wrapper no-weekdays no-years";
     document.body.appendChild(calendarWrapper);
 
+    console.log('load_timer: ', result.yeardays.map(yearDayToDate));
+
     // init yeardates picker
     pickr = flatpickr('#timer-dates', {
         locale: PbxObject.language || 'en',
         mode: 'multiple',
-        dateFormat: 'd F',
+        dateFormat: 'd.m',
         appendTo: calendarWrapper,
-        minDate: new Date(2017, 0, 1), // not a leap year
-        maxDate: new Date(2017, 11, 31), // not a leap year
+        minDate: new Date(new Date().getFullYear(), 0, 1), // not a leap year
+        maxDate: new Date(new Date().getFullYear(), 11, 31), // not a leap year
+        defaultDate: (result.yeardays ? result.yeardays.map(yearDayToDate) : []),
         onChange: function(selectedDates, dateStr){
             setTempParams({ selectedDates: selectedDates });
         }
     });
 
     // format yeardates and set them in picker
-    if(result.yeardays) {
-        result.yeardays.forEach(function(item){
-            yeardays.push(moment().dayOfYear(item).format());
-        })
+    // if(result.yeardays) {
+    //     result.yeardays.forEach(function(item){
+    //         yeardays.push(moment().dayOfYear(item).format());
+    //     })
         
-        pickr.setDate(yeardays);
-    }
+    //     pickr.setDate(yeardays);
+    // }
+
 }
 
 function setTimezones(cont, selected) {
@@ -183,8 +191,6 @@ function set_timer(){
         });
         jprms += '],';
     }
-        
-
 
     var targets = document.getElementById('targets').getElementsByTagName('tbody')[0];
     

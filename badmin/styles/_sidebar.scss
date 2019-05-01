@@ -71,6 +71,10 @@
 		background: #575375;
 		overflow-y: auto;
 
+		@media only screen and (max-height: 620px) {
+			flex: 1.4;
+		}
+
 		.nav-link {
 			text-align: center;
 			font-size: 1.6em;

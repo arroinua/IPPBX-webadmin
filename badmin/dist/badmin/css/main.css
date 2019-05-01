@@ -1290,6 +1290,10 @@ input.cmn-toggle-round:checked + label:before {
     width: 50px;
     background: #575375;
     overflow-y: auto; }
+    @media only screen and (max-height: 620px) {
+      .sidebar-wrapper .side-panel {
+        -ms-flex: 1.4;
+            flex: 1.4; } }
     .sidebar-wrapper .side-panel .nav-link {
       text-align: center;
       font-size: 1.6em;

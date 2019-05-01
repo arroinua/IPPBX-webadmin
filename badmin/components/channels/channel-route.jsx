@@ -84,7 +84,7 @@ var ChannelRouteComponent = React.createClass({
 	_getAvailableRoutes: function(type, callback) {
 		// var type = this.props.type;
 		console.log('_getAvailableRoutes: ', type);
-		var isTelephonyChannel = (type === 'Telephony' || type === 'WebCall');
+		var isTelephonyChannel = (type === 'Telephony' || type === 'Webcall');
 		var groupType = isTelephonyChannel ? ['hunting', 'icd', 'attendant'] : ['chatchannel'];
 		var routes = [];
 
@@ -182,7 +182,7 @@ var ChannelRouteComponent = React.createClass({
 					}
 					<div className="col-sm-1 text-center"><strong>{frases.OR}</strong></div>
 					{
-						(this.props.type === 'Telephony' || this.props.type === 'WebCall') ? (
+						(this.props.type === 'Telephony' || this.props.type === 'Webcall') ? (
 							<div className="col-sm-4 create-group-links">
 								<a href="#hunting/hunting" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_HUNTING_GROUP}</a>
 								<a href="#icd/icd" className="btn btn-link" onClick={this._createGroup}><i className="fa fa-plus-circle"></i> {frases.CHAT_TRUNK.CREATE_ICD_GROUP}</a>

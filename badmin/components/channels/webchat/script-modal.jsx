@@ -12,21 +12,21 @@ var WebchatScriptComponent = React.createClass({
 	},
 
 	_paramsToString: function(params) {
-		return Object
-		.keys(params)
-		.reduce(function(result, key) {
-			result[result.length] = (key+': '+(typeof params[key]==='string' ? '"'+params[key]+'"' : params[key]));
-			return result;
-		}, [])
-		.join(',\n')
+		return JSON.stringify(params);
+		// return Object
+		// .keys(params)
+		// .reduce(function(result, key) {
+		// 	result[result.length] = (key+': '+(typeof params[key]==='string' ? '"'+params[key]+'"' : params[key]));
+		// 	return result;
+		// }, [])
+		// .join(',\n')
 	},
 
 	_getScriptString: function(params) {
 		var paramsStr = [
 			"<script>\n",
-				"window.WchatSettings = {\n",
-					(this._paramsToString(params)),
-				"\n}",
+				"window.WchatSettings = ",
+				(this._paramsToString(params)),
 			"\n</script>",
 			"\n<script>\n",
 				"(function(w,d,s,l,g,a,b,o){",

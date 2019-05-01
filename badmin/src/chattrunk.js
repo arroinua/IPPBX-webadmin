@@ -89,11 +89,11 @@ function load_chattrunk(params) {
 		name: frases.CHAT_TRUNK.WEBCHAT.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebchatTrunkComponent
-	// }, {
-	// 	id: 'WebCall',
-	// 	name: 'Webcall',
-	// 	icon: '/badmin/images/channels/webchat.png',
-	// 	component: WebcallTrunkComponent
+	}, {
+		id: 'Webcall',
+		name: 'Webcall',
+		icon: '/badmin/images/channels/webchat.png',
+		component: WebcallTrunkComponent
 	}
 	// ,{
 	// 	id: 'Twitter',
