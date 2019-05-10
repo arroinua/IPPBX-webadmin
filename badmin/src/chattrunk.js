@@ -91,7 +91,7 @@ function load_chattrunk(params) {
 		component: WebchatTrunkComponent
 	}, {
 		id: 'Webcall',
-		name: 'Webcall',
+		name: frases.CHAT_TRUNK.WEBCALL.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebcallTrunkComponent
 	}

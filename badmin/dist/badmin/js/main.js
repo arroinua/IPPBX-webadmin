@@ -1350,6 +1350,7 @@ function load_bgroup(result){
             form = document.getElementById('new-user-form'),
             clear = document.getElementById('clear-input'),
             add = document.getElementById('add-user'),
+            loginEl = document.getElementById('user-login'),
             utype = (kind === 'users') ? 'user' : 'phone';
         
         if(kind == 'equipment'){
@@ -1359,6 +1360,10 @@ function load_bgroup(result){
             
             // if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
             // if(userEmailCont) userEmailCont.parentNode.removeChild(userEmailCont);
+
+            addEvent(available, 'change', function(e) {
+                loginEl.value = createExtLogin(e.target.value);
+            });
 
             if(typeof prots === 'object'){
                 prots.forEach(function(item){
@@ -1391,6 +1396,8 @@ function load_bgroup(result){
                 return option;
             });
 
+            loginEl.value = createExtLogin(available.value);
+
             // var fragment = document.createDocumentFragment();
             // availableUsers.sort().forEach(function(item){
             //     var option = document.createElement('option');
@@ -1412,6 +1419,8 @@ function load_bgroup(result){
                 if(kind === 'users' && addUserForm.storelimit && storelimit && maxusers) 
                     addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
                 // storeLimitTrigger.checked = storeLimitChecked;
+                
+                loginEl.value = createExtLogin(available.value);
             });
 
             // cleanForm();
@@ -2455,7 +2464,6 @@ function refreshUsersTable(cb){
 function cleanForm(formId){
     var form = document.getElementById(formId);
     form.reset();
-    
     // var name = document.getElementById('user-name'),
     //     alias = document.getElementById('user-alias'),
     //     // followme = document.getElementById('user-num'),
@@ -2484,6 +2492,10 @@ function checkHuntMode(e){
         document.getElementById('huntmodesetts').classList.remove('hidden');
 }
 
+
+function createExtLogin(ext) {
+    return PbxObject.options.prefix ? (PbxObject.options.prefix + ext) : ext;
+}
 var BillingApi = {
 	// url: 'https://3aa614ef.ngrok.io/branch/api/',
 	url: 'https://api-web.ringotel.net/branch/api/',
@@ -4259,7 +4271,7 @@ function load_chattrunk(params) {
 		component: WebchatTrunkComponent
 	}, {
 		id: 'Webcall',
-		name: 'Webcall',
+		name: frases.CHAT_TRUNK.WEBCALL.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebcallTrunkComponent
 	}
@@ -4992,8 +5004,19 @@ function load_extensions(result) {
 
 }
 
-function getExtensions(cb) {
-    json_rpc_async('getExtensions', null, cb);
+function getExtensions(filter, callback) {
+    var cb = null;
+    json_rpc_async('getExtensions', null, function(result) {
+        if(typeof filter !== 'function') {
+            cb = callback;
+            cb(filterObject(result, filter));
+        } else {
+            cb = filter;
+            cb(result);
+        }
+    });
+    
+    
 }
 
 function createExtRow(data){
@@ -10513,10 +10536,15 @@ function load_reg_history(params) {
 function renderSidebar(params) {
 
 	var profile = PbxObject.profile;
+	var config = PbxObject.options.config || [];
 
 	_init(params);
 
 	console.log('renderSidebar', params.branchOptions.config);
+
+	function hasConfig(item) {
+		return config.indexOf(item) !== -1;
+	}
 
 	function _getMenuItems() {
 	    var menuItems = [
@@ -10528,16 +10556,22 @@ function renderSidebar(params) {
 	            name: 'users',
 	            iconClass: 'icon-contact',
 	            objects: [{ kind: 'extensions' }],
+	            shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['users']
+	        }, {
+	            name: 'equipment',
+	            iconClass: 'fa fa-fw fa-fax',
+	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'servicegroup',
 	            iconClass: 'icon-chats',
 	            // iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['hunting', 'icd', 'chatchannel', (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            fetchKinds: ['hunting', (hasConfig('no-hotlines') ? '' : 'icd'), (hasConfig('no-users') ? '' : 'chatchannel'), (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
 	            iconClass: 'icon-channels',
+	            shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',
@@ -10547,10 +10581,6 @@ function renderSidebar(params) {
 	            name: 'attendant',
 	            iconClass: 'fa fa-fw fa-sitemap',
 	            fetchKinds: ['attendant']
-	        }, {
-	            name: 'equipment',
-	            iconClass: 'fa fa-fw fa-fax',
-	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'timer',
 	            iconClass: 'fa fa-fw fa-clock-o',
@@ -10562,7 +10592,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'settings',
 	            shouldRender: false,
-	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
+	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: (hasConfig('no-users') ? '' : 'storages'), iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
 	        }
 	    ];
 
@@ -11550,21 +11580,75 @@ function load_services() {
 
 	var services = [];
 	var ldap = {};
+	var extensions = [];
+	var ldapConn = {};
+	var serviceParams = window.sessionStorage.serviceParams;
 
 	init();
 
 	function init() {
 		json_rpc_async('getPbxOptions', null, function(result){
-			ldap.props = result.ldap || {};
-			ldap.name = 'Microsoft Active Directory';
-			ldap.id = 'MicrosoftAD';
-
+			
 			services = result.services;
 
-	    	render();
-	    	close_options();
+			getExtensions(['phone', 'user'], function(result) {
+				extensions = result;
+
+				console.log('getExtensions: ', extensions);
+
+				ldap.props = result.ldap || {};
+				ldap.name = 'Microsoft Active Directory';
+				ldap.id = 'MicrosoftAD';
+				ldap.types = 1;
+
+		    	render();
+			})
+				
 		});
 
+	}
+
+	function getExternalUsers(serviceParams){
+		console.log('getExternalUsers:', serviceParams);
+
+		ldapConn = Ldap({
+		    service_id: serviceParams.id,
+		    service_type: serviceParams.type,
+		    available: [],
+		    onaddusers: setExternalUsers,
+		    members: extensions
+		})
+
+		ldapConn.getExternalUsers();
+
+	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
+	    // } else {
+	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
+	    //         console.log('getExternalUsers result: ', result);
+	    //         if(result) PbxObject.LdapConnection.showUsers(result);
+	    //     });
+	    // }
+	}
+
+	function setExternalUsers(users){
+
+	    console.log('setExternalUsers: ', users);
+
+	    if(!users.length) return;
+
+	    show_loading_panel();
+
+	    ldapConn.setExternalUsers({
+	        service_id: ldapConn.options.service_id,
+	        users: users
+	    }, function(result) {
+	        console.log('addLdapUsers result: ', result);
+	        ldapConn.close();
+			if(result === 'OK') set_object_success();
+	        // refreshUsersTable(function(availableUsers){
+	        //     ldapConn.options.available = availableUsers;
+	        // });
+	    });
 	}
 
 	function saveOptions(serviceOptions) {
@@ -11639,10 +11723,15 @@ function load_services() {
 		    saveOptions: saveOptions,
 		    saveLdapOptions: saveLdapOptions,
 		    services: services,
+		    onImportUsers: getExternalUsers,
 		    ldap: ldap
 		};
 
 		ReactDOM.render(ServicesComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		if(serviceParams && serviceParams.id && getQueryParams().success === 1) {
+			getExternalUsers(serviceParams);
+		}
 
 		show_content();
 	}

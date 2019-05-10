@@ -68,11 +68,11 @@ var LdapOptionsComponent = React.createClass({
 		}
 
 		return (
-			<div className="panel panel-default" style={{ borderRadius: 0 }}>
+			<div className="panel panel-default" style={{ borderRadius: 0, boxShadow: "none", border: "none", borderBottom: "1px solid #eee" }}>
 		    	<div 
 		    		className="panel-heading" 
 		    		role="tab"
-		    		style={{ backgroundColor: 'white' }}
+		    		style={{ backgroundColor: 'white', padding: "20px 15px" }}
 		    		data-parent="#services-acc"
 		    		data-toggle="collapse"
 		    		data-target={"#acc-"+params.id}

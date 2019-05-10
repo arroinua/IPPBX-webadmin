@@ -95,6 +95,7 @@ var UsersGroupComponent = React.createClass({
 			    <ObjectName 
 			    	name={params.name}
 			    	frases={frases} 
+			    	placeholder={frases.DEPNAME}
 			    	// enabled={params.enabled || false}
 			    	onChange={this._onNameChange}
 			    	onSubmit={this._setObject}

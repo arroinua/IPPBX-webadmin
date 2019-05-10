@@ -142,7 +142,8 @@
 	"EXTENSIONS" : "Внутренние номера",
 	"EXTENSION" : "Внутренний номер",
 	"GROUPSETTS" : "Настройки группы",
-	"GROUPSNAME" : "Имя отдела",
+	"GROUPSNAME" : "Имя группы",
+	"DEPNAME" : "Имя отдела",
 	"GROUPSNAME_SUBMIT_LABEL" : "Введите имя",
 	"GROUPS" : {
 		"GROUPS" : "Группы",
@@ -1046,6 +1047,7 @@
     		"CODE_SNIPPET": "Код для веб-сайта",
     		"SHOW_CODE_BTN": "Показать код",
     		"SHOW_CODE_BTN_WARNING": "сначала создайте канал",
+    		"CALLER_ID": "Обратный номер",
     		"DEFAULT_TITLE_VALUE": "Онлайн вызов",
     		"TITLE": "Заголовок виджета",
     		"POSITION": "Расположение на странице",
@@ -1059,6 +1061,10 @@
     			"UK": "Українська",
     			"RU": "Русский"
     		},
+    		"OFFER_CHECKBOX": "Приветствие",
+    		"OFFER_FROM_LABEL": "От",
+    		"OFFER_MESSAGE_LABEL": "Сообщение",
+    		"OFFER_TIMEOUT_LABEL": "Показать через",
     		"CODE_SNIPPET_MODAL_TITLE": "Код для веб-сайта",
     		"CODE_SNIPPET_MODAL_TEXT": "Добавьте этот скрипт на каждую веб-страницу, где вы хотите, чтобы виджет появился. Вы можете поместить скрипт в любом месте в пределах <HEAD> или <BODY> тегов.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопировать в буфер",

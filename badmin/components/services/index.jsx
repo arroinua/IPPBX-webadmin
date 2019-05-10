@@ -5,7 +5,8 @@ var ServicesComponent = React.createClass({
 		services: React.PropTypes.array,
 		ldap: React.PropTypes.object,
 		saveOptions: React.PropTypes.func,
-		saveLdapOptions: React.PropTypes.func
+		saveLdapOptions: React.PropTypes.func,
+		onImportUsers: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -58,6 +59,7 @@ var ServicesComponent = React.createClass({
 											params={item} 
 											frases={frases} 
 											onSave={this._saveOptions.bind(this, index)}
+											onImport={this.props.onImportUsers}
 										/>
 									)
 								}.bind(this))

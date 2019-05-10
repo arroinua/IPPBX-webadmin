@@ -3,7 +3,8 @@ var ServiceItemComponent = React.createClass({
 	propTypes: {
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
-		onSave: React.PropTypes.func
+		onSave: React.PropTypes.func,
+		onImport: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -75,6 +76,14 @@ var ServiceItemComponent = React.createClass({
 
 	},
 
+	_importUsers: function() {
+		this.props.onImport(this.state.params);
+	},
+
+	_isActiveDirectory: function(types) {
+		return types & 1 !== 0;
+	},
+
 	render: function() {
 		var frases = this.props.frases;
 		var params = this.state.params;
@@ -88,11 +97,11 @@ var ServiceItemComponent = React.createClass({
 		console.log('ServiceItemComponent render: ', this.state.params);
 
 		return (
-			<div className="panel panel-default" style={{ borderRadius: 0 }}>
+			<div className="panel panel-default" style={{ borderRadius: 0, boxShadow: "none", border: "none", borderBottom: "1px solid #eee" }}>
 		    	<div 
 		    		className="panel-heading" 
 		    		role="tab"
-		    		style={{ backgroundColor: 'white' }}
+		    		style={{ backgroundColor: 'white', padding: "20px 15px" }}
 		    		data-parent="#services-acc"
 		    		data-toggle="collapse"
 		    		data-target={"#acc-"+params.id}
@@ -144,10 +153,20 @@ var ServiceItemComponent = React.createClass({
 							}
 							<div className="form-group">
 								<div className="col-sm-4 col-sm-offset-4">
-									<button type="button" className="btn btn-success btn-md" onClick={this._saveServiceProps}>
+									<button type="button" className="btn btn-block btn-success btn-md" onClick={this._saveServiceProps}>
 										<i className="fa fa-check fa-fw"></i> {this.props.frases.SAVE}
 									</button>
 								</div>
+								{
+									(this.props.params.state && !this._isActiveDirectory(this.props.params.types)) ? (
+										<div className="col-sm-4 col-sm-offset-4">
+											<br/>
+											<button type="button" className="btn btn-block btn-default btn-md" onClick={this._importUsers}>
+												<i className="fa fa-cloud-download fa-fw"></i> {this.props.frases.IMPORT}
+											</button>
+										</div>
+									) : null
+								}
 							</div>
 						</form>
 					</div>

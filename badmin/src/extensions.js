@@ -50,8 +50,19 @@ function load_extensions(result) {
 
 }
 
-function getExtensions(cb) {
-    json_rpc_async('getExtensions', null, cb);
+function getExtensions(filter, callback) {
+    var cb = null;
+    json_rpc_async('getExtensions', null, function(result) {
+        if(typeof filter !== 'function') {
+            cb = callback;
+            cb(filterObject(result, filter));
+        } else {
+            cb = filter;
+            cb(result);
+        }
+    });
+    
+    
 }
 
 function createExtRow(data){

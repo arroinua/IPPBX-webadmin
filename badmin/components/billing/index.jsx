@@ -234,7 +234,7 @@ var BillingComponent = React.createClass({
 			plan: plan,
 			annually: (plan.billingPeriodUnit === 'years'),
 			payment: {
-				currency: this._currencyNameToSymbol(plan.currency),
+				currency: plan.currency,
 				newSubAmount: amounts.newSubAmount,
 				discounts: this.props.discounts,
 				nextBillingDate: (nextBillingDate && !isTrial ? moment(nextBillingDate).format('DD/MM/YY') : null),
@@ -271,7 +271,7 @@ var BillingComponent = React.createClass({
 			quantity: sub.quantity,
 			annually: (sub.plan.billingPeriodUnit === 'years'),
 			payment: {
-				currency: this._currencyNameToSymbol(sub.plan.currency),
+				currency: sub.plan.currency,
 				newSubAmount: sub.amount,
 				nextBillingDate: moment(sub.nextBillingDate).format('DD/MM/YY'),
 				discounts: this.props.discounts,

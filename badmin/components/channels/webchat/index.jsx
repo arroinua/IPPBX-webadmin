@@ -13,7 +13,7 @@ var WebchatTrunkComponent = React.createClass({
 		return {
 			data: {
 				themeColor: '#33C3F0',
-				title: (window.PbxObject.profile ? window.PbxObject.profile.company : this.frases.CHAT_TRUNK.WEBCHAT.DEFAULT_TITLE_VALUE),
+				title: (window.PbxObject.profile ? window.PbxObject.profile.company : this.props.frases.CHAT_TRUNK.WEBCHAT.DEFAULT_TITLE_VALUE),
 				widget: true,
 				chat: true,
 				intro: [],
@@ -41,7 +41,6 @@ var WebchatTrunkComponent = React.createClass({
 		data = extend(data, this.props.properties || {});
 		data.pageid = this.props.pageid;
 		data.introMessage = data.introMessage || this.props.frases.CHAT_TRUNK.WEBCHAT.INTRO_MESSAGE;
-		console.log('WebchatTrunkComponent componentWillMount data: ', data);
 		this.setState({ data: data });
 	},
 
@@ -49,7 +48,6 @@ var WebchatTrunkComponent = React.createClass({
 		var data = extend({}, this.state.data);
 		data = extend(data, props.properties || {});
 		data.pageid = props.pageid;
-		console.log('WebchatTrunkComponent componentWillReceiveProps data: ', data);
 		this.setState({ data: data });
 	},
 
@@ -59,8 +57,6 @@ var WebchatTrunkComponent = React.createClass({
 		var data = this.state.data;
 		var value = target.type === 'checkbox' ? target.checked : (target.type === 'number' ? parseFloat(target.value) : target.value);
 		
-		console.log('WebchatTrunkComponent onChange: ', value);
-
 		data[target.name] = value;
 
 		this.setState({
@@ -106,7 +102,6 @@ var WebchatTrunkComponent = React.createClass({
 	},
 
 	_toggleFeature: function(feature, checked, initValue) {
-		console.log('_toggleFeature: ', feature, checked, initValue);
 		var data = extend({}, this.state.data);
 		if(feature.match('callback|webrtc')) {
 			if(checked) data.channels[feature] = initValue;
@@ -123,8 +118,6 @@ var WebchatTrunkComponent = React.createClass({
 		var data = this.state.data;
 		var frases = this.props.frases;
 		
-		console.log('WebchatTrunkComponent data: ', data);
-
 		return (
 			<div>
 				<ModalComponent 
@@ -151,10 +144,11 @@ var WebchatTrunkComponent = React.createClass({
 					    	<input type="text" className="form-control" name="origin" value={data.origin} onChange={this._onChange} placeholder="example.com" autoComplete='off' required />
 					    </div>
 					</div>
+					<hr/>
 					<div className="form-group">
 					    <label htmlFor="title" className="col-sm-4 control-label">{frases.CHAT_TRUNK.WEBCHAT.TITLE}</label>
 					    <div className="col-sm-4">
-					    	<input type="text" className="form-control" name="title" value={data.title} onChange={this._onChange} autoComplete='off' required />
+					    	<input type="text" className="form-control" name="title" value={data.title} onChange={this._onChange} autoComplete='off' />
 					    </div>
 					</div>
 					<div className="form-group">
@@ -187,7 +181,6 @@ var WebchatTrunkComponent = React.createClass({
 				<hr/>
 				<WebchatTrunkChatSettsComponent frases={frases} params={data.chat} onChange={this._setFeature} toggleFeature={this._toggleFeature} />
 				<WebchatTrunkCallbackSettsComponent frases={frases} params={data.channels.callback} onChange={this._setFeature} toggleFeature={this._toggleFeature} />
-				<hr/>
 				{
 					data.chat ? (
 						<WebchatTrunkIntroSettsComponent frases={frases} message={data.introMessage} consentText={data.consentText} fields={data.intro} onChange={this._onChange} setIntro={this._setIntro} />

@@ -59,7 +59,7 @@ function ImportUsersListComponent(props) {
     											      <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i className="fa fa-plus-circle fa-fw fa-lg"></i> {frases.ADD}</a>
     											      <ul className="dropdown-menu">
                                                         {
-                                                            (user.ext && !(user.services && user.services.length)) ? null :
+                                                            ((user.ext && !(user.services && user.services.length)) || !props.hasAvailable) ? null :
                                                             <li><a href="#" onClick={function(){ props.setList(index, 1) }}>{frases.CREATE_NEW_USER}</a></li>
                                                         }
     											        {

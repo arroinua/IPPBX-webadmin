@@ -30,8 +30,8 @@ var ImportUsersListModalComponent = React.createClass({
 
 		var members = this.props.members.map(function(item) {
 			return {
-				value: item.number,
-				label: (item.number + " - " + item.name)
+				value: (item.number || item.ext),
+				label: ((item.number || item.ext) + " - " + item.name)
 			}
 		});
 
@@ -57,7 +57,10 @@ var ImportUsersListModalComponent = React.createClass({
 	_onDeleteAssociation: function(index) {
 		var externalUsers = [].concat(this.state.externalUsers);
 		var externalUser = externalUsers[index];
-		var user = this.props.members.filter(function(item) { return item.number === externalUser.ext })[0];
+
+		console.log('_onDeleteAssociation: ', externalUsers, externalUser, this.props.members);
+
+		var user = this.props.members.filter(function(item) { return (item.number === externalUser.ext || item.ext === externalUser.ext) })[0];
 		var deAssociationList = this.state.deAssociationList.concat([{ service_id: this.props.service.id, userid: user.userid }]);
 
 		// this.props.deleteAssociation({ service_id: this.props.service.id, userid: user.userid }, function() {
@@ -106,6 +109,7 @@ var ImportUsersListModalComponent = React.createClass({
 			usersList={this.state.users} 
 			externalUsers={this.props.externalUsers} 
 			hasMembers={this.state.members.length}
+			hasAvailable={this.state.available.length}
 			onSelect={this._onSelect}
 			onDeselect={this._onDeselect}
 			onDeleteAssociation={this._onDeleteAssociation}

@@ -59,6 +59,7 @@ function load_bgroup(result){
             form = document.getElementById('new-user-form'),
             clear = document.getElementById('clear-input'),
             add = document.getElementById('add-user'),
+            loginEl = document.getElementById('user-login'),
             utype = (kind === 'users') ? 'user' : 'phone';
         
         if(kind == 'equipment'){
@@ -68,6 +69,10 @@ function load_bgroup(result){
             
             // if(storelimitCont) storelimitCont.parentNode.removeChild(storelimitCont);
             // if(userEmailCont) userEmailCont.parentNode.removeChild(userEmailCont);
+
+            addEvent(available, 'change', function(e) {
+                loginEl.value = createExtLogin(e.target.value);
+            });
 
             if(typeof prots === 'object'){
                 prots.forEach(function(item){
@@ -100,6 +105,8 @@ function load_bgroup(result){
                 return option;
             });
 
+            loginEl.value = createExtLogin(available.value);
+
             // var fragment = document.createDocumentFragment();
             // availableUsers.sort().forEach(function(item){
             //     var option = document.createElement('option');
@@ -121,6 +128,8 @@ function load_bgroup(result){
                 if(kind === 'users' && addUserForm.storelimit && storelimit && maxusers) 
                     addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
                 // storeLimitTrigger.checked = storeLimitChecked;
+                
+                loginEl.value = createExtLogin(available.value);
             });
 
             // cleanForm();
@@ -1164,7 +1173,6 @@ function refreshUsersTable(cb){
 function cleanForm(formId){
     var form = document.getElementById(formId);
     form.reset();
-    
     // var name = document.getElementById('user-name'),
     //     alias = document.getElementById('user-alias'),
     //     // followme = document.getElementById('user-num'),
@@ -1191,4 +1199,9 @@ function checkHuntMode(e){
         document.getElementById('huntmodesetts').classList.add('hidden');
     else
         document.getElementById('huntmodesetts').classList.remove('hidden');
+}
+
+
+function createExtLogin(ext) {
+    return PbxObject.options.prefix ? (PbxObject.options.prefix + ext) : ext;
 }

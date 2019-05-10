@@ -1,10 +1,15 @@
 function renderSidebar(params) {
 
 	var profile = PbxObject.profile;
+	var config = PbxObject.options.config || [];
 
 	_init(params);
 
 	console.log('renderSidebar', params.branchOptions.config);
+
+	function hasConfig(item) {
+		return config.indexOf(item) !== -1;
+	}
 
 	function _getMenuItems() {
 	    var menuItems = [
@@ -16,16 +21,22 @@ function renderSidebar(params) {
 	            name: 'users',
 	            iconClass: 'icon-contact',
 	            objects: [{ kind: 'extensions' }],
+	            shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['users']
+	        }, {
+	            name: 'equipment',
+	            iconClass: 'fa fa-fw fa-fax',
+	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'servicegroup',
 	            iconClass: 'icon-chats',
 	            // iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['hunting', 'icd', 'chatchannel', (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            fetchKinds: ['hunting', (hasConfig('no-hotlines') ? '' : 'icd'), (hasConfig('no-users') ? '' : 'chatchannel'), (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
 	            iconClass: 'icon-channels',
+	            shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',
@@ -35,10 +46,6 @@ function renderSidebar(params) {
 	            name: 'attendant',
 	            iconClass: 'fa fa-fw fa-sitemap',
 	            fetchKinds: ['attendant']
-	        }, {
-	            name: 'equipment',
-	            iconClass: 'fa fa-fw fa-fax',
-	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'timer',
 	            iconClass: 'fa fa-fw fa-clock-o',
@@ -50,7 +57,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'settings',
 	            shouldRender: false,
-	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
+	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: (hasConfig('no-users') ? '' : 'storages'), iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
 	        }
 	    ];
 

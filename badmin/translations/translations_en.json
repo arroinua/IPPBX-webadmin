@@ -142,7 +142,8 @@
 	"EXTENSIONS" : "Extensions",
 	"EXTENSION" : "Extension",
 	"GROUPSETTS" : "Group settings",
-	"GROUPSNAME" : "Department's name",
+	"GROUPSNAME" : "Group name",
+	"DEPNAME" : "Department name",
 	"GROUPSNAME_SUBMIT_LABEL" : "Enter the name",
 	"GROUPS" : {
 		"GROUPS" : "Groups",
@@ -1044,6 +1045,7 @@
     		"CODE_SNIPPET": "Code snippet",
     		"SHOW_CODE_BTN": "Show code",
     		"SHOW_CODE_BTN_WARNING": "create a channel first",
+    		"CALLER_ID": "Caller ID",
     		"DEFAULT_TITLE_VALUE": "Webcall",
     		"TITLE": "Widget title",
     		"POSITION": "Position on the webpage",
@@ -1057,6 +1059,10 @@
     			"UK": "Українська",
     			"RU": "Русский"
     		},
+    		"OFFER_CHECKBOX": "Greetings",
+    		"OFFER_FROM_LABEL": "From",
+    		"OFFER_MESSAGE_LABEL": "Message",
+    		"OFFER_TIMEOUT_LABEL": "Show in",
     		"CODE_SNIPPET_MODAL_TITLE": "Code snippet",
     		"CODE_SNIPPET_MODAL_TEXT": "Add this script to every webpage where you want the widget to appear. You can place the script anywhere within the <head> or <body> tags.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Copy to clipboard",

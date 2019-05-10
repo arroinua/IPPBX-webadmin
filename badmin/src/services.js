@@ -2,21 +2,75 @@ function load_services() {
 
 	var services = [];
 	var ldap = {};
+	var extensions = [];
+	var ldapConn = {};
+	var serviceParams = window.sessionStorage.serviceParams;
 
 	init();
 
 	function init() {
 		json_rpc_async('getPbxOptions', null, function(result){
-			ldap.props = result.ldap || {};
-			ldap.name = 'Microsoft Active Directory';
-			ldap.id = 'MicrosoftAD';
-
+			
 			services = result.services;
 
-	    	render();
-	    	close_options();
+			getExtensions(['phone', 'user'], function(result) {
+				extensions = result;
+
+				console.log('getExtensions: ', extensions);
+
+				ldap.props = result.ldap || {};
+				ldap.name = 'Microsoft Active Directory';
+				ldap.id = 'MicrosoftAD';
+				ldap.types = 1;
+
+		    	render();
+			})
+				
 		});
 
+	}
+
+	function getExternalUsers(serviceParams){
+		console.log('getExternalUsers:', serviceParams);
+
+		ldapConn = Ldap({
+		    service_id: serviceParams.id,
+		    service_type: serviceParams.type,
+		    available: [],
+		    onaddusers: setExternalUsers,
+		    members: extensions
+		})
+
+		ldapConn.getExternalUsers();
+
+	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
+	    // } else {
+	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
+	    //         console.log('getExternalUsers result: ', result);
+	    //         if(result) PbxObject.LdapConnection.showUsers(result);
+	    //     });
+	    // }
+	}
+
+	function setExternalUsers(users){
+
+	    console.log('setExternalUsers: ', users);
+
+	    if(!users.length) return;
+
+	    show_loading_panel();
+
+	    ldapConn.setExternalUsers({
+	        service_id: ldapConn.options.service_id,
+	        users: users
+	    }, function(result) {
+	        console.log('addLdapUsers result: ', result);
+	        ldapConn.close();
+			if(result === 'OK') set_object_success();
+	        // refreshUsersTable(function(availableUsers){
+	        //     ldapConn.options.available = availableUsers;
+	        // });
+	    });
 	}
 
 	function saveOptions(serviceOptions) {
@@ -91,10 +145,15 @@ function load_services() {
 		    saveOptions: saveOptions,
 		    saveLdapOptions: saveLdapOptions,
 		    services: services,
+		    onImportUsers: getExternalUsers,
 		    ldap: ldap
 		};
 
 		ReactDOM.render(ServicesComponent(componentParams), document.getElementById('el-loaded-content'));
+
+		if(serviceParams && serviceParams.id && getQueryParams().success === 1) {
+			getExternalUsers(serviceParams);
+		}
 
 		show_content();
 	}
