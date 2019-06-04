@@ -12,21 +12,21 @@ var ServicesComponent = React.createClass({
 	getInitialState: function() {
 		return {
 			services: [],
-			ldap: {}
+			ldap: null
 		};
 	},
 
 	componentWillMount: function() {
 		this.setState({
 			services: this.props.services || [],
-			ldap: this.props.ldap || {}
+			ldap: this.props.ldap || null
 		});		
 	},
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
 			services: props.services || [],
-			ldap: props.ldap || {}
+			ldap: props.ldap || null
 		});
 	},
 
@@ -49,7 +49,11 @@ var ServicesComponent = React.createClass({
 				<div className="col-xs-12">
 					<PanelComponent>
 						<div className="panel-group" id="services-acc" role="tablist" aria-multiselectable="true" style={{ marginBottom: '10px', borderRadius: 0, cursor: 'pointer' }}>
-							<LdapOptionsComponent params={ldap} frases={frases} onSave={this._saveLdapOptions} />
+							{
+								ldap ? (
+									<LdapOptionsComponent params={ldap} frases={frases} onSave={this._saveLdapOptions} />
+								) : null
+							}
 							{
 								services.map(function(item, index){
 									return (

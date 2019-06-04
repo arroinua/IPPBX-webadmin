@@ -7,7 +7,7 @@
     var loginInput = document.querySelector('input[name="login"]');
     var loginBtn = document.querySelector('input[type="submit"]');
     var apiGateway = 'https://api-web.ringotel.net/branch/api';
-    // var apiGateway = 'https://3aa614ef.ngrok.io/branch/api';
+    // var apiGateway = 'https://a618def4.ngrok.io/branch/api/';
     var host = window.location.host;
     var prefix = host.substr(0, host.indexOf('.'));
 
@@ -44,10 +44,12 @@
                         authorize({ login: login, password: pass }, function(err, result) {
                             console.log('authorize callback: ', err, result);
                             if(result && result.token) window.localStorage.setItem('ringo_tid', result.token);
-                            window.location = '/badmin.html';
+                            
+                            window.location = '/badmin/branch.html' + (result.lastLogin ? '' : '#guide');
+                            // window.location = '/badmin/branch.html' + '#guide';
                         })
                     } else {
-                        window.location = '/badmin.html';
+                        window.location = '/badmin/branch.html';
                     }
                 })
             }

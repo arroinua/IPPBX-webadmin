@@ -2,8 +2,13 @@ function PanelComponent(props) {
 
 	return (
 	    <div className={"panel "+(props.classname || "")}>
-	    	{props.header &&
-	        <div className={"panel-header " + (props.static ? "panel-static" : "")}>{props.header}</div>
+	    	{
+	    		props.header ? (
+	    			<div className={"panel-header " + (props.static ? "panel-static" : "")}>
+	    				{props.header}
+	    				<i className="fa fa-chevron-down"></i>
+	    			</div>
+	    		) : null
 	    	}
 	        <div className="panel-body">
 	            {props.children || props.body}

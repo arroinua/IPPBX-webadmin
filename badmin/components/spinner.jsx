@@ -1,3 +1,3 @@
 function Spinner(props) {
-	return <h3 className="text-center"><i className="fa fa-fw fa-spinner fa-spin"></i></h3>;
+	return <div className="text-center" style={{ fontSize: "1.6em" }}><i className="fa fa-fw fa-spinner fa-spin"></i></div>;
 }

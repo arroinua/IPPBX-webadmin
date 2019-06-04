@@ -3,6 +3,7 @@
 	propTypes: {
 		frases: React.PropTypes.object,
 		members: React.PropTypes.array,
+		kind: React.PropTypes.string,
 		withGroups: React.PropTypes.bool,
 		getExtension: React.PropTypes.func,
 		onAddMembers: React.PropTypes.func,
@@ -147,7 +148,7 @@
 			    	<div className="col-sm-6" id="new-users-btns">
 			    		{
 			    			this.props.onAddMembers && (
-					    		<button type="button" role="button" className="btn btn-primary" style={{ margin: "0 10px 10px 0" }} onClick={this.props.onAddMembers}><i className="fa fa-user-plus"></i> {frases.ADD_USER}</button>
+					    		<button type="button" role="button" className="btn btn-primary" style={{ margin: "0 10px 10px 0" }} onClick={this.props.onAddMembers}><i className="fa fa-user-plus"></i> {this.props.kind === 'users' ? frases.CREATE_NEW_USER : frases.ADD_USER}</button>
 			    			)
 			    		}
 

@@ -42,6 +42,7 @@ $main-gradient: linear-gradient(180deg, rgba(68,187,253,0.5) 0%, rgba(127,199,25
 @import 'sidebar';
 @import 'stat';
 @import 'drag-and-drop';
+@import 'billing';
 
 html,body{
     overflow-x: hidden;

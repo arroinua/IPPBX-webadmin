@@ -95,7 +95,6 @@ var UsersGroupComponent = React.createClass({
 			    <ObjectName 
 			    	name={params.name}
 			    	frases={frases} 
-			    	placeholder={frases.DEPNAME}
 			    	// enabled={params.enabled || false}
 			    	onChange={this._onNameChange}
 			    	onSubmit={this._setObject}
@@ -108,7 +107,8 @@ var UsersGroupComponent = React.createClass({
 			    			frases={frases} 
 			    			doSort={true}
 			    			onSort={this._onSortMember} 
-			    			members={members} 
+			    			members={members}
+			    			kind={params.kind}
 			    			getExtension={this.props.getExtension} 
 			    			onAddMembers={this.props.onAddMembers} 
 			    			onImportUsers={this.props.onImportUsers} 
@@ -117,8 +117,10 @@ var UsersGroupComponent = React.createClass({
 			    			// addSteps={this.props.addSteps}
 			    		/>
 			    	</div>
+			    </div>
+			    <div className="row">
 			    	<div className="col-xs-12">
-			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
+			    		<PanelComponent header={frases.SETTINGS.SETTINGS} classname={'minimized'}>
 			    			<ul className="nav nav-tabs" role="tablist">
 			    				<li role="presentation" className="active"><a href="#tab-group-features" aria-controls="features" role="tab" data-toggle="tab">{frases.USERS_GROUP.EXT_FEATURES_SETTS}</a></li>
 			    				<li role="presentation"><a href="#tab-group-outrules" aria-controls="outrules" role="tab" data-toggle="tab">{frases.USERS_GROUP.OUTCALLS_SETTS}</a></li>
@@ -136,6 +138,9 @@ var UsersGroupComponent = React.createClass({
 			    		</PanelComponent>
 			    	</div>
 			    </div>
+			    {
+			    	members.length ? <DownloadAppsLightbox frases={frases} /> : null
+			    }
 			</div>
 		);
 	}

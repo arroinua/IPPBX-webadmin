@@ -8,7 +8,7 @@ function renderSidebar(params) {
 	console.log('renderSidebar', params.branchOptions.config);
 
 	function hasConfig(item) {
-		return config.indexOf(item) !== -1;
+		return isBranchPackage(item);
 	}
 
 	function _getMenuItems() {
@@ -16,27 +16,30 @@ function renderSidebar(params) {
 	        {
 	            name: 'dashboard',
 	            iconClass: 'fa fa-fw fa-pie-chart',
-				objects: [{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
+				objects: [{ kind: 'guide', iconClass: 'fa fa-fw fa-arrow-circle-o-right', standout: true }, { kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
 	        }, {
 	            name: 'users',
 	            iconClass: 'icon-contact',
 	            objects: [{ kind: 'extensions' }],
-	            shouldRender: !hasConfig('no-users'),
+	            type: "group",
+	            // shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['users']
 	        }, {
 	            name: 'equipment',
 	            iconClass: 'fa fa-fw fa-fax',
+	            type: "group",
 	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'servicegroup',
 	            iconClass: 'icon-chats',
+	            type: "group",
 	            // iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['hunting', (hasConfig('no-hotlines') ? '' : 'icd'), (hasConfig('no-users') ? '' : 'chatchannel'), (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel'), (!hasConfig('team') ? 'selector' : '')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
 	            iconClass: 'icon-channels',
-	            shouldRender: !hasConfig('no-users'),
+	            shouldRender: !hasConfig('team'),
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',
@@ -57,7 +60,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'settings',
 	            shouldRender: false,
-	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: (hasConfig('no-users') ? '' : 'storages'), iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
+	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'licenses' : ''), iconClass: 'fa fa-fw fa-key' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
 	        }
 	    ];
 
@@ -105,9 +108,9 @@ function renderSidebar(params) {
 
 	function _getActiveKind(kind) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
-	    else if(kind.match('realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('extensions')) return 'users';
-	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
+	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers')) return 'settings';
 	    else return kind;
 	}
 

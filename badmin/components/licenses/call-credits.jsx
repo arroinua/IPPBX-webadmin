@@ -50,7 +50,10 @@ var CallCreditsComponent = React.createClass({
 
 	_getCredits: function() {
 		BillingApi.getCredits(function(err, response) {
-			if(err) return notify_about('error', err.message);
+			if(err) {
+				this.setState({ credits: 0 });	
+				return notify_about('error', err.message);
+			}
 			this.setState({ credits: (response.result ? response.result.balance : 0) });
 		}.bind(this));
 	},
@@ -70,7 +73,6 @@ var CallCreditsComponent = React.createClass({
 			    <div className="clearfix">
 			    	<div className="pull-left">
 				    	<h3 style={{ margin: 0 }}>
-				    		<small>{frases.BILLING.CALL_CREDITS}</small>
 				    		{
 				    			this.state.credits !== null ? (
 				    				<span> {currencySymbol}{parseFloat(this.state.credits).toFixed(2)} </span>

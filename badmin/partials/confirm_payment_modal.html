@@ -9,24 +9,29 @@
 				<div class="row">
 					<div class="col-xs-12">
 						<p>
-							<span>{{ frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG }}</span> <strong>{{payment.currency}}{{payment.chargeAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
+							<span>{{ frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG }}</span> <strong>{{payment.currencySymbol}}{{payment.chargeAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
 							<br> 
 							{{ #payment.nextBillingDate }}
 							<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEXT_BILLING_DATE }}</span><strong> {{ payment.nextBillingDate }} </strong>
 							{{ /payment.nextBillingDate }}
 							{{ #annually }}
-								<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEW_ANNUALLY_RATE_MSG }}</span> <strong>{{payment.currency}}{{payment.newSubAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
+								<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEW_ANNUALLY_RATE_MSG }}</span> <strong>{{payment.currencySymbol}}{{payment.newSubAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
 							{{ /annually }}
 							{{ ^annually }}
-								<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEW_MONTHLY_RATE_MSG }}</span> <strong>{{payment.currency}}{{payment.newSubAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
+								<span>{{ frases.BILLING.CONFIRM_PAYMENT.NEW_MONTHLY_RATE_MSG }}</span> <strong>{{payment.currencySymbol}}{{payment.newSubAmount}}</strong> <span>{{frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}}.</span>
 							{{ /annually }}
 						</p>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">{{ frases.BILLING.CONFIRM_PAYMENT.CANCEL_PAYMENT }}</button>
-				<button type="button" data-type="submit" class="btn btn-primary">{{ frases.BILLING.CONFIRM_PAYMENT.CONFIRM_PAYMENT }} ({{payment.currency}}{{payment.chargeAmount}})</button>
+				{{ #payment.noCharge }}
+					<button type="button" data-type="submit" class="btn btn-primary">{{ frases.CONFIRM }}</button>
+				{{ /payment.noCharge }}
+				{{ ^payment.noCharge }}
+					<button type="button" data-type="submit" class="btn btn-primary">{{ frases.BILLING.CONFIRM_PAYMENT.CONFIRM_PAYMENT }} ({{payment.currencySymbol}}{{payment.chargeAmount}})</button>
+				{{ /payment.noCharge }}
+				<button type="button" class="btn btn-link" data-dismiss="modal">{{ frases.BILLING.CONFIRM_PAYMENT.CANCEL_PAYMENT }}</button>
 			</div>
 		</div>
 	</div>

@@ -370,6 +370,10 @@ function load_extension(result){
         // }
     }
 
+    if(getInstanceMode() !== 1) {
+        result.domain = window.location.hostname;
+    }
+
     rendered = Mustache.render(PbxObject.templates.extension, {
         data: result,
         frases: PbxObject.frases

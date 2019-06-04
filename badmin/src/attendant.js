@@ -474,6 +474,8 @@ function addAttObject(params, instance){
             addToSchema(oid, params);
         }
     }
+
+    setupInProgress();
 }
 
 function AttObject(params){
@@ -579,6 +581,7 @@ AttObject.prototype.removeElement = function(e, params, deep){
     }
     
     changeAvailableButtons(params.button);
+    setupInProgress();
 }
 
 function removeObject(oid, deep){
@@ -601,6 +604,7 @@ function removeObject(oid, deep){
         }
     }
     removeCanvases(oid);
+    setupInProgress();
 }
 
 function changeObjectsParent(prevParent, newParent){
@@ -728,6 +732,7 @@ function setAttObject(params, object){
         addAttObject(attParams);
     }
     $('#att-setts-modal').modal('hide');
+    setupInProgress();
 }
 
 function collectAttParams(instParams){
@@ -937,6 +942,7 @@ function addConnector(e) {
     val.value = '';
 
     connectors.push(data);
+    setupInProgress();
     
 }
 
@@ -959,6 +965,7 @@ function removeConnector(object){
         if(conn.name === object.name)
             conns.splice(index, 1);
     });
+    setupInProgress();
 }
 
 function createConnectorRow(object){
@@ -1104,6 +1111,7 @@ function set_attendant(){
     json_rpc_async('setObject', jprms, function(result) {
         
         set_object_success(result);
+        setupInProgress(false);
 
         // // Add new route to the object
         // if(result && getTempParams().ext) {

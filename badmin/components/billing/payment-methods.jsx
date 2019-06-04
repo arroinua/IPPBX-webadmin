@@ -45,8 +45,6 @@ function ManagePaymentMethodComponent(props) {
 				)
 			}
 			<a href="#" onClick={props.onClick} className="text-uppercase">{ props.buttonText }</a>
-			
-					
 		</div>
 	);
 }

@@ -5,7 +5,8 @@ var SubscriptionPlanComponent = React.createClass({
 		frases: React.PropTypes.object,
 		openPlans: React.PropTypes.func,
 		renewSub: React.PropTypes.func,
-		onPlanSelect: React.PropTypes.func
+		onPlanSelect: React.PropTypes.func,
+		currencyNameToSymbol: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -30,6 +31,7 @@ var SubscriptionPlanComponent = React.createClass({
 		var frases = this.props.frases;
 		var sub = this.props.subscription;
 		var plans = this.state.plans;
+		var currencySymbol = this.props.currencyNameToSymbol(sub.plan.currency);
 
 		return (
 		    <div className="clearfix">
@@ -38,16 +40,11 @@ var SubscriptionPlanComponent = React.createClass({
 		    			<small>{ frases.BILLING.CURRENT_PLAN } </small>
 		    			<span>{ sub.plan.name } </span>
 		    		</h3>
-		    		{
-		    			sub.plan.trialPeriod && (
-		    				<p className="text-muted">{ frases.BILLING.TRIAL_EXPIRES } <b>{ window.moment(sub.trialExpires).format('DD MMMM YYYY') }</b></p>
-		    			)
-		    		}
 		    	</div>
 		    	<div className="pull-right">
 		    		{
 		    			sub.state === 'past_due' ? (
-		    				<a href="#" className="text-uppercase" style={{ fontSize: "14px" }} onClick={this.props.renewSub}>{ frases.BILLING.RENEW_SUB }</a>
+		    				<a href="#" className="btn btn-action" style={{ fontSize: "14px" }} onClick={this.props.renewSub}>{ frases.BILLING.RENEW_SUB }</a>
 		    			) : (
 		    				<a 
 		    					href="#" 
@@ -68,7 +65,7 @@ var SubscriptionPlanComponent = React.createClass({
 		    			<div className="collapse" id="plansCollapse">
 		    				{
 		    					plans.length ? (
-		    						<PlansComponent plans={plans} frases={frases} onPlanSelect={this.props.onPlanSelect} currentPlan={sub.plan} />
+		    						<PlansComponent plans={plans} frases={frases} onPlanSelect={this.props.onPlanSelect} currentPlan={sub.plan} currencySymbol={currencySymbol} />
 		    					) : (
 		    						<Spinner />
 		    					)

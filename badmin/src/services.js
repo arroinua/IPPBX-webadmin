@@ -1,27 +1,32 @@
 function load_services() {
 
 	var services = [];
-	var ldap = {};
+	var ldap = null;
 	var extensions = [];
 	var ldapConn = {};
 	var serviceParams = window.sessionStorage.serviceParams;
+	var config = [];
+	var businessIntegrations = ['Azure', 'Zapier'];
+	var premiumIntegrations = ['DynamicsCRMOnline', 'MicrosoftAD'];
 
 	init();
 
 	function init() {
 		json_rpc_async('getPbxOptions', null, function(result){
 			
-			services = result.services;
+			config = result.config;
+			services = filterServices(result.services, config);
 
-			getExtensions(['phone', 'user'], function(result) {
-				extensions = result;
-
-				console.log('getExtensions: ', extensions);
-
+			if(isBranchPackage('premium')) {
+				ldap = {};
 				ldap.props = result.ldap || {};
 				ldap.name = 'Microsoft Active Directory';
 				ldap.id = 'MicrosoftAD';
 				ldap.types = 1;
+			}
+
+			getExtensions(['phone', 'user'], function(result) {
+				extensions = result;
 
 		    	render();
 			})
@@ -156,6 +161,13 @@ function load_services() {
 		}
 
 		show_content();
+	}
+
+	function filterServices(array, config) {
+		var restrictList = isBranchPackage('team') ? businessIntegrations.join(premiumIntegrations) : ((isBranchPackage('business') || isBranchPackage('trial')) ? premiumIntegrations : [] );
+		return array.filter(function(item) {
+			return restrictList.indexOf(item.id) === -1;
+		})
 	}
 
 }

@@ -1,7 +1,5 @@
 (function(window, document) {
 
-	console.log('Hello consent!');
-
 	var baseUrl = '/public/';
 	var params = getUrlParams(window.location.search);
 	var ringotelPrivPolicy = 'https://www.iubenda.com/privacy-policy/92894652';
@@ -20,7 +18,6 @@
 	// Init script
 	function init() {
 		getProfile(function(err, response) {
-			console.log('getProfile: ', err, response.result);
 			if(err) return console.error(err);
 			buildConsentPage(response.result);
 		});
@@ -96,7 +93,6 @@
 	}
 
 	function onReasonChange(e) {
-		console.log('onReasonChange: ', e);
 		var target = e.target;
 		if(target.checked) {
 			target.setAttribute('checked', 'true');
@@ -137,7 +133,6 @@
 				}
 
 				showNotification('success', 'Your preferences has been saved');
-				console.log('SUCCESS:', result);
 			});
 		});
 			
@@ -205,8 +200,6 @@
 			else formData.append(key, obj[key]);
 			return key;
 		});
-
-		console.log('toFormData: ', obj);
 
 		return formData;
 	}

@@ -39,43 +39,38 @@ var InvoicesComponent = React.createClass({
 		console.log('InvoicesComponent: ', this.state.items);
 
 		return (
-			<div className="panel">
-				<div className="panel-header">
-					<span>{ frases.BILLING.INVOICES.INVOICES }</span>
-				</div>
-				<div className="panel-body">
-					{
-						!this.state.items.length ? (
-							<p>{ frases.BILLING.INVOICES.NO_INVOICES }</p>
-						) : (
+			<div>
+				{
+					!this.state.items.length ? (
+						<p>{ frases.BILLING.INVOICES.NO_INVOICES }</p>
+					) : (
 
-							<div className="row">
-								<div className="col-xs-12">
-									<table className="table">
-										<tbody>
-											{
-												this.state.items.map(function(item, index) {
-													if(hideRows && index > 2) {
-														return null;
-													}
+						<div className="row">
+							<div className="col-xs-12">
+								<table className="table">
+									<tbody>
+										{
+											this.state.items.map(function(item, index) {
+												if(hideRows && index > 2) {
+													return null;
+												}
+												
+												return <InvoiceComponent invoice={item} key={index} />
 													
-													return <InvoiceComponent invoice={item} key={index} />
-														
-												})
-											}
-										</tbody>
-									</table>
-									<button 
-										type="button" 
-										className="btn btn-link btn-block" 
-										onClick={this._showMore}
-									>{ hideRows ? 'Show more' : 'Show less' }</button>
-								</div>
+											})
+										}
+									</tbody>
+								</table>
+								<button 
+									type="button" 
+									className="btn btn-link btn-block" 
+									onClick={this._showMore}
+								>{ hideRows ? 'Show more' : 'Show less' }</button>
 							</div>
+						</div>
 
-						)
-					}
-				</div>
+					)
+				}
 			</div>
 		);
 	}

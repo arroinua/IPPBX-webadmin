@@ -126,6 +126,7 @@
 
 		li {
 			position: relative;
+			margin: 8px 0;
 		}
 
 		.nav-header {
@@ -159,6 +160,17 @@
 				border-radius: 50%;
 			}
 
+			&.active {
+				background: #54c3f0;
+				color: #fff;
+
+				&.standout {
+					background: rgb(250,163,244);
+					background: linear-gradient(90deg, rgba(250,163,244,1) 0%, rgba(44,187,230,1) 100%);
+					border: 1px solid #fff;
+				}
+			}
+
 			&.enabled {
 				~ span {
 					background-color: #8ce196;
@@ -177,11 +189,6 @@
 				}
 			}
 
-		}
-
-		.nav-link.active {
-			background: #54c3f0;
-			color: #fff;
 		}
 
 	}

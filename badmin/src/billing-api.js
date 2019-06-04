@@ -1,5 +1,5 @@
 var BillingApi = {
-	// url: 'https://3aa614ef.ngrok.io/branch/api/',
+	// url: 'https://a618def4.ngrok.io/branch/api/',
 	url: 'https://api-web.ringotel.net/branch/api/',
 	cache: {},
 

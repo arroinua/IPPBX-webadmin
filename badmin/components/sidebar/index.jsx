@@ -104,7 +104,7 @@ var SideBarComponent = React.createClass({
 										if(item.kind) {
 											return (
 												<li key={item.kind}>
-													<a href={"#"+item.kind} className={"nav-link "+(activeItem === item.kind ? "active" : "")}>
+													<a href={"#"+item.kind} className={"nav-link "+(activeItem === item.kind ? "active" : "")+(item.standout ? " standout" : "")}>
 														{
 															item.iconClass ? (
 																<i className={item.iconClass} style={{ marginRight: '10px' }}></i>
@@ -132,7 +132,7 @@ var SideBarComponent = React.createClass({
 								return (
 									<ul key={kind}>
 										<li><span className="nav-header">{ frases.KINDS[kind] }</span></li>
-										<li><a href={"#"+kind+"/"+kind} className="nav-link"><i className="fa fa-fw fa-plus-circle"></i> {frases.CREATE}</a></li>
+										<li><a href={"#"+kind+"/"+kind} className="nav-link"><i className="fa fa-fw fa-plus-circle"></i> {selectedMenu.type === 'group' ? frases.CREATE_GROUP : frases.CREATE}</a></li>
 										{ sortedObjects[kind] ? (this._buildItemsMenu(sortedObjects[kind], activeItem)) : null }
 									</ul>
 								)

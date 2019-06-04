@@ -5,7 +5,8 @@ var PlansComponent = React.createClass({
 		plans: React.PropTypes.array,
 		frases: React.PropTypes.object,
 		currentPlan: React.PropTypes.object,
-		onPlanSelect: React.PropTypes.func
+		onPlanSelect: React.PropTypes.func,
+		currencySymbol: React.PropTypes.string
 	},
 
 	getDefaultProps: function() {
@@ -90,18 +91,24 @@ var PlansComponent = React.createClass({
 	// 
 	render: function() {
 		var frases = this.props.frases;
-		var plans = this.props.plans.filter(this._filterPlans);
+		var plans = sortByKey(this.props.plans.filter(this._filterPlans), 'numId');
 		var column = plans.length ? (12/plans.length) : 12;
 
 		return (
 		    <div className="panel-body" style={{ background: 'none' }}>
-		    	<div className="row">
+		    	<div className="row pricing-container">
 			    	{ plans.map(function(plan, index) {
 
 			    		return (
-			    			<div className={"col-xs-12 col-sm-"+column+" col-lg-"+column+"text-center"}  key={plan.planId}>
-			    				<PlanComponent plan={plan} frases={frases} onSelect={this.props.onPlanSelect} currentPlan={this.props.currentPlan.planId === plan.planId} />
-			    			</div>
+			    			<PlanComponent 
+			    				key={index}
+			    				plansLength={plans.length}
+			    				plan={plan}
+			    				frases={frases}
+			    				onSelect={this.props.onPlanSelect}
+			    				currentPlan={this.props.currentPlan.planId === plan.planId} 
+			    				currencySymbol={this.props.currencySymbol}
+			    			/>
 			    		);
 
 			    	}.bind(this)) }

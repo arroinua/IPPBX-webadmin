@@ -135,7 +135,7 @@ var AddLicensesComponent = React.createClass({
 			        </div>
 			    	{
 			        	this.props.subscription.addOns.map(function(item, index) {
-
+			        		if(!item.name) return null;
 			        		return (
 
 	        			        <div className="col-sm-4" key={item.name}>
@@ -143,7 +143,7 @@ var AddLicensesComponent = React.createClass({
 	        			        		onMinus={this._setQuantity.bind(this, { name: item.name, quantity: ( item.name === 'storage' ? -5 : -2 ) })} 
 	        			        		onPlus={this._setQuantity.bind(this, { name: item.name, quantity: ( item.name === 'storage' ? 5 : 2 ) })}
 	        			        		quantity={this.state.addOns[item.name].quantity}
-	        			        		label={frases.BILLING.AVAILABLE_LICENSES[item.name.toUpperCase()]}
+	        			        		label={frases.BILLING.AVAILABLE_LICENSES[item.name] ? frases.BILLING.AVAILABLE_LICENSES[item.name.toUpperCase()] : item.description}
 	        			        	/>
 	        			        </div>
 

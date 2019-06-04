@@ -80,6 +80,16 @@
                             <legend>
                                 {{frases.AUTHORIZATION}}
                             </legend>
+                            {{#data.domain}}
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">
+                                    {{frases.DOMAIN}}
+                                </label>
+                                <div class="col-sm-8">
+                                    <p class="form-control-static">{{data.domain}}</p>
+                                </div>
+                            </div>
+                            {{/data.domain}}
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">
                                     {{frases.USERNAME}}
@@ -122,6 +132,9 @@
                                 </div>
                             </div> -->
                         </fieldset>
+                        <div class="alert alert-info" role="alert">
+                            <h5 class="text-center">{{frases.LIGHTBOX.USER_AUTH_DATA.BODY}} <a href="https://ringotel.co/download" target="_blank" class="alert-link">{{frases.LIGHTBOX.USER_AUTH_DATA.ACTION_BTN_TEXT}}</a></h5>
+                        </div>
                     </div>
                     <div id="ext-forwarding" class="form-horizontal tab-pane" role="tabpanel">
                         <div class="form-group" id="fwdall-cont">

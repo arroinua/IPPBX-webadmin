@@ -2,6 +2,30 @@
 	"PBXADMIN" : "Administrator",
 	"OR": "or",
 	"AND": "and",
+	"GUIDE": {
+		"HEADER": {
+			"HEADER": "Welcome",
+			"BODY": "To get started with Ringotel, please follow the steps outlined below."
+		},
+		"STEPS": {
+			"1": {
+				"NAME": "Manage Licenses",
+				"DESC": "In order to create a user, make or receive a call you need to setup an appropriate number of licenses.",
+				"ACTIONS": ["Manage Licenses"]
+			},
+			"2": {
+				"NAME": "Add extensions",
+				"DESC": "In Ringotel there are two types of extensions: Users and Equipment. The first one is intended to use with Ringotel messaging apps, while the second option is for use with SIP-enabled devices (like IP Phones, etc.) or SIP softphones.",
+				"ACTIONS": ["Add users", "Add equipment"]
+			},
+			"3": {
+				"NAME": "Connect channels",
+				"DESC": "Connect external channels, like SIP trunk, email, social media and messengers business accounts, webchat or webcall, and route them to the appropriate service group or user.",
+				"ACTIONS": ["Add channels"]
+			}
+		},
+		"DONE": "completed"
+	},
 	"GET_STARTED": {
 		"TITLE": "Get started",
 		"WELCOME_MSG": "Welcome to the administrative panel",
@@ -374,6 +398,7 @@
 	"IMPORT_USERS" : "Import users",
 	"IMPORT_USERS_FROM" : "Import from",
 	"ASSOCIATE_WITH_USER": "Associate with existing user",
+	"CREATE_GROUP": "Create group",
 	"CREATE_NEW_USER": "Create new user",
 	"CREATE_USER" : "Create user",
 	"CREATE_USERS" : "Create users",
@@ -638,12 +663,13 @@
     "PICKERROR2": "Selected start date couldn’t be more than end date",
     "EMPTYOBJECTWARNING": "Create group before adding users",
     "KINDS": {
+    	"guide": "Getting started",
     	"branch_options": "Settings",
     	"services": "Integrations",
         "trunk": "Trunks",
-        "users": "Users & Departments",
+        "users": "User groups",
         "user": "User",
-        "equipment": "Equipment",
+        "equipment": "Equipment groups",
         "phone": "Equipment",
         "unit": "Organization Units",
         "pickup": "Call Pickup Groups",
@@ -673,6 +699,7 @@
         "certificates": "Certificates",
         "storages": "Storages",
         "billing": "Billing",
+        "licenses": "Licenses",
         "usage": "License usage",
         "channel_records": "Channel Records",
         "customers": "Customers",
@@ -1159,7 +1186,7 @@
     		"AVAILABLE": "Available",
     		"USAGE_ITEM": "Lines"
     	},
-    	"CANT_UPDATE_MSG": "Change subscription plan to add more licenses"
+    	"CANT_UPDATE_MSG": "To add more licenses, please change your subscription plan."
     },
     "BILLING" : {
     	"BILLING": "Billing",
@@ -1172,6 +1199,7 @@
     	"NEXT_CHARGE": "Next charge",
     	"TRIAL_EXPIRES": "Trial expires",
     	"EDIT_PAYMENT_METHOD": "Update",
+    	"PAYMENT_METHOD_TITLE": "Payment method",
     	"PAYMENT_METHOD_WARNING_P1": "To change plan and add licenses please",
     	"PAYMENT_METHOD_WARNING_P2": "to your account",
     	"ADD_CREDIT_CARD": "add credit card",
@@ -1180,26 +1208,36 @@
     	"UPGRADE_PLAN_ALERT_MSG": "upgrade your subscription plan",
     	"RENEW_SUB": "renew subscription",
     	"UPDATE_PAYMENT_METHOD": "update your payment method",
+    	"LICENSE": "License",
+    	"QUANTITY": "Quantity",
+    	"PRICE": "Price",
+    	"AMOUNT": "Amount",
     	"ADDONS": "Add-ons",
     	"CALL_CREDITS": "Calling credits",
     	"MANAGE_LICENSES_BTN": "Manage licenses",
     	"AVAILABLE_LICENSES": {
     		"AVAILABLE_LICENSES": "Available licenses",
     		"USERS": "Users",
-    		"STORAGE": "Storage (GB)",
+    		"STORAGE": "Additional storage (GB)",
     		"LINES": "Lines"
     	},
+    	"INCLUDED_IN_PLAN": "included in the plan",
     	"CANCEL_LICENSE_UPDATE": "Cancel",
     	"UPDATE_LICENSES": "Update licenses",
     	"PLANS": {
+    		"LINES": "lines",
+    		"USERS": "users",
     		"PER_USER": "per user",
+    		"PER_LINE": "per line",
     		"PER_MONTH": "mo",
     		"PER_YEAR": "year",
     		"MONTHLY_PLANS": "Monthly",
     		"ANNUAL_PLANS": "Annually",
     		"SHOW_ALL_FEATURES": "Show all features",
     		"CURRENT_PLAN": "Your plan",
-    		"SELECT_PLAN": "Select plan"
+    		"SELECT_PLAN": "Select plan",
+    		"UNLIMITED": "Unlimited",
+    		"SIP_EXTENSIONS": "SIP extensions"
     	},
     	"INVOICES": {
     		"INVOICES": "Payments",
@@ -1284,89 +1322,16 @@
     		"wrongFile": "File type must be text/csv"
     	}
     },
-    "TOURS": {
-    	"NEXT_STEP": "Next",
-    	"PREV_STEP": "Prev",
-    	"END_TOUR": "Close",
-    	"DASHBOARD": {
-    		"A": {
-    			"TITLE": "Dashboard",
-    			"BODY": "Dashboard is where you can in real time monitor calls and instance payload, trunks state and missed calls."
-    		},
-    		"B": {
-    			"TITLE": "REAL-TIME REPORTS",
-    			"BODY": "Shows the amount of calls and lines payload for the last several hours."
-    		},
-    		"C": {
-    			"TITLE": "REAL-TIME MONITORING",
-    			"BODY": "Shows current amount of calls and lines payload."
-    		},
-    		"D": {
-    			"TITLE": "TRUNKS STATE MONITORING",
-    			"BODY": "Shows registration state of all created trunks."
-    		},
-    		"E": {
-    			"TITLE": "CALLS MONITORING",
-    			"BODY": "Shows the list of current calls."
-    		},
-    		"F": {
-    			"TITLE": "",
-    			"BODY": "You can open the dashboard, by clicking the home button"
-    		},
-    		"G": {
-    			"TITLE": "Navigation",
-    			"BODY": "Create and manage instance objects using navigation menu."
-    		},
-    		"H": {
-    			"TITLE": "Reports and statistics",
-    			"BODY": "Build reports, export calls and trunks statistics, and listen call records"
-    		},
-    		"I": {
-    			"TITLE": "",
-    			"BODY": "Click the icon to open options panel"
-    		},
-    		"J": {
-    			"TITLE": "Options panel",
-    			"BODY": "Here you can set instance options, manage integrations, set security settings, monitor cloud storage and more"
-    		},
-    		"K": {
-    			"TITLE": "Get Started",
-    			"BODY": "Use Get Started guide to setup your instance"
-    		}
+    "LIGHTBOX": {
+    	"DOWNLOAD_APPS": {
+    		"TITLE": "",
+    		"BODY": "Created a user? <strong>Download Ringotel apps</strong> and start talking with your colleagues, partners and customers anytime anyplace.",
+    		"ACTION_BTN_TEXT": "Download apps"
     	},
-    	"ATTENDANT": {
-    		"A": {
-    			"TITLE": "Attendant's name",
-    			"BODY": "Enter the name of the attendant"
-    		},
-    		"B": {
-    			"TITLE": "Extension number",
-    			"BODY": "Set attendant extension number, which would be used to route calls to the attendant"
-    		},
-    		"C": {
-    			"TITLE": "Attendant's state",
-    			"BODY": "Attendant state shows whether the attendant is enabled and ready to handle calls or disabled and can't handle calls."
-    		},
-    		"D": {
-    			"TITLE": "Greetings",
-    			"BODY": "Add greeting audio file that will be played after connection with the attendant"
-    		},
-    		"E": {
-    			"TITLE": "SMTP settings",
-    			"BODY": "For the attendant to send voice mail, specify SMTP settings"
-    		},
-    		"F": {
-    			"TITLE": "Connectors",
-    			"BODY": "Think of Connectors as variables that could be used throughout the attendant elements. Connectors value can be either a telephone number (for \"Commutator\" element) or an email address (for \"Send Email\" element)."
-    		},
-    		"G": {
-    			"TITLE": "Add new element",
-    			"BODY": "By clicking a \"+\" button, choose a main element that would be executed after grettings (if selected)"
-    		},
-    		"H": {
-    			"TITLE": "Select element's type",
-    			"BODY": "Select the main element. <br/> The <b>Menu</b> element plays audio file that usualy offers to press a button on the dialpad or enter a number extension. <br/> The <b>Send email</b> element records audio message and send it to the specified email"
-    		}
+    	"USER_AUTH_DATA": {
+    		"TITLE": "",
+    		"BODY": "Use this authorization data in ",
+    		"ACTION_BTN_TEXT": "Ringotel apps"
     	}
     },
     "LDAP" : {

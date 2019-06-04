@@ -522,6 +522,10 @@ function setupPage() {
                         profile = response.result;
                         loadFSTracking(profile);
                         loadStripeJs();
+
+                        // if(isBranchPackage("business")) {
+                        //     loadSupportWidget(profile);
+                        // }
                     }
 
                     console.log('getProfile: ', err, response);
@@ -532,8 +536,6 @@ function setupPage() {
                     // } else 
 
                     if(window.sessionStorage.query && !window.opener) {
-
-                        // if(search) PbxObject.lastSearch = getQueryParams(search);
 
                         window.location.hash = window.sessionStorage.query + (search ? search : "");
                     }
@@ -768,6 +770,11 @@ function hideGroups() {
 }
 
 function get_object(e){
+
+    var confirmed = true;
+
+    if(PbxObject.setupInProgress) confirmed = confirm('You have unsaved changes. Do you want cancel them?');
+    if(!confirmed) return e.preventDefault();
 
     var query = location.hash.substring(1),
         search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null,
@@ -1841,6 +1848,7 @@ function delete_object(name, kind, oid, noConfirm){
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
+            setupInProgress(false);
             window.location.hash = kind+'/'+kind;
         });
 
@@ -2299,7 +2307,7 @@ function generatePassword(targ){
     var elgroup, input;
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     var pass = "";
-    var length = 8;
+    var length = 14;
     var i;
 
     for(var x=0; x<length; x++){
@@ -2974,3 +2982,15 @@ function change_protocol(){
         document.getElementById('h323').parentNode.style.display = 'none';
     }
 };
+
+function loadSupportWidget(profile) {
+    return true;
+}
+
+function setupInProgress(bool) {
+    PbxObject.setupInProgress = bool !== undefined ? bool : true;
+}
+
+function isBranchPackage(str) {
+    return PbxObject.options.package === str;
+}

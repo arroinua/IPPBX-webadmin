@@ -644,6 +644,8 @@ function addAttObject(params, instance){
             addToSchema(oid, params);
         }
     }
+
+    setupInProgress();
 }
 
 function AttObject(params){
@@ -749,6 +751,7 @@ AttObject.prototype.removeElement = function(e, params, deep){
     }
     
     changeAvailableButtons(params.button);
+    setupInProgress();
 }
 
 function removeObject(oid, deep){
@@ -771,6 +774,7 @@ function removeObject(oid, deep){
         }
     }
     removeCanvases(oid);
+    setupInProgress();
 }
 
 function changeObjectsParent(prevParent, newParent){
@@ -898,6 +902,7 @@ function setAttObject(params, object){
         addAttObject(attParams);
     }
     $('#att-setts-modal').modal('hide');
+    setupInProgress();
 }
 
 function collectAttParams(instParams){
@@ -1107,6 +1112,7 @@ function addConnector(e) {
     val.value = '';
 
     connectors.push(data);
+    setupInProgress();
     
 }
 
@@ -1129,6 +1135,7 @@ function removeConnector(object){
         if(conn.name === object.name)
             conns.splice(index, 1);
     });
+    setupInProgress();
 }
 
 function createConnectorRow(object){
@@ -1274,6 +1281,7 @@ function set_attendant(){
     json_rpc_async('setObject', jprms, function(result) {
         
         set_object_success(result);
+        setupInProgress(false);
 
         // // Add new route to the object
         // if(result && getTempParams().ext) {
@@ -2497,7 +2505,7 @@ function createExtLogin(ext) {
     return PbxObject.options.prefix ? (PbxObject.options.prefix + ext) : ext;
 }
 var BillingApi = {
-	// url: 'https://3aa614ef.ngrok.io/branch/api/',
+	// url: 'https://a618def4.ngrok.io/branch/api/',
 	url: 'https://api-web.ringotel.net/branch/api/',
 	cache: {},
 
@@ -2694,50 +2702,27 @@ var BillingApi = {
 };
 function load_billing() {
 	
-	console.log('load_billing');
-	close_options();
-
 	var cont = document.getElementById('el-loaded-content');
 	var profile = PbxObject.profile;
 	var sub = {};
-	var dids = [];
 	var invoices = [];
-	var discounts = [];
-	var methods = {
-		changePlan: changePlan,
-		updateLicenses: updateLicenses,
-		addCredits: addCredits
-	}
 
 	BillingApi.getSubscription(function(err, response) {
 		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
-		BillingApi.getAssignedDids(function(err, response) {
-			if(err) return notify_about('error' , err.message);
-			dids = response.result;
+		init();
+		show_content();
 
-			init();
-			show_content();
-
-			getDiscounts(function(err, response) {
-				if(err) return notify_about('error', err.message);
-				discounts = response;
-
-				// init();
-
-				getInvoices(function(err, response) {
-					if(err) return notify_about('error', err.message);
-					invoices = response.filter(function(item) {
-						return (item.paidAmount && parseFloat(item.paidAmount) > 0);
-					});
-
-					console.log('invoices: ', invoices);
-					init();
-				});
+		getInvoices(function(err, response) {
+			if(err) return notify_about('error', err.message);
+			invoices = response.filter(function(item) {
+				return (item.paidAmount && parseFloat(item.paidAmount) > 0);
 			});
 
+			console.log('invoices: ', invoices);
+			init();
 		});
 
 	});
@@ -2747,22 +2732,11 @@ function load_billing() {
 		    options: PbxObject.options,
 		    profile: profile,
 		    sub: sub,
-		    dids: dids,
 		    frases: PbxObject.frases,
 		    invoices: invoices,
-		    discounts: discounts,
 		    addCard: addCard,
 		    editCard: editCard,
-		    renewSub: renewSub,
-		    onPlanSelect: onPlanSelect,
-		    updateLicenses: onUpdateLicenses,
-		    addCredits: addCredits,
-		    extend: deepExtend,
-		    addCoupon: addCoupon,
-		    utils: {
-		    	convertBytes: convertBytes,
-		    	getProration: getProration
-		    }
+		    extend: deepExtend
 		}), cont);
 	}
 
@@ -2841,25 +2815,6 @@ function load_billing() {
 		});
 	}
 
-	function renewSub(callback) {
-
-		show_loading_panel();
-
-		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
-			console.log('renewSubscription response: ', err, response);
-
-			show_content();
-
-			if(err || response.error) {
-				notify_about('error', err.message || response.error.message);
-			} else {
-				callback(err, response);
-				set_object_success();
-			}
-		});
-			
-	}
-
 	function updateBalance(params, callbackFn) {
 		PbxObject.stripeHandler.open({
 			email: profile.email,
@@ -2903,141 +2858,12 @@ function load_billing() {
 		});
 	}
 
-	function addCoupon(string) {
-		BillingApi.addCoupon({ coupon: string }, function(err, response) {
-			console.log('addCoupon response: ', err, string, response);
-			if(err) return notify_about('error', err.message);
-			discounts.push(response);
-			set_object_success();
-			init();
-		});
-	}
-
-	function onPlanSelect(params) {
-		console.log('changePlan: ', params);
-
-		showModal('confirm_payment_modal', params, function(result, modal) {
-			console.log('confirm_payment_modal submit:', result);
-
-			$(modal).modal('toggle');
-
-			// if((parseFloat(params.payment.chargeAmount) > 0) && !profile.billingMethod) return updateBalance(params, 'changePlan');
-
-			changePlan(params);
-
-		});
-
-	}
-
-	function changePlan(params, callback) {
-		show_loading_panel();
-
-		BillingApi.changePlan({
-			subId: sub._id,
-			planId: params.plan.planId
-		}, function(err, response) {
-			console.log('changePlan response: ', err, response);
-
-			show_content();
-
-			if(err) {
-				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'changePlan');
-				else notify_about('error', err.message);
-				return;
-			}
-						
-			sub = response.result;
-
-			set_object_success();
-
-			init();
-		});
-	}
-
-	function onUpdateLicenses(params){
-		console.log('updateLicenses: ', params);
-
-		showModal('confirm_payment_modal', params, function(result, modal) {
-			console.log('confirm_payment_modal submit:', result);
-
-			$(modal).modal('toggle');
-
-			// if((parseFloat(params.payment.chargeAmount) > 0) && !profile.billingMethod) return updateBalance(params, 'updateLicenses');
-
-			updateLicenses(params);
-
-		});
-	}
-
-	function updateLicenses(params) {
-		show_loading_panel();
-
-		BillingApi.updateSubscription({
-			subId: sub._id,
-			addOns: params.addOns,
-			quantity: params.quantity
-		}, function(err, response) {
-			console.log('updateLicenses response: ', err, response);
-
-			show_content();
-
-			if(err) {
-				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'updateLicenses');
-				else notify_about('error', err.message);
-				return;
-			}
-
-			sub = response.result;
-
-			set_object_success();
-			
-			init();
-		});
-	}
-
-	function addCredits(params) {
-		showModal('confirm_add_credits_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
-			console.log('confirm_add_credits_modal submit:', result);
-
-			$(modal).modal('toggle');
-		
-
-			show_loading_panel();
-
-			BillingApi.addCredits({ amount: params.chargeAmount }, function(err, response) {
-				remove_loading_panel();
-				
-				if(err) {
-					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance({ payment: params }, 'addCredits');
-					else notify_about('error', err.message);
-					return;
-				}
-
-				set_object_success();
-				init();
-
-			});
-		});
-	}
-
 	function getInvoices(callback) {
 		BillingApi.getInvoices(function(err, response) {
 			console.log('getInvoices response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});	
-	}
-
-	function getDiscounts(callback) {
-		BillingApi.getDiscounts(function(err, response) {
-			console.log('getDiscounts response: ', err, response);
-			if(err) return callback(err);
-			if(callback) callback(null, response.result || [])
-		});	
-	}
-
-	function getProration(sub, amount) {
-		return BillingApi.getProration(sub, amount);
 	}
 
 }
@@ -5324,6 +5150,10 @@ function load_extension(result){
         // }
     }
 
+    if(getInstanceMode() !== 1) {
+        result.domain = window.location.hostname;
+    }
+
     rendered = Mustache.render(PbxObject.templates.extension, {
         data: result,
         frases: PbxObject.frases
@@ -5840,6 +5670,24 @@ function GetStarted(container) {
 		});
 	}
 		
+}
+function load_guide() {
+
+	getObjects('chattrunk', function(channels) {
+		getExtensions(function(result) {
+			ReactDOM.render(GuideComponent({
+			    frases: PbxObject.frases,
+			    options: PbxObject.options,
+			    profile: PbxObject.profile,
+			    extensions: result,
+			    channels: channels
+			}), document.getElementById('dcontainer'));
+		})
+	})
+		
+
+	show_content();
+
 }
 function load_hunting(params) {
 
@@ -6406,6 +6254,300 @@ function Ldap(options){
         $(modal).modal('hide');
     }
 }
+function load_licenses() {
+	
+	var cont = document.getElementById('el-loaded-content');
+	var profile = PbxObject.profile;
+	var sub = {};
+	var dids = [];
+	var invoices = [];
+	var discounts = [];
+	var methods = {
+		changePlan: changePlan,
+		updateLicenses: updateLicenses,
+		addCredits: addCredits
+	}
+	var modalCont = document.getElementById('modal-cont');
+	
+	if(!modalCont) {
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+	}
+
+	BillingApi.getSubscription(function(err, response) {
+		console.log('getSubscription response: ', err, response.result);
+		if(err) return notify_about('error' , err.message);
+		sub = response.result;
+
+		BillingApi.getAssignedDids(function(err, response) {
+			if(err) return notify_about('error' , err.message);
+			dids = response.result;
+
+			getDiscounts(function(err, response) {
+				if(err) return notify_about('error', err.message);
+				discounts = response;
+
+				init();
+				show_content();
+			});
+
+		});
+
+	});
+
+	function init() {
+		ReactDOM.render(LicensesComponent({
+		    options: PbxObject.options,
+		    profile: profile,
+		    sub: sub,
+		    dids: dids,
+		    frases: PbxObject.frases,
+		    discounts: discounts,
+		    renewSub: renewSub,
+		    onPlanSelect: onPlanSelect,
+		    updateLicenses: onUpdateLicenses,
+		    addCredits: addCredits,
+		    extend: deepExtend,
+		    addCoupon: addCoupon,
+		    countSubAmount: countSubAmount,
+		    currencyNameToSymbol: currencyNameToSymbol,
+		    utils: {
+		    	convertBytes: convertBytes,
+		    	getProration: getProration
+		    }
+		}), cont);
+	}
+
+	function renewSub(callback) {
+
+		show_loading_panel();
+
+		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
+			console.log('renewSubscription response: ', err, response);
+
+			show_content();
+
+			if(err || response.error) {
+				notify_about('error', err.message || response.error.message);
+			} else {
+				callback(err, response);
+				set_object_success();
+			}
+		});
+			
+	}
+
+	function updateBalance(params, callbackFn) {
+		PbxObject.stripeHandler.open({
+			email: profile.email,
+			name: 'Ringotel',
+			zipCode: true,
+			locale: 'auto',
+			panelLabel: "Pay",
+			allowRememberMe: false,
+			currency: params.payment.currency,
+			amount: params.payment.chargeAmount*100,
+			closed: function(result) {
+				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
+
+				if(!PbxObject.stripeToken) return;
+
+				var reqParams = {
+					currency: params.payment.currency,
+					amount: params.payment.chargeAmount,
+					description: 'Update balance',
+					token: PbxObject.stripeToken.id
+				};
+
+				BillingApi.updateBalance(reqParams, function(err, response) {
+
+					console.log('updateBalance: ', err, response);
+
+					if(err) {
+						notify_about('error', err.message);
+					} else {
+
+						if(methods[callbackFn])
+							methods[callbackFn](params);
+
+						PbxObject.stripeToken = null;		
+
+					}	
+
+				});
+
+			}
+		});
+	}
+
+	function addCoupon(string) {
+		BillingApi.addCoupon({ coupon: string }, function(err, response) {
+			console.log('addCoupon response: ', err, string, response);
+			if(err) return notify_about('error', err.message);
+			discounts.push(response);
+			set_object_success();
+			init();
+		});
+	}
+
+	function onPlanSelect(params) {
+		console.log('changePlan: ', params);
+
+		showConfirmModal('confirm_payment_modal', params, changePlan);
+
+	}
+
+	function changePlan(params, callback) {
+		show_loading_panel();
+
+		BillingApi.changePlan({
+			subId: sub._id,
+			planId: params.plan.planId
+		}, function(err, response) {
+			console.log('changePlan response: ', err, response);
+
+			show_content();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'changePlan');
+				else notify_about('error', err.message);
+				return;
+			}
+						
+			sub = response.result;
+
+			set_object_success();
+
+			init();
+		});
+	}
+
+	function onUpdateLicenses(){
+		ReactDOM.render(UpdateLicenseModalComponent({
+		    options: PbxObject.options,
+		    sub: sub,
+		    discounts: discounts,
+		    frases: PbxObject.frases,
+		    onSubmit: updateLicenses,
+		    countSubAmount: countSubAmount,
+		    currencyNameToSymbol: currencyNameToSymbol,
+		    utils: {
+		    	convertBytes: convertBytes,
+		    	getProration: getProration
+		    }
+		}), modalCont);
+
+	}
+
+	function showConfirmModal(template, params, callback) {
+		showModal(template, params, function(result, modal) {
+			$(modal).modal('toggle');
+
+			callback(params);
+		});
+	}
+
+	function updateLicenses(params) {
+
+		showConfirmModal('confirm_payment_modal', params, function(params) {
+			show_loading_panel();
+
+			BillingApi.updateSubscription({
+				subId: sub._id,
+				addOns: params.addOns,
+				quantity: params.quantity
+			}, function(err, response) {
+				console.log('updateLicenses response: ', err, response);
+
+				show_content();
+
+				if(err) {
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'updateLicenses');
+					else notify_about('error', err.message);
+					return;
+				}
+
+				sub = response.result;
+
+				set_object_success();
+				
+				init();
+			});
+		});
+	}
+
+	function addCredits(params) {
+		showConfirmModal('confirm_add_credits_modal', { frases: PbxObject.frases, payment: params }, function(params) {
+
+			show_loading_panel();
+
+			BillingApi.addCredits({ amount: params.chargeAmount }, function(err, response) {
+				remove_loading_panel();
+				
+				if(err) {
+					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance({ payment: params }, 'addCredits');
+					else notify_about('error', err.message);
+					return;
+				}
+
+				set_object_success();
+				init();
+
+			});
+		});
+	}
+
+	function getDiscounts(callback) {
+		BillingApi.getDiscounts(function(err, response) {
+			console.log('getDiscounts response: ', err, response);
+			if(err) return callback(err);
+			if(callback) callback(null, response.result || [])
+		});	
+	}
+
+	function getProration(sub, amount) {
+		return BillingApi.getProration(sub, amount);
+	}
+
+	function countSubAmount(sub) {
+		var amount = sub.quantity * sub.plan.price;
+		var priceProp = sub.plan.billingPeriodUnit === 'years' ? 'annualPrice' : 'monthlyPrice';
+
+		if(sub.addOns && sub.addOns.length){
+		    sub.addOns.forEach(function (item){
+		        if(item.quantity) amount += (item.price * item.quantity);
+		    });
+		}
+
+		if(sub.hasDids) {
+			dids.forEach(function(item) {
+				amount += item.included ? 0 : parseFloat(item[priceProp]);
+			});
+		}
+
+		return amount.toFixed(2);
+	}
+
+	function currencyNameToSymbol(name) {
+		var symbol = "";
+
+		switch(name.toLowerCase()) {
+			case "eur":
+				symbol = "€";
+				break;
+			case "usd":
+				symbol = "$";
+				break;
+			default:
+				symbol = "€";
+				break;
+		}
+
+		return symbol;
+	}
+
+}
 window.onerror = function(msg, url, linenumber) {
      console.error('Error message: '+msg+'\nURL: '+url+'\nLine number: '+linenumber);
  };
@@ -6930,6 +7072,10 @@ function setupPage() {
                         profile = response.result;
                         loadFSTracking(profile);
                         loadStripeJs();
+
+                        // if(isBranchPackage("business")) {
+                        //     loadSupportWidget(profile);
+                        // }
                     }
 
                     console.log('getProfile: ', err, response);
@@ -6940,8 +7086,6 @@ function setupPage() {
                     // } else 
 
                     if(window.sessionStorage.query && !window.opener) {
-
-                        // if(search) PbxObject.lastSearch = getQueryParams(search);
 
                         window.location.hash = window.sessionStorage.query + (search ? search : "");
                     }
@@ -7176,6 +7320,11 @@ function hideGroups() {
 }
 
 function get_object(e){
+
+    var confirmed = true;
+
+    if(PbxObject.setupInProgress) confirmed = confirm('You have unsaved changes. Do you want cancel them?');
+    if(!confirmed) return e.preventDefault();
 
     var query = location.hash.substring(1),
         search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null,
@@ -8249,6 +8398,7 @@ function delete_object(name, kind, oid, noConfirm){
     if (c){
         json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
             objectDeleted({name: name, kind: kind, oid: oid});
+            setupInProgress(false);
             window.location.hash = kind+'/'+kind;
         });
 
@@ -8707,7 +8857,7 @@ function generatePassword(targ){
     var elgroup, input;
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     var pass = "";
-    var length = 8;
+    var length = 14;
     var i;
 
     for(var x=0; x<length; x++){
@@ -9382,6 +9532,18 @@ function change_protocol(){
         document.getElementById('h323').parentNode.style.display = 'none';
     }
 };
+
+function loadSupportWidget(profile) {
+    return true;
+}
+
+function setupInProgress(bool) {
+    PbxObject.setupInProgress = bool !== undefined ? bool : true;
+}
+
+function isBranchPackage(str) {
+    return PbxObject.options.package === str;
+}
 function load_new_trunk() {
 
 	var trunks = [
@@ -10543,7 +10705,7 @@ function renderSidebar(params) {
 	console.log('renderSidebar', params.branchOptions.config);
 
 	function hasConfig(item) {
-		return config.indexOf(item) !== -1;
+		return isBranchPackage(item);
 	}
 
 	function _getMenuItems() {
@@ -10551,27 +10713,30 @@ function renderSidebar(params) {
 	        {
 	            name: 'dashboard',
 	            iconClass: 'fa fa-fw fa-pie-chart',
-				objects: [{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
+				objects: [{ kind: 'guide', iconClass: 'fa fa-fw fa-arrow-circle-o-right', standout: true }, { kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
 	        }, {
 	            name: 'users',
 	            iconClass: 'icon-contact',
 	            objects: [{ kind: 'extensions' }],
-	            shouldRender: !hasConfig('no-users'),
+	            type: "group",
+	            // shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['users']
 	        }, {
 	            name: 'equipment',
 	            iconClass: 'fa fa-fw fa-fax',
+	            type: "group",
 	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'servicegroup',
 	            iconClass: 'icon-chats',
+	            type: "group",
 	            // iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['hunting', (hasConfig('no-hotlines') ? '' : 'icd'), (hasConfig('no-users') ? '' : 'chatchannel'), (params.branchOptions.config.indexOf('no selectors') === -1 ? 'selector' : '')]
+	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel'), (!hasConfig('team') ? 'selector' : '')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
 	            iconClass: 'icon-channels',
-	            shouldRender: !hasConfig('no-users'),
+	            shouldRender: !hasConfig('team'),
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',
@@ -10592,7 +10757,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'settings',
 	            shouldRender: false,
-	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: (hasConfig('no-users') ? '' : 'storages'), iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
+	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'licenses' : ''), iconClass: 'fa fa-fw fa-key' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
 	        }
 	    ];
 
@@ -10640,9 +10805,9 @@ function renderSidebar(params) {
 
 	function _getActiveKind(kind) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
-	    else if(kind.match('realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('extensions')) return 'users';
-	    else if(kind.match('branch_options|rec_settings|services|storages|billing|certificates|customers')) return 'settings';
+	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers')) return 'settings';
 	    else return kind;
 	}
 
@@ -11579,27 +11744,32 @@ function load_selector(params) {
 function load_services() {
 
 	var services = [];
-	var ldap = {};
+	var ldap = null;
 	var extensions = [];
 	var ldapConn = {};
 	var serviceParams = window.sessionStorage.serviceParams;
+	var config = [];
+	var businessIntegrations = ['Azure', 'Zapier'];
+	var premiumIntegrations = ['DynamicsCRMOnline', 'MicrosoftAD'];
 
 	init();
 
 	function init() {
 		json_rpc_async('getPbxOptions', null, function(result){
 			
-			services = result.services;
+			config = result.config;
+			services = filterServices(result.services, config);
 
-			getExtensions(['phone', 'user'], function(result) {
-				extensions = result;
-
-				console.log('getExtensions: ', extensions);
-
+			if(isBranchPackage('premium')) {
+				ldap = {};
 				ldap.props = result.ldap || {};
 				ldap.name = 'Microsoft Active Directory';
 				ldap.id = 'MicrosoftAD';
 				ldap.types = 1;
+			}
+
+			getExtensions(['phone', 'user'], function(result) {
+				extensions = result;
 
 		    	render();
 			})
@@ -11734,6 +11904,13 @@ function load_services() {
 		}
 
 		show_content();
+	}
+
+	function filterServices(array, config) {
+		var restrictList = isBranchPackage('team') ? businessIntegrations.join(premiumIntegrations) : ((isBranchPackage('business') || isBranchPackage('trial')) ? premiumIntegrations : [] );
+		return array.filter(function(item) {
+			return restrictList.indexOf(item.id) === -1;
+		})
 	}
 
 }
