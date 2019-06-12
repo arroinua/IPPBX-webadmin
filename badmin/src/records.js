@@ -23,14 +23,14 @@ function load_records(){
     });
 
     function handleTableClick(e) {
-        e.preventDefault();
+        // if(!e.target.hasAttribute('download')) e.preventDefault();
 
         var target = e.target.nodeName === 'I' ? e.target.parentNode : e.target;
         var method = target.getAttribute('data-method');
         var param = target.getAttribute('data-param');
 
         if(methods[method])
-            methods[method](param, target);
+            methods[method](param, target, e);
         
     }
 
@@ -145,7 +145,7 @@ function build_records_row(data, table){
         cell.appendChild(a);
     }
     cell = row.insertCell(9);
-    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'"><i class="fa fa-fw fa-download"></i></a>' : '';
+    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'" target="_blank"><i class="fa fa-fw fa-download"></i></a>' : '';
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 
     cell = row.insertCell(10);
@@ -249,7 +249,8 @@ function showRecords(result){
     PbxObject.Pagination.selectPage(1);
 }
 
-function getQos(recid, targ) {
+function getQos(recid, targ, e) {
+    e.preventDefault();
     console.log('getQos: ', recid, targ);
     if(!recid) return;
     // var targInitHtml = targ.innerHTML;
@@ -308,9 +309,9 @@ function showRecQoS(recid, data) {
     $(contEl).collapse();
 }
 
-function playRecord(src, targ){
+function playRecord(src, targ, e){
     // if(!e) e = window.event;
-    // e.preventDefault();
+    e.preventDefault();
     // var player
         // targ = e.currentTarget,
         // src = targ.getAttribute('data-src');

@@ -34,7 +34,7 @@ function renderSidebar(params) {
 	            iconClass: 'icon-chats',
 	            type: "group",
 	            // iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel'), (!hasConfig('team') ? 'selector' : '')]
+	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',

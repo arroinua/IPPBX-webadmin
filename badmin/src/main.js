@@ -67,7 +67,7 @@ function logout() {
     };
     xhr.send();
 
-    window.localStorage.remove('ringo_tid');
+    window.localStorage.removeItem('ringo_tid');
     setLastQuery('');
 }
 
@@ -1986,7 +1986,7 @@ function getFileName(ArrayOrString){
         } else {
             name = ' '+ArrayOrString;
         }
-        return name;
+        return name.trim();
     }
     return '';
 }
@@ -2001,6 +2001,9 @@ function customize_upload(id, resultFilename){
     uplparent.className += ' nowrap';
 
     var filename = getFileName(resultFilename);
+
+    upl.setAttribute('data-value', filename);
+
     uplname.innerHTML = filename;
     uplname.title = filename;
     uplname.className = 'upload-filename'
@@ -2014,13 +2017,16 @@ function customize_upload(id, resultFilename){
     uplparent.insertBefore(uplbtn, upl);
     uplparent.insertBefore(uplname, upl);
     upl.onchange = function(){
+        console.log('upl onchange: ', this.files);
         if(this.files.length){
             filename = getFileName(this.files[0].name);
             uplname.innerHTML = filename;
             uplname.title = filename;
+            upl.setAttribute('data-value', filename);
         } else{
             uplname.innerHTML = ' ';
             uplname.title = '';
+            upl.removeAttribute('data-value');
         }
     };
 }
@@ -2225,13 +2231,16 @@ function retrieveFormData(formEl){
             value = parseFloat(field.value);
         } else if(type === 'checkbox'){
             value = field.checked;
-        } else if(type === 'file'){
-            value = field.files.length ? field.files[0].name : null;
+        } else if(type === 'file' && field.files.length){
+            value = field.files[0].name;
+        } else if(type === 'file' && field.getAttribute('data-value')){
+            value = field.getAttribute('data-value');
         } else {
             value = field.value;
         }
 
-        if(value !== undefined && value !== null) data[name] = value;
+        if(value !== undefined && value !== null) 
+            data[name] = value;
     };
 
     return data;
@@ -2988,7 +2997,8 @@ function loadSupportWidget(profile) {
 }
 
 function setupInProgress(bool) {
-    PbxObject.setupInProgress = bool !== undefined ? bool : true;
+    return false;
+    // PbxObject.setupInProgress = bool !== undefined ? bool : true;
 }
 
 function isBranchPackage(str) {

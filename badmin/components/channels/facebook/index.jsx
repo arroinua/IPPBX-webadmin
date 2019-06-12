@@ -8,7 +8,8 @@ var FacebookTrunkComponent = React.createClass({
 		// onTokenReceived: React.PropTypes.func,
 		// addSteps: React.PropTypes.func,
 		// nextStep: React.PropTypes.func,
-		isNew: React.PropTypes.bool
+		isNew: React.PropTypes.bool,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -276,7 +277,7 @@ var FacebookTrunkComponent = React.createClass({
 				}
 
 				<form className="form-horizontal" style={{ display: display }}>
-					<div className="form-group">
+					<div className={"form-group " + ((this.props.validationError && !this.state.selectedPage.id) ? 'has-error' : '')}>
 					    <label htmlFor="ctc-select-1" className="col-sm-4 control-label">{frases.CHAT_TRUNK.FACEBOOK.SELECT_PAGE}</label>
 					    <div className="col-sm-4">
 					    	{

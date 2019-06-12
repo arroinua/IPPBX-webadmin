@@ -5,7 +5,8 @@ var ConnectTrunkSettings = React.createClass({
 		getObjects: React.PropTypes.func,
 		onChange: React.PropTypes.func,
 		pageid: React.PropTypes.string,
-		isNew: React.PropTypes.bool
+		isNew: React.PropTypes.bool,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -120,7 +121,7 @@ var ConnectTrunkSettings = React.createClass({
 								</div>
 								{
 									this.state.selectedTrunk ? (
-										<div className="form-group">
+										<div className={"form-group " + ((this.props.validationError && !this.state.phoneNumber) ? 'has-error' : '' )}>
 										    <label htmlFor="phoneNumber" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.TRUNK_NUMBER_LABEL}</label>
 											<div className="col-sm-3"><input type="text" className="form-control" name="phoneNumber" value={this.state.phoneNumber} onChange={this._onNumberChange} /></div>
 										</div>

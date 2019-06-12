@@ -631,7 +631,7 @@ function checkParams(params){
     if(params.type !== PbxObject.attendant.types.menu && !params.connector){
         msg += PbxObject.frases.ATT__CONN_MISSED+'\n';
     }
-    if(params.type === PbxObject.attendant.types.menu && !params.file) {
+    if(params.type === PbxObject.attendant.types.menu && !params.file && !params.data) {
         msg += PbxObject.frases.ATT__AUDIO_FILE_MISSED+'\n';
     }
 
@@ -741,8 +741,8 @@ function collectAttParams(instParams){
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
         // data = cont.querySelector(el+'[name="data"]').value,
         connectorName,
-        data = '',
-        params = {};
+        // data = params.data,
+        params = extend({}, instParams);
 
     if(!isMainEl()) params.button = cont.querySelector('select[name="button"]').value;
     else params.button = null;

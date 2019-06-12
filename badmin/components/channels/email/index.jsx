@@ -8,7 +8,8 @@ var EmailTrunkComponent = React.createClass({
 		addSteps: React.PropTypes.func,
 		// nextStep: React.PropTypes.func,
 		highlightStep: React.PropTypes.func,
-		isNew: React.PropTypes.bool
+		isNew: React.PropTypes.bool,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -115,6 +116,10 @@ var EmailTrunkComponent = React.createClass({
 		return toObj;
 	},
 
+	_validateField: function(value) {
+		return ((this.props.validationError && !value) ? 'has-error' : '')
+	},
+
 	render: function() {
 		var data = this.state.data;
 		var frases = this.props.frases;
@@ -127,7 +132,7 @@ var EmailTrunkComponent = React.createClass({
 				{
 					this.props.isNew && (
 						<form className="form-horizontal" autoComplete='off'>
-							<div className="form-group">
+							<div className={"form-group " + this._validateField(this.state.provider)}>
 							    <label htmlFor="provider" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.SELECT_ACCOUNT_PROVIDER}</label>
 							    <div className="col-sm-4">
 							    	<select type="text" className="form-control email-provider" name="provider" value={this.state.provider} onChange={this._onProviderSelect}>
@@ -166,7 +171,7 @@ var EmailTrunkComponent = React.createClass({
 							</div>
 						)
 					}
-					<div className="form-group">
+					<div className={"form-group " + this._validateField(data.username)}>
 					    <label htmlFor="username" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.USERNAME}</label>
 					    <div className="col-sm-4">
 					    	<input type="text" className="form-control" name="username" value={data.username} onChange={this._onChange} autoComplete='off' required />
@@ -178,13 +183,13 @@ var EmailTrunkComponent = React.createClass({
 					    	<input type="password" className="form-control" name="password" value={data.password} onChange={this._onChange} autoComplete='off' required />
 					    </div>
 					</div>
-					<div className="form-group">
+					<div className={"form-group " + this._validateField(data.hostname)}>
 					    <label htmlFor="hostname" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.HOSTNAME}</label>
 					    <div className="col-sm-4">
 					    	<input type="text" className="form-control" name="hostname" value={data.hostname} onChange={this._onChange} autoComplete='off' required />
 					    </div>
 					</div>
-					<div className="form-group">
+					<div className={"form-group " + this._validateField(data.port)}>
 					    <label htmlFor="port" className="col-sm-4 control-label">{frases.CHAT_TRUNK.EMAIL.PORT}</label>
 					    <div className="col-sm-2">
 					    	<input type="number" className="form-control" name="port" value={data.port} onChange={this._onChange} autoComplete='off' required />

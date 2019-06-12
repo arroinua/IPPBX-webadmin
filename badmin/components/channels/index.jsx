@@ -24,7 +24,8 @@
 		return {
 			routes: null,
 			serivceInited: false,
-			selectedRoute: null
+			selectedRoute: null,
+			validationError: false
 		};
 	},
 
@@ -106,7 +107,14 @@
 
 		console.log('setObject params: ', params);
 
-		if(!params.pageid && params.type === 'Telephony') {
+		if(!this._validateSettings(params))	{
+			notify_about('error', this.props.frases.MISSEDFILED);
+			return this.setState({ validationError: true });
+		} else {
+			this.setState({ validationError: false });
+		}
+
+		if(!params.pageid && params.properties.anid && params.type === 'Telephony') {
 			this._buyDidNumber(params.properties, function(err, result) {
 
 				if(err) return notify_about('error', err.message);
@@ -235,6 +243,30 @@
 		return parseInt(value, 10)/60;
 	},
 
+	_validateSettings: function(params) {
+		var valid = true;
+		switch(params.type) {
+			case 'Telephony':
+				valid = (params.properties.id !== undefined || params.properties.anid !== undefined);
+				break;
+			case 'FacebookMessenger':
+			case 'Viber':
+			case 'Telegram':
+				valid = !!params.properties.access_token;
+				break;
+			case 'WebChat':
+				valid = params.properties.origin !== undefined;
+				break;
+			case 'Email':
+				valid = (params.properties.username && params.properties.hostname && params.properties.port);
+				break;
+			default:
+				valid = true;
+		}
+
+		return valid;
+	},
+
 	render: function() {
 		var params = this.state.params;
 		var frases = this.props.frases;
@@ -301,6 +333,7 @@
 											// nextStep={this.props.nextStep}
 											// highlightStep={this.props.highlightStep}
 											getObjects={this.props.getObjects}
+											validationError={this.state.validationError}
 										/>
 
 										<hr className="col-xs-12"/>

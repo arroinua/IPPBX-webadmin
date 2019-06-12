@@ -6,7 +6,8 @@ var WebchatTrunkComponent = React.createClass({
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
 		isNew: React.PropTypes.bool,
-		pageid: React.PropTypes.string
+		pageid: React.PropTypes.string,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -138,7 +139,7 @@ var WebchatTrunkComponent = React.createClass({
 						  	}
 						</div>
 					</div>
-					<div className="form-group">
+					<div className={"form-group " + (( this.props.validationError && !data.origin ) ? 'has-error' : '')}>
 					    <label htmlFor="origin" className="col-sm-4 control-label">{frases.CHAT_TRUNK.WEBCHAT.DOMAIN}</label>
 					    <div className="col-sm-4">
 					    	<input type="text" className="form-control" name="origin" value={data.origin} onChange={this._onChange} placeholder="example.com" autoComplete='off' required />

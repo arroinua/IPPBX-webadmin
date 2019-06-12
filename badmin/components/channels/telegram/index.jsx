@@ -5,7 +5,8 @@ var TelegramTrunkComponent = React.createClass({
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
-		isNew: React.PropTypes.bool
+		isNew: React.PropTypes.bool,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -52,7 +53,7 @@ var TelegramTrunkComponent = React.createClass({
 			<div>
 				{
 					<form className="form-horizontal">
-						<div className="form-group">
+						<div className={"form-group " + (( this.props.validationError && !this.state.access_token ) ? 'has-error' : '')}>
 						    <label htmlFor="ctc-select-2" className="col-sm-4 control-label">Token</label>
 						    <div className="col-sm-6">
 						    	{

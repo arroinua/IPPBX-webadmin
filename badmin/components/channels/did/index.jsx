@@ -7,7 +7,8 @@ var DidTrunkComponent = React.createClass({
 		onChange: React.PropTypes.func,
 		buyDidNumber: React.PropTypes.func,
 		getObjects: React.PropTypes.func,
-		isNew: React.PropTypes.bool
+		isNew: React.PropTypes.bool,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -355,6 +356,10 @@ var DidTrunkComponent = React.createClass({
 		this.props.onChange(params);
 	},
 
+	_validateField: function(value) {
+		return ((this.props.validationError && !value) ? 'has-error' : '')
+	},
+
 	// function getBody() {
 	// 	return (
 	// 		<div className="col-sm-8 col-sm-offset-4">
@@ -416,7 +421,7 @@ var DidTrunkComponent = React.createClass({
 																			</div>
 																		</div>
 																	) : (
-																		<div className="form-group">
+																		<div className={"form-group " + this._validateField(selectedCountry.id)}>
 																			<label htmlFor="country" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_COUNTRY}</label>
 																			<div className="col-sm-4">
 																    			<select className="form-control" name="country" value={selectedCountry.id || ""} onChange={this._onCountrySelect}>
@@ -441,7 +446,7 @@ var DidTrunkComponent = React.createClass({
 															<div>
 																{
 																	this.state.needRegion && (
-																		<div className="form-group">
+																		<div className={"form-group " + this._validateField(selectedRegion.id)}>
 																		    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_REGION}</label>
 																	    	{
 																	    		this.state.regions ? (
@@ -475,7 +480,7 @@ var DidTrunkComponent = React.createClass({
 
 																{
 																	(!this.state.needRegion || selectedRegion.id) && (
-																		<div className="form-group">
+																		<div className={"form-group " + this._validateField(selectedLocation._id)}>
 																		    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_LOCATION}</label>
 																	    	{
 																	    		this.state.locations ? (
@@ -509,7 +514,7 @@ var DidTrunkComponent = React.createClass({
 
 																{
 																	selectedLocation._id && (
-																		<div className="form-group">
+																		<div className={"form-group " + this._validateField(selectedAvailableNumber.id)}>
 																		    <label htmlFor="number" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_NUMBER}</label>
 																	    	{
 																	    		this.state.availableNumbers ? (
@@ -589,6 +594,7 @@ var DidTrunkComponent = React.createClass({
 										frases={this.props.frases} 
 										onChange={this._onTrunkSelect}
 										isNew={this.props.isNew}
+										validationError={this.props.validationError}
 									/>
 								) : (
 									<div className="form-group">

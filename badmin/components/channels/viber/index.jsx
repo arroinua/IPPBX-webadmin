@@ -5,7 +5,8 @@ var ViberTrunkComponent = React.createClass({
 		properties: React.PropTypes.object,
 		serviceParams: React.PropTypes.object,
 		onChange: React.PropTypes.func,
-		isNew: React.PropTypes.bool
+		isNew: React.PropTypes.bool,
+		validationError: React.PropTypes.bool
 	},
 
 	getInitialState: function() {
@@ -53,7 +54,7 @@ var ViberTrunkComponent = React.createClass({
 			<div>
 				{
 					<form className="form-horizontal">
-						<div className="form-group">
+						<div className={"form-group " + (( this.props.validationError && !this.state.access_token ) ? 'has-error' : '')}>
 						    <label htmlFor="ctc-select-3" className="col-sm-4 control-label">App Key</label>
 						    <div className="col-sm-6">
 						    	{

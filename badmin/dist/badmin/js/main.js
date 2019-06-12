@@ -801,7 +801,7 @@ function checkParams(params){
     if(params.type !== PbxObject.attendant.types.menu && !params.connector){
         msg += PbxObject.frases.ATT__CONN_MISSED+'\n';
     }
-    if(params.type === PbxObject.attendant.types.menu && !params.file) {
+    if(params.type === PbxObject.attendant.types.menu && !params.file && !params.data) {
         msg += PbxObject.frases.ATT__AUDIO_FILE_MISSED+'\n';
     }
 
@@ -911,8 +911,8 @@ function collectAttParams(instParams){
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
         // data = cont.querySelector(el+'[name="data"]').value,
         connectorName,
-        data = '',
-        params = {};
+        // data = params.data,
+        params = extend({}, instParams);
 
     if(!isMainEl()) params.button = cont.querySelector('select[name="button"]').value;
     else params.button = null;
@@ -6617,7 +6617,7 @@ function logout() {
     };
     xhr.send();
 
-    window.localStorage.remove('ringo_tid');
+    window.localStorage.removeItem('ringo_tid');
     setLastQuery('');
 }
 
@@ -8536,7 +8536,7 @@ function getFileName(ArrayOrString){
         } else {
             name = ' '+ArrayOrString;
         }
-        return name;
+        return name.trim();
     }
     return '';
 }
@@ -8551,6 +8551,9 @@ function customize_upload(id, resultFilename){
     uplparent.className += ' nowrap';
 
     var filename = getFileName(resultFilename);
+
+    upl.setAttribute('data-value', filename);
+
     uplname.innerHTML = filename;
     uplname.title = filename;
     uplname.className = 'upload-filename'
@@ -8564,13 +8567,16 @@ function customize_upload(id, resultFilename){
     uplparent.insertBefore(uplbtn, upl);
     uplparent.insertBefore(uplname, upl);
     upl.onchange = function(){
+        console.log('upl onchange: ', this.files);
         if(this.files.length){
             filename = getFileName(this.files[0].name);
             uplname.innerHTML = filename;
             uplname.title = filename;
+            upl.setAttribute('data-value', filename);
         } else{
             uplname.innerHTML = ' ';
             uplname.title = '';
+            upl.removeAttribute('data-value');
         }
     };
 }
@@ -8775,13 +8781,16 @@ function retrieveFormData(formEl){
             value = parseFloat(field.value);
         } else if(type === 'checkbox'){
             value = field.checked;
-        } else if(type === 'file'){
-            value = field.files.length ? field.files[0].name : null;
+        } else if(type === 'file' && field.files.length){
+            value = field.files[0].name;
+        } else if(type === 'file' && field.getAttribute('data-value')){
+            value = field.getAttribute('data-value');
         } else {
             value = field.value;
         }
 
-        if(value !== undefined && value !== null) data[name] = value;
+        if(value !== undefined && value !== null) 
+            data[name] = value;
     };
 
     return data;
@@ -9538,7 +9547,8 @@ function loadSupportWidget(profile) {
 }
 
 function setupInProgress(bool) {
-    PbxObject.setupInProgress = bool !== undefined ? bool : true;
+    return false;
+    // PbxObject.setupInProgress = bool !== undefined ? bool : true;
 }
 
 function isBranchPackage(str) {
@@ -10375,14 +10385,14 @@ function load_records(){
     });
 
     function handleTableClick(e) {
-        e.preventDefault();
+        // if(!e.target.hasAttribute('download')) e.preventDefault();
 
         var target = e.target.nodeName === 'I' ? e.target.parentNode : e.target;
         var method = target.getAttribute('data-method');
         var param = target.getAttribute('data-param');
 
         if(methods[method])
-            methods[method](param, target);
+            methods[method](param, target, e);
         
     }
 
@@ -10497,7 +10507,7 @@ function build_records_row(data, table){
         cell.appendChild(a);
     }
     cell = row.insertCell(9);
-    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'"><i class="fa fa-fw fa-download"></i></a>' : '';
+    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'" target="_blank"><i class="fa fa-fw fa-download"></i></a>' : '';
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 
     cell = row.insertCell(10);
@@ -10601,7 +10611,8 @@ function showRecords(result){
     PbxObject.Pagination.selectPage(1);
 }
 
-function getQos(recid, targ) {
+function getQos(recid, targ, e) {
+    e.preventDefault();
     console.log('getQos: ', recid, targ);
     if(!recid) return;
     // var targInitHtml = targ.innerHTML;
@@ -10660,9 +10671,9 @@ function showRecQoS(recid, data) {
     $(contEl).collapse();
 }
 
-function playRecord(src, targ){
+function playRecord(src, targ, e){
     // if(!e) e = window.event;
-    // e.preventDefault();
+    e.preventDefault();
     // var player
         // targ = e.currentTarget,
         // src = targ.getAttribute('data-src');
@@ -10731,7 +10742,7 @@ function renderSidebar(params) {
 	            iconClass: 'icon-chats',
 	            type: "group",
 	            // iconClass: 'fa fa-fw fa-users',
-	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel'), (!hasConfig('team') ? 'selector' : '')]
+	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
