@@ -133,7 +133,7 @@
 
 	_buyDidNumber(params, callback) {
 		console.log('_buyDidNumber: ', params);
-	    if(!params.dgid || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
+	    if(!params.area || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
 
 	    var thisObj = this;
 

@@ -113,7 +113,7 @@ var DidTrunkComponent = React.createClass({
 
 		var params = {
 			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
-			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
+			area: this.state.selectedLocation ? this.state.selectedLocation.id : null,
 			anid: this.state.selectedAvailableNumber ? this.state.selectedAvailableNumber.id : null,
 			totalAmount: this.state.totalAmount,
 			chargeAmount: this.state.chargeAmount,
@@ -214,7 +214,7 @@ var DidTrunkComponent = React.createClass({
 		var selectedPriceObject = {};
 
 		if(value) {
-			selectedLocation = state.locations.filter(function(item) { return item._id === value; })[0];
+			selectedLocation = state.locations.filter(function(item) { return item.id === value; })[0];
 		}
 
 		state.selectedLocation = selectedLocation;
@@ -224,7 +224,7 @@ var DidTrunkComponent = React.createClass({
 
 		this.setState(state);
 
-		this._getAvailableNumbers({ dgid: selectedLocation._id }, function(err, response) {
+		this._getAvailableNumbers({ area: selectedLocation.id }, function(err, response) {
 			if(err) return notify_about('error', err);
 
 			this.setState({  availableNumbers: response.result });
@@ -480,7 +480,7 @@ var DidTrunkComponent = React.createClass({
 
 																{
 																	(!this.state.needRegion || selectedRegion.id) && (
-																		<div className={"form-group " + this._validateField(selectedLocation._id)}>
+																		<div className={"form-group " + this._validateField(selectedLocation.id)}>
 																		    <label htmlFor="location" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_LOCATION}</label>
 																	    	{
 																	    		this.state.locations ? (
@@ -488,11 +488,11 @@ var DidTrunkComponent = React.createClass({
 																	    				{
 																	    					this.state.locations.length ? (
 																	    						<div className="col-sm-4">
-																			    					<select className="form-control" name="location" value={selectedLocation._id} onChange={this._onLocationSelect} autoComplete='off' required>
+																			    					<select className="form-control" name="location" value={selectedLocation.id} onChange={this._onLocationSelect} autoComplete='off' required>
 																			    						<option value="">----------</option>
 																			    						{
 																			    							this.state.locations.map(function(item) {
-																			    								return <option key={item._id} value={item._id}>{item.areaName + " ("+item.areaCode+")"}</option>
+																			    								return <option key={item.id} value={item.id}>{item.areaName + " ("+item.areaCode+")"}</option>
 																			    							})
 																			    						}
 																			    					</select>
@@ -513,7 +513,7 @@ var DidTrunkComponent = React.createClass({
 																}
 
 																{
-																	selectedLocation._id && (
+																	selectedLocation.id && (
 																		<div className={"form-group " + this._validateField(selectedAvailableNumber.id)}>
 																		    <label htmlFor="number" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_NUMBER}</label>
 																	    	{

@@ -515,6 +515,9 @@ function setupPage() {
             // PbxObject.frases = translations;
 
             if(getInstanceMode() !== 1) { // if cloud branch
+
+                if(dataLayer) dataLayer.push({'event': 'is_cloud_branch'}); // fire custom tag manager event
+
                 BillingApi.getProfile(function(err, response) {
                     if(err) {
                         console.error(err);
