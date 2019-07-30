@@ -9,7 +9,7 @@ function load_records(){
     // });
 
     PbxObject.Pagination = new Pagination();
-    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecParams, actionButton: false, buttonSize: 'md'});
+    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecParams, buttonSize: 'md'});
 
     var methods = {
         playRecord: playRecord,
@@ -43,25 +43,25 @@ function load_records(){
         result.unshift({oid:PbxObject.frases.ALL, name: PbxObject.frases.ALL});
         fill_select_items('searchtrunk', result);
     });
-    $('#getcalls-btn').click(function(e){
-        getRecParams(e);
-    });
+    // $('#getcalls-btn').click(function(e){
+    //     getRecParams(e);
+    // });
     $('#sample-data').hide();
-    $('#search-calls .panel-body').slideToggle();
-    $('#extendedsearch').click(function(e){
-        e.preventDefault();
-        var $panel = $(this).closest('.panel'),
-            $el = $panel.find('.panel-body');
+    // $('#search-calls .panel-body').slideToggle();
+    // $('#extendedsearch').click(function(e){
+    //     e.preventDefault();
+    //     var $panel = $(this).closest('.panel'),
+    //         $el = $panel.find('.panel-body');
 
-        if(($el).is(':visible')){
-            $(this).text(PbxObject.frases.MORE);
-        }
-        else{
-            $(this).text(PbxObject.frases.LESS);
-        }
+    //     if(($el).is(':visible')){
+    //         $(this).text(PbxObject.frases.MORE);
+    //     }
+    //     else{
+    //         $(this).text(PbxObject.frases.LESS);
+    //     }
 
-        $el.slideToggle();
-    });
+    //     $el.slideToggle();
+    // });
 
     $('#records-table').click(handleTableClick);
 
@@ -79,7 +79,8 @@ function load_records(){
 function build_records_row(data, table){
 
     if(!data) return;
-    var cell,
+    var rowNum = 0,
+        cell,
         textContent = '',
         lrow = table.rows.length,
         row = table.insertRow(lrow),
@@ -89,49 +90,7 @@ function build_records_row(data, table){
     if(data['id'])
         row.id = data['id'];
 
-    cell = row.insertCell(0);
-    // date = day + '/' + month + '/' + date.getFullYear() + ' ' + hours + ':' + minutes;
-    cell.textContent = formatDateString(data.ts);
-
-    cell = row.insertCell(1);
-    cell.className = 'nowrap';
-    cell.textContent = data['na'];
-
-    cell = row.insertCell(2);
-    // cell.className = 'nowrap';
-    textContent = (data['nc'] && data['nc'] !== data['nb'] ) ? (data['nb'] + ' (' + data['nc'] + ')') : data['nb'];
-    cell.textContent = textContent
-    cell.title = textContent;
-
-    // cell = row.insertCell(3);
-    // cell.textContent = data['nc'] || "";
-    // cell.className = 'nowrap';
-    // cell.title = data['nc'] || '';
-
-    cell = row.insertCell(3);
-    if(data['ta']) {
-        textContent = (data['tb'] ) ? data['ta'] + ' (' + data['tb'] + ')' : data['ta'];
-    } else {
-        textContent = data['tb'];
-    }
-    cell.textContent = textContent;
-
-    // cell = row.insertCell(4);
-    // if(data['tb']) cell.textContent = data['tb'];
-
-    cell = row.insertCell(4);
-    cell.textContent = formatTimeString(time, 'hh:mm:ss');
-
-    cell = row.insertCell(5);
-    cell.textContent = getFriendlyCodeName(data['cs']);
-
-    cell = row.insertCell(6);
-    cell.textContent = parseFloat(data['tr']).toFixed(2);
-
-    cell = row.insertCell(7);
-    cell.textContent = parseFloat(data['ch']).toFixed(2);
-
-    cell = row.insertCell(8);
+    cell = row.insertCell(rowNum++);
     if(data['fi']){
         var a = document.createElement('a');
         a.href = '#';
@@ -144,17 +103,62 @@ function build_records_row(data, table){
         // };
         cell.appendChild(a);
     }
-    cell = row.insertCell(9);
-    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'" target="_blank"><i class="fa fa-fw fa-download"></i></a>' : '';
+
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 
-    cell = row.insertCell(10);
+    cell = row.insertCell(rowNum++);
+    // date = day + '/' + month + '/' + date.getFullYear() + ' ' + hours + ':' + minutes;
+    cell.textContent = formatDateString(data.ts);
+
+    cell = row.insertCell(rowNum++);
+    cell.className = 'nowrap';
+    cell.textContent = data['na'];
+
+    cell = row.insertCell(rowNum++);
+    // cell.className = 'nowrap';
+    textContent = (data['nc'] && data['nc'] !== data['nb'] ) ? (data['nb'] + ' (' + data['nc'] + ')') : data['nb'];
+    cell.textContent = textContent
+    cell.title = textContent;
+
+    // cell = row.insertCell(3);
+    // cell.textContent = data['nc'] || "";
+    // cell.className = 'nowrap';
+    // cell.title = data['nc'] || '';
+
+    cell = row.insertCell(rowNum++);
+    if(data['ta']) {
+        textContent = (data['tb'] ) ? data['ta'] + ' (' + data['tb'] + ')' : data['ta'];
+    } else {
+        textContent = data['tb'];
+    }
+    cell.textContent = textContent;
+
+    // cell = row.insertCell(4);
+    // if(data['tb']) cell.textContent = data['tb'];
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = formatTimeString(time, 'hh:mm:ss');
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = getFriendlyCodeName(data['cs']);
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = parseFloat(data['tr']).toFixed(2);
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = parseFloat(data['ch']).toFixed(2);
+
+    cell = row.insertCell(rowNum++);
+    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'" target="_blank"><i class="fa fa-fw fa-download"></i></a>' : '';
+
+    cell = row.insertCell(rowNum++);
     cell.innerHTML = '<a href="#" data-method="getQos" data-param="'+ data.id +'"><i class="fa fa-fw fa-info"></i></a>';
+
 }
 
 function getRecParams(e){
 
-    show_loading_panel(e.target);
+    show_loading_panel(document.querySelector('#pagecontent'));
     
     // var from = PbxObject.Picker.date.from,
     //     to = PbxObject.Picker.date.to,

@@ -24,7 +24,7 @@ var SelectedDidNumberComponent = React.createClass({
 		if(number.status !== 'active') {
 			this.updateStatusInterval = window.setInterval(function() {
 				this._fetchUpdateStatus(number.number);
-			}.bind(this), 1000);
+			}.bind(this), 10000);
 			// BillingApi.updateDidStatus({ number: this.props.number.number }, function(err, response) {
 			// 	if(err) return notify_about('error', err);
 			// 	this._updateStatus(response.result.status);
@@ -35,7 +35,7 @@ var SelectedDidNumberComponent = React.createClass({
 		if(number.awaitingRegistration) {
 			this.updateRegInterval = window.setInterval(function() {
 				this._fetchUpdateRegistration(number.number);
-			}.bind(this), 1000);
+			}.bind(this), 10000);
 			// BillingApi.updateDidRegistration({ number: this.props.number.number }, function(err, response) {
 			// 	if(err) return notify_about('error', err);
 			// 	this._updateRegistration(response.result.awaitingRegistration);

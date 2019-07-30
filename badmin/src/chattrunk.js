@@ -106,9 +106,16 @@ function load_chattrunk(params) {
 	];
 
 	var userAccessToken = (getQueryParams().access_token || getQueryParams(window.location.hash.substr(window.location.hash.indexOf('?'))).access_token) || null;
+	var onTokenReceived = null;
 
-	if(window.opener && window.opener.onTokenReceived) {
-		return window.opener.onTokenReceived(userAccessToken);
+	try {
+		onTokenReceived = (window.opener && window.opener.onTokenReceived) ? window.opener.onTokenReceived : null;
+	} catch(error) {
+		onTokenReceived = null;
+	}
+
+	if(onTokenReceived) {
+		return onTokenReceived(userAccessToken);
 	} else if(userAccessToken) {
 		services = services.map(function(item) {
 			if(item.id === 'FacebookMessenger') item.params.userAccessToken = userAccessToken;

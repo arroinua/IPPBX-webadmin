@@ -48,7 +48,7 @@ var AnalyticsComponent = React.createClass({
 		return (
 			<div>
 				<div className="row" style={{margin: "20px 0"}}>
-				    <div id="chatstat-date-picker" className="col-sm-4 cdropdown custom-dropdown"></div>
+				    <div id="chatstat-date-picker" style={{ display: "inline-block" }} className="cdropdown custom-dropdown"></div>
 				</div>
 				<PanelComponent>
 					<div className="row">
@@ -66,7 +66,7 @@ var AnalyticsComponent = React.createClass({
 					</div>
 				</PanelComponent>
 				<div className="row" style={{ margin: "20px 0" }}>
-					<div className="col-sm-4">
+					<div style={{ display: "inline-block" }}>
 						<select className="form-control" onChange={this._onChartTypeSelect}>
 							<option value="chatGroup">{frases.CHANNEL_STATISTICS.SHOW_BY.CHAT_GROUP}</option>
 							<option value="channelName">{frases.CHANNEL_STATISTICS.SHOW_BY.CHANNEL_NAME}</option>

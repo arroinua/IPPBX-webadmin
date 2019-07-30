@@ -268,7 +268,8 @@ function build_route_row(route, objects){
         optgroups = {}, optgroup, option, kind, oid;
 
     tr.className = "route-on-edit";
-    div.className = 'form-group';
+    tr.style.height = "70px";
+    // div.className = 'form-group';
     number.className = 'form-control';
     number.setAttribute('type', 'text');
     number.setAttribute('name', 'number');
@@ -288,7 +289,7 @@ function build_route_row(route, objects){
 
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     descr = document.createElement('input');
     descr.className = 'form-control';
     descr.setAttribute('type', 'text');
@@ -304,7 +305,7 @@ function build_route_row(route, objects){
 
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     target = document.createElement('select');
     target.className = 'form-control';
     target.setAttribute('name', 'target');
@@ -341,7 +342,7 @@ function build_route_row(route, objects){
     
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     priority = document.createElement('select');
     priority.className = 'form-control';
     priority.setAttribute('name', 'priority');
@@ -369,7 +370,7 @@ function build_route_row(route, objects){
     
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     cost = document.createElement('input');
     cost.className = 'form-control';
     cost.setAttribute('type', 'text');

@@ -276,14 +276,18 @@
 										        </div>
 										    </div>
 										</div>
-										<div className="form-group">
-										    <label className="col-sm-4 control-label">
-										        <span>{frases.GROUPNUM} </span>
-										    </label>
-										    <div className="col-md-2 col-sm-4">
-										        <input type="text" className="form-control" name="groupno" value={ this.state.options.groupno } onChange={ this._handleOnChange } />
-										    </div>
-										</div>
+										{
+											this.state.options.canpickup ? (
+												<div className="form-group">
+												    <label className="col-sm-4 control-label">
+												        <span>{frases.GROUPNUM} </span>
+												    </label>
+												    <div className="col-md-2 col-sm-4">
+												        <input type="text" className="form-control" name="groupno" value={ this.state.options.groupno } onChange={ this._handleOnChange } />
+												    </div>
+												</div>
+											) : null
+										}
 										<hr/>
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">

@@ -111,9 +111,9 @@ var FacebookTrunkComponent = React.createClass({
 
 		this._selectPage(this.props.properties.id || (pages.length ? pages[0].id : null));
 
-		setTimeout(function() {
-			this.props.nextStep();
-		}.bind(this), 500);
+		// setTimeout(function() {
+		// 	this.props.nextStep();
+		// }.bind(this), 500);
 	},
 
 	_getFacebookSDK: function(cb) {
@@ -179,7 +179,6 @@ var FacebookTrunkComponent = React.createClass({
 		var state = search !== -1 ? btoa(href.substr(0, search)) : btoa(href);
 		var fbscope = 'email, manage_pages, publish_pages, read_page_mailboxes, pages_messaging, pages_messaging_subscriptions, public_profile';
 		var link = ("https://www.facebook.com/dialog/oauth?client_id="+params.appId+"&redirect_uri="+params.redirectUri+"&state="+state+'&scope='+fbscope);
-		console.log('_login: ', link, href, search, state);
 		var authWindow = this._openAuthWindow(link);
 
 		var scope = this;

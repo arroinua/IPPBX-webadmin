@@ -132,9 +132,11 @@
                                 </div>
                             </div> -->
                         </fieldset>
+                        {{#data.isUser}}
                         <div class="alert alert-info" role="alert">
                             <h5 class="text-center">{{frases.LIGHTBOX.USER_AUTH_DATA.BODY}} <a href="https://ringotel.co/download" target="_blank" class="alert-link">{{frases.LIGHTBOX.USER_AUTH_DATA.ACTION_BTN_TEXT}}</a></h5>
                         </div>
+                        {{/data.isUser}}
                     </div>
                     <div id="ext-forwarding" class="form-horizontal tab-pane" role="tabpanel">
                         <div class="form-group" id="fwdall-cont">

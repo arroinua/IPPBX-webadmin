@@ -3,14 +3,14 @@
     height: 50px;
     margin-left: auto;
     margin-right: auto;
-    background-color: #fff;
-    -moz-box-shadow:    0 2px 0 0 #ccc;
-    -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.05);
-    box-shadow:         0 1px 0 rgba(0,0,0,0.05);
-    -webkit-border-radius: $global-radius;
-    -moz-border-radius: $global-radius;
-    border-radius: $global-radius;
-    border: none;
+    // background-color: #fff;
+    // -moz-box-shadow:    0 2px 0 0 #ccc;
+    // -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+    // box-shadow:         0 1px 0 rgba(0,0,0,0.05);
+    // -webkit-border-radius: $global-radius;
+    // -moz-border-radius: $global-radius;
+    // border-radius: $global-radius;
+    // border: none;
     // border-bottom: $primary-color-l1;
     
 
@@ -27,6 +27,17 @@
 	    -ms-transform: rotateY( -180deg );
 	    -webkit-transform: rotateY( -180deg );
 	    transform: rotateY( -180deg );
+	}
+
+	.btn {
+		font-size: 1em;
+		-moz-box-shadow:    rgba(0,0,0,.2) 1px 0 5px;
+	    -webkit-box-shadow: rgba(0,0,0,.2) 1px 0 5px;
+	    box-shadow:         rgba(0,0,0,.2) 1px 0 5px;
+	    -webkit-border-radius: $global-radius;
+	    -moz-border-radius: $global-radius;
+	    border-radius: $global-radius;
+	    border: none;
 	}
 }
 

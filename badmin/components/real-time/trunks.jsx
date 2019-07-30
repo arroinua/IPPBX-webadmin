@@ -26,7 +26,7 @@ function RealtimeTrunksComponent(props) {
 					    		data.map(function(trunk) {
 					    			return (
 					    				<tr key={trunk.oid}>
-					    					<td><span className={"fa fa-circle text-" + ( trunk.enabled ? 'success' : 'muted' )}></span></td>
+					    					<td><span className={"fa fa-circle text-" + ( trunk.enabled ? 'active' : 'muted' )}></span></td>
 					    					<td>
 					    						{
 					    							trunk.type === 'system' ? (

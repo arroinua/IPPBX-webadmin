@@ -4112,9 +4112,16 @@ function load_chattrunk(params) {
 	];
 
 	var userAccessToken = (getQueryParams().access_token || getQueryParams(window.location.hash.substr(window.location.hash.indexOf('?'))).access_token) || null;
+	var onTokenReceived = null;
 
-	if(window.opener && window.opener.onTokenReceived) {
-		return window.opener.onTokenReceived(userAccessToken);
+	try {
+		onTokenReceived = (window.opener && window.opener.onTokenReceived) ? window.opener.onTokenReceived : null;
+	} catch(error) {
+		onTokenReceived = null;
+	}
+
+	if(onTokenReceived) {
+		return onTokenReceived(userAccessToken);
 	} else if(userAccessToken) {
 		services = services.map(function(item) {
 			if(item.id === 'FacebookMessenger') item.params.userAccessToken = userAccessToken;
@@ -5139,6 +5146,8 @@ function load_extension(result){
 
     if(kind === 'users') {
 
+        result.isUser = true;
+
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
         result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
         result.storefree = result.storelimit - result.storesize;
@@ -5960,7 +5969,10 @@ function load_icd(params) {
 			enabled: props.enabled,
 			options: props.options,
 			members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
-		}, function(result) {
+		}, function(result, err) {
+			
+			if(err) return notify_about('error', err.message);
+
 			PbxObject.name = objParams.name = objName;
 
 			// Upload audio files
@@ -6965,7 +6977,7 @@ function changeOnResize(isSmall){
                 $('#pagecontent').addClass('squeezed-right');
             }
         }
-        $('#sidebar-toggle').toggleClass('flipped');
+        // $('#sidebar-toggle').toggleClass('flipped');
         PbxObject.smallScreen = isSmall;
     }
 }
@@ -7139,7 +7151,7 @@ function init_page(){
     $('#pagecontainer').html(mainrend);
 
     switchMode(PbxObject.options);
-    document.getElementsByTagName('title')[0].innerHTML = 'UCC ' + PbxObject.frases.PBXADMIN;
+    document.getElementsByTagName('title')[0].innerHTML = 'Ringotel | ' + PbxObject.frases.PBXADMIN;
 
     setPageHeight();
     subscribeToEvents();
@@ -7181,11 +7193,17 @@ function init_page(){
         delay: {"show": 1000, "hide": 100}
     });
 
-    $('.tab-switcher', '#pbxoptions').click(function(e) {
-        switch_options_tab($(this).attr('data-tab'));
-    });
+    renderHelpSidebar('#help-sidebar');
+
+    // $('.tab-switcher', '#pbxoptions').click(function(e) {
+    //     switch_options_tab($(this).attr('data-tab'));
+    // });
 
     // var wizzard = Wizzard({frases: PbxObject.frases});
+}
+
+function renderHelpSidebar(contSelector) {
+    ReactDOM.render(HelpSidebarComponent({ frases: PbxObject.frases, options: PbxObject.options }), document.querySelector(contSelector));
 }
 
 // init tour
@@ -7203,124 +7221,125 @@ function set_listeners(){
 
     addEvent(window, 'hashchange', get_object);
     $('.sidebar-toggle', '#pagecontent').click(toggle_sidebar);
-    $('.options-open', '#pagecontent').click(open_options);
-    $('.options-close', '#pbxoptions').click(close_options);
-    $('#pbxmenu li a').click(onMenuClick);
+    $('#help-toggle').click(toggle_options);
+    // $('.options-open', '#pagecontent').click(open_options);
+    // $('.options-close', '#pbxoptions').click(close_options);
+    // $('#pbxmenu li a').click(onMenuClick);
     $('#logout-btn').click(logout);
     
     // var attachFastClick = Origami.fastclick;
     // attachFastClick(document.body);
 }
 
-function onMenuClick(e) {
-    var target = this;
-    var href = target.href;
-    if(href && href.substring(href.length-1) === "#") e.preventDefault();
-    showGroups(target);
-}
+// function onMenuClick(e) {
+//     var target = this;
+//     var href = target.href;
+//     if(href && href.substring(href.length-1) === "#") e.preventDefault();
+//     showGroups(target);
+// }
 
-function showGroups(targetEl, show){
-    var self = targetEl;
-    var checkElement;
-    var parent = $(self).parent();
-    var kind = $(self).attr('data-kind');
-    if(!parent.hasClass('active')){
-        if(kind) {
-            var ul = document.createElement('ul');
-            ul.id = 'ul-'+kind;
+// function showGroups(targetEl, show){
+//     var self = targetEl;
+//     var checkElement;
+//     var parent = $(self).parent();
+//     var kind = $(self).attr('data-kind');
+//     if(!parent.hasClass('active')){
+//         if(kind) {
+//             var ul = document.createElement('ul');
+//             ul.id = 'ul-'+kind;
 
-            // if(kind != 'unit' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
-            //     likind = document.createElement('li');
-            //     likind.className = 'menu-name';
-            //     likind.innerHTML = PbxObject.frases.KINDS[kind];
-            //     ul.appendChild(likind);
-            // }
+//             // if(kind != 'unit' && kind != 'icd' && kind != 'hunting' && kind != 'pickup' && kind != 'cli') {
+//             //     likind = document.createElement('li');
+//             //     likind.className = 'menu-name';
+//             //     likind.innerHTML = PbxObject.frases.KINDS[kind];
+//             //     ul.appendChild(likind);
+//             // }
 
-            show_loading_panel(parent[0]);
+//             show_loading_panel(parent[0]);
 
-            // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
-            getObjects(kind, function(result){
-                console.log('showGroups: ', kind, result);
+//             // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
+//             getObjects(kind, function(result){
+//                 console.log('showGroups: ', kind, result);
 
-                var li = document.createElement('li');
-                li.className = 'add-group-object';
-                li.setAttribute('data-oid', kind);
-                var a = document.createElement('a');
-                if(kind == 'application') {
-                    var inp = document.createElement('input');
-                    inp.type = "file";
-                    inp.id = "uploadapp";
-                    inp.className = "upload-custom";
-                    inp.accept = ".application";
-                    addEvent(inp, 'change', function(){
-                        upload('uploadapp');
-                    });
-                    li.appendChild(inp);
-                    a.href = '#';
-                    addEvent(a, 'click', function(e){
-                        document.getElementById('uploadapp').click();
-                        if(e) e.preventDefault;
-                    });
-                } 
-                // else if(kind === 'trunk') {
-                //     a.href = '#new_trunk';
-                // } 
-                else{
-                    a.href = '#'+kind+'/'+kind;
-                    // a.href = '#'+kind+'?'+kind;
-                }
-                a.innerHTML ='<i class="fa fa-plus"></i><span>'+(isGroup(kind) ? PbxObject.frases.ADD_GROUP : PbxObject.frases.ADD)+'</span>';
-                li.appendChild(a);
-                ul.appendChild(li);
+//                 var li = document.createElement('li');
+//                 li.className = 'add-group-object';
+//                 li.setAttribute('data-oid', kind);
+//                 var a = document.createElement('a');
+//                 if(kind == 'application') {
+//                     var inp = document.createElement('input');
+//                     inp.type = "file";
+//                     inp.id = "uploadapp";
+//                     inp.className = "upload-custom";
+//                     inp.accept = ".application";
+//                     addEvent(inp, 'change', function(){
+//                         upload('uploadapp');
+//                     });
+//                     li.appendChild(inp);
+//                     a.href = '#';
+//                     addEvent(a, 'click', function(e){
+//                         document.getElementById('uploadapp').click();
+//                         if(e) e.preventDefault;
+//                     });
+//                 } 
+//                 // else if(kind === 'trunk') {
+//                 //     a.href = '#new_trunk';
+//                 // } 
+//                 else{
+//                     a.href = '#'+kind+'/'+kind;
+//                     // a.href = '#'+kind+'?'+kind;
+//                 }
+//                 a.innerHTML ='<i class="fa fa-plus"></i><span>'+(isGroup(kind) ? PbxObject.frases.ADD_GROUP : PbxObject.frases.ADD)+'</span>';
+//                 li.appendChild(a);
+//                 ul.appendChild(li);
 
-                var i, gid, name, li, a, rem, objects = result;
-                sortByKey(objects, 'name');
-                for(i=0; i<objects.length; i++){
-                    if(kind === 'trunk' && objects[i].type === 'system') {
-                        continue;
-                    } else {
-                        gid = objects[i].oid;
-                        name = objects[i].name;
-                        li = document.createElement('li');
-                        li.setAttribute('data-oid', gid);
-                        a = document.createElement('a');
-                        a.href = '#'+kind+'/'+gid;
-                        // a.href = '#'+kind+'?'+gid;
-                        a.innerHTML = name;
-                        li.appendChild(a);
-                        ul.appendChild(li);
-                    }
-                }
-                $(self).siblings().remove('ul');
-                parent.append(ul);
+//                 var i, gid, name, li, a, rem, objects = result;
+//                 sortByKey(objects, 'name');
+//                 for(i=0; i<objects.length; i++){
+//                     if(kind === 'trunk' && objects[i].type === 'system') {
+//                         continue;
+//                     } else {
+//                         gid = objects[i].oid;
+//                         name = objects[i].name;
+//                         li = document.createElement('li');
+//                         li.setAttribute('data-oid', gid);
+//                         a = document.createElement('a');
+//                         a.href = '#'+kind+'/'+gid;
+//                         // a.href = '#'+kind+'?'+gid;
+//                         a.innerHTML = name;
+//                         li.appendChild(a);
+//                         ul.appendChild(li);
+//                     }
+//                 }
+//                 $(self).siblings().remove('ul');
+//                 parent.append(ul);
 
-                show_content(false);
+//                 show_content(false);
 
-                checkElement = $(self).next('ul');
-                if(checkElement) checkElement.slideDown('normal');
-                parent.addClass('active');
-            });
+//                 checkElement = $(self).next('ul');
+//                 if(checkElement) checkElement.slideDown('normal');
+//                 parent.addClass('active');
+//             });
             
-        } else {
-            checkElement = $(self).next('ul');
-            if(checkElement) {
-                checkElement.slideDown('normal');
-            }
-            parent.addClass('active');
-        }
-    } else {
-        checkElement = $(self).next('ul');
-        if(!show && checkElement) {
-            parent.removeClass('active');
-            checkElement.slideUp('normal');
-        }
-    }
-    parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
-}
+//         } else {
+//             checkElement = $(self).next('ul');
+//             if(checkElement) {
+//                 checkElement.slideDown('normal');
+//             }
+//             parent.addClass('active');
+//         }
+//     } else {
+//         checkElement = $(self).next('ul');
+//         if(!show && checkElement) {
+//             parent.removeClass('active');
+//             checkElement.slideUp('normal');
+//         }
+//     }
+//     parent.siblings('li.active').removeClass('active').children('ul:visible').slideUp('normal');
+// }
 
-function hideGroups() {
-    $('#pbxmenu li.active').removeClass('active').children('ul:visible').slideUp('normal');
-}
+// function hideGroups() {
+//     $('#pbxmenu li.active').removeClass('active').children('ul:visible').slideUp('normal');
+// }
 
 function get_object(e){
 
@@ -7645,26 +7664,39 @@ function getAvailablePool(cb) {
 }
 
 function toggle_sidebar(e){
-    if(e) e.preventDefault();
+    if(e) {
+        e.preventDefault();
+        $(this).toggleClass('flipped');
+    }
 
-    $(this).toggleClass('flipped');
     $('#pagecontent').toggleClass('squeezed-right');
     $('#pbxmenu').toggleClass('squeezed-right');
     if(!isSmallScreen())
         toggle_menu();
+    else
+        $(document.documentElement).toggleClass('noscroll');
+
 }
 
 function toggle_menu(){
     $('#pbxmenu').toggleClass('squeezed-menu');
 }
 
-function open_options(e){
+function toggle_options(e){
     if(e) e.preventDefault();
-    $('#el-slidemenu').addClass('hide-menu');
-    $('#pagecontent').addClass('pushed-left');
-    $('#pbxoptions').addClass('pushed-left');
-    isOptionsOpened(true);
+    var menu = $('#pbxmenu');
+    // $('#el-slidemenu').addClass('hide-menu');
+    $('#pagecontent').toggleClass('pushed-left');
+    if(!isSmallScreen()) {
+        if(menu.hasClass('squeezed-right')) menu.removeClass('squeezed-right');
+        else menu.addClass('squeezed-right');
+    }
+    $(document.documentElement).toggleClass('noscroll');
+    $('#help-sidebar').toggleClass('squeezed');
+    // $('#pbxoptions').addClass('pushed-left');
+    // isOptionsOpened(true);
 }
+
 function close_options(e){
     if(e) e.preventDefault();
     $('#pagecontent').removeClass('pushed-left');
@@ -7674,13 +7706,13 @@ function close_options(e){
        $('#pbxoptions').removeClass('top-layer');
        $('#el-options-content').remove();
     }, 500);
-    isOptionsOpened(false);
+    // isOptionsOpened(false);
 }
 
-function isOptionsOpened(bool) {
-    if(bool !== undefined) PbxObject.optionsOpened = bool;
-    return PbxObject.optionsOpened ? true : false;
-}
+// function isOptionsOpened(bool) {
+//     if(bool !== undefined) PbxObject.optionsOpened = bool;
+//     return PbxObject.optionsOpened ? true : false;
+// }
 
 function showModal(modalId, data, onsubmit, onopen, onclose){
     var modal = document.getElementById(modalId),
@@ -10374,7 +10406,7 @@ function load_records(){
     // });
 
     PbxObject.Pagination = new Pagination();
-    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecParams, actionButton: false, buttonSize: 'md'});
+    PbxObject.recPicker = new Picker('recs-date-picker', {submitFunction: getRecParams, buttonSize: 'md'});
 
     var methods = {
         playRecord: playRecord,
@@ -10408,25 +10440,25 @@ function load_records(){
         result.unshift({oid:PbxObject.frases.ALL, name: PbxObject.frases.ALL});
         fill_select_items('searchtrunk', result);
     });
-    $('#getcalls-btn').click(function(e){
-        getRecParams(e);
-    });
+    // $('#getcalls-btn').click(function(e){
+    //     getRecParams(e);
+    // });
     $('#sample-data').hide();
-    $('#search-calls .panel-body').slideToggle();
-    $('#extendedsearch').click(function(e){
-        e.preventDefault();
-        var $panel = $(this).closest('.panel'),
-            $el = $panel.find('.panel-body');
+    // $('#search-calls .panel-body').slideToggle();
+    // $('#extendedsearch').click(function(e){
+    //     e.preventDefault();
+    //     var $panel = $(this).closest('.panel'),
+    //         $el = $panel.find('.panel-body');
 
-        if(($el).is(':visible')){
-            $(this).text(PbxObject.frases.MORE);
-        }
-        else{
-            $(this).text(PbxObject.frases.LESS);
-        }
+    //     if(($el).is(':visible')){
+    //         $(this).text(PbxObject.frases.MORE);
+    //     }
+    //     else{
+    //         $(this).text(PbxObject.frases.LESS);
+    //     }
 
-        $el.slideToggle();
-    });
+    //     $el.slideToggle();
+    // });
 
     $('#records-table').click(handleTableClick);
 
@@ -10444,7 +10476,8 @@ function load_records(){
 function build_records_row(data, table){
 
     if(!data) return;
-    var cell,
+    var rowNum = 0,
+        cell,
         textContent = '',
         lrow = table.rows.length,
         row = table.insertRow(lrow),
@@ -10454,49 +10487,7 @@ function build_records_row(data, table){
     if(data['id'])
         row.id = data['id'];
 
-    cell = row.insertCell(0);
-    // date = day + '/' + month + '/' + date.getFullYear() + ' ' + hours + ':' + minutes;
-    cell.textContent = formatDateString(data.ts);
-
-    cell = row.insertCell(1);
-    cell.className = 'nowrap';
-    cell.textContent = data['na'];
-
-    cell = row.insertCell(2);
-    // cell.className = 'nowrap';
-    textContent = (data['nc'] && data['nc'] !== data['nb'] ) ? (data['nb'] + ' (' + data['nc'] + ')') : data['nb'];
-    cell.textContent = textContent
-    cell.title = textContent;
-
-    // cell = row.insertCell(3);
-    // cell.textContent = data['nc'] || "";
-    // cell.className = 'nowrap';
-    // cell.title = data['nc'] || '';
-
-    cell = row.insertCell(3);
-    if(data['ta']) {
-        textContent = (data['tb'] ) ? data['ta'] + ' (' + data['tb'] + ')' : data['ta'];
-    } else {
-        textContent = data['tb'];
-    }
-    cell.textContent = textContent;
-
-    // cell = row.insertCell(4);
-    // if(data['tb']) cell.textContent = data['tb'];
-
-    cell = row.insertCell(4);
-    cell.textContent = formatTimeString(time, 'hh:mm:ss');
-
-    cell = row.insertCell(5);
-    cell.textContent = getFriendlyCodeName(data['cs']);
-
-    cell = row.insertCell(6);
-    cell.textContent = parseFloat(data['tr']).toFixed(2);
-
-    cell = row.insertCell(7);
-    cell.textContent = parseFloat(data['ch']).toFixed(2);
-
-    cell = row.insertCell(8);
+    cell = row.insertCell(rowNum++);
     if(data['fi']){
         var a = document.createElement('a');
         a.href = '#';
@@ -10509,17 +10500,62 @@ function build_records_row(data, table){
         // };
         cell.appendChild(a);
     }
-    cell = row.insertCell(9);
-    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'" target="_blank"><i class="fa fa-fw fa-download"></i></a>' : '';
+
     // cell.innerHTML = data['fi'] ? '<a href="#" onclick="playRecord(e)" data-src="'+data['fi']+'"><i class="fa fa-play fa-fw"></i></a>' : '';
 
-    cell = row.insertCell(10);
+    cell = row.insertCell(rowNum++);
+    // date = day + '/' + month + '/' + date.getFullYear() + ' ' + hours + ':' + minutes;
+    cell.textContent = formatDateString(data.ts);
+
+    cell = row.insertCell(rowNum++);
+    cell.className = 'nowrap';
+    cell.textContent = data['na'];
+
+    cell = row.insertCell(rowNum++);
+    // cell.className = 'nowrap';
+    textContent = (data['nc'] && data['nc'] !== data['nb'] ) ? (data['nb'] + ' (' + data['nc'] + ')') : data['nb'];
+    cell.textContent = textContent
+    cell.title = textContent;
+
+    // cell = row.insertCell(3);
+    // cell.textContent = data['nc'] || "";
+    // cell.className = 'nowrap';
+    // cell.title = data['nc'] || '';
+
+    cell = row.insertCell(rowNum++);
+    if(data['ta']) {
+        textContent = (data['tb'] ) ? data['ta'] + ' (' + data['tb'] + ')' : data['ta'];
+    } else {
+        textContent = data['tb'];
+    }
+    cell.textContent = textContent;
+
+    // cell = row.insertCell(4);
+    // if(data['tb']) cell.textContent = data['tb'];
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = formatTimeString(time, 'hh:mm:ss');
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = getFriendlyCodeName(data['cs']);
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = parseFloat(data['tr']).toFixed(2);
+
+    cell = row.insertCell(rowNum++);
+    cell.textContent = parseFloat(data['ch']).toFixed(2);
+
+    cell = row.insertCell(rowNum++);
+    cell.innerHTML = data['fi'] ? '<a href="'+window.location.protocol+'//'+window.location.host+'/records/'+data['fi']+'" download="'+data['fi']+'" target="_blank"><i class="fa fa-fw fa-download"></i></a>' : '';
+
+    cell = row.insertCell(rowNum++);
     cell.innerHTML = '<a href="#" data-method="getQos" data-param="'+ data.id +'"><i class="fa fa-fw fa-info"></i></a>';
+
 }
 
 function getRecParams(e){
 
-    show_loading_panel(e.target);
+    show_loading_panel(document.querySelector('#pagecontent'));
     
     // var from = PbxObject.Picker.date.from,
     //     to = PbxObject.Picker.date.to,
@@ -11395,7 +11431,8 @@ function build_route_row(route, objects){
         optgroups = {}, optgroup, option, kind, oid;
 
     tr.className = "route-on-edit";
-    div.className = 'form-group';
+    tr.style.height = "70px";
+    // div.className = 'form-group';
     number.className = 'form-control';
     number.setAttribute('type', 'text');
     number.setAttribute('name', 'number');
@@ -11415,7 +11452,7 @@ function build_route_row(route, objects){
 
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     descr = document.createElement('input');
     descr.className = 'form-control';
     descr.setAttribute('type', 'text');
@@ -11431,7 +11468,7 @@ function build_route_row(route, objects){
 
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     target = document.createElement('select');
     target.className = 'form-control';
     target.setAttribute('name', 'target');
@@ -11468,7 +11505,7 @@ function build_route_row(route, objects){
     
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     priority = document.createElement('select');
     priority.className = 'form-control';
     priority.setAttribute('name', 'priority');
@@ -11496,7 +11533,7 @@ function build_route_row(route, objects){
     
     td = document.createElement('td');
     var div = document.createElement('div');
-    div.className = 'form-group';
+    // div.className = 'form-group';
     cost = document.createElement('input');
     cost.className = 'form-control';
     cost.setAttribute('type', 'text');

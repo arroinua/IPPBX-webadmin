@@ -42,6 +42,7 @@ var WebchatTrunkComponent = React.createClass({
 		data = extend(data, this.props.properties || {});
 		data.pageid = this.props.pageid;
 		data.introMessage = data.introMessage || this.props.frases.CHAT_TRUNK.WEBCHAT.INTRO_MESSAGE;
+		if(data.channels.length) data.channels = data.channels.reduce(function(result, item) { result[item.type] = item; return result; }, {});
 		this.setState({ data: data });
 	},
 

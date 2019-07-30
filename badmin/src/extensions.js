@@ -359,6 +359,8 @@ function load_extension(result){
 
     if(kind === 'users') {
 
+        result.isUser = true;
+
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
         result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
         result.storefree = result.storelimit - result.storesize;

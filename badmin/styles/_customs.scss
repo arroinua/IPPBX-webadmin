@@ -72,13 +72,18 @@ table.table>tbody>tr>td {
 
 .btn {
     border-radius: $global-radius;
+    border: 1px solid #dfe4ed;
+}
+
+.btn.btn-link {
+    border: none;
 }
 
 .btn.btn-action {
     color: #fff;
     background: rgb(250,163,244);
     background: linear-gradient(90deg, rgba(250,163,244,1) 0%, rgba(44,187,230,1) 100%);
-    border: none;
+    border: transparent;
 }
 
 .btn.btn-primary[disabled],
@@ -199,14 +204,14 @@ table.table>tbody>tr>td {
 .btn-primary:active,
 .btn-primary:focus {
     background-color: $primary-color;
-    border-color: $primary-color;
+    border-color: transparent;
     color: #fff;
 }
 
 .btn-link.btn-primary,
 .btn-link.btn-danger {
     background-color: none;
-    border-color: none;
+    border-color: transparent;
 }
 
 .btn-link.btn-default {

@@ -169,7 +169,7 @@ var DidTrunkComponent = React.createClass({
 		state.selectedAvailableNumber = {};
 		state.regions = null;
 		state.locations = null;
-		state.needRegion = (country.attributes.iso === 'US' || country.attributes.iso === 'CA');
+		state.needRegion = (country.iso === 'US' || country.iso === 'CA');
 
 		this.setState(state);
 
@@ -243,7 +243,7 @@ var DidTrunkComponent = React.createClass({
 
 		this.setState(state);
 
-		this._getDidPrice({ iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
+		this._getDidPrice({ iso: state.selectedCountry.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
 			if(err) return notify_about('error', err);
 			this._setDidPrice(response.result);
 			
@@ -428,7 +428,7 @@ var DidTrunkComponent = React.createClass({
 																    				<option value="">----------</option>
 																    				{
 																    					this.state.countries.map(function(item) {
-																    						return <option key={item.id} value={item.id}>{item.attributes.name + " ("+item.attributes.prefix+")"}</option>
+																    						return <option key={item.id} value={item.id}>{item.name + " ("+item.prefix+")"}</option>
 																    					})
 																    				}
 																    			</select>
@@ -458,7 +458,7 @@ var DidTrunkComponent = React.createClass({
 																			    						<option value="">----------</option>
 																			    						{
 																			    							this.state.regions.map(function(item) {
-																			    								return <option key={item.id} value={item.id}>{item.attributes.name}</option>
+																			    								return <option key={item.id} value={item.id}>{item.name}</option>
 																			    							})
 																			    						}
 																			    					</select>
@@ -526,7 +526,7 @@ var DidTrunkComponent = React.createClass({
 																			    						<option value="">----------</option>
 																			    						{
 																			    							this.state.availableNumbers.map(function(item) {
-																			    								return <option key={item.id} value={item.id}>{item.attributes.number}</option>
+																			    								return <option key={item.id} value={item.id}>{item.number}</option>
 																			    							})
 																			    						}
 																			    					</select>

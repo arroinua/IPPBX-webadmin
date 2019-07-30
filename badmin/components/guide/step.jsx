@@ -2,7 +2,7 @@ function StepGuideStep(props) {
 
 	return (
 		<div className="row">
-			<hr className="col-xs-12" />
+			<hr/>
 			<div className="col-sm-2">
 				{
 					props.params.done ? (

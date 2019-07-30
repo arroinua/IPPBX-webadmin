@@ -103,7 +103,10 @@ function load_icd(params) {
 			enabled: props.enabled,
 			options: props.options,
 			members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
-		}, function(result) {
+		}, function(result, err) {
+			
+			if(err) return notify_about('error', err.message);
+
 			PbxObject.name = objParams.name = objName;
 
 			// Upload audio files

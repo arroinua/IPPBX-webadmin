@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Ringotel | Administrator Panel</title>
+        <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,12 +18,14 @@
 
         <link rel="stylesheet" href="/badmin/fonts/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/badmin/fonts/css/icomoon.css" />
-        <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" />
+        <!-- <link rel="stylesheet" href="/badmin/css/vendors/bootstrap.min.css" type="text/css" /> -->
+        <link rel="stylesheet" href="/public/styles/bootstrap.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/rome.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/flatpickr.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/select2.min.css" type="text/css" />
         <link rel="stylesheet" href="/badmin/css/vendors/c3.min.css" type="text/css" />
-        <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" />
+        <!-- <link rel="stylesheet" href="/badmin/css/main.min.css" type="text/css" /> -->
+        <link rel="stylesheet" href="/public/styles/main.min.css" type="text/css" />
     </head>
     <body>
         <!-- Google Tag Manager (noscript) -->
@@ -35,13 +37,21 @@
             <script type="text/html" id="main-template">
                 <div id="pbxmenu" class="page-sidebar"></div>
                 <div id="pagecontent" class="page-content">
-                    <div class="sidebar-toggle-cont">
-                        <a href="#" id="sidebar-toggle" class="sidebar-toggle">
-                            <i class="fa fa-angle-left fa-fw"></i> <span>{{MENU}}</span>
-                        </a>
+                    <div class="nav-bar">
+                        <div class="sidebar-toggle-cont">
+                            <a href="#" id="sidebar-toggle" class="btn btn-default sidebar-toggle">
+                                <i class="fa fa-angle-left fa-fw"></i> <span>{{MENU}}</span>
+                            </a>
+                        </div>
+                        <div class="rightbar-toggle-cont">
+                            <a href="#" class="btn btn-default" id="help-toggle">
+                                <i class="fa fa-life-ring fa-fw" style="color: red;"></i> <span>{{HELP_SIDEBAR.HELP_BTN}}</span>
+                            </a>
+                        </div>
                     </div>
                     <div id="dcontainer" class="container-fluid data-container"></div>
                 </div>
+                <div id="help-sidebar" class="page-sidebar right-side"></div>
             </script>
         </div>
         <script type="text/javascript" src="/badmin/js/vendors/react.js"></script>

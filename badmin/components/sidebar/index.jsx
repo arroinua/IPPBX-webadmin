@@ -34,7 +34,36 @@ var SideBarComponent = React.createClass({
 		}, {});
 	},
 
+	_channelTypeToIconName: function(type) {
+		var types = {
+			'Telephony': 'did.png',
+			'FacebookMessenger': 'facebook.png',
+			'Email': 'email.png',
+			'Viber': 'viber.ico',
+			'Telegram': 'telegram.png',
+			'WebChat': 'webchat.png',
+			'Webcall': 'webchat.png'
+		};
+
+		return types[type];
+	},
+
 	_buildItemsMenu: function(objects, activeItem) {
+		var channelTypeToIconName = this._channelTypeToIconName;
+
+		// {
+		// 	item.type ? (
+		// 		<img 
+		// 			style={{
+		// 				width: "1.2em",
+		// 				verticalAlign: "top",
+		// 				marginRight: "6px"
+		// 			}}
+		// 			src={"/badmin/images/channels/" + channelTypeToIconName(item.type)} 
+		// 		/>
+		// 	) : null	
+		// }
+
 		function getItemClass(item) {
 			var className = "ellipsis nav-link ";
 			className += (activeItem === item.oid ? "active " : " ");
@@ -50,7 +79,9 @@ var SideBarComponent = React.createClass({
 						href={"#"+item.kind+(item.oid ? ("/"+item.oid) : "")} 
 						className={ getItemClass(item) }
 						title={item.name}
-					>{item.name}</a>
+					>
+						<span>{item.name}</span>
+					</a>
 					<span></span>
 				</li>
 			)
