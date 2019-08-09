@@ -5219,7 +5219,7 @@ function load_extension(result){
     // });
 
     switch_presentation(kind, document.getElementById('ext-features'));
-    if(groupid){
+    if(kind === 'users'){
         fill_group_choice(kind, groupid);
     } else {
         document.getElementById("extgroup-cont").classList.add('hidden');
@@ -6682,13 +6682,15 @@ function generateInterval (k) {
 }
 
 function loadStripeJs() {
-    if(window.StripeCheckout) return configureStripe();
+    if(window.Stripe) return configureStripe();
 
     $.ajaxSetup({ cache: true });
     $.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
 }
 
 function configureStripe() {
+    // var stripe = StripeCheckout('pk_live_6EK33o0HpjJ1JuLUWVWgH1vT');
+    
     var stripeHandler = StripeCheckout.configure({
         key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
         // key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',

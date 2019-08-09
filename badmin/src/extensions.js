@@ -432,7 +432,7 @@ function load_extension(result){
     // });
 
     switch_presentation(kind, document.getElementById('ext-features'));
-    if(groupid){
+    if(kind === 'users'){
         fill_group_choice(kind, groupid);
     } else {
         document.getElementById("extgroup-cont").classList.add('hidden');

@@ -273,7 +273,7 @@ var LicensesComponent = React.createClass({
 							</div>
 						) : (sub.plan.planId === 'trial' && sub.status === 'expired') ? (
 							<div className="alert alert-warning" role="alert">
-								{frases.BILLING.ALERTS.TRIAL_EXPIRED} <a href="#plansCollapse" data-toggle="collapse" aria-expanded="false" aria-controls="plansCollapse" onClick={this._openPlans} className="alert-link">{frases.BILLING.UPGRADE_PLAN_ALERT_MSG}</a>
+								{frases.BILLING.ALERTS.TRIAL_EXPIRED} {frases.BILLING.UPGRADE_PLAN_ALERT_MSG}
 							</div>
 						) : ('')
 
