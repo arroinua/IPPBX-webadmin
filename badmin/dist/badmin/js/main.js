@@ -6685,34 +6685,37 @@ function loadStripeJs() {
     if(window.Stripe) return configureStripe();
 
     $.ajaxSetup({ cache: true });
-    $.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
+    // $.getScript('https://checkout.stripe.com/checkout.js', configureStripe);
+    $.getScript('https://js.stripe.com/v3/', configureStripe);
 }
 
 function configureStripe() {
-    // var stripe = StripeCheckout('pk_live_6EK33o0HpjJ1JuLUWVWgH1vT');
+    var stripe = Stripe('pk_test_XIMDHl1xSezbHGKp3rraGp2y');
+    var elements = stripe.elements();
     
-    var stripeHandler = StripeCheckout.configure({
-        key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
+    // var stripeHandler = StripeCheckout.configure({
+    //     key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
         // key: 'pk_test_XIMDHl1xSezbHGKp3rraGp2y',
-        image: '/badmin/images/Ringotel_emblem_new.png',
-        billingAddress: true,
-        email: PbxObject.profile.email,
-        currency: PbxObject.profile.currency,
-        name: 'Ringotel',
-        zipCode: true,
-        locale: 'auto',
-        token: function(token) {
-            console.log('stripe token: ', token);
-            PbxObject.stripeToken = token;
-        }
-    });
+    //     image: '/badmin/images/Ringotel_emblem_new.png',
+    //     billingAddress: true,
+    //     email: PbxObject.profile.email,
+    //     currency: PbxObject.profile.currency,
+    //     name: 'Ringotel',
+    //     zipCode: true,
+    //     locale: 'auto',
+    //     token: function(token) {
+    //         console.log('stripe token: ', token);
+    //         PbxObject.stripeToken = token;
+    //     }
+    // });
 
     // Close Checkout on page navigation:
-    window.addEventListener('popstate', function() {
-      stripeHandler.close();
-    });
+    // window.addEventListener('popstate', function() {
+    //   stripeHandler.close();
+    // });
 
-    PbxObject.stripeHandler = stripeHandler;
+    // PbxObject.stripeHandler = stripeHandler;
+    PbxObject.stripeElements = elements;
 }
 
 function json_rpc(method, params){

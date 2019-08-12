@@ -117,7 +117,7 @@ var BillingComponent = React.createClass({
 					</div>
 				</div>
 				<div className="row">
-					<div className="col-sm-6">
+					<div className="col-xs-12">
 						<PanelComponent header={frases.BILLING.PAYMENT_METHOD_TITLE}>
 							<ManagePaymentMethodComponent 
 								frases={frases}
@@ -127,7 +127,7 @@ var BillingComponent = React.createClass({
 							/>
 						</PanelComponent>
 					</div>
-					<div className="col-sm-6">
+					<div className="col-xs-12">
 						<PanelComponent header={frases.BILLING.INVOICES.INVOICES}>
 							<InvoicesComponent items={this.state.invoices} frases={frases} />
 						</PanelComponent>

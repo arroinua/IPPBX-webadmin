@@ -17,13 +17,13 @@ function ManagePaymentMethodComponent(props) {
 	}
 
 	var paymentMethod = props.paymentMethod;
+	var profile = props.profile;
 	var frases = props.frases;
 
 	return (
-		<div className="text-center">
-			<h3><i className="fa fa-credit-card"></i></h3>
+		<div>
 			{
-				paymentMethod && (
+				paymentMethod ? (
 					<div>
 						<p className="text-muted" style={{ userSelect: 'none' }}>
 							<b>{paymentMethod.params.brand}</b> •••• •••• •••• {paymentMethod.params.last4}
@@ -42,9 +42,8 @@ function ManagePaymentMethodComponent(props) {
 							) : ('')
 						}
 					</div>
-				)
+				) : <NewPaymentMethodComponent frases={frases} paymentMethod={paymentMethod} profile={profile} />
 			}
-			<a href="#" onClick={props.onClick} className="text-uppercase">{ props.buttonText }</a>
 		</div>
 	);
 }
