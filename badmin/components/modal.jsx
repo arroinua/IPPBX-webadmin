@@ -13,6 +13,7 @@ var ModalComponent = React.createClass({
 		submit: React.PropTypes.func,
 		disabled: React.PropTypes.bool,
 		onClose: React.PropTypes.func,
+		onOpen: React.PropTypes.func,
 		body: React.PropTypes.element,
 		footer: React.PropTypes.element,
 		children: React.PropTypes.array,
@@ -25,6 +26,7 @@ var ModalComponent = React.createClass({
 	componentDidMount: function() {
 		if(this.props.open === true || this.props.open === undefined) {
 			this._openModal();
+			if(this.props.onOpen) this.props.onOpen
 		}
 
 		if(this.props.onClose) 

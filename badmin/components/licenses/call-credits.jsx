@@ -44,8 +44,8 @@ var CallCreditsComponent = React.createClass({
 	},
 
 	_onAddCredits: function() {
-		var currencySymbol = this._currencyNameToSymbol(this.props.subscription.plan.currency);
-		this.props.addCredits({ chargeAmount: this.state.amount, currency: currencySymbol });
+		// var currencySymbol = this._currencyNameToSymbol(this.props.subscription.plan.currency);
+		this.props.addCredits({ amount: this.state.amount });
 	},
 
 	_getCredits: function() {

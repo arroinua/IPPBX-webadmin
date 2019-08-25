@@ -65,7 +65,7 @@ var InvoicesComponent = React.createClass({
 									type="button" 
 									className="btn btn-link btn-block" 
 									onClick={this._showMore}
-								>{ hideRows ? 'Show more' : 'Show less' }</button>
+								>{ hideRows ? frases.BILLING.INVOICES.SHOW_MORE_BTN : frases.BILLING.INVOICES.SHOW_LESS_BTN }</button>
 							</div>
 						</div>
 

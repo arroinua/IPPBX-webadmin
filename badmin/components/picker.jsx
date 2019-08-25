@@ -68,7 +68,7 @@ var DatePickerComponent = React.createClass({
 		];
 
 		this.setState({ ranges: ranges, intervals: intervals });
-		this._setCurrentRange(this.state.currRange);
+		this._setCurrentRange(this.state.currRange, true);
 	},
 
 	componentDidMount: function() {
@@ -102,7 +102,7 @@ var DatePickerComponent = React.createClass({
 
 	// },
 
-	_setCurrentRange: function(option){
+	_setCurrentRange: function(option, trigger){
 		var date = {};
         if(option === 'today'){
             date.begin = today().toStartOf().valueOf();
@@ -126,7 +126,7 @@ var DatePickerComponent = React.createClass({
 
         this.setState({ currRange: option, date: date });
 
-        if(this.props.actionButton === false && option !== 'custom') setTimeout(this._onClick, 0);
+        if((this.props.actionButton === false || trigger) && option !== 'custom') setTimeout(this._onClick, 0);
 
     },
 
@@ -175,7 +175,7 @@ var DatePickerComponent = React.createClass({
 		var date = this.state.date;
 
 		return (
-			<div ref={this._onRef} className={"dropdown custom-dropdown "+(this.state.open ? "open" : "")}>
+			<div ref={this._onRef} className={"dropdown custom-dropdown "+(this.state.open ? "open" : "")} style={{ display: "inline-block" }}>
 				<button type="button" className="btn btn-default btn-md btn-block dropdown-button" aria-expanded="true" onClick={this._onDropdownToggle}>
 				    <span className="btn-text" style={{marginRight:"5px"}}>{moment(date.begin).format('DD/MM/YYYY') + ' - ' + moment(date.end).format('DD/MM/YYYY')}</span>
 				    <span className="caret"></span>
@@ -225,6 +225,7 @@ var DatePickerComponent = React.createClass({
 					    ) : null
 				    }
 				    <div className="col-xs-12">
+				    <hr/>
 				    {
 				    	this.props.actionButton !== false ?
 				    		<button type="button" name="selectButton" className="btn btn-primary btn-md btn-block" onClick={this._onClick}>{frases.SELECT}</button>

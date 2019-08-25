@@ -60,9 +60,10 @@ var BillingApi = {
 		if(!access_token) return callback('MISSING_TOKEN');
 		this.fetch(
 		    'POST',
-		    (this.url+method+'?access_token='+encodeURIComponent(access_token)),
+		    // (this.url+method+'?access_token='+encodeURIComponent(access_token)),
+		    (this.url+method),
 		    (params || null),
-		    null,
+		    { headers: [{ name: 'x-access-token', value: access_token }] },
 		    function(err, result) {
 		        if(err || result.error) return callback(err || result.error);
 		        if(callback) callback(null, result);

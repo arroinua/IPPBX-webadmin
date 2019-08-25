@@ -92,7 +92,8 @@ var DidTrunkComponent = React.createClass({
 	},
 
 	componentWillReceiveProps: function(props) {
-		if(this.state.fetch && props.properties && props.properties.number) {
+		console.log('DidTrunkComponent componentWillReceiveProps: ', props, this.props);
+		if(this.props.isNew && !props.isNew && props.properties && props.properties.number) {
 			this.setState({ fetch: false });
 
 			this._getDid(props.properties.number, function(err, response) {
@@ -119,7 +120,7 @@ var DidTrunkComponent = React.createClass({
 			chargeAmount: this.state.chargeAmount,
 			newSubAmount: this.state.newSubAmount,
 			nextBillingDate: this.state.nextBillingDate,
-			currency: this._currencyNameToSymbol(this.state.sub.plan.currency)
+			currencySymbol: this._currencyNameToSymbol(this.state.sub.plan.currency)
 		};
 		
 		this.props.onChange(params);
@@ -228,6 +229,12 @@ var DidTrunkComponent = React.createClass({
 			if(err) return notify_about('error', err);
 
 			this.setState({  availableNumbers: response.result });
+
+			this._getDidPrice({ iso: state.selectedCountry.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
+				if(err) return notify_about('error', err);
+				this._setDidPrice(response.result);
+				
+			}.bind(this));
 		}.bind(this));
 
 	},
@@ -243,11 +250,6 @@ var DidTrunkComponent = React.createClass({
 
 		this.setState(state);
 
-		this._getDidPrice({ iso: state.selectedCountry.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
-			if(err) return notify_about('error', err);
-			this._setDidPrice(response.result);
-			
-		}.bind(this));
 	},
 
 	_setDidPrice: function(priceObj) {
@@ -514,28 +516,26 @@ var DidTrunkComponent = React.createClass({
 
 																{
 																	selectedLocation.id && (
-																		<div className={"form-group " + this._validateField(selectedAvailableNumber.id)}>
-																		    <label htmlFor="number" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_NUMBER}</label>
+																		<div>
 																	    	{
 																	    		this.state.availableNumbers ? (
 																	    			<div>
 																	    				{
 																	    					this.state.availableNumbers.length ? (
-																	    						<div className="col-sm-4">
-																			    					<select className="form-control" name="number" value={selectedAvailableNumber.id} onChange={this._onAvailableNumberSelect} autoComplete='off' required>
-																			    						<option value="">----------</option>
-																			    						{
-																			    							this.state.availableNumbers.map(function(item) {
-																			    								return <option key={item.id} value={item.id}>{item.number}</option>
-																			    							})
-																			    						}
-																			    					</select>
-																			    				</div>
-																		    				) : (
-																		    					<div className="col-sm-8">
-																		    						<p>{frases.CHAT_TRUNK.DID.CHECK_LOCATION_AVAILABILITY_MSG}</p>
-																		    					</div>
-																		    				)
+																	    						<div className={"form-group " + this._validateField(selectedAvailableNumber.id)}>
+																	    						    <label htmlFor="number" className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.SELECT_NUMBER}</label>
+																		    						<div className="col-sm-4">
+																				    					<select className="form-control" name="number" value={selectedAvailableNumber.id} onChange={this._onAvailableNumberSelect} autoComplete='off' required>
+																				    						<option value="">----------</option>
+																				    						{
+																				    							this.state.availableNumbers.map(function(item) {
+																				    								return <option key={item.id} value={item.id}>{item.number}</option>
+																				    							})
+																				    						}
+																				    					</select>
+																				    				</div>
+																				    			</div>
+																		    				) : null
 																	    				}
 																	    			</div>
 																	    		) : (
@@ -547,7 +547,7 @@ var DidTrunkComponent = React.createClass({
 																}
 
 																{
-																	selectedAvailableNumber.id && (
+																	(selectedLocation.id && this.state.availableNumbers) ? (
 																		<div className="form-group">
 																			{
 																				(selectedPriceObject && selectedPriceObject._id) ? (
@@ -568,7 +568,7 @@ var DidTrunkComponent = React.createClass({
 																				)
 																			}
 																		</div>
-																	)
+																	) : null
 																}
 																
 															</div>

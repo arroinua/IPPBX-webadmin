@@ -41,7 +41,7 @@
 		if(!method || !params.date) return;
 
 		json_rpc_async(method, {
-			begin: params.date.start,
+			begin: params.date.start || params.date.begin,
 			end: params.date.end
 		}, callback);
 	},

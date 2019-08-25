@@ -4,9 +4,11 @@ function load_billing() {
 	var profile = PbxObject.profile;
 	var sub = {};
 	var invoices = [];
+	var card = null;
+	var stripeIntent = null;
+	var frases = PbxObject.frases;
 
 	BillingApi.getSubscription(function(err, response) {
-		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
@@ -19,7 +21,6 @@ function load_billing() {
 				return (item.paidAmount && parseFloat(item.paidAmount) > 0);
 			});
 
-			console.log('invoices: ', invoices);
 			init();
 		});
 
@@ -32,136 +33,119 @@ function load_billing() {
 		    sub: sub,
 		    frases: PbxObject.frases,
 		    invoices: invoices,
-		    addCard: addCard,
-		    editCard: editCard,
+		    onAddPaymentMethod: onAddPaymentMethod,
+		    setPrimaryPaymentMethod: setPrimaryPaymentMethod,
+		    removePaymentMethod: removePaymentMethod,
 		    extend: deepExtend
 		}), cont);
 	}
 
-	function addCard(callback) {
-		PbxObject.stripeHandler.open({
-			email: profile.email,
-			name: 'Ringotel',
-			zipCode: true,
-			locale: 'auto',
-			allowRememberMe: false,
-			panelLabel: "Add card",
-			amount: null,
-			closed: function(result) {
-				console.log('addCard closed: ', result);
+	function addPaymentMethod(err, result) {
+		if(err) {
+			notify_about('error', err.message);
+		} else {
+			set_object_success();
+			profile.billingMethod = result;
+			profile.billingDetails = (profile.billingDetails || []).concat([result]);
+			init();
+		}
+	}
+
+	function onAddPaymentMethod(callback) {
+
+		PbxObject.PaymentsApi.open({profile: profile}, addPaymentMethod);
+
+	}
+
+	function setPrimaryPaymentMethod(pmid) {
+		var billingDetails = profile.billingDetails;
+		var primaryMethod = billingDetails.filter(function(item) { return item.id === pmid; })[0];
+
+		if(!primaryMethod) return;
+
+		showConfirmModal({
+			type: 'primary',
+			title: frases.BILLING.PAYMENT_METHODS.SET_PRIMARY_TITLE,
+			text: Utils.interpolate(frases.BILLING.PAYMENT_METHODS.SET_PRIMARY_CONTENT, { method: (primaryMethod.params.brand.toUpperCase() + ' ' + primaryMethod.params.last4 ) })
+		}, function() {
+
+			show_loading_panel();
+
+			BillingApi.request('setPrimaryPaymentMethod', { pmid: pmid }, function(err, response) {
+
+				show_content();
 				
-				if(!PbxObject.stripeToken) return callback(null);
-				var reqParams = {
-					service: 'stripe',
-					token: PbxObject.stripeToken.id,
-					card: PbxObject.stripeToken.card
-				};
+				if(err || response.error) return notify_about('error', err.message || response.error.message);
 
-				BillingApi.addCard(reqParams, function(err, response) {
-					console.log('saveCard response: ', err, PbxObject.stripeToken, response);
-					
-					if(err || response.error) {
-						notify_about('error', err.message || response.error.message);
-						callback(null);
-					} else {
-						callback(PbxObject.stripeToken);
-						set_object_success();
-					}
+				profile.billingMethod = primaryMethod;
 
-					PbxObject.stripeToken = null;
+				set_object_success();
 
-				});
-			}
-		});
+				init();
+
+			});
+		})
+			
 	}
 
-	function editCard(callback) {
-		PbxObject.stripeHandler.open({
-			email: profile.email,
-			name: 'Ringotel',
-			zipCode: true,
-			locale: 'auto',
-			allowRememberMe: false,
-			panelLabel: "Add card",
-			// currency: 'eur',
-			// amount: plan.amount*100,
-			closed: function(result) {
-				console.log('editCard closed: ', result);
+	function removePaymentMethod(pmid) {
+		var method = profile.billingDetails.filter(function(item) { return item.id === pmid; })[0];
 
-				if(!PbxObject.stripeToken) return callback(null);;
-				var reqParams = {
-					service: 'stripe',
-					token: PbxObject.stripeToken.id,
-					card: PbxObject.stripeToken.card
-				};
+		showConfirmModal({
+			type: 'danger',
+			title: frases.BILLING.PAYMENT_METHODS.REMOVE_METHOD_TITLE,
+			warning: Utils.interpolate(frases.BILLING.PAYMENT_METHODS.REMOVE_METHOD_CONTENT, { method: (method.params.brand.toUpperCase() + ' ' + method.params.last4) })
+		}, function() {
 
-				BillingApi.updateCard(reqParams, function(err, response) {
-					console.log('updateCard response: ', err, PbxObject.stripeToken, response);				
-					
-					if(err || response.error) {
-						notify_about('error', err.message || response.error.message);
-						callback(null);
-					} else {
-						callback(PbxObject.stripeToken);
-						set_object_success();
-					}
+			show_loading_panel();
 
-					PbxObject.stripeToken = null;
+			BillingApi.request('removePaymentMethod', { pmid: pmid }, function(err, response) {
+
+				show_content();
+				
+				if(err || response.error) return notify_about('error', err.message || response.error.message);
+
+				profile.billingDetails = profile.billingDetails.filter(function(item) {
+					return item.id !== pmid;
 				});
 
-			}
-		});
-	}
+				if(profile.billingDetails.length) profile.billingMethod = profile.billingDetails[0];
+				else profile.billingMethod = null;
 
-	function updateBalance(params, callbackFn) {
-		PbxObject.stripeHandler.open({
-			email: profile.email,
-			name: 'Ringotel',
-			zipCode: true,
-			locale: 'auto',
-			panelLabel: "Pay",
-			allowRememberMe: false,
-			currency: params.payment.currency,
-			amount: params.payment.chargeAmount*100,
-			closed: function(result) {
-				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
+				set_object_success();
 
-				if(!PbxObject.stripeToken) return;
+				init();
 
-				var reqParams = {
-					currency: params.payment.currency,
-					amount: params.payment.chargeAmount,
-					description: 'Update balance',
-					token: PbxObject.stripeToken.id
-				};
+			});
 
-				BillingApi.updateBalance(reqParams, function(err, response) {
-
-					console.log('updateBalance: ', err, response);
-
-					if(err) {
-						notify_about('error', err.message);
-					} else {
-
-						if(methods[callbackFn])
-							methods[callbackFn](params);
-
-						PbxObject.stripeToken = null;		
-
-					}	
-
-				});
-
-			}
-		});
+		})
 	}
 
 	function getInvoices(callback) {
 		BillingApi.getInvoices(function(err, response) {
-			console.log('getInvoices response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});	
+	}
+
+	function showConfirmModal(params, callback) {
+		var modalCont = document.getElementById('modal-cont');
+		var props = {
+			frases: PbxObject.frases,
+			type: params.type,
+			title: params.title,
+			warning: params.warning,
+			text: params.text,
+			onSubmit: callback
+		};
+
+		if(!modalCont) {
+			modalCont = document.createElement('div');
+			modalCont.id = "modal-cont";
+			document.body.appendChild(modalCont);
+		}
+
+		ReactDOM.render(ConfirmActionModalComponent(props), modalCont);
 	}
 
 }

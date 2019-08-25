@@ -13,12 +13,9 @@ var AnalyticsComponent = React.createClass({
 		};
 	},
 
-	componentDidMount: function() {
-		var picker = new Picker('chatstat-date-picker', {submitFunction: this._getData, buttonSize: 'md'});
-		this._getData({
-			date: picker.date
-		});
-	},
+	// componentDidMount: function() {
+		// var picker = new Picker('chatstat-date-picker', {submitFunction: this._getData, buttonSize: 'md'});
+	// },
 
 	_getData: function(params) {
 		show_loading_panel();
@@ -48,7 +45,9 @@ var AnalyticsComponent = React.createClass({
 		return (
 			<div>
 				<div className="row" style={{margin: "20px 0"}}>
-				    <div id="chatstat-date-picker" style={{ display: "inline-block" }} className="cdropdown custom-dropdown"></div>
+					<div className="col-sm-3">
+						<DatePickerComponent frases={this.props.frases} onClick={this._getData} />
+					</div>
 				</div>
 				<PanelComponent>
 					<div className="row">

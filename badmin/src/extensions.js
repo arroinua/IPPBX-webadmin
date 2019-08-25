@@ -363,7 +363,7 @@ function load_extension(result){
 
         result.storelimit = result.storelimit ? convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2) : 0;
         result.storesize = result.storesize ? convertBytes(result.storesize, 'Byte', 'GB').toFixed(2) : 0;
-        result.storefree = result.storelimit - result.storesize;
+        result.storefree = (result.storelimit - result.storesize).toFixed(2);
         // if(result.storesize) result.storesize = convertBytes(result.storesize, 'Byte', 'GB').toFixed(2);
         // if(result.storelimit) {
         //     result.storelimit = convertBytes(result.storelimit, 'Byte', 'GB').toFixed(2);

@@ -10,7 +10,7 @@ function load_licenses() {
 		changePlan: changePlan,
 		updateLicenses: updateLicenses,
 		addCredits: addCredits
-	}
+	};
 	var modalCont = document.getElementById('modal-cont');
 	
 	if(!modalCont) {
@@ -20,7 +20,6 @@ function load_licenses() {
 	}
 
 	BillingApi.getSubscription(function(err, response) {
-		console.log('getSubscription response: ', err, response.result);
 		if(err) return notify_about('error' , err.message);
 		sub = response.result;
 
@@ -49,7 +48,7 @@ function load_licenses() {
 		    frases: PbxObject.frases,
 		    discounts: discounts,
 		    renewSub: renewSub,
-		    onPlanSelect: onPlanSelect,
+		    onPlanSelect: changePlan,
 		    updateLicenses: onUpdateLicenses,
 		    addCredits: addCredits,
 		    extend: deepExtend,
@@ -68,7 +67,6 @@ function load_licenses() {
 		show_loading_panel();
 
 		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
-			console.log('renewSubscription response: ', err, response);
 
 			show_content();
 
@@ -83,51 +81,65 @@ function load_licenses() {
 	}
 
 	function updateBalance(params, callbackFn) {
-		PbxObject.stripeHandler.open({
-			email: profile.email,
-			name: 'Ringotel',
-			zipCode: true,
-			locale: 'auto',
-			panelLabel: "Pay",
-			allowRememberMe: false,
+		var paymentParams = {
 			currency: params.payment.currency,
-			amount: params.payment.chargeAmount*100,
-			closed: function(result) {
-				console.log('updateBalance closed: ', result, PbxObject.stripeToken);
+			amount: params.payment.chargeAmount,
+			description: 'Update balance'
+		};
 
-				if(!PbxObject.stripeToken) return;
+		PbxObject.PaymentsApi[profile.billingMethod ? 'authenticate' : 'open']({ profile: profile, payment: paymentParams }, function(err, result) {
 
-				var reqParams = {
-					currency: params.payment.currency,
-					amount: params.payment.chargeAmount,
-					description: 'Update balance',
-					token: PbxObject.stripeToken.id
-				};
+			if(err) return notify_about('error', err.message);
 
-				BillingApi.updateBalance(reqParams, function(err, response) {
+			if(typeof callbackFn === 'string') methods[callbackFn](params, true);
+			else callbackFn(params, true);
 
-					console.log('updateBalance: ', err, response);
-
-					if(err) {
-						notify_about('error', err.message);
-					} else {
-
-						if(methods[callbackFn])
-							methods[callbackFn](params);
-
-						PbxObject.stripeToken = null;		
-
-					}	
-
-				});
-
-			}
 		});
 	}
 
+	// function updateBalance(params, callbackFn) {
+	// 	PbxObject.stripeHandler.open({
+	// 		email: profile.email,
+	// 		name: 'Ringotel',
+	// 		zipCode: true,
+	// 		locale: 'auto',
+	// 		panelLabel: "Pay",
+	// 		allowRememberMe: false,
+	// 		currency: params.payment.currency,
+	// 		amount: params.payment.chargeAmount*100,
+	// 		closed: function(result) {
+
+	// 			if(!PbxObject.stripeToken) return;
+
+	// 			var reqParams = {
+	// 				currency: params.payment.currency,
+	// 				amount: params.payment.chargeAmount,
+	// 				description: 'Update balance',
+	// 				token: PbxObject.stripeToken.id
+	// 			};
+
+	// 			BillingApi.updateBalance(reqParams, function(err, response) {
+
+
+	// 				if(err) {
+	// 					notify_about('error', err.message);
+	// 				} else {
+
+	// 					if(methods[callbackFn])
+	// 						methods[callbackFn](params);
+
+	// 					PbxObject.stripeToken = null;		
+
+	// 				}	
+
+	// 			});
+
+	// 		}
+	// 	});
+	// }
+
 	function addCoupon(string) {
 		BillingApi.addCoupon({ coupon: string }, function(err, response) {
-			console.log('addCoupon response: ', err, string, response);
 			if(err) return notify_about('error', err.message);
 			discounts.push(response);
 			set_object_success();
@@ -135,26 +147,27 @@ function load_licenses() {
 		});
 	}
 
-	function onPlanSelect(params) {
-		console.log('changePlan: ', params);
+	// function onPlanSelect(params) {
 
-		showConfirmModal('confirm_payment_modal', params, changePlan);
+		// showConfirmModal('confirm_payment_modal', params, changePlan);
 
-	}
+	// }
 
-	function changePlan(params, callback) {
+	function changePlan(params, noConfirm) {
+
+		if(!noConfirm) return showConfirmModal('confirm_payment_modal', params, changePlan);
+
 		show_loading_panel();
 
 		BillingApi.changePlan({
 			subId: sub._id,
 			planId: params.plan.planId
 		}, function(err, response) {
-			console.log('changePlan response: ', err, response);
 
 			show_content();
 
 			if(err) {
-				if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'changePlan');
+				if(err.name === 'NO_PAYMENT_SOURCE' || err.name === 'authentication_required') updateBalance(params, 'changePlan');
 				else notify_about('error', err.message);
 				return;
 			}
@@ -184,67 +197,56 @@ function load_licenses() {
 
 	}
 
-	function showConfirmModal(template, params, callback) {
-		showModal(template, params, function(result, modal) {
-			$(modal).modal('toggle');
+	function updateLicenses(params, noConfirm) {
 
-			callback(params);
+		if(!noConfirm) return showConfirmModal('confirm_payment_modal', params, updateLicenses);
+
+		show_loading_panel();
+
+		BillingApi.updateSubscription({
+			subId: sub._id,
+			addOns: params.addOns,
+			quantity: params.quantity
+		}, function(err, response) {
+
+			show_content();
+
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE' || err.name === 'authentication_required') updateBalance(params, 'updateLicenses');
+				else notify_about('error', err.message);
+				return;
+			}
+
+			sub = response.result;
+
+			set_object_success();
+			
+			init();
 		});
 	}
 
-	function updateLicenses(params) {
+	function addCredits(params, noConfirm) {
+		if(!noConfirm) return showConfirmModal('confirm_payment_modal', { payment: {chargeAmount: params.amount, currencySymbol: currencyNameToSymbol(profile.currency)} }, addCredits);
 
-		showConfirmModal('confirm_payment_modal', params, function(params) {
-			show_loading_panel();
+		show_loading_panel();
 
-			BillingApi.updateSubscription({
-				subId: sub._id,
-				addOns: params.addOns,
-				quantity: params.quantity
-			}, function(err, response) {
-				console.log('updateLicenses response: ', err, response);
+		BillingApi.addCredits({ amount: params.payment.chargeAmount }, function(err, response) {
+			remove_loading_panel();
+			
+			if(err) {
+				if(err.name === 'NO_PAYMENT_SOURCE' || err.name === 'authentication_required') updateBalance({ payment: params }, 'addCredits');
+				else notify_about('error', err.message);
+				return;
+			}
 
-				show_content();
+			set_object_success();
+			init();
 
-				if(err) {
-					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance(params, 'updateLicenses');
-					else notify_about('error', err.message);
-					return;
-				}
-
-				sub = response.result;
-
-				set_object_success();
-				
-				init();
-			});
-		});
-	}
-
-	function addCredits(params) {
-		showConfirmModal('confirm_add_credits_modal', { frases: PbxObject.frases, payment: params }, function(params) {
-
-			show_loading_panel();
-
-			BillingApi.addCredits({ amount: params.chargeAmount }, function(err, response) {
-				remove_loading_panel();
-				
-				if(err) {
-					if(err.name === 'NO_PAYMENT_SOURCE') updateBalance({ payment: params }, 'addCredits');
-					else notify_about('error', err.message);
-					return;
-				}
-
-				set_object_success();
-				init();
-
-			});
 		});
 	}
 
 	function getDiscounts(callback) {
 		BillingApi.getDiscounts(function(err, response) {
-			console.log('getDiscounts response: ', err, response);
 			if(err) return callback(err);
 			if(callback) callback(null, response.result || [])
 		});	
@@ -271,6 +273,17 @@ function load_licenses() {
 		}
 
 		return amount.toFixed(2);
+	}
+
+	function showConfirmModal(template, params, callback) {
+		
+		var data = extend({ frases: PbxObject.frases }, params);
+
+		showModal(template, data, function(result, modal) {
+			$(modal).modal('toggle');
+
+			callback(params, true);
+		});
 	}
 
 	function currencyNameToSymbol(name) {

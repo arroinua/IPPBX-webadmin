@@ -2,6 +2,7 @@ function load_chattrunk(params) {
 
 	var queryParams = getQueryParams();
 	var frases = PbxObject.frases;
+	var profile = PbxObject.profile;
 	var initParams = params;
 	var handler = null;
 	var type = params.type || 'Telephony';
@@ -199,49 +200,67 @@ function load_chattrunk(params) {
 		ReactDOM.render(DeleteObjectModalComponent(props), modalCont);
 	}
 
-	function updateBalance(params, callback) {
-		PbxObject.stripeHandler.open({
-			// name: 'Ringotel',
-			// zipCode: true,
-			// locale: 'auto',
-			panelLabel: "Pay",
-			allowRememberMe: false,
-			// currency: params.currency,
-			amount: params.chargeAmount*100,
-			closed: function(result) {
+	function updateBalance(params, callbackFn) {
+		var paymentParams = {
+			currency: params.currency,
+			amount: params.chargeAmount,
+			description: 'Update balance'
+		};
 
-				if(!PbxObject.stripeToken) return;
+		PbxObject.PaymentsApi[profile.billingMethod ? 'authenticate' : 'open']({ profile: profile, payment: paymentParams }, function(err, result) {
 
-				var reqParams = {
-					currency: params.currency,
-					amount: params.chargeAmount,
-					description: 'Update balance',
-					token: PbxObject.stripeToken.id
-				};
+			if(err) return notify_about('error', err.message);
 
-				show_loading_panel();
+			callbackFn(params);
 
-				BillingApi.updateBalance(reqParams, function(err, response) {
-
-					remove_loading_panel();
-
-					if(err) {
-						notify_about('error', err.message);
-					} else {
-
-						if(callback) callback(params);
-
-						PbxObject.stripeToken = null;		
-
-					}	
-
-				});
-
-			}
 		});
 	}
 
-	function confirmPayment(params, callback) {
+	// function updateBalance(params, callback) {
+	// 	PbxObject.stripeHandler.open({
+	// 		// name: 'Ringotel',
+	// 		// zipCode: true,
+	// 		// locale: 'auto',
+	// 		panelLabel: "Pay",
+	// 		allowRememberMe: false,
+	// 		// currency: params.currency,
+	// 		amount: params.chargeAmount*100,
+	// 		closed: function(result) {
+
+	// 			if(!PbxObject.stripeToken) return;
+
+	// 			var reqParams = {
+	// 				currency: params.currency,
+	// 				amount: params.chargeAmount,
+	// 				description: 'Update balance',
+	// 				token: PbxObject.stripeToken.id
+	// 			};
+
+	// 			show_loading_panel();
+
+	// 			BillingApi.updateBalance(reqParams, function(err, response) {
+
+	// 				remove_loading_panel();
+
+	// 				if(err) {
+	// 					notify_about('error', err.message);
+	// 				} else {
+
+	// 					if(callback) callback(params);
+
+	// 					PbxObject.stripeToken = null;		
+
+	// 				}	
+
+	// 			});
+
+	// 		}
+	// 	});
+	// }
+
+	function confirmPayment(params, noConfirm, callback) {
+		if(noConfirm) return callback(params);
+
 		showModal('confirm_payment_modal', { frases: PbxObject.frases, payment: params }, function(result, modal) {
 
 			$(modal).modal('toggle');

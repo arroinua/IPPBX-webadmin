@@ -114,8 +114,8 @@
 			this.setState({ validationError: false });
 		}
 
-		if(!params.pageid && params.properties.anid && params.type === 'Telephony') {
-			this._buyDidNumber(params.properties, function(err, result) {
+		if(!params.pageid && params.type === 'Telephony') {
+			this._buyDidNumber(params.properties, false, function(err, result) {
 
 				if(err) return notify_about('error', err.message);
 
@@ -131,13 +131,13 @@
 		}
 	},
 
-	_buyDidNumber(params, callback) {
+	_buyDidNumber(params, noConfirm, callback) {
 		console.log('_buyDidNumber: ', params);
 	    if(!params.area || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
 
 	    var thisObj = this;
 
-	    this.props.confirmPayment(params, function(result) {
+	    this.props.confirmPayment(params, noConfirm, function(result) {
 
 	    	show_loading_panel();
 
@@ -147,9 +147,9 @@
 	    		remove_loading_panel();
 
 	    		if(err) {
-	    			if(err.name === 'NO_PAYMENT_SOURCE') {
+	    			if(err.name === 'NO_PAYMENT_SOURCE' || err.name === 'authentication_required') {
 	    				thisObj.props.updateBalance({ chargeAmount: params.chargeAmount, currency: params.currency }, function(err, result) {
-	    					thisObj._buyDidNumber(params, callback);
+	    					thisObj._buyDidNumber(params, true, callback);
 	    				});
 	    				return;
 	    			} else {
@@ -247,7 +247,7 @@
 		var valid = true;
 		switch(params.type) {
 			case 'Telephony':
-				valid = (params.properties.id !== undefined || params.properties.anid !== undefined);
+				valid = (params.properties.number || params.properties.id || (params.properties.poid !== undefined && params.properties.area !== undefined));
 				break;
 			case 'FacebookMessenger':
 			case 'Viber':

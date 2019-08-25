@@ -5,7 +5,10 @@ var BillingComponent = React.createClass({
 		profile: React.PropTypes.object,
 		sub: React.PropTypes.object,
 		frases: React.PropTypes.object,
-		extend: React.PropTypes.func
+		extend: React.PropTypes.func,
+		onAddPaymentMethod: React.PropTypes.func,
+		setPrimaryPaymentMethod: React.PropTypes.func,
+		removePaymentMethod: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -14,7 +17,8 @@ var BillingComponent = React.createClass({
 				plan: {},
 				addOns: []
 			},
-			invoices: []
+			invoices: [],
+			openNewCardForm: false
 		};
 	},
 
@@ -40,12 +44,12 @@ var BillingComponent = React.createClass({
 		});
 	},
 
-	_addCard: function(e) {
+	_addPaymentMethod: function(e) {
 		if(e) e.preventDefault();
 		
 		var profile = this.state.profile;
 
-		this.props.addCard(function(result) {
+		this.props.onAddPaymentMethod(function(result) {
 			if(!result) return;
 			
 			profile.billingMethod = {
@@ -56,21 +60,21 @@ var BillingComponent = React.createClass({
 		}.bind(this));
 	},
 
-	_editCard: function(e) {
-		e.preventDefault();
+	// _editPaymentMethod: function(e) {
+	// 	e.preventDefault();
 		
-		var profile = this.state.profile;
+	// 	var profile = this.state.profile;
 
-		this.props.editCard(function(result) {
-			if(!result) return;
+	// 	this.props.onEditPaymentMethod(function(result) {
+	// 		if(!result) return;
 
-			profile.billingMethod = {
-				params: result.card
-			};
+	// 		profile.billingMethod = {
+	// 			params: result.card
+	// 		};
 
-			this.setState({ profile: profile });
-		}.bind(this));
-	},
+	// 		this.setState({ profile: profile });
+	// 	}.bind(this));
+	// },
 
 	_currencyNameToSymbol: function(name) {
 		var symbol = "";
@@ -93,9 +97,9 @@ var BillingComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var profile = this.props.profile;
-		var paymentMethod = profile.billingMethod;
 		var sub = this.state.sub;
 		var options = this.props.options;
+		var openNewCardForm = this.state.openNewCardForm
 
 		return (
 			<div>
@@ -121,9 +125,10 @@ var BillingComponent = React.createClass({
 						<PanelComponent header={frases.BILLING.PAYMENT_METHOD_TITLE}>
 							<ManagePaymentMethodComponent 
 								frases={frases}
-								paymentMethod={paymentMethod} 
-								onClick={paymentMethod ? this._editCard : this._addCard}
-								buttonText={paymentMethod ? frases.BILLING.EDIT_PAYMENT_METHOD : frases.BILLING.ADD_CREDIT_CARD}
+								profile={profile} 
+								onClick={this._addPaymentMethod}
+								setPrimaryPaymentMethod={this.props.setPrimaryPaymentMethod}
+								removePaymentMethod={this.props.removePaymentMethod}
 							/>
 						</PanelComponent>
 					</div>

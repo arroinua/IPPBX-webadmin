@@ -1019,7 +1019,7 @@
     			"CHANGE_PLAN_MSG": "to add more numbers"
     		},
     		"CHECK_COUNTRY_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this country.",
-    		"CHECK_LOCATION_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this location.",
+    		"CHECK_LOCATION_AVAILABILITY_MSG": "Please contact support@ringotel.co to check numbers available for this location. Otherwise, if you proceed now, the number will be allocated automatically.",
     		"RESTRICTIONS_MSG1": "Current location has the following registration requirements",
     		"RESTRICTIONS_MSG2": "Information should be sent to support@ringotel.co within 10 days.",
     		"RESTRICTIONS_MSG3": "DID number will not be activated until full registration details are provided and approved.",
@@ -1215,9 +1215,20 @@
     	"NEXT_CHARGE": "Next charge",
     	"TRIAL_EXPIRES": "Trial expires",
     	"EDIT_PAYMENT_METHOD": "Update",
-    	"PAYMENT_METHOD_TITLE": "Payment method",
+    	"PAYMENT_METHOD_TITLE": "Payment methods",
     	"PAYMENT_METHOD_WARNING_P1": "To change plan and add licenses please",
     	"PAYMENT_METHOD_WARNING_P2": "to your account",
+    	"PAYMENT_METHODS": {
+    		"SET_PRIMARY_BTN": "Make primary",
+    		"PRIMARY_BTN": "Parimary",
+    		"REMOVE_METHOD_BTN": "Remove",
+    		"ADD_NEW_METHOD_BTN": "Add payment method",
+    		"NO_METHODS_MSG": "You have no payment methods yet",
+    		"SET_PRIMARY_TITLE": "Set primary method?",
+    		"SET_PRIMARY_CONTENT": "Do you want to set payment method {{method}} as primary? All future purchases and renewals will be charged on that payment method.",
+    		"REMOVE_METHOD_TITLE": "Remove payment method?",
+    		"REMOVE_METHOD_CONTENT": "Do you want to remove payment method {{method}}?"
+    	},
     	"ADD_CREDIT_CARD": "add credit card",
     	"ADD_CALL_CREDITS_BTN": "Add",
     	"BUY_CALL_CREDITS_BTN": "Buy credits",
@@ -1257,7 +1268,9 @@
     	},
     	"INVOICES": {
     		"INVOICES": "Payments",
-    		"NO_INVOICES": "No payments yet"
+    		"NO_INVOICES": "No payments yet",
+    		"SHOW_MORE_BTN": "Show more",
+    		"SHOW_LESS_BTN": "Show less"
     	},
     	"DISCOUNTS": {
     		"DISCOUNTS": "Discounts",
@@ -1286,6 +1299,50 @@
     		"CARD_WILL_EXPIRE_P2": "to avoid service interruption"
     	}
 
+    },
+    "CHECKOUT": {
+    	"NEW_PAYMENT_METHOD_TITLE": "New payment method",
+    	"NEW_PAYMENT": "New payment",
+    	"FORM_LABELS": {
+    		"NAME": "Name",
+    		"EMAIL": "Email",
+    		"CARD": "Credir or debit card",
+    		"ADDRESS": "Address",
+    		"CITY": "City",
+    		"ZIP": "ZIP",
+    		"COUNTRY": "Country"
+    	},
+    	"PLACEHOLDERS": {
+    		"NAME": "Joey Doe",
+    		"EMAIL": "joey.d@example.com",
+    		"ADDRESS": "Calls road, 1",
+    		"CITY": "Callsville",
+    		"ZIP": "12345",
+    		"COUNTRY": "Select country"
+    	},
+    	"ADD_METHOD_BTN": "Submit",
+    	"ADD_METHOD_NOTICE": "If you add a payment method, all future purchases and renewals will be charged on that new payment method.",
+    	"PAY_BTN": "Pay",
+    	"ERROR": {
+    		"incomplete_number": "Your card number is incomplete.",
+    		"invalid_number": "Your card number is invalid.",
+    		"invalid_expiry_year": "Your card's expiration year is invalid.",
+    		"invalid_expiry_year_past": "Your card's expiration year is in the past.",
+    		"invalid_expiry_month_past": "Your card's expiration date is in the past.",
+    		"incomplete_zip": "Your postal code is incomplete.",
+    		"incomplete_cvc": "Your CVC number is invalid",
+    		"invalid_cvc": "Your CVC number is invalid",
+    		"card_not_supported": "Your card does not support this type of purchase. Please, contact your card issuer for more information.",
+    		"expired_card": "Your card has expired. Please, use another payment method.",
+    		"generic_decline": "Your card has been declined. Please, contact your card issuer for more information",
+    		"insufficient_funds": "The card has insufficient funds to complete the purchase. Please, use an alternative payment method.",
+    		"processing_error": "An error occurred while processing the card. Please, try again later.",
+    		"fraudulent": "Your card has been declined. Please, contact your card issuer for more information",
+    		"try_again_later": "The card has been declined. Please, try again later.",
+    		"email_invalid": "The email address is invalid",
+    		"incorrect_address": "The card’s address is incorrect. Check the card’s address or use a different card.",
+    		"setup_intent_authentication_failure": "We are unable to authenticate your payment method. Please choose a different payment method and try again."
+    	}
     },
     "GDPR": {
     	"TAB_NAME": "GDPR",

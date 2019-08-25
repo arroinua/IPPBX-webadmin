@@ -16,34 +16,53 @@ function ManagePaymentMethodComponent(props) {
 		return ((expMonth - month) < 1 && (expYear - year) < 1);
 	}
 
-	var paymentMethod = props.paymentMethod;
 	var profile = props.profile;
+	var billingDetails = profile.billingDetails;
 	var frases = props.frases;
 
 	return (
 		<div>
-			{
-				paymentMethod ? (
-					<div>
-						<p className="text-muted" style={{ userSelect: 'none' }}>
-							<b>{paymentMethod.params.brand}</b> •••• •••• •••• {paymentMethod.params.last4}
-							<br/>
-							{paymentMethod.params.exp_month}/{paymentMethod.params.exp_year}
-						</p>
-						{
-							_isCardExpired(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
-								<div className="alert alert-warning" role="alert">
-									{frases.BILLING.ALERTS.CARD_EXPIRED_P1} <a href="#" onClick={props.onClick} className="alert-link">{frases.BILLING.UPDATE_PAYMENT_METHOD}</a> {frases.BILLING.ALERTS.CARD_EXPIRED_P2}.
-								</div>
-							) : _cardWillExpiredSoon(paymentMethod.params.exp_month, paymentMethod.params.exp_year) ? (
-								<div className="alert alert-warning" role="alert">
-									{frases.BILLING.ALERTS.CARD_WILL_EXPIRE_P1} <a href="#" onClick={props.onClick} className="alert-link">{frases.BILLING.UPDATE_PAYMENT_METHOD}</a> {frases.BILLING.ALERTS.CARD_WILL_EXPIRE_P2}.
-								</div>
-							) : ('')
-						}
-					</div>
-				) : <NewPaymentMethodComponent frases={frases} paymentMethod={paymentMethod} profile={profile} />
-			}
+			<div className="table-responsive">
+				<table className="table">
+					{
+						(billingDetails && billingDetails.length) ? (
+							<tbody>
+								{
+									billingDetails.map(function(item) {
+										return (
+											<tr key={item.id}>
+												<td><span className="text-uppercase">{item.params.brand}</span></td>
+												<td className="text-muted" style={{ userSelect: 'none' }}>•••• •••• •••• {item.params.last4}</td>
+												<td><span>{item.params.exp_month}/{item.params.exp_year}</span></td>
+												<td className="text-right">
+													{
+														(item.id === profile.billingMethod.id) ? (
+															<button className="btn btn-success btn-link"><span className="fa fa-check"></span> {frases.BILLING.PAYMENT_METHODS.PRIMARY_BTN}</button>
+														) : (
+															<button className="btn btn-link" onClick={function(e) { props.setPrimaryPaymentMethod(item.id) }}>{frases.BILLING.PAYMENT_METHODS.SET_PRIMARY_BTN}</button>
+														)
+													}
+												</td>
+												<td className="text-right">
+													<button className="btn btn-danger btn-link" onClick={function(e) { props.removePaymentMethod(item.id) }}><span className="fa fa-fw fa-trash"></span> {frases.BILLING.PAYMENT_METHODS.REMOVE_BTN}</button>
+												</td>
+											</tr>
+										)
+									})
+								}
+							</tbody>
+						) : (
+							<tbody>
+								<tr><td colSpan="5">{frases.BILLING.PAYMENT_METHODS.NO_METHODS_MSG}</td></tr>
+							</tbody>
+						)
+
+					}
+				</table>
+			</div>
+			<div>
+				<button className="btn btn-primary" onClick={props.onClick}><i className="fa fa-plus"></i> {frases.BILLING.PAYMENT_METHODS.ADD_NEW_METHOD_BTN}</button>
+			</div>
 		</div>
 	);
 }

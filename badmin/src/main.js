@@ -128,8 +128,9 @@ function loadStripeJs() {
 }
 
 function configureStripe() {
-    var stripe = Stripe('pk_test_XIMDHl1xSezbHGKp3rraGp2y');
-    var elements = stripe.elements();
+    PbxObject.PaymentsApi = PaymentsApi('pk_test_XIMDHl1xSezbHGKp3rraGp2y', PbxObject.frases, BillingApi);
+    // var stripe = Stripe('pk_test_XIMDHl1xSezbHGKp3rraGp2y');
+    // var elements = stripe.elements();
     
     // var stripeHandler = StripeCheckout.configure({
     //     key: 'pk_live_6EK33o0HpjJ1JuLUWVWgH1vT',
@@ -152,8 +153,8 @@ function configureStripe() {
     //   stripeHandler.close();
     // });
 
-    // PbxObject.stripeHandler = stripeHandler;
-    PbxObject.stripeElements = elements;
+    // PbxObject.stripeHandler = stripe;
+    // PbxObject.stripeElements = elements;
 }
 
 function json_rpc(method, params){
@@ -527,7 +528,7 @@ function setupPage() {
                     if(err) {
                         console.error(err);
                     } else {
-                        profile = response.result;
+                        profile = PbxObject.profile = response.result;
                         loadFSTracking(profile);
                         loadStripeJs();
 
@@ -547,8 +548,6 @@ function setupPage() {
 
                         window.location.hash = window.sessionStorage.query + (search ? search : "");
                     }
-
-                    PbxObject.profile = profile;
 
                     // if(profile._id) {
                     //     analytics.identify(profile._id, {
