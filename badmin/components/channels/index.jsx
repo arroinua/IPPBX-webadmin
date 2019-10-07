@@ -85,8 +85,6 @@
 		var selectedRoute = this.state.selectedRoute;
 		var properties = this.state.params.properties;
 
-		console.log('setObject: ', properties, selectedRoute, this.state.params);
-
 		if(!selectedRoute || !selectedRoute.oid || !selectedRoute.name) return notify_about('info', this.props.frases.CHAT_TRUNK.SERVICE_GROUP_NOT_SELECTED);
 
 		Object.keys(this.state.params).forEach(function(key) {
@@ -104,8 +102,6 @@
 			priority: 1,
 			timeout: 86400
 		}];
-
-		console.log('setObject params: ', params);
 
 		if(!this._validateSettings(params))	{
 			notify_about('error', this.props.frases.MISSEDFILED);
@@ -132,7 +128,6 @@
 	},
 
 	_buyDidNumber(params, noConfirm, callback) {
-		console.log('_buyDidNumber: ', params);
 	    if(!params.area || !params.poid) return callback({ message: this.props.frases.CHAT_TRUNK.DID.NOTIFY_LOCATION_NOT_SELECTED });
 
 	    var thisObj = this;
@@ -142,7 +137,6 @@
 	    	show_loading_panel();
 
 	    	BillingApi.orderDid(params, function(err, response) {
-	    		console.log('_buyDidNumber: ', err, response, params);
 
 	    		remove_loading_panel();
 
@@ -211,13 +205,10 @@
 
 		params[target.name] = value;
 
-		console.log('_onParamsChange: ', target.name, value);
-
 		this.setState({ params: params });
 	},
 
 	_selectRoute: function(route) {
-		console.log('_selectRoute: ', route);
 		this.setState({ selectedRoute: route });
 	},
 
@@ -273,8 +264,6 @@
 		var type = this.state.type;
 		var serviceParams = this._getServiceParams(type);
 		var ServiceComponent = serviceParams.component;
-
-		console.log('ChatTrunkComponent: ', params, ServiceComponent);
 
 		if(!params) return null;
 

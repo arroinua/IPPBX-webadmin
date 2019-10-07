@@ -95,6 +95,12 @@ function load_chattrunk(params) {
 		name: frases.CHAT_TRUNK.WEBCALL.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebcallTrunkComponent
+	}, {
+		id: 'WebAPI',
+		name: frases.CHAT_TRUNK.WEBAPI.SERVICE_NAME,
+		// icon: '/badmin/images/channels/webapi.png',
+		iconClass: 'fa fa-2x fa-code',
+		component: WebApiComponent
 	}
 	// ,{
 	// 	id: 'Twitter',

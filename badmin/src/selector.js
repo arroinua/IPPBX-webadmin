@@ -33,7 +33,7 @@ function load_selector(params) {
 		objParams.enabled = state;
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+			return true;
 		});
 	}
 

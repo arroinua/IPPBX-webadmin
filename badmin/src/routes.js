@@ -1,5 +1,4 @@
 function load_routes(result){
-    // console.log(result);
     
     PbxObject.oid = result.oid;
     // PbxObject.kind = 'routes';
@@ -123,7 +122,6 @@ function set_routes(){
         if(str != '') jprms += '{'+str+'},';
     }
     jprms += ']';
-    // console.log(jprms);
     json_rpc_async('setObject', jprms, handler);
 }
 
@@ -136,7 +134,6 @@ function getRouteObjects(callback) {
 
         getExtensions(function(result) {
             objects = objects.concat(result.filter(function(item){ return item.kind.match(/user|phone/) }))
-            console.log('getRouteObjects: ', objects);
             callback(objects);
         });
             
@@ -451,12 +448,10 @@ function setRoute(data, callback){
     // jprms += '"priority":'+data.priority+',';
     // jprms += '"cost":'+data.cost+',';
     
-    console.log('setRoute: ', params);
     json_rpc_async('setRoute', params, cb);
 }
 
 function deleteRoute(routeOid){
     var jprms = '\"oid\":\"'+routeOid+'\"';
-    // console.log(jprms);
     json_rpc_async('deleteRoute', jprms, set_object_success);
 }

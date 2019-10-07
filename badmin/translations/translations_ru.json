@@ -352,7 +352,15 @@
 		"OUTBARGING" : "Запрет внешних исходящих вызовов",
 		"COSTBARGING" : "Запрет платных направлений",
 		"LDAP": "LDAP",
-		"TIMEZONE": "Часовой пояс"
+		"TIMEZONE": "Часовой пояс",
+		"API_KEYS": {
+			"DESC": "Создайте ключи API для доступа к методам API. Ключ API должен быть отправлен в HTTP-заголовке авторизации, например: <code>Authorization: Bearer API_Key</code>",
+			"WARNING": "<strong>ВАЖНО</strong>: Ключи API должны всегда храниться в секрете. Не используйте их в среде, где они могут быть скомпрометированы (например, в браузере). Если вы считаете, что один из ваших ключей API скомпрометирован, удалите его и сгенерируйте новый.",
+			"KEY_NAME_LABEL": "Имя ключа",
+			"CREATE_KEY_BTN": "Создать API Ключ",
+			"EMPTY_NAME_WARNING": "Пожалуйста, укажите имя ключа",
+			"DELETE_WARNING": "Вы действительно хотите удалить API Ключ {{key}}?"
+		}
 	},
 	"MENU": "Меню",
 	"OPTIONS" : "Опции",
@@ -682,6 +690,8 @@
     "KINDS": {
     	"guide": "Начало работы",
     	"branch_options": "Настройки",
+    	"developer": "Разработчик",
+    	"location": "Локация",
     	"services": "Интеграции",
         "trunk": "Транки",
         "users": "Группы пользователей",
@@ -788,7 +798,7 @@
     },
     "APPSETTS" : "Настройки Приложения",
     "APPNAME" : "Имя приложения",
-    "DEBUG" : "Отладка",
+    "DEBUG" : "Включить логирование",
     "VAR" : "Переменная",
     "VALUE" : "Значение",
     "DBCONN" : "Подключение к БД",
@@ -945,7 +955,7 @@
     },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Группа обслуживания",
-    	"NO_MEMBERS": "Нет участников в группе",
+    	"NO_MEMBERS": "Нет участников...",
     	"ADD_MEMBERS": "Добавить участников",
     	"ADD_SELECTED": "Сохранить изменения",
     	"MEMBERS": "Участников",
@@ -1112,6 +1122,11 @@
     		"CODE_SNIPPET_MODAL_TEXT": "Добавьте этот скрипт на каждую веб-страницу, где вы хотите, чтобы виджет появился. Вы можете поместить скрипт в любом месте в пределах <HEAD> или <BODY> тегов.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопировать в буфер",
     		"CODE_SNIPPET_MODAL_COPIED_BTN": "Скопировано"
+    	},
+    	"WEBAPI": {
+    		"SERVICE_NAME": "Web API",
+    		"PROFILEID_LABEL": "Profile ID",
+    		"NO_PROFILEID": "Создайте канал, чтобы получить Profile ID"
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -1167,6 +1182,13 @@
     	"REMOVE_ELEMENT" : "Удалить элемент",
     	"REMOVE_ELEMENTS_TREE" : "Удалить дерево элемента",
     	"DATA_PLACEHOLDER" : "Выберите коннектор или введите значение"
+    },
+    "APPLICATIONS": {
+    	"APPLICATION": "Приложение",
+    	"APPLICATIONS": "Приложения",
+    	"UPLOAD_APP_DESC": "Загрузите файл <strong>.application</strong> сделанный в Visual CTI Studio:",
+    	"DEBUG" : "Включить логирование",
+    	"APP_PARAMETERS_HEADER": "Параметры приложения"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Настройки хранилища",
@@ -1394,7 +1416,8 @@
     	"SELECT_PARAMETER_OPTION": "Выберите параметр",
     	"ERRORS": {
     		"wrongSize": "Превышен максимальный размер файла",
-    		"wrongFile": "Тип файла должен соответствовать text/csv"
+    		"wrongFile": "Тип файла должен соответствовать text/csv",
+    		"wrongFormat": "Неверный тип файла"
     	}
     },
    	"LIGHTBOX": {

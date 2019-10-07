@@ -1,6 +1,6 @@
 function load_rec_settings(){
 
-	json_rpc_async('getVoiceRecordingList', '', function(result){
+	json_rpc_async('getVoiceRecordingList', null, function(result){
 		getRecObjects(result);
 	});
 
@@ -21,7 +21,7 @@ function getRecObjects(result){
 			fillSelects(obj);
 	}
 
-	json_rpc_async('getObjects', '\"kind\":\"trunk\"', function(trunks){
+	json_rpc_async('getObjects', {kind: "trunk"}, function(trunks){
 		if(result.trunks){
 			obj.trunks = trunks.filter(function(trunk){
 				return result.trunks.indexOf(trunk.name) == -1;
@@ -33,7 +33,6 @@ function getRecObjects(result){
 	});
 	json_rpc_async('getExtensions', null, function(exts){
 		var extresult = filterObject(exts, ['phone', 'user']);
-		console.log('getRecObjects: ', extresult);
 		if(result.extensions) {
 			obj.exts = extresult.filter(function(item){
 				return result.extensions.indexOf(item.ext) === -1;
@@ -95,7 +94,6 @@ function setRecObjects(){
 	jprms += '"trunksmode":'+trunksmode.value+',';
 	jprms += '"extmode":'+extmode.value+',';
 
-	// console.log(jprms);
 
 	json_rpc_async('setVoiceRecordingList', jprms, function(){
 		set_object_success();

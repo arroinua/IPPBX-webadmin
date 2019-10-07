@@ -28,5 +28,17 @@ var Utils = {
 		return string.replace(/{{(\w*)}}/g, function(match, param, offset, result) {
 			if(params[param]) return params[param];
 		})
+	},
+	htmlDecode: function(str){
+		var regex = /(&lt;)(&gt;)/
+		return str.replace(regex, '<', '>');
+	},
+	debug: function() {
+		if(window.localStorage.getItem('swc.debug')) {
+		    [].forEach.call(arguments, function(arg){
+		        window.console.log(arg);
+		    });
+		    return;
+		}
 	}
 };

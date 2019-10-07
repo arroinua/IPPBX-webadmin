@@ -34,8 +34,6 @@
 
 		state.params[target.name] = value;
 
-		console.log('_handleOnChange: ', target, !value);
-
 		this.setState({
 			state: state
 		});

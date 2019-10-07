@@ -8,7 +8,6 @@
 		setObject: React.PropTypes.func,
 		removeObject: React.PropTypes.func,
 		onStateChange: React.PropTypes.func,
-		getInfoFromState: React.PropTypes.func,
 		getExtension: React.PropTypes.func,
 		deleteMember: React.PropTypes.func
 	},
@@ -17,7 +16,6 @@
 		return {
 			params: {},
 			files: [],
-			filteredMembers: []
 		};
 	},
 
@@ -25,8 +23,7 @@
 		this.setState({
 			params: this.props.params || {},
 			options: this.props.params.options,
-			removeObject: this.props.removeObject,
-			filteredMembers: this.props.params.members
+			removeObject: this.props.removeObject
 		});		
 	},
 
@@ -34,8 +31,7 @@
 		this.setState({
 			params: props.params,
 			options: this.props.params.options,
-			removeObject: props.removeObject,
-			filteredMembers: props.params.members
+			removeObject: props.removeObject
 		});
 	},
 
@@ -135,7 +131,6 @@
 		var frases = this.props.frases;
 		var params = this.state.params;
 		var members = params.members || [];
-		var filteredMembers = this.state.filteredMembers || [];
 
 		// <div className="form-group">
 		    // <label className="col-sm-4 control-label">
@@ -173,6 +168,52 @@
 								<div role="tabpanel" className="tab-pane fade in active" id="tab-icd-general">
 									<form className="form-horizontal">
 										<div className="form-group">
+											<div className="col-sm-offset-4 col-sm-8">
+									            <div className="checkbox pull-left">
+									                <label>
+									                    <input type="checkbox" name="autologin" checked={ this.state.options.autologin } onChange={ this._handleOnChange } /> 
+									                    <span>{frases.AUTOREG} </span> 
+									                </label>
+									            </div>
+									            <span style={{ float: "left", width: "20px", height: "10px" }}> </span>
+								            	<div className="checkbox pull-left">
+										            <label>
+										                <input type="checkbox" name="canpickup" checked={ this.state.options.canpickup } onChange={ this._handleOnChange } /> 
+										                <span>{frases.ALLOW_PICKUP} </span> 
+										            </label>
+										        </div>
+										    </div>
+										</div>
+										{
+											(this.state.options.autologin && !this.state.options.canpickup) ? null : (
+												<div className="form-group">
+												    <label className="col-sm-4 control-label">
+												        <span>{frases.GROUPNUM} </span>
+												    </label>
+												    <div className="col-md-2 col-sm-2">
+												        <input type="text" className="form-control" name="groupno" value={ this.state.options.groupno } onChange={ this._handleOnChange } />
+												    </div>
+												</div>
+											)
+										}
+										<div className="form-group">
+										    <label className="col-sm-4 control-label">
+										        <span>{frases.SETTINGS.MAXCONN} </span>
+										    </label>
+										    <div className="col-md-2 col-sm-4">
+										        <input type="text" className="form-control" name="maxlines" value={ this.state.options.maxlines } onChange={ this._handleOnChange } />
+										    </div>
+										</div>
+										<div className="form-group">
+										    <label className="col-sm-4 control-label">
+										        <span>{frases.PRIORITY} </span>
+										    </label>
+										    <div className="col-md-2 col-sm-4">
+										        <input type="text" className="form-control" name="priority" value={ this.state.options.priority } onChange={ this._handleOnChange } />
+										    </div>
+										</div>
+										<hr/>
+										<div className="form-group">
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.ROUTEMETH.ROUTEMETH} </span>
 										    </label>
@@ -187,18 +228,10 @@
 										</div>
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">
-										        <span>{frases.PRIORITY} </span>
+										        <span>{frases.GREETNAME} </span>
 										    </label>
-										    <div className="col-md-2 col-sm-4">
-										        <input type="text" className="form-control" name="priority" value={ this.state.options.priority } onChange={ this._handleOnChange } />
-										    </div>
-										</div>
-										<div className="form-group">
-										    <label className="col-sm-4 control-label">
-										        <span>{frases.SETTINGS.MAXCONN} </span>
-										    </label>
-										    <div className="col-md-2 col-sm-4">
-										        <input type="text" className="form-control" name="maxlines" value={ this.state.options.maxlines } onChange={ this._handleOnChange } />
+										    <div className="col-sm-6">
+										    	<FileUpload frases={frases} name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
 										    </div>
 										</div>
 										<div className="form-group">
@@ -223,32 +256,20 @@
 										        </div>
 										    </div>
 										</div>
-										<div className="form-group">
-										    <div className="col-sm-offset-4 col-sm-8">
-										        <div className="input-group">
-										            <div className="checkbox">
-										                <label>
-										                    <input type="checkbox" name="autologin" checked={ this.state.options.autologin } onChange={ this._handleOnChange } /> 
-										                    <span>{frases.AUTOREG} </span> 
-										                </label>
-										            </div>
-										            <span className="input-group-btn">
-										                <button type="button" className="btn btn-default" name="open-autologin-options" style={{ display: "none" }}>
-										                    <i className="fa fa-cog fa-fw"></i>
-										                </button>
-										            </span>
-										        </div>
-										    </div>
-										</div>
 										<hr/>
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">
-										        <span>{frases.GREETNAME} </span>
+										        <span>{frases.APPLICATION} </span>
 										    </label>
-										    <div className="col-sm-6">
-										    	<FileUpload frases={frases} name="greeting" value={this.state.options.greeting} onChange={this._onFileUpload} />
+										    <div className="col-sm-8">
+										        <input type="text" className="form-control" name="application" value={ this.state.options.application } onChange={ this._handleOnChange } />
 										    </div>
 										</div>
+									</form>
+								</div>
+
+								<div role="tabpanel" className="tab-pane fade" id="tab-icd-queue">
+									<form className="form-horizontal">
 										<div className="form-group">
 										    <label className="col-sm-4 control-label">
 										        <span>{frases.QUEUEPROMPT} </span>
@@ -266,42 +287,6 @@
 										    </div>
 										</div>
 										<hr/>
-										<div className="form-group">
-										    <div className="col-sm-offset-4 col-sm-8">
-										        <div className="checkbox">
-										            <label>
-										                <input type="checkbox" name="canpickup" checked={ this.state.options.canpickup } onChange={ this._handleOnChange } /> 
-										                <span>{frases.ALLOW_PICKUP} </span> 
-										            </label>
-										        </div>
-										    </div>
-										</div>
-										{
-											this.state.options.canpickup ? (
-												<div className="form-group">
-												    <label className="col-sm-4 control-label">
-												        <span>{frases.GROUPNUM} </span>
-												    </label>
-												    <div className="col-md-2 col-sm-4">
-												        <input type="text" className="form-control" name="groupno" value={ this.state.options.groupno } onChange={ this._handleOnChange } />
-												    </div>
-												</div>
-											) : null
-										}
-										<hr/>
-										<div className="form-group">
-										    <label className="col-sm-4 control-label">
-										        <span>{frases.APPLICATION} </span>
-										    </label>
-										    <div className="col-sm-8">
-										        <input type="text" className="form-control" name="application" value={ this.state.options.application } onChange={ this._handleOnChange } />
-										    </div>
-										</div>
-									</form>
-								</div>
-
-								<div role="tabpanel" className="tab-pane fade" id="tab-icd-queue">
-									<form className="form-horizontal">
 								        <div className="form-group">
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.QUEUELEN} </span>
@@ -323,7 +308,7 @@
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.MAXQWAIT} </span>
 								            </label>
-								            <div className="col-md-2 col-sm-4">
+								            <div className="col-sm-4">
 								                <div className="input-group">
 								                    <input type="text" className="form-control" name="maxqwait" value={ this.state.options.maxqwait } onChange={ this._handleOnChange } />
 								                    <span className="input-group-addon">{frases.SECONDS}</span>
@@ -351,7 +336,7 @@
 								            <label className="col-sm-4 control-label">
 								                <span>{frases.INDICTIME} </span>
 								            </label>
-								            <div className="col-md-2 col-sm-4">
+								            <div className="col-sm-4">
 								                <div className="input-group">
 								                    <input type="text" className="form-control" name="indicationtime" value={ this.state.options.indicationtime } onChange={ this._handleOnChange } />
 								                    <span className="input-group-addon">{frases.SECONDS}</span>

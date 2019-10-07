@@ -117,7 +117,6 @@ function importCert(){
 function importNewCert(){
 	var certForm = document.getElementById('importCertForm');
 	var certInfo = retrieveFormData(certForm);
-	console.log('certInfo: ', certInfo);
 	if(certInfo && Object.keys(certInfo).length !== 0){
 	    json_rpc_async('setCertificate', certInfo, function(result){
 	    	if(result === 'OK'){

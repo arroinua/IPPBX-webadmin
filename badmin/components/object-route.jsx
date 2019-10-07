@@ -54,7 +54,6 @@ var ObjectRoute = React.createClass({
 
 	_getAvailablePool: function(cb) {
 	    window.json_rpc_async('getObject', { oid: 'user' }, function(result) {
-	        console.log('getAvailablePool: ', result);
 	        cb(result.available.sort());
 	    });
 	},
@@ -72,13 +71,11 @@ var ObjectRoute = React.createClass({
 		// 	if(item.ext === ext) return item;
 		// });
 
-		// console.log('_getRouteObj: ', routeObj);
 
 		// return (routeObj.length ? routeObj[0] : { ext: ext })
 	},
 
 	_onChange: function(val) {
-		console.log('Select: ', val);
 		if(!val) return;
 
 		this.setState({ route: val });
@@ -86,7 +83,6 @@ var ObjectRoute = React.createClass({
 	},
 
 	render: function() {
-		console.log('ObjectRoute value: ', this.state.route);
 		return (
 			this.state.options ? (
 				<Select3 value={this.state.route} readonly={this.props.extOnly} options={this.state.options} onChange={this._onChange} />

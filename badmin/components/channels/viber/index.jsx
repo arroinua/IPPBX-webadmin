@@ -41,8 +41,6 @@ var ViberTrunkComponent = React.createClass({
 			access_token: value
 		};
 		
-		console.log('Viber _onChange: ', value);
-
 		this.setState(props);
 		this.props.onChange(props);
 	},

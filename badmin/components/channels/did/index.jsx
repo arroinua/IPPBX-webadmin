@@ -92,7 +92,6 @@ var DidTrunkComponent = React.createClass({
 	},
 
 	componentWillReceiveProps: function(props) {
-		console.log('DidTrunkComponent componentWillReceiveProps: ', props, this.props);
 		if(this.props.isNew && !props.isNew && props.properties && props.properties.number) {
 			this.setState({ fetch: false });
 

@@ -63,8 +63,6 @@ var EmailTrunkComponent = React.createClass({
 		var data = this.state.data;
 		var value = target.type === 'checkbox' ? target.checked : (target.type === 'number' ? parseFloat(target.value) : target.value);
 		
-		console.log('EmailTrunkComponent onChange: ', value);
-
 		data[target.name] = value;
 
 		if(target.name === 'username') {
@@ -124,7 +122,6 @@ var EmailTrunkComponent = React.createClass({
 		var data = this.state.data;
 		var frases = this.props.frases;
 		
-		console.log('EmailTrunkComponent render: ', this.state.data, this.props.serviceParams);
 		// <option value="pop3">POP3</option>
 
 		return (

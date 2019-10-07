@@ -34,7 +34,6 @@ function load_channel_statistics(){
     // }
 
 	function init(params){
-		console.log('load_chats_report params: ', params);
 
 		var componentParams = {
 			frases: PbxObject.frases

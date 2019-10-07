@@ -78,7 +78,6 @@ ChannelPlayer.prototype = {
 		if(currentTime !== undefined) {
 			this.audio.currentTime = currentTime;
 		}
-		console.log('play: ', trackIndex, currentTime);
 		this.audio.play();
 	},
 

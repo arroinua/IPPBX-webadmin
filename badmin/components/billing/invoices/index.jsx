@@ -36,8 +36,6 @@ var InvoicesComponent = React.createClass({
 		var frases = this.props.frases;
 		var hideRows = this.state.hideRows;
 
-		console.log('InvoicesComponent: ', this.state.items);
-
 		return (
 			<div>
 				{

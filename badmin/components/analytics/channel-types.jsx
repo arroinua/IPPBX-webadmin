@@ -36,8 +36,6 @@
 		var frases = this.props.frases;
 		var data = this.props.data;
 
-		console.log('ChannelTypeAnalyticsComponent render:', data);
-
 		return (
 			(data && !this.props.fetching) ? (
 				<div className="row">
@@ -52,7 +50,6 @@
 									donut: {
 										label: {
 								            format: function (value, ratio, id) {
-								            	console.log('chart label: ', value, ratio, id);
 								                return value;
 								            }
 								        }

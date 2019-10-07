@@ -1,5 +1,4 @@
 function load_attendant(result){
-    // console.log('attendant', result);
     PbxObject.oid = result ? result.oid : '';
     PbxObject.name = result ? result.name : '';
 
@@ -83,18 +82,15 @@ function setInitAttParams(){
 }
 
 // function initAttObjTour(type) {
-//     console.log('initAttObjTour: ', type);
 //     var tour = {};
 //     if(type === PbxObject.attendant.types.menu && getTempParams().menuTour) {
 //         tour = MyTour('attendantMenu', PbxObject.tours.attendantMenu());
-//         console.log('initAttObjTour menu tour: ', tour);
 
 //         tour.start();
 
 //         updateTempParams({ menuTour: false });
 //     } else if(type === PbxObject.attendant.types.mail && getTempParams().emailTour) {
 //         tour = MyTour('attendantEmail', PbxObject.tours.attendantEmail());
-//         console.log('initAttObjTour email tour: ', tour);
 
 //         tour.start();
 
@@ -486,8 +482,6 @@ function AttObject(params){
         wrapper = document.createElement('div'),
         oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0);
 
-    console.log('new AttObject params: ', params, data);
-
     wrapper.className = 'att-obj-wrapper';
     wrapper.innerHTML = rendered;
 
@@ -596,7 +590,6 @@ function removeObject(oid, deep){
                 // obj = objects[key];
                 // if(obj.type === PbxObject.attendant.types.menu){
                 //     if(obj.data && !obj.file)
-                //         console.log('/attendant/'+attName+'/'+obj.data);
                 //         // deleteFile('/attendant/'+attName+'/'+obj.data);
                 // }
                 delete objects[key];
@@ -644,7 +637,6 @@ function checkParams(params){
 }
 
 function showAttObjectSetts(params, object){
-    // console.log('showAttObjectSetts', params);
 
     // if(params.data && !params.file){
     //     params.dataUnchanged = true;
@@ -722,8 +714,6 @@ function showAttObjectSetts(params, object){
 function setAttObject(params, object){
 
     var attParams = collectAttParams(params);
-
-    console.log('setAttObject: ', attParams);
 
     if(!checkParams(attParams)) return;
     if(object){
@@ -1011,7 +1001,6 @@ function filterByPattern(array, pattern){
     if(pattern){
         var pt = new RegExp(pattern),
             newArr = array.filter(function(item){
-                // console.log(pattern, item.value, pt.test(item.value));
                 return pt.test(item.ext);
             });
         return newArr;
@@ -1106,7 +1095,6 @@ function set_attendant(){
     };
 
     jprms += '],';
-    // console.log(jprms);
 
     json_rpc_async('setObject', jprms, function(result) {
         
@@ -1121,7 +1109,6 @@ function set_attendant(){
         //     };
         //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-        //     console.log('set route params: ', routeParams);
         //     setObjRoute(routeParams);
         // }
     });

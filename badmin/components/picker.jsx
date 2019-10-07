@@ -157,8 +157,6 @@ var DatePickerComponent = React.createClass({
     		date.end = this.state.date.end;
     	}
 
-    	console.log('_onClick:', this.state.currRange, date);
-
     	this.props.onClick({ date: date });
     	this.setState({ date: date, open: false });
     },

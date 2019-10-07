@@ -62,7 +62,6 @@ function logout() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/logout', true);
     xhr.onload = function (e) {
-        console.log('logout: ', e);
         window.location = '/';
     };
     xhr.send();
@@ -77,12 +76,10 @@ function createWebsocket(){
     var websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
 
     websocket.onopen = function(e){
-        console.log('WebSocket opened: ', e);
         PbxObject.websocketTry = 1;
     };
     
     websocket.onmessage = function(e){
-        // console.log(e);
         handleMessage(e.data);
     };
     
@@ -98,7 +95,6 @@ function createWebsocket(){
 }
 
 function onWebsocketClose(e) {
-    console.log('WebSocket closed', e);
     // if(e.code === 1006) return window.location = '/';
     var time = generateInterval(PbxObject.websocketTry);
     setTimeout(function(){
@@ -128,7 +124,7 @@ function loadStripeJs() {
 }
 
 function configureStripe() {
-    PbxObject.PaymentsApi = PaymentsApi('pk_test_XIMDHl1xSezbHGKp3rraGp2y', PbxObject.frases, BillingApi);
+    PbxObject.PaymentsApi = PaymentsApi('pk_live_6EK33o0HpjJ1JuLUWVWgH1vT', PbxObject.frases, BillingApi);
     // var stripe = Stripe('pk_test_XIMDHl1xSezbHGKp3rraGp2y');
     // var elements = stripe.elements();
     
@@ -143,7 +139,6 @@ function configureStripe() {
     //     zipCode: true,
     //     locale: 'auto',
     //     token: function(token) {
-    //         console.log('stripe token: ', token);
     //         PbxObject.stripeToken = token;
     //     }
     // });
@@ -183,20 +178,25 @@ function json_rpc(method, params){
 
 function json_rpc_async(method, params, handler, id){
 
-
     var xhr = {};
     var jsonrpc = {};
     var parsedJSON = {};
     var requestTimer = null;
 
     if(params !== null){
-        if(typeof params === 'object'){
-            jsonrpc = '{\"method\":\"'+method+'\", \"params\":'+JSON.stringify(params)+', \"id\":'+1+'}';
-        } else{
-            jsonrpc = '{\"method\":\"'+method+'\", \"params\":{'+params+'}, \"id\":'+1+'}';    
+        if(typeof params === 'string') {
+            jsonrpc = '{\"method\":\"'+method+'\", \"params\":{'+params+'}, \"id\":'+1+'}';
+        } else {
+            jsonrpc = { method: method, params: params, id: 1 };
+            if(params.file) {
+                jsonrpc = toFormData(jsonrpc);
+            } else {
+                jsonrpc = JSON.stringify(jsonrpc);
+            }
         }
     } else{
-        jsonrpc = '{\"method\":\"'+method+'\", \"id\":'+1+'}';
+        jsonrpc = { method: method, id: 1 };
+        jsonrpc = JSON.stringify(jsonrpc);
     }
     
     xhr = new XMLHttpRequest();
@@ -240,7 +240,6 @@ function json_rpc_async(method, params, handler, id){
                     try {
                         parsedJSON = JSON.parse(xhr.responseText);
                     } catch(err) {
-                        console.log('response in not JSON');
                         if(isLoginPage(xhr.responseText)) return logout();
                     }
 
@@ -258,8 +257,8 @@ function json_rpc_async(method, params, handler, id){
             }
         }
     };
-
-    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        
+    if(!(jsonrpc instanceof FormData)) xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send(jsonrpc);
 
 }
@@ -268,11 +267,13 @@ function json_rpc_async(method, params, handler, id){
  * Send request to the server via XMLHttpRequest
  */
 function request(method, url, data, options, callback){
-    var xhr, response, requestTimer, dataStr;
+    var xhr, response, requestTimer, dataStr, cb = callback;
+
+    if(typeof options === 'function') cb = options;
 
     xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
-    if(options && options.headers) {
+    if(options && typeof options !== 'function' && options.headers) {
         options.headers.forEach(function(header) {
             xhr.setRequestHeader(header.name, header.value);
         });
@@ -292,13 +293,12 @@ function request(method, url, data, options, callback){
                 try {
                     response = JSON.parse(response);
                 } catch(err) {
-                    console.log('response in not JSON');
                     if(isLoginPage(response)) return logout();
                 }
             }
 
             if(xhr.status === 200) {
-                if(callback) callback(null, response);
+                if(cb) cb(null, response);
 
             } else if(xhr.status >= 300 && xhr.status < 400) {
                 return window.location = xhr.getResponseHeader('Location');
@@ -307,51 +307,22 @@ function request(method, url, data, options, callback){
                 return logout();
             
             } else if(xhr.status >= 500) {
-                if(callback) return callback('The service is under maintenance. Please, try again later.');
+                if(cb) return cb('The service is under maintenance. Please, try again later.');
 
             } else {
-                if(callback) callback(response ? response.error : null);
+                if(cb) cb(response ? response.error : null);
 
             }
         }
     }
 
-    // xhr.onload = function(e) {
-        
-    //     clearTimeout(requestTimer);
-
-    //     // var redirect = e.target.getAllResponseHeaders();
-    //     var status = e.target.status;
-    //     var response = e.target.responseText;
-
-    //     console.log('request response: ', method, url, response, status);
-
-    //     if(response) {
-            
-    //     }
-
-    //     if(status === 200) {
-    //         if(callback) callback(null, response);
-
-    //     } else if(status === 302) {
-    //         return window.location = xhr.getResponseHeader('Location');
-
-    //     } else if(status === 403) {
-    //         return logout();
-        
-    //     } else if(status >= 500) {
-    //         if(callback) return callback('The service is under maintenance. Please, try again later.');
-
-    //     } else {
-    //         if(callback) callback(response.error);
-
-    //     }
-
-    // };
-
     if(data) {
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        dataStr = JSON.stringify(data);
+        if(data.file) {
+            dataStr = toFormData(data);
+        } else {
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            dataStr = JSON.stringify(data);
+        }
         xhr.send(dataStr);
     } else {
         xhr.send();
@@ -432,7 +403,6 @@ function handleMessage(data){
     
     if(data.method){ //if the message content has no "id" parameter, i.e. sent from the server without request
         var params = data.params;
-        console.log('handleMessage', data.method, params);
 
         if(method == 'stateChanged' || method == 'objectUpdated'){
             // updateExtensionRow(params);
@@ -471,7 +441,6 @@ function subscribeToEvents() {
     $(document).on('onmessage.object.update', updateExtensionRow);
     $(document).on('onmessage.object.update', updateMenu);
     $(document).on('onmessage.object.update', function(event, params) {
-        console.log('onmessage.object.update: ', PbxObject.oid, params);
         // if object's state change and object oid === params.oid
         if(PbxObject.oid === params.oid) objectStateUpdated(params);
         updateObjectCache(params);
@@ -493,6 +462,7 @@ function getPbxOptions(callback) {
 }
 
 function getInstanceMode() {
+    if(!window.localStorage.getItem('ringo_tid')) return 1;
     return PbxObject.options.mode;
 }
 
@@ -501,6 +471,7 @@ function setupPage() {
         lastURL = window.sessionStorage.getItem('lastURL'),
         query = location.hash.substring(1),
         profile = {},
+        sub = {},
         search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
@@ -520,46 +491,56 @@ function setupPage() {
 
             // PbxObject.frases = translations;
 
+            Utils.debug('getInstanceMode', getInstanceMode());
+
             if(getInstanceMode() !== 1) { // if cloud branch
 
                 if(dataLayer) dataLayer.push({'event': 'is_cloud_branch'}); // fire custom tag manager event
 
-                BillingApi.getProfile(function(err, response) {
+                BillingApi.getSubscription(function(err, response) {
                     if(err) {
                         console.error(err);
                     } else {
-                        profile = PbxObject.profile = response.result;
-                        loadFSTracking(profile);
-                        loadStripeJs();
+                        sub = PbxObject.subscription = response.result;
 
-                        // if(isBranchPackage("business")) {
-                        //     loadSupportWidget(profile);
-                        // }
+                        BillingApi.getProfile(function(err, response) {
+                            if(err) {
+                                console.error(err);
+                            } else {
+                                profile = PbxObject.profile = response.result;
+                                loadFSTracking(profile);
+                                loadStripeJs();
+
+
+                                // if(isBranchPackage("business")) {
+                                //     loadSupportWidget(profile);
+                                // }
+                            }
+
+                            // if(lastURL) {
+                            //     window.sessionStorage.removeItem('lastURL');
+                            //     window.location = lastURL;
+                            // } else 
+
+                            if(window.sessionStorage.query && !window.opener) {
+
+                                window.location.hash = window.sessionStorage.query + (search ? search : "");
+                            }
+
+                            // if(profile._id) {
+                            //     analytics.identify(profile._id, {
+                            //       name: profile.name,
+                            //       email: profile.email,
+                            //       company: profile.company
+                            //     });
+                            // }
+
+                            init_page();
+
+                        });
+
                     }
-
-                    console.log('getProfile: ', err, response);
-
-                    // if(lastURL) {
-                    //     window.sessionStorage.removeItem('lastURL');
-                    //     window.location = lastURL;
-                    // } else 
-
-                    if(window.sessionStorage.query && !window.opener) {
-
-                        window.location.hash = window.sessionStorage.query + (search ? search : "");
-                    }
-
-                    // if(profile._id) {
-                    //     analytics.identify(profile._id, {
-                    //       name: profile.name,
-                    //       email: profile.email,
-                    //       company: profile.company
-                    //     });
-                    // }
-
-                    init_page();
-
-                });
+                })
             } else {
                 init_page();
             }
@@ -650,7 +631,6 @@ function renderHelpSidebar(contSelector) {
 
 // init tour
 function initTour(params) {
-    console.log('initTour: ', params, PbxObject.tours[params.kind]);
     var kind = params.kind || '';
     var tourOptions = params.tourOptions || {};
     tourOptions.frases = PbxObject.frases;
@@ -701,7 +681,6 @@ function set_listeners(){
 
 //             // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
 //             getObjects(kind, function(result){
-//                 console.log('showGroups: ', kind, result);
 
 //                 var li = document.createElement('li');
 //                 li.className = 'add-group-object';
@@ -869,7 +848,7 @@ function load_template(template, kind){
     if(kind === 'extensions' || kind === 'channels') {
         getExtensions(fn);
     } else if(PbxObject.oid) {
-        json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+        json_rpc_async('getObject', {oid: PbxObject.oid}, fn);
     } else {
         fn();
     }
@@ -919,12 +898,10 @@ function getTempParams() {
 }
 
 function updateTempParams(obj) {
-    console.log('updateTempParams: ', obj);
     PbxObject.currentObj = extend(PbxObject.currentObj || {}, obj);
 }
 
 function setTempParams(obj) {
-    console.log('setTempParams: ', obj);
     PbxObject.currentObj = extend(PbxObject.currentObj, obj);
 }
 
@@ -941,7 +918,6 @@ function setActiveMenuElement(kind, oid) {
     var menuItem = menu.querySelector('.nav-list li a[data-kind="'+kind+'"]');
     var item;
 
-    console.log('setActiveMenuElement', kind, oid, menuItem);
 
     if(!oid) hideGroups();
     if(!menuItem) return;
@@ -967,8 +943,6 @@ function setActiveMenuItemElement(menu, oid) {
         }
         return item;
     });
-    
-    console.log('setActiveMenuItemElement', menu.parentNode, items, oid);
     
 }
 
@@ -1054,7 +1028,6 @@ function set_page(){
             } else {
                 return;
             }
-            // console.log(to, from);
             move_list(to, from);
         }
     });
@@ -1100,7 +1073,6 @@ function setBreadcrumbs(){
 
 function getAvailablePool(cb) {
     json_rpc_async('getObject', { oid: 'user' }, function(result) {
-        console.log('getAvailablePool: ', result);
         cb(result.available.sort());
     });
 }
@@ -1426,7 +1398,6 @@ function filterObject(array, kind, reverse) {
         match = kinds.indexOf(item.kind) !== -1;
         return reverse ? !match : match;
 
-        // console.log('filterObject match: ', kind, match);
 
         // match = reverse ? !(item.kind.match(pattern)) : item.kind.match(pattern); 
 
@@ -1468,14 +1439,12 @@ function getObjects(kind, callback, reverse) {
 // }
 
 function addObjects(array, params, key) {
-    console.log('addObjects: ', array, params, key);
     array.push(params);
     return sortByKey(array, key);
 }
 
 
 function updateObjects(array, params, key) {
-    console.log('updateObjects: ', array, params, key);
     array = array.map(function(item, index, array) {
         if(item[key] === params[key]) {
             return extend(array[index], params);
@@ -1487,12 +1456,10 @@ function updateObjects(array, params, key) {
 }
 
 function deleteObjects(array, params, key) {
-    console.log('deleteObjects: ', array, params, key);
 
     array = array.filter(function(item, index, array) {
         return item[key] !== params[key];
     });
-    console.log('deleteObjects arrays: ', array);
     return array;
 }
 
@@ -1554,7 +1521,6 @@ function append_transform(e, tableid, transform){
         return;
     }
 
-    // console.log(tableid+' '+e);
 
     tbody = table.querySelector('tbody');
     lrow = tbody.rows.length,
@@ -1715,7 +1681,6 @@ function objectStateUpdated(params) {
         enabled.checked = params.enabled;
     }
 
-    console.log('objectStateUpdated: ', params);
     // if object is trunk and "up" property changed
     if(params.up !== undefined) {
         changeTrunkRegState(params.up);
@@ -1741,7 +1706,6 @@ function newObjectAdded(event, data){
 
     if(kind === 'phone' || kind === 'user') return;
 
-    console.log('newObjectAdded: ', nameEl, name);
     if(nameEl && name) nameEl.value = name;
     
     // if(ul){
@@ -1836,7 +1800,6 @@ function objectDeleted(data){
     var items = ulEl ? [].slice.call(ulEl.querySelectorAll('li ul li')) : [];
     var itemOid;
 
-    console.log('objectDeleted: ', data.kind, ulEl, items);
 
     items.forEach(function(item) {
         itemOid = item.getAttribute('data-oid');
@@ -1873,7 +1836,7 @@ function set_options_success_with_reload() {
 function delete_object(name, kind, oid, noConfirm){
     var c = noConfirm ? true : confirm(PbxObject.frases.DODELETE+' '+name+'?');
     if (c){
-        json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
+        json_rpc_async('deleteObject', {oid: oid}, function(){
             objectDeleted({name: name, kind: kind, oid: oid});
             setupInProgress(false);
             window.location.hash = kind+'/'+kind;
@@ -1927,7 +1890,7 @@ function delete_extension(e){
     PbxObject.available = PbxObject.available || [];
 
     if (c){
-        json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
+        json_rpc_async('deleteObject', {oid: oid}, function(){
             if(anchor) {
                 anchor.removeAttribute('href');
                 removeEvent(anchor, 'click', get_extension);
@@ -1966,7 +1929,6 @@ function onObjectDelete(event, params) {
 
 function delete_extension_row(params){
     var table = document.getElementById('extensions') || document.getElementById('group-extensions');
-    // console.log(table);
     table = table.querySelector('tbody');
 
     var row = document.getElementById(params.oid);
@@ -2044,7 +2006,6 @@ function customize_upload(id, resultFilename){
     uplparent.insertBefore(uplbtn, upl);
     uplparent.insertBefore(uplname, upl);
     upl.onchange = function(){
-        console.log('upl onchange: ', this.files);
         if(this.files.length){
             filename = getFileName(this.files[0].name);
             uplname.innerHTML = filename;
@@ -2111,6 +2072,38 @@ function readFile(file, params, callback) {
 
 }
 
+function toFormData(obj, form, namespace) {
+    var formData = form || new FormData();
+    var formKey = '';
+    Object.keys(obj).map(function(key) {
+
+        if(obj.hasOwnProperty(key)) {
+
+            if(namespace) {
+                formKey = namespace + '[' + key + ']';
+            } else {
+                formKey = key;
+            }
+
+            if(key === 'file') {
+                formData.append(formKey, obj[key], obj.filename || '');
+            } else if(key === 'filename') {
+                return key
+            } else if(typeof obj[key] === 'object') {
+                toFormData(obj[key], formData, formKey);
+            } else {
+                formData.append(formKey, obj[key]);
+            }
+
+        }
+
+        return key;
+
+    });
+
+    return formData;
+}
+
 function upload(inputid, urlString){
     var upload;
     if(isElement(inputid))
@@ -2148,18 +2141,18 @@ function upload(inputid, urlString){
     // xmlhttp.setRequestHeader("X-File-Name", file.name);
     // xmlhttp.setRequestHeader("X-File-Size", file.size);
     xmlhttp.send(file);
-    console.log('upload', file, url);
 }
 
-function uploadFile(file, urlString){
+function uploadFile(file, urlString, callback){
     var upload;
+    var cb = typeof urlString === 'function' ? urlString : callback;
 
     if(!file){
         return false;
     }
 
     // var file = files[0];
-    var url = urlString ? urlString : '/'+file.name;
+    var url = (urlString && typeof urlString === 'string') ? urlString : '/'+file.name;
     var xmlhttp = new XMLHttpRequest();
     var requestTimer = setTimeout(function(){
         xmlhttp.abort();
@@ -2171,6 +2164,8 @@ function uploadFile(file, urlString){
             clearTimeout(requestTimer);
             if(xmlhttp.status != 200) {
                 notify_about('error', PbxObject.frases.ERROR);
+            } else {
+                if(cb) cb();
             }
         }
     };
@@ -2199,7 +2194,6 @@ function deleteFile(url){
     // xmlhttp.setRequestHeader("X-File-Name", file.name);
     // xmlhttp.setRequestHeader("X-File-Size", file.size);
     xmlhttp.send();
-    console.log('file deleted', url);
 }
 
 function b64EncodeUnicode(str) {
@@ -2277,6 +2271,23 @@ function isSmallScreen(){
     return $(window).width() < 768;
 }
 
+// Reference: https://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+function isTouchDevice() {
+  var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
+  var mq = function(query) {
+    return window.matchMedia(query).matches;
+  }
+
+  if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+    return true;
+  }
+
+  // include the 'heartz' as a way to have a non matching MQ to help terminate the join
+  // https://git.io/vznFH
+  var query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
+  return mq(query);
+}
+
 function convertBytes(value, fromUnits, toUnits){
     var coefficients = {
         'Byte': 1,
@@ -2335,15 +2346,14 @@ function revealPassword(targ) {
     }
 }
 
-function generatePassword(targ){
+function generatePassword(targ, length){
     // var e = e || window.event;
     // var button = e.currentTarget;
-    // console.log(e, button);
 
     var elgroup, input;
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     var pass = "";
-    var length = 14;
+    var length = length || 14;
     var i;
 
     for(var x=0; x<length; x++){
@@ -2411,7 +2421,6 @@ function switchDisabledState(e){
         chk = evt.target;
     }
     checked = chk.checked;
-    // console.log(checked);
     elname = chk.getAttribute('data-name');
     els = [].slice.call(document.querySelectorAll('input[name="'+elname+'"]'));
     els.forEach(function(item){
@@ -2503,7 +2512,6 @@ function formatDateString(date){
     var p = (parseInt(date)) !== 'NaN' ? parseInt(date) : date;
     // if(p === 'NaN') p = date;
     var strDate = new Date(p);
-    // console.log(p, strDate);
     var day = strDate.getDate() < 10 ? '0' + strDate.getDate() : strDate.getDate(),
         month = (strDate.getMonth()+1) < 10 ? '0' + (strDate.getMonth()+1) : strDate.getMonth()+1,
         hours = strDate.getHours() < 10 ? '0' + strDate.getHours() : strDate.getHours(),
@@ -2769,7 +2777,6 @@ function move_list(to, from){
 }
 
 function changeGroupType(grouptype){
-    // console.log(grouptype);
     var elements = [].slice.call(document.querySelectorAll('.object-type'));
     elements.forEach(function(el){
         if(el.classList.contains(grouptype)) {
@@ -2880,7 +2887,6 @@ function save_proto_opts(proto){
 }
 
 function updateConference(data){
-    // console.log(data);
     var pr = data.params;
     var row = document.getElementById(pr.oid);
     if(row){
@@ -3009,7 +3015,6 @@ function fill_group_choice(kind, groupid, select){
 
 function change_protocol(){
     var value = this.value || document.getElementById('protocols').value;
-    // console.log(value);
     if(value == 'h323') {
         document.getElementById('sip').parentNode.style.display = 'none';
         document.getElementById('h323').parentNode.style.display = '';
@@ -3029,5 +3034,10 @@ function setupInProgress(bool) {
 }
 
 function isBranchPackage(str) {
-    return PbxObject.options.package === str;
+    if(getInstanceMode() === 1) {
+        if(str === 'business') return true;
+        return false;
+    } else {
+        return PbxObject.subscription.plan.planId === str;
+    }
 }

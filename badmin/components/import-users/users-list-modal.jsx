@@ -51,14 +51,11 @@ var ImportUsersListModalComponent = React.createClass({
 		externalUsers[index].ext = ext;
 		externalUsers[index].new = true;
 		this.setState({ externalUsers: externalUsers });
-		console.log('_onSelect externalUsers: ', externalUsers);
 	},
 
 	_onDeleteAssociation: function(index) {
 		var externalUsers = [].concat(this.state.externalUsers);
 		var externalUser = externalUsers[index];
-
-		console.log('_onDeleteAssociation: ', externalUsers, externalUser, this.props.members);
 
 		var user = this.props.members.filter(function(item) { return (item.number === externalUser.ext || item.ext === externalUser.ext) })[0];
 		var deAssociationList = this.state.deAssociationList.concat([{ service_id: this.props.service.id, userid: user.userid }]);
@@ -74,7 +71,6 @@ var ImportUsersListModalComponent = React.createClass({
 		delete externalUsers[index].ext;
 		delete externalUsers[index].new;
 		this.setState({ externalUsers: externalUsers });
-		console.log('_onDeseelect externalUsers: ', externalUsers);	
 	},
 
 	_clearList: function() {
@@ -93,8 +89,6 @@ var ImportUsersListModalComponent = React.createClass({
 			notAvailable = this.state.externalUsers.reduce(function(array, next) { array.push(next.ext); return array }, []);
 			list = list.filter(function(item) { return notAvailable.indexOf(item.value) === -1; });
 		}
-
-		console.log('_setList: ', list, this.state.members);
 
 		this.setState({ users: list, currentIndex: index });
 	},

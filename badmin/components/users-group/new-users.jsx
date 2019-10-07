@@ -15,7 +15,6 @@ function NewUsersComponent(props) {
 	}
 
 	// function _onExtChange(params) {
-	// 	console.log('_onExtChange: ', params);
 	// 	userParams.number = params.ext;
 	// 	props.onChange(userParams);
 	// }

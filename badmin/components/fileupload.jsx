@@ -4,6 +4,7 @@ var FileUpload = React.createClass({
 		frases: React.PropTypes.object,
 		value: React.PropTypes.string,
 		name: React.PropTypes.string,
+		accept: React.PropTypes.string,
 		onChange: React.PropTypes.func
 	},
 
@@ -31,7 +32,6 @@ var FileUpload = React.createClass({
 	},
 
 	_onFileSelect: function(e) {
-		console.log('_onFileSelect: ', e);
 		var filename;
 		var files = e.target.files;
 		var file = files[0];
@@ -79,6 +79,7 @@ var FileUpload = React.createClass({
 					<input 
 						type="file" 
 						name={this.props.name}
+						accept={this.props.accept || ''}
 						onChange={ this._onFileSelect }
 						style={{ position: 'absolute', display: 'inline-block', opacity: 0, width: 0 }} 
 					/>

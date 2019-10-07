@@ -23,14 +23,12 @@
 	// },
 
 	_login: function() {
-		console.log('Login');
+		return true;
 	},
 
 	render: function() {
 		var frases = this.props.frases;
 		
-		console.log('TwitterTrunkComponent: ');
-
 		return (
 			<div>
 				{

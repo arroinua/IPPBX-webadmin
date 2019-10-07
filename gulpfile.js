@@ -1,6 +1,6 @@
 var gulp = require('gulp'),
-    // sass = require('gulp-ruby-sass'),
-    sass = require('gulp-sass'),
+    sass = require('gulp-ruby-sass'),
+    // sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     sourcemaps = require('gulp-sourcemaps'),
     minifycss = require('gulp-minify-css'),
@@ -56,12 +56,12 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('badmin/dist/badmin/js'))
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
-    .pipe(gulp.dest('badmin/dist/badmin/js'));
-    // .pipe(notify({ message: 'Scripts task complete' }));
+    .pipe(gulp.dest('badmin/dist/badmin/js'))
+    .pipe(notify({ message: 'Scripts task complete' }));
 });
 
-gulp.task('components', function() {
-  return gulp.src('badmin/components/**/*.jsx')
+gulp.task('components', function(cb) {
+  return gulp.src(['badmin/components/**/*.jsx'])
     // .pipe(sourcemaps.init())
     .pipe(babel({
       presets: ['react']
@@ -69,6 +69,9 @@ gulp.task('components', function() {
     .pipe(concat('components.js'))
     // .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('badmin/dist/badmin/js'))
+    .pipe(notify({ message: 'Components task complete' }));
+
+    cb();
 });
 
 gulp.task('public-components', function() {

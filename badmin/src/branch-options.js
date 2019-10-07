@@ -38,7 +38,6 @@ function load_branch_options() {
 			delete newOptions.options.files;
 		}
 
-		console.log('saveOptions: ', options, newOptions, files);
 
 		// Upload audio files
 		if(files.length) {
@@ -56,8 +55,6 @@ function load_branch_options() {
 		json_rpc_async('setPbxOptions', newOptions, function(result) {
 			options = deepExtend(options, newOptions);
 			PbxObject.options = options;
-
-			console.log('setPbxOptions success: ', newOptions, options);
 
 			if(!newOptions.adminpass) {
 			    handler();
@@ -94,9 +91,15 @@ function load_branch_options() {
 		});
 	}
 
-	function saveBranchOptions(newOptions) {
-		console.log('saveBranchOptions: ', newOptions);
+	function deleteApiKey(params, callback) {
+		show_loading_panel();
+		json_rpc_async('deleteAPIKey', params, function(result) {
+			show_content();
+			callback(result);
+		});	
+	}
 
+	function saveBranchOptions(newOptions) {
 		json_rpc_async('setDeviceSettings', newOptions, null);
 	}
 
@@ -108,10 +111,9 @@ function load_branch_options() {
 		    branchParams: branchOptions,
 		    saveOptions: saveOptions,
 		    generateApiKey: generateApiKey,
+		    deleteApiKey: deleteApiKey,
 		    saveBranchOptions: saveBranchOptions
 		};
-
-		console.log('render: ', componentParams);
 
 		ReactDOM.render(OptionsComponent(componentParams), document.getElementById('el-loaded-content'));
 

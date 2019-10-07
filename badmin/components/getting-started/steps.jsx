@@ -44,7 +44,6 @@ var GSStepsComponent = React.createClass({
 	_nextStep: function(num) {
 		var step = this.state.step;
 		var next = step+1;
-		console.log('nextStep >>>', next);
 		if(!this.state.components[next]) return;
 		this.setState({
 			step: num || next
@@ -54,7 +53,6 @@ var GSStepsComponent = React.createClass({
 	_prevStep: function() {
 		var step = this.state.step;
 		var next = step-1;
-		console.log('<<< prevStep', next);
 		if(!this.state.components[next]) return;
 		this.setState({
 			step: next

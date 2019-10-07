@@ -1,5 +1,4 @@
 function load_channels(result){
-    // console.log(result);
     var row,
         table = document.getElementById('channels').getElementsByTagName('tbody')[0],
         // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),

@@ -38,6 +38,8 @@ var UpdateLicenseModalComponent = React.createClass({
 		sub.addOns = this.state.addOns;
 		sub.amount = this.props.countSubAmount(sub);
 
+		Utils.debug('_updateLicenses', sub);
+
 		var chargeAmount = 0;
 		var totalAmount = parseFloat(sub.amount) - parseFloat(this.props.sub.amount);
 		var proration = getProration(sub, totalAmount);
@@ -46,7 +48,7 @@ var UpdateLicenseModalComponent = React.createClass({
 			chargeAmount = proration > 1 ? proration : 1;
 		}
 
-		console.log('_updateLicenses: ', totalAmount, proration);
+		Utils.debug('_updateLicenses2', chargeAmount, totalAmount, proration);
 
 		this.props.onSubmit({
 			addOns: sub.addOns,

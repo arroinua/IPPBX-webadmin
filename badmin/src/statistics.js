@@ -41,7 +41,6 @@ function Statistics(){
 
         $('#trunks-qos-cont').addClass('faded');
         getTrunksQosData({ begin: picker.date.start,  end: picker.date.end }, function(data) {
-            console.log('openTrunksQosStat data: ', data);
             renderTrunksQosStat(data);
             $('#trunks-qos-cont').removeClass('faded');
         });
@@ -161,7 +160,6 @@ function Statistics(){
         start = picker.date.start;
         end = picker.date.end;
         params = '\"begin\":'+start+', \"end\":'+end+', \"kind\":"'+extStatKind+'"';
-        // console.log(params);
         json_rpc_async('getCallStatisticsExt', params, function(result){
             self._setExtStatistics(result);
             $('#extStat-cont').removeClass('faded');
@@ -176,7 +174,6 @@ function Statistics(){
         start = picker.date.start;
         end = picker.date.end;
         params = '\"begin\":'+start+', \"end\":'+end;
-        // console.log(params);
         json_rpc_async('getLostCalls', params, function(result){
             self._setLostStats(result);   
             $('#lostCalls-cont').removeClass('faded');
@@ -203,7 +200,6 @@ function Statistics(){
             var value = attr.split('.').reduce(objFromString, newdata);
             item.textContent = value;
         });
-        // console.log(newdata.trunks);
         self._build_trunks_statistics(newdata.trunks);
         show_content();
     };
@@ -222,7 +218,6 @@ function Statistics(){
         for(var i=0; i<data.length; i++){
             tRows.appendChild(self._buildLostCallsTable(data[i]));
         }
-        // console.log(data);
         tbody.appendChild(tRows);
     };
 
@@ -234,8 +229,6 @@ function Statistics(){
         var tickFormat = "%d-%m-%Y";
         var showXAxis = isSmallScreen() ? false : ((dayDiff >= 7 && !daily) ? false : true);
 
-        console.log('_setCharts:', picker, daily, sameDay, dayDiff);
-
         if(!daily) {
             if(sameDay) tickFormat = "%H:%M";
             else tickFormat = "%d-%m-%Y %H:%M";
@@ -245,8 +238,6 @@ function Statistics(){
         //     item['s'] = item.i - item.m;
         //     return item;
         // });
-
-        console.log('statistics charts data: ', data);
 
         var outChart = c3.generate({
             bindto: '#outbounds-chart',

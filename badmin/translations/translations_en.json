@@ -184,7 +184,7 @@
 	"GROUPSETTS" : "Group settings",
 	"GROUPSNAME" : "Group name",
 	"DEPNAME" : "Department name",
-	"GROUPSNAME_SUBMIT_LABEL" : "Enter the name",
+	"GROUPSNAME_SUBMIT_LABEL" : "Enter a name",
 	"GROUPS" : {
 		"GROUPS" : "Groups",
 		"EQUIPMENT" : "Equipment",
@@ -351,7 +351,15 @@
 		"CALLEDTRANSF" : "Called number transforms",
 		"OUTBARGING" : "Deny calls to outer numbers",
 		"COSTBARGING" : "Deny paid calls",
-		"TIMEZONE": "Time zone"
+		"TIMEZONE": "Time zone",
+		"API_KEYS": {
+			"DESC": "Generate API Keys to access the API methods. The API Key should be sent in the Authorization HTTP header, like this: <code>Authorization: Bearer API_Key</code>",
+			"WARNING": "<strong>Important</strong>: The API keys should be kept secret at all times. Don't use them in the environments where they could be compromised (like a browser). If you believe that one of your API keys is compromised, please remove it and generate a new one.",
+			"KEY_NAME_LABEL": "Key name",
+			"CREATE_KEY_BTN": "Create API Key",
+			"EMPTY_NAME_WARNING": "Please specify a key name",
+			"DELETE_WARNING": "Do you really want to delete API Key {{key}}?"
+		}
 	},
 	"MENU": "Menu",
 	"OPTIONS" : "Options",
@@ -681,6 +689,8 @@
     "KINDS": {
     	"guide": "Getting started",
     	"branch_options": "Settings",
+    	"developer": "Developer",
+    	"location": "Location",
     	"services": "Integrations",
         "trunk": "Trunks",
         "users": "User groups",
@@ -787,7 +797,7 @@
     },
     "APPSETTS" : "Application settings",
     "APPNAME" : "Application name",
-    "DEBUG" : "Debug",
+    "DEBUG" : "Enable debug",
     "VAR" : "Change",
     "VALUE" : "Value",
     "DBCONN" : "Connect to Database",
@@ -944,7 +954,7 @@
     },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Service group",
-    	"NO_MEMBERS": "No members in the group",
+    	"NO_MEMBERS": "No members yet...",
     	"ADD_MEMBERS": "Add members",
     	"ADD_SELECTED": "Submit changes",
     	"MEMBERS": "Members",
@@ -1110,6 +1120,11 @@
     		"CODE_SNIPPET_MODAL_TEXT": "Add this script to every webpage where you want the widget to appear. You can place the script anywhere within the <head> or <body> tags.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Copy to clipboard",
     		"CODE_SNIPPET_MODAL_COPIED_BTN": "Copied"
+    	},
+    	"WEBAPI": {
+    		"SERVICE_NAME": "Web API",
+    		"PROFILEID_LABEL": "Profile ID",
+    		"NO_PROFILEID": "Create a channel to receive a Profile ID"
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -1165,6 +1180,13 @@
     	"REMOVE_ELEMENT" : "Remove element",
     	"REMOVE_ELEMENTS_TREE" : "Remove element's tree",
     	"DATA_PLACEHOLDER" : "Select a connector or enter a value"
+    },
+    "APPLICATIONS": {
+    	"APPLICATION": "Application",
+    	"APPLICATIONS": "Applications",
+    	"UPLOAD_APP_DESC": "Upload a <strong>.application</strong> file created in Visual CTI Studio:",
+    	"DEBUG" : "Enable debug",
+    	"APP_PARAMETERS_HEADER": "Application parameters"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Storage settings",
@@ -1392,7 +1414,8 @@
     	"SELECT_PARAMETER_OPTION": "Select parameter",
     	"ERRORS": {
     		"wrongSize": "File size exceeds the limit",
-    		"wrongFile": "File type must be text/csv"
+    		"wrongFile": "File type must be text/csv",
+    		"wrongFormat": "File type is invalid"
     	}
     },
     "LIGHTBOX": {

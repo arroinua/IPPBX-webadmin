@@ -36,7 +36,6 @@ var NumberTransformsComponent = React.createClass({
 	},
 
 	_removeRule: function(index) {
-		console.log("_removeRule: ,", index);
 		var transforms = this.state.transforms;
 		transforms.splice(index, 1);
 		this.setState({
@@ -61,8 +60,6 @@ var NumberTransformsComponent = React.createClass({
 		// }
 
 		transform[target.name] = type === 'number' ? parseFloat(value) : value;
-
-		console.log('_handleOnChange: ', transforms, value);
 
 		this.setState({
 			transforms: transforms
@@ -91,17 +88,6 @@ var NumberTransformsComponent = React.createClass({
 
 		return (
 			<div className="row">
-				<div className="col-sm-12">
-					<div className="alert alert-info" role="alert">
-						<button type="button" className="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<p><strong>{frases.NUMBER_TRANSFORMS.NUMBER_TRANSFORMS}</strong></p>
-						<p>{frases.NUMBER_TRANSFORMS.HELPERS.NUMBER}</p>
-						<p>{frases.NUMBER_TRANSFORMS.HELPERS.STRIP}</p>
-						<p>{frases.NUMBER_TRANSFORMS.HELPERS.PREFIX}</p>
-						<p>{frases.NUMBER_TRANSFORMS.HELPERS.DOLLAR}</p>
-						<a href="#" className="alert-link">{frases.NUMBER_TRANSFORMS.HELPERS.LEARN_MORE_LINK}</a>
-					</div>
-				</div>
 				<div className="col-sm-12">
 					<div style={{ marginBottom: "10px" }}>
 						<strong>{frases.NUMBER_TRANSFORMS[this.props.type.toUpperCase()]}</strong>

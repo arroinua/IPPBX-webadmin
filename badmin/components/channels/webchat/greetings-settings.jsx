@@ -19,8 +19,6 @@ function WebchatTrunkOfferSettsComponent(props) {
 		props.toggleFeature('offer', !checked, (checked ? false : {}));
 	}
 
-	console.log('WebchatTrunkOfferSettsComponent:', params);
-		
 	return (
 		<form className="form-horizontal" autoComplete='off'>
 			<div className="form-group">

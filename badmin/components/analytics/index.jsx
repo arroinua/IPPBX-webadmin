@@ -29,12 +29,10 @@ var AnalyticsComponent = React.createClass({
 	},
 
 	_onComponentLoad: function() {
-		console.log('_onComponentLoad');
 		show_content();
 	},
 
 	_onComponentUpdate: function() {
-		console.log('_onComponentUpdate');
 		show_content();
 	},
 

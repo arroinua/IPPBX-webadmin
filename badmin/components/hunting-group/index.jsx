@@ -73,8 +73,6 @@ var HuntingGroupComponent = React.createClass({
 
 		options[target.name] = type === 'number' ? parseFloat(value) : value;
 
-		console.log('_handleOnChange: ', target, value);
-
 		this.setState({
 			options: options
 		});
@@ -99,8 +97,6 @@ var HuntingGroupComponent = React.createClass({
 		state.options[params.name] = params.filename;
 		state.files = files;
 
-		console.log('_onFileUpload: ', params, files);
-
 		this.setState({
 			state: state
 		});	
@@ -116,7 +112,6 @@ var HuntingGroupComponent = React.createClass({
 	// 	options[target.name] = value;
 	// 	files.push(file);
 
-	// 	console.log('_onFileUpload: ', target, value, file);
 
 	// 	this.setState({
 	// 		options: options,
@@ -125,7 +120,6 @@ var HuntingGroupComponent = React.createClass({
 	// },
 
 	_onRouteChange: function(route) {
-		console.log('_onRouteChange: ', route);
 		this.setState({
 			route: route
 		});
@@ -134,8 +128,6 @@ var HuntingGroupComponent = React.createClass({
 	_onSortMember: function(array) {
 		var newParams = extend({}, this.state.params);
 		newParams.members = array;
-
-		console.log('_onSortMember array: ', array);
 
 		this.setState({
 			params: newParams
@@ -148,7 +140,6 @@ var HuntingGroupComponent = React.createClass({
 		var members = params.members || [];
 		// var filteredMembers = this.state.filteredMembers || [];
 
-		console.log('remder: ', params.name, params);
 
 		//<div className="form-group">
 		//    <label className="col-sm-4 control-label">

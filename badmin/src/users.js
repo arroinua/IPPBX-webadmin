@@ -1,6 +1,5 @@
 function load_users(params) {
 
-	console.log('load_users: ', params);
 	var frases = PbxObject.frases;
 	// var driver;
 	// var driverSettings = {
@@ -59,7 +58,6 @@ function load_users(params) {
 	}
 
 	function openNewUserForm() {
-		console.log('openNewUserForm');
 
 		// if(driver) driver.reset(); // close the tour
 
@@ -96,7 +94,6 @@ function load_users(params) {
 	}
 
 	function addUser(params, callback) {
-		console.log('addUser: ', params);
 
 		var userParams = extend({}, params);
 
@@ -144,7 +141,6 @@ function load_users(params) {
 	}
 
 	// function onFirstUserCreated() {
-		// console.log('onFirstUserCreated');
 
 		// driverSettings.onReset = showGSLink;
 		// driver = new Driver(driverSettings);
@@ -159,7 +155,6 @@ function load_users(params) {
 	// }
 
 	function onImportUsers(serviceParams) {
-		console.log('onImportUsers: ', serviceParams);
 		if(serviceParams.id === 'MicrosoftAD') {
 			PbxObject.LdapConnection = Ldap({
 			    domains: serviceParams.props.directoryDomains.split(' '),
@@ -180,8 +175,6 @@ function load_users(params) {
 	        return;
 	    }
 
-	    console.log('onAddUsers: ', users);
-
 	    var ldapConn = PbxObject.LdapConnection;
 	        // availableSelect = document.getElementById('available-users');
 	    
@@ -192,7 +185,6 @@ function load_users(params) {
 	        domain: ldapConn.options.domain,
 	        users: users
 	    }, function(result) {
-	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 	        
 
@@ -203,7 +195,6 @@ function load_users(params) {
 	}
 
 	function getExternalUsers(serviceParams){
-		console.log('getExternalUsers:', serviceParams);
 
 		PbxObject.LdapConnection = Ldap({
 		    service_id: serviceParams.id,
@@ -217,7 +208,6 @@ function load_users(params) {
 	    PbxObject.LdapConnection.getExternalUsers();
 	    // } else {
 	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
-	    //         console.log('getExternalUsers result: ', result);
 	    //         if(result) PbxObject.LdapConnection.showUsers(result);
 	    //     });
 	    // }
@@ -231,8 +221,6 @@ function load_users(params) {
 
 	    show_loading_panel();
 
-	    console.log('setExternalUsers: ', users);
-
 	    var ldapConn = PbxObject.LdapConnection;
 
 	    ldapConn.setExternalUsers({
@@ -240,7 +228,6 @@ function load_users(params) {
 	        service_id: ldapConn.options.service_id,
 	        users: users
 	    }, function(result) {
-	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 			if(result === 'OK') set_object_success();
 	        // refreshUsersTable(function(availableUsers){
@@ -285,8 +272,6 @@ function load_users(params) {
 	    	members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
 	    };
 
-	    console.log('setObject: ', props);
-
 		json_rpc_async('setObject', groupParams, function(result) {
 			PbxObject.name = objParams.name = objName;
 
@@ -304,7 +289,6 @@ function load_users(params) {
 	// }
 
 	// function initSteps() {
-	// 	console.log('initSteps: ', driverSteps);
 	// 	if(PbxObject.tourStarted && driverSteps.length) {
 	// 		tourStarted = true;
 	// 		driverSettings.onReset = showGSLink;
@@ -315,7 +299,6 @@ function load_users(params) {
 	// }
 
 	// function showGSLink() {
-	// 	console.log('showGSLink');
 	// 	driver = new Driver({
 	// 		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
 	// 		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
@@ -333,7 +316,6 @@ function load_users(params) {
 	// }
 
 	function updateUsersList(e, object) {
-		console.log('updateUsersList: ', object);
 		if(object.ext === undefined) return;
 		objParams.members.push(object);
 		init(objParams);

@@ -1,5 +1,4 @@
 function load_timer(result){
-    // console.log(result);
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
     // PbxObject.kind = 'timer';
@@ -87,8 +86,6 @@ function load_timer(result){
     var calendarWrapper = document.createElement('div');
     calendarWrapper.className = "timer-dates-wrapper no-weekdays no-years";
     document.body.appendChild(calendarWrapper);
-
-    console.log('load_timer: ', result.yeardays.map(yearDayToDate));
 
     // init yeardates picker
     pickr = flatpickr('#timer-dates', {

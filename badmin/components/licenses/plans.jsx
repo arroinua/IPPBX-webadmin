@@ -23,15 +23,12 @@ var PlansComponent = React.createClass({
 
 	componentDidMount: function() {
 
-		console.log('PlansComponent: ', this.props.currentPlan);
-
 		this.setState({
 			showMonthlyPlans: (this.props.currentPlan.billingPeriodUnit === 'months')
 		});
 	},
 
 	_togglePlans: function(annually) {
-		console.log('_togglePlans: ', annually);
 		this.setState({ showMonthlyPlans: !annually });
 	},
 

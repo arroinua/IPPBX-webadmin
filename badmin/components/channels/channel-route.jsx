@@ -54,8 +54,6 @@ var ChannelRouteComponent = React.createClass({
 		var selectedRoute = {};
 
 		this._getAvailableRoutes(props.type, function(result) {
-			console.log('_getAvailableRoutes: ', result);
-
 			selectedRoute = (props.routes && props.routes.length) ? props.routes[0].target : ((result && result.length) ? result[0] : {});
 
 			this.setState({
@@ -75,15 +73,12 @@ var ChannelRouteComponent = React.createClass({
 			if(item.oid === value) selectedRoute = item;
 		});
 
-		console.log('_selectRoute: ', selectedRoute);
-
 		this.setState({ selectedRoute: selectedRoute });
 		this.props.onChange(selectedRoute);
 	},
 
 	_getAvailableRoutes: function(type, callback) {
 		// var type = this.props.type;
-		console.log('_getAvailableRoutes: ', type);
 		var isTelephonyChannel = (type === 'Telephony' || type === 'Webcall');
 		var groupType = isTelephonyChannel ? ['hunting', 'icd', 'attendant'] : ['chatchannel'];
 		var routes = [];

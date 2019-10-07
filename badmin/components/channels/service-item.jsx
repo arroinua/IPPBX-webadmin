@@ -22,11 +22,21 @@ function TrunkServiceItemComponent(props) {
 		    	className={"chattrunk-service-item " + (props.selected ? "selected" : "")}
 		    	title={props.item.name}
 		    >
-		    	<img 
-		    		src={props.item.icon} 
-		    		alt={props.item.name+' icon'} 
-		    		style={{ width: "40px", height: "40px" }}
-		    	/>
+		    	{
+		    		props.item.iconClass ? (
+		    			<span 
+		    				className={props.item.iconClass}
+		    				style={{ width: "40px", height: "40px", color: "#333", padding: "5px 0" }}
+		    			></span>
+		    		) : (
+		    			<img 
+				    		src={props.item.icon} 
+				    		alt={props.item.name+' icon'} 
+				    		style={{ width: "40px", height: "40px" }}
+				    	/>
+		    		)
+		    	}
+				    	
 		    	<h5>{props.item.name}</h5>
 		    </a>
 		</div>

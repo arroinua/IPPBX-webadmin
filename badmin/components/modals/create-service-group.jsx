@@ -13,12 +13,11 @@ var CreateGroupModalComponent = React.createClass({
 	},
 
 	_onUsersSelected: function(users) {
-		console.log('_onUsersSelected: ', users);
 		this.setState({ selectedUsers: users });
 	},
 
 	_onSubmit: function() {
-		console.log('_onSubmit');
+		return true;
 	},
 
 	_getBody: function() {

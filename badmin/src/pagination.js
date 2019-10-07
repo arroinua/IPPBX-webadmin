@@ -78,7 +78,6 @@ function Pagination(options){
             } else if(target.className == 'last') {
                 page = this.options.pagnum;
                 if(page >= this.options.maxpagins) {
-                    // console.log(page-this.options.maxpagins+1, page);
                     // this._destroyPagination();
                     this.createPagination(page-this.options.maxpagins+1, page);
                 }

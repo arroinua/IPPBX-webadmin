@@ -224,10 +224,10 @@ function get_extension(e){
             $.get('/badmin/views/extension.html', function(template){
                 PbxObject.templates = PbxObject.templates || {};
                 PbxObject.templates.extension = template;
-                json_rpc_async('getObject', '\"oid\":\"'+oid+'\"', load_extension);
+                json_rpc_async('getObject', {oid: oid}, load_extension);
             });
         } else {
-            json_rpc_async('getObject', '\"oid\":\"'+oid+'\"', load_extension);
+            json_rpc_async('getObject', {oid: oid}, load_extension);
         }
     }
 }
@@ -684,7 +684,7 @@ function getUserInfo(userid){
 
     btn.innerHTML = '<i class="fa fa-lg fa-spinner fa-spin"></i>';
     getPartial('userinfo', function(template){
-        json_rpc_async('getUserInfo', '"userid":"'+userid+'"', function(result){
+        json_rpc_async('getUserInfo', {userid: userid}, function(result){
             PbxObject.vars.infoShown = true;
             data = {
                 data: result,

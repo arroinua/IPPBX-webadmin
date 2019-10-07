@@ -47,7 +47,6 @@ function load_storages(){
 	}
 
 	function saveStorage(data, callback){
-		console.log('saveStorage: ', data);
 		if(!data.path) return;
 		if(!data.id) delete data.id;
 		if(data.maxsize !== undefined) data.maxsize = convertBytes(data.maxsize, 'GB', 'Byte');
@@ -121,7 +120,6 @@ function getTotalStorage(callback){
 
 function setUserStoreLimit(oid, limit, input){
 	json_rpc_async('setStoreLimit', { oid: oid, limit: convertBytes(parseFloat(limit), 'GB', 'Byte') }, function (result){
-		console.log(result);
 		input.value = convertBytes(result, 'Byte', 'GB').toFixed(2);
 	});
 }

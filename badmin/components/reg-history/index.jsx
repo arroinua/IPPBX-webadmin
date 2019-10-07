@@ -39,13 +39,10 @@ var UsersRegHistoryComponent = React.createClass({
 
 		this.setState({ fetching: true });
 
-		console.log('_getRegHistory: ', params);
-
 		json_rpc_async('getUserRegistrationsHistory', params, this._setRegHistory);
 	},
 
 	_setRegHistory: function(data) {
-		console.log('getUserRegistrationsHistory result: ', data);
 		var filterByIp = this.state.filterByIp;
 		if(filterByIp) data = data.filter(function(item) { return item.iaddr === filterByIp; });
 		this.setState({ data: data, fetching: false });
@@ -60,7 +57,6 @@ var UsersRegHistoryComponent = React.createClass({
 	},
 
 	_onDateSelect: function(params) {
-		console.log('_onDateSelect: ', params);
 		this.setState({ date: params.date });
 	},
 

@@ -43,7 +43,7 @@ var SubscriptionPlanComponent = React.createClass({
 		    	</div>
 		    	<div className="pull-right">
 		    		{
-		    			sub.state === 'past_due' ? (
+		    			sub.status === 'past_due' ? (
 		    				<a href="#" className="btn btn-action" style={{ fontSize: "14px" }} onClick={this.props.renewSub}>{ frases.BILLING.RENEW_SUB }</a>
 		    			) : (
 		    				<a 

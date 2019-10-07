@@ -36,13 +36,11 @@
 	},
 
 	componentWillReceiveProps: function(props) {
-		console.log('ChartsComponent componentWillReceiveProps: ', props);
 		this._setChart(props.data);
 		// this._updateChart(props.data);
 	},
 
 	componentWillUnmount: function() {
-		console.log('ChartsComponent componentWillUnmount');
 	},
 
 	shouldComponentUpdate: function() {
@@ -108,7 +106,6 @@
 	},
 
 	render: function() {		
-		console.log('ChartsComponent render: ', this.state, this.props);
 		return React.createElement('div');
 	}
 });

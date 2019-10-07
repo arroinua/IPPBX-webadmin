@@ -1,6 +1,42 @@
 /* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Программный интерфейс сервера состоит и набора  процедур удаленного вызова, которые выполняются в режиме запрос-ответ,
+ * а также нотификаций, отправляемых от сервера клиентам.
+ * Запросы, ответы и нотификации представляют собой текстовые сообщения в формате JSON. 
+ * 
+ * В качестве транспорта для передачи сообщений можно использовать протоколы WebSocket или HTTPS.
+ * Сервер обслуживает HTTP запросы и подключения по WebSocket  на порту, устанавливаемом в настройках панели администратора.
+ * Запросы нужно отправлять с авторизацией Basic (логин/пароль админа)
+ *
+ *
+ * Синтаксис запросов включает в себя поля “id”, “method” и “params”.
+ * Ответ сервера содержит поля “id”, “result” или, в случае ошибки “id”, “error”.
+ *
+ * Например:
+ * Запрос: {“method”: “getUserInfo”, “params”: {  “userid”: “1002” }, “id”: 1}
+ * Ответ:  { “result”: {“firstname”: “John”, “lastname”: “Doe”, “department”: “Marketing”, “position”: “manager”, “mobile”: “34456”}, “id”: 1}
+ *
+ *
+ * Синтаксис описания сообщений
+ *
+ * Для описания сообщений используется следующий формат:
+ * {
+ *	“method”:		“name of the method”
+ *	“params”: {
+ *		“param1”:	“type of the parameter”,
+ *		“param2”:	“type of the parameter”,
+ *		…
+ *      },
+ *      “result”: {
+ *		“param1”:	“type of the parameter”,
+ *		“param2”:	“type of the parameter”,
+ *		…
+ *      }
+ * }
+ *
+ * Типы параметров: “string”, “number”, “boolean” (также возможно “integer” и “float”).
+ * Параметр-массив обозначается квадратными скобками [ ], параметр-таблица – фигурными скобками { }.
+ *
+ *
  */
 
 {
@@ -236,17 +272,35 @@
     }
 },
 
+
+/* 
+ * Сбросить вызов 
+ * 
+ * method:  "dropCall"
+ * 
+ * params:  
+ *          "line":     идентификатор линии
+ * 
+ */
+ "dropCall":{
+     "params": {
+         "line":    "string",
+     }
+ },
+
+
 /*************************************************************************************************************
  *  Нотификация от сервера клиенту
  *************************************************************************************************************/
 
 /* 
- * Изменение состояния объекта 
+ * Нотификация об изменении состояния объекта
  * 
  * method:  "stateChanged"
  * 
  * params:  
  *          "oid":      идентификатор объекта
+ *          "kind":     тип объекта
  *          "ext":      внутренний номер телефона
  *          "state":    состояние
  *                      0 - не зарегистрирован
@@ -260,10 +314,15 @@
  *                      8 - соединен
  *                     -1 - удален
  *          
- *          "name":     имя
- *          "group":    имя группы
- *          "reg":      ip адрес или номер переадресации
- * 
+ *          "userid":   идентификатор пользователя
+ *          "termid":   идентификатор терминала пользователя
+ *          "reg":      ip адрес регистрации или номер переадресации
+ 
+ *          "alerted":  список текущих входящих вызовов
+ *          "connected":список текущих соединенных вызовов
+ *          "dialed":   список текущих исходящих вызовов
+ *                      "line":     идентификатор линии на сервере
+ *                      "party":    номер телефона абонента
  */
 
 "stateChanged": {
@@ -271,11 +330,30 @@
     
     "params": {
         "oid":          "string",
+        "kind":         "string",
         "ext":          "string",
         "state":        "number",
-        "name":         "string",
-        "group":        "string",
-        "reg":          "string"
+        "userid":       "string",
+        "termid":       "string",
+        "reg":          "string",
+        "alerted": [
+            {
+            "line":     "string",
+            "party":    "string",
+            }
+        ],
+        "connected": [
+            {
+            "line":     "string",
+            "party":    "string",
+            }
+        ],
+        "dialed": [
+            {
+            "line":     "string",
+            "party":    "string",
+            }
+        ],
     }
 },
 
@@ -386,6 +464,162 @@
 
 
 /* 
+ * Получить список зарегистрированных пользователей
+ * 
+ * method:  "getRegisteredUsers"
+ * 
+ * params:  таблица параметров:
+ *          "orderby":  sorting order, possible values are:
+ *                      "userid"
+ *                      "treg"
+ *                      "iaddr"
+ *                      "devinfo"
+ *                      Default sorting order is by "userid"
+ * 
+ * result:  список таблиц параметров:
+ * 
+ *          "rid":      идентификатор регистрации
+ *          "userid":   идентификатор пользователя
+ *          "treg":     штамп времени регистрации (в миллисекундах от 1.01.1970)
+ *          "iaddr":    ip address
+ *          "devinfo":  device info
+ * 
+ */
+
+"getRegisteredUsers": {
+    "type":                 "method",
+    
+    "params": {
+        "orderby":          "string",
+    },
+    
+    "result": [
+        {
+            "rid":          "string",
+            "userid":       "string",
+            "treg":         "number",
+            "iaddr":        "string",       
+            "devinfo":      "string",
+        }
+    ],
+},
+
+
+/* 
+ * Получить историю регистраций пользователя
+ * 
+ * method:  "getUserRegistrationsHistory"
+ * 
+ * params:  таблица параметров:
+ *          "userid":   идентификатор пользователя
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ * 
+ * result:  список таблиц параметров:
+ * 
+ *          "rid":      идентификатор регистрации
+ *          "treg":     штамп времени регистрации (в миллисекундах от 1.01.1970)
+ *          "tunreg":   штамп времени разрегистрации (в миллисекундах от 1.01.1970)
+ *          "iaddr":    ip address
+ *          "devinfo":  device info
+ * 
+ */
+
+"getUserRegistrationsHistory": {
+    "type":                 "method",
+    
+    "params": {
+        "userid":           "string",
+        "begin":            "number",
+        "end":              "number",
+    },
+    
+    "result": [
+        {
+            "rid":          "string",
+            "treg":         "number",
+            "tunreg":       "number",
+            "iaddr":        "string",       
+            "devinfo":      "string",
+        }
+    ],
+},
+
+
+/* 
+ * Получить список состояний транков
+ * 
+ * method:  "getTrunkStates"
+ * 
+ * params:  таблица параметров:
+ * 
+ * result:  список таблиц параметров:
+ * 
+ *          "oid":      идентификатор транка
+ *          "trunk":    имя транка
+ *          "treg":     штамп времени регистрации (в миллисекундах от 1.01.1970)
+ *          "tunreg":   штамп времени разрегистрации (в миллисекундах от 1.01.1970)
+ * 
+ */
+
+"getTrunkStates": {
+    "type":                 "method",
+    
+    "params": {
+        "orderby":          "string",
+    },
+    
+    "result": [
+        {
+            "oid":          "string",
+            "trunk":        "string",
+            "treg":         "number",
+            "tunreg":       "number",       
+        }
+    ],
+},
+
+
+/* 
+ * Получить историю регистраций транка
+ * 
+ * method:  "getTrunkRegistrationsHistory"
+ * 
+ * params:  таблица параметров:
+ *          "oid":      идентификатор транка
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ * 
+ * result:  список таблиц параметров:
+ * 
+ *          "oid":      идентификатор транка
+ *          "trunk":    имя транка
+ *          "treg":     штамп времени регистрации (в миллисекундах от 1.01.1970)
+ *          "tunreg":   штамп времени разрегистрации (в миллисекундах от 1.01.1970)
+ * 
+ */
+
+"getTrunkRegistrationsHistory": {
+    "type":                 "method",
+    
+    "params": {
+        "oid":              "string",
+        "begin":            "number",
+        "end":              "number",
+    },
+    
+    "result": [
+        {
+            "oid":          "string",
+            "trunk":        "string",       
+            "treg":         "number",
+            "tunreg":       "number",
+        }
+    ],
+},
+
+
+/* 
  * Получить историю звонков.
  * 
  * method:  "getCalls"
@@ -446,6 +680,140 @@
             "tr":           "number",
             "ch":           "number",
             "fi":           "string",
+        }
+    ]
+},
+
+
+/* 
+ * Получить статистику звонков по транкам.
+ * 
+ * method:  "getTrunkStatistics"
+ * 
+ * params:  таблица параметров:
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ * 
+ * result:  список таблиц
+ *          "trunk":    имя транка
+ *          "in":       параметры для входящих звонков
+ *          "out":      параметры для исходящих звонков
+ *
+ *          "tc":       общее количество звонков
+ *          "tt":       количество соединенных звонков
+ *          "acd":      средняя длительность звонка
+ *          "asr":      процент успешных исходящих звонков
+ *          "lat":      средняя задержка передачи пакетов
+ *          "lne":      процент потерь пакетов на стороне сервера
+ *          "lfe":      процент потерь пакетов на стороне транка
+ *          "jne":      джиттер на стороне сервера
+ *          "jfe":      джиттер на стороне транка
+ *          "mne":      mos на стороне сервера
+ *          "mfe":      mos на стороне транка
+ *          "rne":      r-factor на стороне сервера
+ *          "rfe":      r-factor на стороне транка
+ * 
+ */
+
+"getTrunkStatistics": {
+    "type":                 "method",
+    
+    "params": {
+        "begin":            "number",
+        "end":              "number",
+    },
+    
+    "result": [
+        {
+            "trunk":    "string",
+            "in":  {
+                "tc":       "number",
+                "cc":       "number",
+                "acd":      "number",
+                "lat":      "number",
+                "lne":      "number",
+                "lfe":      "number",
+                "jne":      "number",
+                "jfe":      "number",
+                "mne":      "number",
+                "mfe":      "number",
+                "rne":      "number",
+                "rfe":      "number",
+            },
+            "out": {
+                "tc":       "number",
+                "cc":       "number",
+                "acd":      "number",
+                "lat":      "number",
+                "lne":      "number",
+                "lfe":      "number",
+                "jne":      "number",
+                "jfe":      "number",
+                "mne":      "number",
+                "mfe":      "number",
+                "rne":      "number",
+                "rfe":      "number",
+            },
+        }
+    ]
+},
+
+
+/* 
+ * Получить данные для временной диаграммы качества транка.
+ * 
+ * method:  "getTrunkStatisticsGraph"
+ * 
+ * params:  таблица параметров:
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          "interval": интервал выборки в миллисекундах
+ *          "number":   номер телефона
+ *          "trunk":    имя транка
+ * 
+ * result:  список:
+ *          "ts":       штамп времени начала интервала (в миллисекундах от 1.01.1970)
+ *          "in":       количество входящих звонков в указанный интервал
+ *          "out":      количество исходящих звонков в указанный интервал
+ *          "acd":      средняя длительность звонка
+ *          "asr":      процент успешных исходящих звонков
+ *          "lat":      средняя задержка передачи пакетов
+ *          "lne":      процент потерь пакетов на стороне сервера
+ *          "lfe":      процент потерь пакетов на стороне транка
+ *          "jne":      джиттер на стороне сервера
+ *          "jfe":      джиттер на стороне транка
+ *          "mne":      mos на стороне сервера
+ *          "mfe":      mos на стороне транка
+ *          "rne":      r-factor на стороне сервера
+ *          "rfe":      r-factor на стороне транка
+ * 
+ */
+
+"getTrunkStatisticsGraph": {
+    "type":                 "method",
+    
+    "params": {
+        "begin":            "number",
+        "end":              "number",
+        "interval":         "number",
+        "number":           "string",
+        "trunk":            "string",
+    },
+    
+    "result": [
+        {
+            "ts":       "number",
+            "in":       "number",
+            "out":      "number",
+            "acd":      "number",
+            "asr":      "number",
+            "lat":      "number",
+            "lne":      "number",
+            "lfe":      "number",
+            "jne":      "number",
+            "jfe":      "number",
+            "mne":      "number",
+            "mfe":      "number",
         }
     ]
 },
@@ -930,17 +1298,17 @@
  *                              "regname":  логин для регистрации на сервере
  *                              "regpass":  пароль для регистрациеи на сервере
  *                                       
- *                          "trunk":
- *                              "domain":  IP адрес или доменное имя
+ *                          "trunk":                
+ *                              "domain":   IP адрес или доменное имя
  *                              "register": транк с регистрацией (yes/no)    
- *                              "auth":  имя авторизации
- *                              "user":  логин
- *                              "pass":  пароль
+ *                              "user":     имя пользователя
+ *                              "auth":     логин
+ *                              "pass":     пароль
  *                              "regexpires": интервал подтверждения регистрации
- *                              "proxy": регистрация на прокси сервере (yes/no)
- *                              "paddr": адрес прокси сервера
- *                              "pauth": логин для прокси сервера
- *                              "ppass": пароль для прокси сервера
+ *                              "proxy":    регистрация на прокси сервере (yes/no)
+ *                              "paddr":    адрес прокси сервера
+ *                              "pauth":    логин для прокси сервера
+ *                              "ppass":    пароль для прокси сервера
  *                              
  *                          "phonelines":   количество линий на телефоне
  *                          "starflash":    разрешение использовать кнопку телефона [*] в качестве кнопки постановки на холд
@@ -1318,6 +1686,137 @@
         },
     }
 },
+
+/*
+ *  Object "ChatChannel"
+ *
+ *  params: параметры объекта, которые могут быть получены методом getObject или установлены методом setObject
+ *  
+ *          "oid":          идентификатор объекта
+ *          "kind":         тип объекта: "chatchannel"
+ *          "name":         имя объекта
+ *          "enabled":      состояние включен/выключен (значения yes или no)
+ *          "members":      список пользователей которые входят в данную группу:
+ *                          "oid":      идентификатор пользователя
+ *                          "number":   внутренний номер
+ *                          "name":     имя
+ *                          "state":    состояние
+ *                          "display":  имя
+ *                          "reg":      регистрация
+ *
+ *          "replytimeout": таймаут неответа на сообщение (в секундах).
+ *                          Если в указанное время пользователь, который обслуживает чат не ответил на сообщение,
+ *                          сессия возвращается в общую очередь группы
+ *
+ */
+"ChatChannel":{
+    "type": "object",
+    "params": {
+        "oid":          "string",
+        "kind":         "string",
+        "name":         "string",
+        "enabled":      "boolean",
+        "members": [
+            {
+                "oid"       "string",
+                "number"    "string",
+                "state"     "number",
+                "name"      "string",
+                "display"   "string",
+                "reg"       "string",
+            }
+        ],
+        "replytimeout":     "number",
+    }
+},
+
+/*
+ *  Object "ChatTrunk"
+ *
+ *  params: параметры чат-транка, которые могут быть получены методом getObject или установлены методом setObject
+ * 
+ *          "oid":          идентификатор объекта
+ *          "kind":         тип объекта: "chattrunk"
+ *          "name":         имя объекта
+ *          "enabled":      состояние включен/выключен (значения yes или no)
+ *
+ *          "type":         тип чат-транка ("FacebookMessenger", "Twitter", "Webchat", "Viber")
+ *          "pageid":       идентификатор страницы
+ *          "pagename":     имя страницы
+ *
+ *          "properties":   настройки - список параметров для подключения чат-транка (access_token, pageid).
+ *                          Передаются один раз при создании транка.
+ *
+ *          "routes":       маршрутизация запросов на открытие чатов
+ *                          "target":   объект маршрута типа "channel", "user" или "chatbot" (в будущем)
+ *                                      "oid":          идентификатор объекта
+ *                                      "name":         имя объекта
+ *
+ *                          "priority": приоритет (пока не используется)
+ *  
+ *                          "timeout":  таймаут неответа на вызов в секундах (пока не используется)
+ *                                      Если в указанное время никто не ответил на сообщение, выбирается следующий по приоритету маршрут 
+ *          
+ *          "sessiontimeout": таймаут сессии в секундах. Eсли не было сообщений в течение указанного времени, сессия закрывается.
+ *                                          
+ */
+"ChatTrunk":{
+    "type": "object",
+    "params": {
+        "oid":          "string",
+        "name":         "string",
+        "enabled":      "boolean",
+        "type":         "string",
+        "pageid":       "string",
+        "pagename":     "string",
+        "properties": {
+            "<key>":    "<value>",
+        },
+        "routes": [
+            {
+                "target": {
+                    "oid":      "string",
+                    "name":     "string",            
+                },
+                "priority":     "number",
+                "timeout":      "number",
+            }                
+        ],
+        "sessiontimeout":   "number",
+    }
+},
+
+
+/* 
+ * Получить список пользователей для добавления в группу
+ * 
+ * method:  "getAvailableUsers"
+ * 
+ * params:  "groupid": идентификатор группы (oid). Если не указан - отправляется список всех пользователей бранча
+ * 
+ * result:  список с параметрами:
+ * 
+ *          "oid":      идентификатор пользователя
+ *          "ext":      внутренний номер
+ *          "name":     имя
+* 
+ */
+
+"getAvailableUsers": {
+    "type":                 "method",
+    
+    "params": {
+        "groupid"           "string"
+    },
+    
+    "result": [
+        {
+            "oid":      "string",  
+            "ext":      "string",
+            "name":     "string",
+        }
+    ]
+}
 
 
 /* 
@@ -1817,13 +2316,72 @@
 
 
 /*
+ * Получить список контактов для истории звонков
+ * 
+ * method:  "getCallsHistory"
+ * 
+ * params:  таблица параметров:
+ *          
+ *          "since":    время начала выборки (в миллисекундах от 01.01.1970)
+ *          "period":   период времени от текущей даты (вместо параметра "since"):
+ *                      0   за все время
+ *                      1   за последний год
+ *                      2   за последний месяц
+ *                      3   за последнюю неделю
+ *                      4   за последние сутки
+ *     
+ *           При отсутствии параметров выборка выполняется за последние полгода           
+ *     
+ * result:  список таблиц с параметрами:
+ *          
+ *          "contactid":    идентификатор контакта
+ *          "name":         имя контакта.
+ *          "members":      номер телефона (для конференции номера через запятую)
+ *          "time":         время последнего звонка (в миллисекундах от 01.01.1970)
+ *          "status":       статус последнего звонка:
+ *                          5   входящий
+ *                          6   исходящий
+ *                          12  пропущенный (новый)
+ *                          13  входящий без ответа
+ *                          14  исходящий без ответа
+ *          "duration":     длительность последнего звонка.
+ 
+ *          "lost":         количество пропущенных звонков (с момента предыдущего запроса)
+ *          "count":        общее количество звонков за период
+ */
+
+"getCallsHistory": {
+    "type":                 "method",
+    "target":               "server",
+    "description":          "List of calls",
+    
+    "params": {
+    },
+
+    "result": [
+        {
+            "contactid":    "string",
+            "name":         "string",
+            "members":      "string",
+            "time":         "number",
+            "lost":         "number",
+            "count":         "number",
+            "status":        "number",
+            "duration":      "number",
+        }
+    ],
+    
+},
+
+
+/*
  * Получить историю звонков
  * 
  * method:  "getCalls"
  * 
  * params:  таблица параметров:
  * 
- *          "contactid": идентификатор контакта. Если отсутствует, звонки выбираются по всем контактам
+ *          "contactid": идентификатор контакта
  *          
  *          "period":   период времени:
  *                      0   за все время
@@ -1839,20 +2397,23 @@
  *          
  * result:  список таблиц с параметрами:
  *          
- *          "number":   номер телефона.
+ *          "id":           идентификатор записи.
+ *          "callid":       идентификатор звонка
+ *          "contactid":    идентификатор контакта
+ *          "number":       номер телефона.
  *          
- *          "status":   статус звонка:
- *                      5   входящий
- *                      6   исходящий
- *                      12  пропущенный (новый)
- *                      13  входящий без ответа
- *                      14  исходящий без ответа
+ *          "status":       статус звонка:
+ *                          5   входящий
+ *                          6   исходящий
+ *                          12  пропущенный (новый)
+ *                          13  входящий без ответа
+ *                          14  исходящий без ответа
  *          
- *          "time":     время звонка (в миллисекундах от 01.01.1970)
+ *          "time":         время звонка (в миллисекундах от 01.01.1970)
+ *          "dur":          длительность соединения.
+ *          "connected":    номер телефона на который поступил звонок.
  *          
- *          "dur":      длительность соединения.
- *          
- *          "file":     имя файла.
+ *          "file":         имя файла.
  */
 
 "getCalls": {
@@ -1870,16 +2431,19 @@
     "result": [
         {
             "id":           "string",
+            "callid":       "string",
             "contactid":    "string",
             "number":       "string",
             "status":       "number",
             "time":         "number",
             "dur":          "number",
+            "connected":    "string",
             "file":         "string",
         }
     ],
     
 },
+
 
 /* 
  * Записать информацию пользователя
@@ -1890,8 +2454,11 @@
  *          "userid":   идентификатор пользователя 
  *          "position": 
  *          "birthday":
- *          "email":
+ *          "mail":
  *          "location":
+ *          "title":
+ *          "company":
+ *          "description":
  *          "department":
  *          "about":
  *          "lastname":
@@ -1907,12 +2474,15 @@
         "userid":       "string",
         "position":     "string",
         "birthday":     "string",
-        "email":        "string",
+        "mail":         "string",
         "mobile":       "string",
         "firstname":    "string",
         "lastname":     "string",
         "location":     "string",
         "department":   "string",
+        "company":      "string",
+        "title":        "string",
+        "description":  "string",
         "about":        "string",
     },
 },
@@ -1929,8 +2499,11 @@
  * result:  
  *          "position": 
  *          "birthday":
- *          "email":
+ *          "mail":
  *          "location":
+ *          "title":
+ *          "company":
+ *          "description":
  *          "department":
  *          "about":
  *          "lastname":
@@ -1949,12 +2522,15 @@
     "result": {
         "position":     "string",
         "birthday":     "string",
-        "email":        "string",
+        "mail":         "string",
         "mobile":       "string",
         "firstname":    "string",
         "lastname":     "string",
         "location":     "string",
         "department":   "string",
+        "company":      "string",
+        "title":        "string",
+        "description":  "string",
         "about":        "string",
     },
 },
@@ -2449,6 +3025,7 @@
  * 
  * params:  таблица параметров:
  *          "id":        идентификатор записи
+ *          "callid":    идентификатор звонка
  *          "contactid": идентификатор контакта
  *          "time":      время начала звонка (в миллисекундах от 1.01.1970)
  *          "number":    номер абонента
@@ -2459,6 +3036,7 @@
  *                       12 - пропущенный входящий (EVENT_CALL_MISSED_NEW);
  *                       14 - несостоявшийся исходящий (EVENT_CALL_OUTGOING_MISSED);
  *                       
+ *          "connected": номер телефона на который поступил звонок.
  *          "file":      файл с записью разговора
  * 
  */
@@ -2468,11 +3046,13 @@
     
     "params": {
         "id":               "string",
+        "callid":           "string",
         "contactid":        "string",
         "time":             "number",
         "number":           "string",
         "dur":              "number",
         "status":           "number",
+        "connected":        "string",
         "file":             "string",
     },
 },
@@ -2750,6 +3330,36 @@
  *          "config":       конфигурация бранча (список опций):
  *          "storelimit":   размер файлового хранилища
  *          "storesize":    использованный размер файлового хранилища
+ *
+ *          "ldap":         параметры подключения к серверу Active Directory
+ *                          "directoryServer":          адрес сервера
+ *                          "directorySSL":             ssl (true/false)
+ *                          "directoryAttributeUID":    название атрибута идентификатора пользователя.
+ *                                                      Возможные значения:
+ *                                                      "userPrincipalName", "sAMAccountName", "uid", "name", "mail"
+ *
+ *                          "directoryAttributePhone":  название атрибута где записывать внутренний номер пользователя
+ *                                                      Возможные значения: 
+ *                                                      стандартные - "telephoneNumber", "mobile", "ipPhone" 
+ *                                                      или другой атрибут на усмотрение администратора сервера
+ *
+ *                          "directoryDomains":         имена доменов (через пробел)
+ *
+ *                          "directoryAuth":            метод авторизации. Возможные значения:
+ *                                                      "simple", "DIGEST-MD5", "GSSAPI" (Kerberos v5)
+ *
+ *                          Параметры при выборе "directoryAuth":"GSSAPI"
+ *                          "directoryKDC":         сервер KDC (если несколько - через пробел)
+ *                          "directoryAdminServer": сервер логинов
+ *
+ *          "services"      список сервисов:
+ *                          "id"    идентификатор сервиса
+ *                          "name"  имя сервиса
+ *                          "type"  тип сервиса:
+ *                                  1 - внешняя авторизация
+ *                                  2 - хранилище файлов
+ *                          "props" параметры сервиса:
+ *                                   <имя параметра> : <значение>
  */
 
 "getBranchOptions": {
@@ -2776,6 +3386,50 @@
         "config":       ["string"],
         "storesize":    "number",
         "storelimit":   "number",
+        
+        "ipcheck":      "boolean",
+        "iptable": [
+            {
+                "net":  "string",
+                "mask": "string",
+            }
+        ],
+        
+        "adminipcheck": "boolean",
+        "adminiptable": [
+            {
+                "net":  "string",
+                "mask": "string",
+            }
+        ],
+        
+        "ldap": {
+            "directoryServer":          "string",
+            "directorySSL":             "boolean",
+            "directoryAttributeUID":    "string",
+            "directoryAttributePhone":  "string",
+            "directoryAuth":            "string",
+            "directoryKDC":             "string",
+            "directoryAdminServer":     "string",
+            "directoryDomains":         "string",
+        },
+        
+        "services": [
+            {
+                "id":                   "string",
+                "name":                 "string",
+                "type":                 "number",
+                "props": {
+                    <key>:              <value>,
+                    ...
+                },
+            },
+        ],
+
+        "apikeys": {
+            <key name>:         <key value>,
+            ...
+        },
     }
 },
 
@@ -2801,6 +3455,31 @@
  *          "config":       конфигурация бранча (список опций):
  *          "storelimit":   размер файлового хранилища
  *  
+ *          "ldap":         параметры подключения к серверу Active Directory
+ *                          "directoryServer":          адрес сервера
+ *                          "directorySSL":             ssl (true/false)
+ *                          "directoryAttributeUID":    название атрибута идентификатора пользователя.
+ *                                                      Возможные значения:
+ *                                                      "userPrincipalName", "sAMAccountName", "uid", "name", "mail"
+ *
+ *                          "directoryAttributePhone":  название атрибута где записывать внутренний номер пользователя
+ *                                                      Возможные значения: 
+ *                                                      стандартные - "telephoneNumber", "mobile", "ipPhone" 
+ *                                                      или другой атрибут на усмотрение администратора сервера
+ *
+ *                          "directoryDomains":         имена доменов (через пробел)
+ *
+ *                          "directoryAuth":            метод авторизации. Возможные значения:
+ *                                                      "simple", "DIGEST-MD5", "GSSAPI" (Kerberos v5)
+ *
+ *                          Параметры при выборе "directoryAuth":"GSSAPI"
+ *                          "directoryKDC":         сервер KDC (если несколько - через пробел)
+ *                          "directoryAdminServer": сервер логинов
+ *
+ *          "services"      список сервисов:
+ *                          "id"    идентификатор сервиса
+ *                          "props" параметры сервиса:
+ *                                   <имя параметра> : <значение>
  */
 
 "setBranchOptions": {
@@ -2823,7 +3502,69 @@
         "enabled":      "boolean",
         "config":       ["string"],
         "storelimit":   "number",
+        
+        "ipcheck":      "boolean",
+        "iptable": [
+            {
+                "net":  "string",
+                "mask": "string",
+            }
+        ]
+        
+        "adminipcheck": "boolean",
+        "adminiptable": [
+            {
+                "net":  "string",
+                "mask": "string",
+            }
+        ],
+        
+        "ldap": {
+            "directoryServer":          "string",
+            "directorySSL":             "boolean",
+            "directoryAttributeUID":    "string",
+            "directoryAttributePhone":  "string",
+            "directoryAuth":            "string",
+            "directoryKDC":             "string",
+            "directoryAdminServer":     "string",
+            "directoryDomains":         "string",
+        },
+        
+        "services": [
+            {
+                "id":                   "string",
+                "props": {
+                    <key>:              <value>,
+                    ...
+                },
+            },
+        ],
     }
+},
+
+/*
+ *  Method "createAPIKey"
+ *  
+ *  Создать API Key. Генерирует ключ для доступа к методам API бранча.
+ *                   Ключ нужно устанавливать в параметре HTTP запроса:
+ *                   Authorization: Bearer <API Key>
+ *
+ *  params: список параметров:
+ *          
+ *          "name":         Key name
+ *  
+ *  result: API Key
+ */
+
+"createAPIKey": {
+    
+    "type":             "method",
+    
+    "params": {
+        "name":         "string" 
+    },
+
+    "result":           "string" 
 },
 
 
@@ -2924,35 +3665,373 @@
 
 
 /*
- *  Method "getBranchState"
+ *  Method "getDirectoryUsers"
  *  
- *  Получить состояние бранча
+ *  Получить список пользователей из директория
  *
  *  params: 
- *          "oid":          идентификатор бранча
+ *          "username":     логин
+ *          "password":     пароль
+ *          "domain":       домен
+ *          "ou":           подразделение
  *          
- *          
- *  "result":
- *          "enabled":      состояние:
- *                          true - работает
- *                          false- выключен
- *          "description":  описание (или код) состояния
+ *  result: список пользователей:
+ *          "dn":           имя пользователя ("distinguishedName")
+ *          "cn":           имя пользователя
+ *          "login":        логин пользователя
+ *          "ext":          внутренний номер PBX
+ *          "attributes":   атрибуты пользователя:
+ *                          "<directoryAttributeUID>":  идентификатор пользователя
+ *                                                      "<directoryAttributeUID>":  имя атрибута из параметра "ldap.directoryAttributeUID"
+ *
+ *                          "<directoryAttributePhone>":внутренний номер
+ *                                                      "<directoryAttributePhone>":  имя атрибута из параметра "ldap.directoryAttributePhone"
+ *
+ *                          "description":              
+ *                          "company":
+ *                          "department":
+ *                          "title":
+ *                          "mail":
+ *                          "mobile":
+ *                          "displayName":
  */
 
-"getBranchState": {
+"getDirectoryUsers": {
     
     "type":             "method",
     
     "params": {
-        "oid":          "string" 
+        "username":          "string", 
+        "password":          "string",
+        "domain":            "string", 
+        "ou":                "string", 
     },
     
-    "result": {
-        "enabled":      "boolean",
-        "description":  "string",
-    },
+    "result": [
+        {
+            "dn":                               "string",
+            "cn":                               "string",
+            "login":                            "string",
+            "ext":                              "string",
+            "attributes"{
+                "<directoryAttributeUID>":      "string",
+                "<directoryAttributePhone>":    "string",
+                "description":                  "string",
+                "company":                      "string",
+                "department":                   "string",
+                "title":                        "string",
+                "mail":                         "string",
+                "mobile":                       "string",
+                "displayName":                  "string",
+            },
+        },
+    ],
 },
 
+
+/*
+ *  Method "setDirectoryUsers"
+ *  
+ *  Создать пользователей
+ *
+ *  params: 
+ *          "username":     логин
+ *          "password":     пароль
+ *          "domain":       домен
+ *          "users":        список пользователей:
+ *                          "dn":           имя пользователя ("distinguishedName")
+ *                          "cn":           имя пользователя
+ *                          "login":        логин пользователя
+ *                          "ext":          внутренний номер
+ *                          "attributes":   атрибуты пользователя:
+ *                              "<directoryAttributeUID>":  идентификатор пользователя
+ *                                                      "<directoryAttributeUID>":  имя атрибута из параметра "ldap.directoryAttributeUID"
+ *
+ *                              "<directoryAttributePhone>":внутренний номер
+ *                                                      "<directoryAttributePhone>":  имя атрибута из параметра "ldap.directoryAttributePhone"
+ *
+ *                              "description":              
+ *                              "company":
+ *                              "department":
+ *                              "title":
+ *                              "mail":
+ *                              "mobile":
+ *                              "displayName":
+ *          
+ *  result:
+ *          none
+ */
+
+"setDirectoryUsers": {
+    
+    "type":             "method",
+    
+    "params": {
+        "username":          "string", 
+        "password":          "string", 
+        "domain":            "string",
+        "users": [
+            {
+                "dn":                               "string",
+                "cn":                               "string",
+                "login":                            "string",
+                "ext":                              "string",
+                "attributes"{
+                    "<directoryAttributeUID>":      "string",
+                    "<directoryAttributePhone>":    "string",
+                    "description":                  "string",
+                    "company":                      "string",
+                    "department":                   "string",
+                    "title":                        "string",
+                    "mail":                         "string",
+                    "mobile":                       "string",
+                    "displayName":                  "string",
+                },
+            },
+        ],
+    },  
+},
+
+/*
+ *  Method "getExternalUsers"
+ *  
+ *  Получить список пользователей внешнего сервиса
+ *
+ *  params: 
+ *          "service_id":   идентификатор сервиса
+ *          "username":     логин (зарезервировано для сервисов с типом 3)
+ *          "password":     пароль (зарезервировано для сервисов с типом 3)
+ *          "domain":       домен (зарезервировано для сервисов с типом 3)
+ *          
+ *  result: список пользователей:
+ *          "uid":          идентификатор пользователя
+ *          "name":         полное имя пользователя
+ *          "login":        логин пользователя
+ *          "ext":          внутренний номер PBX
+ *          "attributes":   атрибуты пользователя
+ *
+ */
+
+"getExternalUsers": {
+    
+    "type":             "method",
+    
+    "params": {
+        "service_id":        "string", 
+        "username":          "string", 
+        "password":          "string",
+        "domain":            "string", 
+    },
+    
+    "result": [
+        {
+            "uid":           "string",
+            "name":          "string",
+            "login":         "string",
+            "ext":           "string",
+            "attributes"{
+                "<key>":     "string",
+                ...
+            },
+        },
+    ],
+},
+
+
+/*
+ *  Method "setExternalUsers"
+ *  
+ *  Создать пользователей
+ *
+ *  params: 
+ *          "service_id":   идентификатор сервиса
+ *          "username":     логин (если был в методе "getExternalUsers")
+ *          "password":     пароль (если был в методе "getExternalUsers")
+ *          "domain":       домен (если был в методе "getExternalUsers")
+ *          "users":        список пользователей:
+ *                          "uid":          идентификатор пользователя
+ *                          "name":         полное имя пользователя
+ *                          "login":        логин пользователя
+ *                          "ext":          внутренний номер PBX
+ *                          "attributes":   атрибуты пользователя (зарезервировано)
+ *          
+ *  result:
+ *          none
+ */
+
+"setExternalUsers": {
+    
+    "type":                     "method",
+    
+    "params": {
+        "service_id":           "string", 
+        "username":             "string", 
+        "password":             "string", 
+        "domain":               "string",
+        "users": [
+            {
+                "uid":          "string",
+                "name":         "string",
+                "login":        "string",
+                "ext":          "string",
+                "attributes"{
+                    "<key>":    "string",
+                    ...
+                },
+            },
+        ],
+    },  
+},
+
+
+/*
+ *  Method "getChannelState"
+ *  
+ *  Получить список событий по конференции/каналу
+ *
+ *  params: 
+ *          "oid":      идентификатор конференции/канала
+ *          "time":     время (в миллисекундах от 1.01.1970)
+ *          
+ *  result: list of maps:
+ *          "timecode": время последнего события (в миллисекундах от 1.01.1970)
+ *          "user":     идентификатор пользователя
+ *          "event":    тип события:
+ *                      25  пользователь подключился к каналу
+ *                      26  пользователь отключился от канала
+ *                      27  пользователь включил микрофон
+ *                      28  пользователь выключил микрофон
+ *                      29  прекратилось получение данных из канала
+ *                      30  возобновилось получение данных из канала
+ */
+
+"getChannelState": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string", 
+        "time":         "number", 
+    },
+    
+    "result": [
+        {
+            "timecode":      "number",
+            "event":         "number",
+            "user":          "string",
+        },
+    ],
+},
+
+
+/*
+ *  Method "getChannelRecords"
+ *  
+ *  Получить список записей по конференции/каналу
+ *
+ *  params: 
+ *          "oid":      идентификатор конференции/канала
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          
+ *  result: list of maps:
+ *          "timecode": время начала записи (в миллисекундах от 1.01.1970)
+ *          "duration": длительность записи 
+ *          "file":     имя файла
+ */
+
+"getChannelRecords": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string", 
+        "begin":        "number", 
+        "end":          "number",
+    },
+    
+    "result": [
+        {
+            "timecode":      "number",
+            "duration":      "number",
+            "file":          "string",
+        },
+    ],
+},
+
+
+/*
+ *  Method "getChannelEvents"
+ *  
+ *  Получить список событий по каналу
+ *
+ *  params: 
+ *          "oid":      идентификатор конференции.канала
+ *          "begin":    начальная граница выборки (в миллисекундах от 1.01.1970)
+ *          "end":      конечная граница выборки (в миллисекундах от 1.01.1970)
+ *          
+ *  result: list of maps:
+ *          "timecode": время события (в миллисекундах от 1.01.1970)
+ *          "user":     идентификатор пользователя
+ *          "event":    тип события:
+ *                      25  пользователь подключился к каналу
+ *                      26  пользователь отключился от канала
+ *                      27  пользователь включил микрофон
+ *                      28  пользователь выключил микрофон
+ *                      29  прекратилось получение данных из канала
+ *                      30  возобновилось получение данных из канала
+ *                      
+ */
+
+"getChannelEvents": {
+    
+    "type":             "method",
+    
+    "params": {
+        "oid":          "string", 
+        "begin":        "number", 
+        "end":          "number",
+    },
+    
+    "result": [
+        {
+            "timecode":      "number",
+            "user":          "string",
+            "event":         "number",
+        },
+    ],
+},
+
+
+/*
+ *  Method "getRoutes"
+ *  
+ *  Получить список маршрутов по объекту
+ *
+ *  params: 
+ *          "oid":      идентификатор объекта
+ *          
+ *  result: list of maps:
+ *          "id":        идентификатор роута    
+ *          "ext"        внутренний номер    
+ *                      
+ */
+
+"getRoutes": {
+    
+    "type":             "method",
+    
+    "getRoutes": {
+        "oid":          "string", 
+    },
+    
+    "result": [
+        {
+            "id":       "string",
+            "ext":      "string",
+        }
+    ],
+},
+
+
 }
-
-

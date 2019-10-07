@@ -28,7 +28,6 @@ var InstagramTrunkComponent = React.createClass({
 	},
 
 	componentDidMount: function() {
-		console.log('InstagramTrunkComponent props: ', this.props);
 		var frases = this.props.frases;
 
 		this._initService();
@@ -36,7 +35,6 @@ var InstagramTrunkComponent = React.createClass({
 	},
 
 	// shouldComponentUpdate: function(nextProps, nextState){
-	// 	console.log('InstagramTrunkComponent shouldComponentUpdate: ', nextProps);
 	//     // return a boolean value
 	//     return !this.state.init && nextProps.isNew;
 	// },
@@ -96,7 +94,6 @@ var InstagramTrunkComponent = React.createClass({
 	},
 
 	_updateStatusCallback: function(result) {
-		console.log('updateStatusCallback: ', result);
 		if(result.status === 'connected') {
 
 			// get Facebook pages
@@ -124,7 +121,7 @@ var InstagramTrunkComponent = React.createClass({
 	_getSubscriptions: function() {
 		var appId = this.props.serviceParams.params.appId;
 		window.FB.api('/'+appId+'/subscriptions', function(response) {
-			console.log('_getSubscriptions: ', response);
+			return true;
 
 		}.bind(this));
 	},
@@ -153,13 +150,11 @@ var InstagramTrunkComponent = React.createClass({
 		var state = search !== -1 ? btoa(href.substr(0, search)) : btoa(href);
 		var fbscope = 'manage_pages, instagram_basic, instagram_manage_comments';
 		var link = ("https://www.facebook.com/dialog/oauth?client_id="+params.appId+"&redirect_uri="+params.redirectUri+"&state="+state+'&scope='+fbscope);
-		console.log('_login: ', link, href, search, state);
 		var authWindow = this._openAuthWindow(link);
 
 		var scope = this;
 
 		window.onTokenReceived = function(token) {
-			console.log('authWindow onTokenReceived: ', token);
 			authWindow.close();
 
 			scope.setState({
@@ -171,7 +166,6 @@ var InstagramTrunkComponent = React.createClass({
 		}
 
 		// authWindow.onTokenReceived = function(token) {
-		// 	console.log('authWindow onTokenReceived: ', token);
 		// 	authWindow.close();
 
 		// 	scope.setState({
@@ -185,7 +179,6 @@ var InstagramTrunkComponent = React.createClass({
 		// window.location = "https://www.facebook.com/dialog/oauth?client_id=1920629758202993&redirect_uri=https://main.ringotel.net/chatbot/FacebookMessenger&state="+btoa(window.location.href);
 		
 		// window.FB.login(function(response) {
-		// 	console.log('window.FB.login: ', response);
 		// 	this._updateStatusCallback(response);
 		// }.bind(this), {scope: 'email, manage_pages, publish_pages, read_page_mailboxes, pages_messaging, pages_messaging_subscriptions, public_profile'});
 	},
@@ -205,7 +198,6 @@ var InstagramTrunkComponent = React.createClass({
 	},
 
 	_onChange: function(e) {
-		console.log('_selectwindow.FBPage: ', e);
 		var value = e.target.value;
 		this._selectPage(value);
 	},
@@ -215,8 +207,6 @@ var InstagramTrunkComponent = React.createClass({
 		var frases = this.props.frases;
 		var display = (pages && pages.length && this.props.isNew) ? 'block' : 'none';
 		
-		console.log('InstagramTrunkComponent render: ', this.props.properties, this.props.serviceParams, pages);
-
 		return (
 			<div>
 				{

@@ -21,7 +21,7 @@ function load_licenses() {
 
 	BillingApi.getSubscription(function(err, response) {
 		if(err) return notify_about('error' , err.message);
-		sub = response.result;
+		sub = PbxObject.subscription = response.result;
 
 		BillingApi.getAssignedDids(function(err, response) {
 			if(err) return notify_about('error' , err.message);
@@ -48,6 +48,7 @@ function load_licenses() {
 		    frases: PbxObject.frases,
 		    discounts: discounts,
 		    renewSub: renewSub,
+		    editCard: editPaymentMethod,
 		    onPlanSelect: changePlan,
 		    updateLicenses: onUpdateLicenses,
 		    addCredits: addCredits,
@@ -66,11 +67,14 @@ function load_licenses() {
 
 		show_loading_panel();
 
-		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
+		var requestParams = { subId: sub._id };
+
+		BillingApi.renewSubscription(requestParams, function(err, response) {
 
 			show_content();
 
 			if(err || response.error) {
+				if(err.name === 'NO_PAYMENT_SOURCE') return updateBalance(requestParams, renewSub);
 				notify_about('error', err.message || response.error.message);
 			} else {
 				callback(err, response);
@@ -80,12 +84,18 @@ function load_licenses() {
 			
 	}
 
+	function editPaymentMethod(cb) {
+		updateBalance(null, function(result) {
+			cb(result);
+		})
+	}
+
 	function updateBalance(params, callbackFn) {
-		var paymentParams = {
+		var paymentParams = (params && params.payment) ? {
 			currency: params.payment.currency,
 			amount: params.payment.chargeAmount,
 			description: 'Update balance'
-		};
+		} : null;
 
 		PbxObject.PaymentsApi[profile.billingMethod ? 'authenticate' : 'open']({ profile: profile, payment: paymentParams }, function(err, result) {
 
@@ -172,7 +182,7 @@ function load_licenses() {
 				return;
 			}
 						
-			sub = response.result;
+			sub = PbxObject.subscription = response.result;
 
 			set_object_success();
 
@@ -217,7 +227,7 @@ function load_licenses() {
 				return;
 			}
 
-			sub = response.result;
+			sub = PbxObject.subscription = response.result;
 
 			set_object_success();
 			

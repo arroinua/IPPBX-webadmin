@@ -42,7 +42,6 @@ var ServiceItemComponent = React.createClass({
 	},
 	
 	_saveServiceProps: function() {
-		console.log('ServiceItemComponent _saveServiceProps', this.state.params);
 		this.props.onSave(this.state.params);
 	},
 
@@ -53,8 +52,6 @@ var ServiceItemComponent = React.createClass({
 		var update = this.state.params;
 		
 		update[target.name] = value !== null ? value : "";;
-
-		console.log('ServiceItemComponent _onChange', update);
 
 		this.setState({
 			params: update
@@ -93,8 +90,6 @@ var ServiceItemComponent = React.createClass({
 				value: params.props[key]
 			};
 		});
-
-		console.log('ServiceItemComponent render: ', this.state.params);
 
 		return (
 			<div className="panel panel-default" style={{ borderRadius: 0, boxShadow: "none", border: "none", borderBottom: "1px solid #eee" }}>

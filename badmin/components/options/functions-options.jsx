@@ -25,8 +25,6 @@ var FunctionsOptionsComponent = React.createClass({
 		update.files = files;
 		update[params.name] = params.filename;
 
-		console.log('_onFileUpload: ', files, params);
-
 		this.props.onChange(update);
 	},
 
@@ -41,7 +39,6 @@ var FunctionsOptionsComponent = React.createClass({
 	// 	update[target.name] = value !== null ? value : "";;
 	// 	update.files.push(file);
 
-	// 	console.log('_onFileUpload: ', target, value, update, file);
 
 	// 	this.props.onChange(update);
 	// },

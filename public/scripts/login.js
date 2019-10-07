@@ -43,9 +43,10 @@
                     if(result && result.mode !== 1) {
                         authorize({ login: login, password: pass }, function(err, result) {
                             console.log('authorize callback: ', err, result);
+                            toggleDisableState(formEl.submit, false);
                             if(result && result.token) window.localStorage.setItem('ringo_tid', result.token);
                             
-                            window.location = '/badmin/branch.html' + (result.lastLogin ? '' : '#guide');
+                            window.location = '/badmin/branch.html' + ((result && result.lastLogin) ? '' : '#guide');
                             // window.location = '/badmin/branch.html' + '#guide';
                         })
                     } else {

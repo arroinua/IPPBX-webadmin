@@ -8,6 +8,7 @@ var OptionsComponent = React.createClass({
 		saveOptions: React.PropTypes.func,
 		saveBranchOptions: React.PropTypes.func,
 		generateApiKey: React.PropTypes.func,
+		deleteApiKey: React.PropTypes.func,
 		singleBranch: React.PropTypes.bool
 	},
 
@@ -39,8 +40,6 @@ var OptionsComponent = React.createClass({
 		var params = this.state.params || {};
 		var branchParams = this.state.branchParams;
 		var options = this.state.options;
-
-		console.log('_saveOptions: ', params);
 
 		if(params.adminpass && params.adminpass !== params.confirmpass) {
 			return alert(this.props.frases.OPTS__PWD_UNMATCH);
@@ -113,7 +112,6 @@ var OptionsComponent = React.createClass({
 			params: params
 		});
 
-		console.log('_handleOnGdprSettsChange: ', params);
 	},
 
 	_handleOnTemplatesSettsChange: function(newParams) {
@@ -123,7 +121,6 @@ var OptionsComponent = React.createClass({
 			params: params
 		});
 
-		console.log('_handleOnGdprSettsChange: ', params);
 	},
 
 	_handleOnBranchOptionsChange: function(params) {
@@ -208,7 +205,7 @@ var OptionsComponent = React.createClass({
 								<FunctionsOptionsComponent frases={this.props.frases} params={this.state.options} onChange={this._handleOnFuncOptionsChange} />
 							</div>
 							<div role="tabpanel" className="tab-pane fade in" id="tab-api-keys">
-								<ApiKeysComponent frases={this.props.frases} params={params} onChange={this._handleOnApiKeyOptionsChange} generateApiKey={this.props.generateApiKey} />
+								<ApiKeysComponent frases={this.props.frases} params={params} onChange={this._handleOnApiKeyOptionsChange} generateApiKey={this.props.generateApiKey} deleteApiKey={this.props.deleteApiKey} />
 							</div>
 							<div role="tabpanel" className="tab-pane fade in" id="tab-gdpr-setts">
 								<GdprSettingsComponent frases={this.props.frases} params={params} onChange={this._handleOnGdprSettsChange} />

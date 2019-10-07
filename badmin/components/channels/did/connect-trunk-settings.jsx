@@ -21,7 +21,6 @@ var ConnectTrunkSettings = React.createClass({
 
 	componentWillMount: function() {
 		this._getTrunks(function(result) {
-			console.log('ConnectTrunkSettings result: ', result);
 			this.setState({
 				trunks: result
 			});

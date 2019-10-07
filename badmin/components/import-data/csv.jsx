@@ -78,8 +78,6 @@ var ImportCsvDataComponent = React.createClass({
 			this._readFile(file, { encoding: this.state.options.encoding });
 		}
 
-		console.log('_onFileDrop: ', file);
-
 		this._removeDragData(e);
 		this._onFileDragLeave();
 	},
@@ -89,8 +87,6 @@ var ImportCsvDataComponent = React.createClass({
         var filelist = input.files;
         var file = filelist[0];
 		
-		console.log('_onFileSelect: ', file);
-
         this.setState({ file: file });
         if(!file) return;
         this._readFile(file, { encoding: this.state.options.encoding });
@@ -105,7 +101,6 @@ var ImportCsvDataComponent = React.createClass({
 
 		readFile(file, params, function(err, result) {
             if(err) console.error('readFiles error', err);
-            console.log('readFiles result', result);
             
             rows = result.split(/\r\n|\n/);
             options.delimiter = this._guessDelimiter(rows[0], this.state.delimiters.map(function(item) { return item.value; }));
@@ -165,8 +160,6 @@ var ImportCsvDataComponent = React.createClass({
 		options[name] = type === 'number' ? parseFloat(value) : value;
 
 		this.setState({ options: options });
-
-		console.log('_onOptionsChange: ', name, value);
 
 		if(this.state.fileStr) {
 			if(name === 'encoding') {

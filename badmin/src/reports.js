@@ -55,7 +55,6 @@ function chartOptions(timeFormat) {
             position: "ne",
             margin: 0,
             labelFormatter: function(label, series) {
-                console.log(series);
                 return '<span class="chart-label">'+label+'</span>';
             }
         },
@@ -84,7 +83,7 @@ function Reports(){
         interval = picker.interval;
         params = '\"begin\":'+start+', \"end\":'+end+', \"interval\":'+interval;
 
-        json_rpc_async('getCallStatisticsGraph', params, function(result){
+        json_rpc_async('getCallStatisticsGraph', JSON.parse(params), function(result){
             self.createGraph(result);
             show_content();
         });
@@ -97,14 +96,13 @@ function Reports(){
             interval = picker.interval,
             params = '\"begin\":'+start+', \"end\":'+end+', \"interval\":'+interval;
             
-        json_rpc_async('getCallStatisticsGraph', params, function(result){
+        json_rpc_async('getCallStatisticsGraph', JSON.parse(params), function(result){
             self.createGraph(result);
             $('#reports-cont').removeClass('faded');
         });
     };
 
     this.createGraph = function(data){
-        // console.log(data);
         if(!data.length){
             $("#outCalls-graph").html('<h3 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h3>');
             $("#inAndLost-graph").html('<h3 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h3>');

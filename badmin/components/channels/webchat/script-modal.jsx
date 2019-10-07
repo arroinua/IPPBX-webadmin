@@ -53,7 +53,6 @@ var WebchatScriptComponent = React.createClass({
 	},
 
 	_copied: function() {
-		console.log('copied: ');
 		this.setState({ inBuffer: !this.state.inBuffer });
 	},
 

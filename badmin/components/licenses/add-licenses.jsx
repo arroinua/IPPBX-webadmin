@@ -40,8 +40,6 @@ var AddLicensesComponent = React.createClass({
 	},
 
 	_setQuantity: function(params) {
-		console.log('_setQuantity:', params);
-
 		var state = this.state;
 		var addonName = params.name;
 		var quantity = params.quantity;
@@ -84,8 +82,6 @@ var AddLicensesComponent = React.createClass({
 
 		diff = initQuantity - newQuantity;
 
-		console.log('_getQuantityDiff: ', diff);
-
 		this.setState({ quantityDiff: diff });
 	},
 
@@ -119,8 +115,6 @@ var AddLicensesComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var state = this.state;
-
-		console.log('AddLicensesComponent render: ', this.state);
 
 		return (
 			<div>

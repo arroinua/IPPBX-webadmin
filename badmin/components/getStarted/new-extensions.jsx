@@ -16,7 +16,7 @@ var NewExtensions = React.createClass({
 	},
 
 	_addExtension: function() {
-		console.log('addExtension: ');
+		return true;
 	},
 
 	render: function() {

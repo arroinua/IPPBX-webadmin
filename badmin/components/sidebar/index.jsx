@@ -97,8 +97,6 @@ var SideBarComponent = React.createClass({
 		var objects = this.props.objects;
 		var sortedObjects = this._sortObjects(objects);
 
-		console.log('sidebar render params: ', activeKind, activeItem, selectedMenu);
-
 		return (
 			<div className="sidebar-wrapper">
 				<div className="side-panel">

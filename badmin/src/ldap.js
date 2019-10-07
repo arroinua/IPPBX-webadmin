@@ -20,8 +20,6 @@ function Ldap(options){
     //     available.unshift({ id: 0, text: '----------' });
     // }
 
-    console.log('new LDAP: ', options);
-
     return {
         options: options,
         getUsers: getUsers,
@@ -34,9 +32,7 @@ function Ldap(options){
     };
 
     function getUsers(authData, cb){
-        console.log('getUsers: ', authData);
         json_rpc_async('getDirectoryUsers', authData, function(result) {
-            console.log('getDirectoryUsers result: ', result);
             if(cb) cb(result);
         });
     }
@@ -53,10 +49,8 @@ function Ldap(options){
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
         
-        console.log('getExternalUsers params', params);
 
         $.ajax(params).then(function(data, text, response){
-            console.log('getExternalUsers response: ', data);
 
             if(data && typeof data === 'string' && isLoginPage(data)) return logout();
 
@@ -72,7 +66,6 @@ function Ldap(options){
             else showUsers(data.result);
 
         }, function(err){
-            console.log('getExternalUsers error: ', err);
             var error = null;
 
             window.sessionStorage.removeItem('serviceParams');
@@ -80,8 +73,6 @@ function Ldap(options){
             if(err.responseJSON && err.responseJSON.error && err.responseJSON.error.message) {
                 error = JSON.parse(err.responseJSON.error.message).error;
             }
-            
-            console.log('getExternalUsers error: ', error);
             
             if(error && error.redirection) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
@@ -104,17 +95,13 @@ function Ldap(options){
     }
 
     function setUsers(data, cb){
-        console.log('setDirectoryUsers: ', data);
         json_rpc_async('setDirectoryUsers', data, function(result) {
-            console.log('setDirectoryUsers result: ', result);
             if(cb) cb(result);
         });
     }
 
     function setExternalUsers(data, cb){
-        console.log('setExternalUsers: ', data);
         json_rpc_async('setExternalUsers', data, function(result, err) {
-            console.log('setExternalUsers result: ', result);
             if(err) return notify_about('error', (err.message || PbxObject.frases.ERROR));
             if(cb) cb(result);
         });
@@ -131,7 +118,6 @@ function Ldap(options){
     }
 
     function ldapAuth(data, modalObject){
-        console.log('ldapLogin: ', data, modalObject);
         var btn = modalObject.querySelector('button[data-type="submit"]'),
             prevhtml = btn.innerHTML;
         
@@ -142,11 +128,8 @@ function Ldap(options){
         
         options.auth = data;
 
-        console.log('ldapAuth options: ', options, data);
-
         if(options.external) {
             getExternalUsers(data, function(result){
-                console.log('getExternalUsers login result: ', result);
                 btn.prop('disabled', false);
                 btn.html(prevhtml);
 
@@ -157,7 +140,6 @@ function Ldap(options){
             });
         } else {
             getUsers(data, function(result) {
-                console.log('ldapLogin result: ', result);
                 btn.prop('disabled', false);
                 btn.html(prevhtml);
 
@@ -198,7 +180,6 @@ function Ldap(options){
 
     // function addLdapUsers(data, modalObject){
     function addLdapUsers(params){
-        console.log('addLdapUsers: ', params);
 
         if(params.deAssociationList && params.deAssociationList.length) {
             Utils.each(params.deAssociationList, function(cb, item) {
@@ -217,14 +198,12 @@ function Ldap(options){
 
     function deleteAssociation(params, callback) {
         json_rpc_async('deleteUserService', params, function(result, err) {
-            console.log('deleteAssociation:', result);
             if(err) return notify_about('error', err.message);
             callback();
         });
     }
 
     function onLdapModalClose(modalObject){
-        console.log('LDAP modal closed');
         // available = [];
         // ldapUsers = [];
         // selectedUsers = [];

@@ -32,8 +32,6 @@ var UsersStorageComponent = React.createClass({
         var size;
         var limit;
 
-        console.log('UserStorageComponent render', extensions, data);
-
 		return (
 	        <div className="panel">
 	            <div className="panel-header">

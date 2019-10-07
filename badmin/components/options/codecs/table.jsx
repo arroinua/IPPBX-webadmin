@@ -76,7 +76,6 @@ var AvCodecsTableComponent = React.createClass({
 	},
 
 	_tableRef: function(el) {
-		console.log('_tableRef: ', el);
 		return new Sortable(el);
 	},
 

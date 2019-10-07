@@ -30,8 +30,6 @@ var ExtensionsComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var data = this.props.data;
-		console.log('ExtensionsComponent: ', data);
-
 		return (
 			<div className="row">
 			    <div className="col-xs-12">

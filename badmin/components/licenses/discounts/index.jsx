@@ -42,8 +42,6 @@ var DiscountsComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 
-		console.log('DiscountsComponent: ', this.state.items);
-
 		return (
 			<div className="row">
 				<div className="col-xs-12">

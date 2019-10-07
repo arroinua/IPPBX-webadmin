@@ -82,8 +82,6 @@ var WebchatTrunkIntroSettsComponent = React.createClass({
 
 		newIntro = this.state.fields.filter(function(item) { return selected.indexOf(item.name) !== -1  });
 
-		console.log('_onFieldSelect: ', name, checked, selected, newIntro);
-
 		this.props.setIntro(newIntro);
 		this.setState({ selectedFields: selected });
 	},

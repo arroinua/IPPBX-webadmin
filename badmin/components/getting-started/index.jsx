@@ -94,8 +94,6 @@ var GSModalComponent = React.createClass({
 	render: function() {
 		var body = this._getBody();
 
-		console.log('GSModalComponent render: ', body, this.state.open);
-
 		return (
 			<ModalComponent 
 				title={this.props.frases.GET_STARTED.TITLE}

@@ -1,6 +1,5 @@
 function load_reg_history(params) {
 
-	console.log('load_reg_history: ', params);
 	init();
 
 	function init(params) {

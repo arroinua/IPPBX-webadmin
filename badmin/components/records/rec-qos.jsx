@@ -25,7 +25,6 @@ var RecQosTable = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var data = this.props.data;
-		console.log('render: ', data);
 
 		return (
 			

@@ -1,6 +1,5 @@
 function load_hunting(params) {
 
-	console.log('load_hunting: ', params);
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
@@ -25,7 +24,7 @@ function load_hunting(params) {
 		objParams.enabled = state;
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+		    return true;
 		});
 	}
 
@@ -33,13 +32,11 @@ function load_hunting(params) {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
 	//     json_rpc_async('onAddMembers', params, function(result){
-	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
-		console.log('showAvailableUsers: ');
 		modalCont = document.getElementById('available-users-cont');
 
 		if(modalCont) {
@@ -62,7 +59,6 @@ function load_hunting(params) {
 
 	function addMembers(array) {
 		objParams.members = objParams.members.concat(array);
-		console.log('addMembers: ', array, objParams);
 
 		if(PbxObject.name) {
 			setObject(objParams, function(result) {
@@ -77,7 +73,6 @@ function load_hunting(params) {
 
 	function deleteMember(params) {
 		var oid = params.oid;
-		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
@@ -97,8 +92,6 @@ function load_hunting(params) {
 
 	    var objName = props.name || defaultName;
 
-	    console.log('setObject: ', props);
-
 		json_rpc_async('setObject', {
 			kind: PbxObject.kind,
 			oid: props.oid,
@@ -111,7 +104,6 @@ function load_hunting(params) {
 
 			// Upload audio files
 			if(props.files && props.files.length) {
-				console.log('upload Files: ', props.files);
 				props.files.forEach(function(item) {
 					uploadFile(item);
 				})
@@ -119,7 +111,6 @@ function load_hunting(params) {
 
 			// Add new route to the routing table
 			if(props.route && props.route.ext) {
-			    console.log('set route props: ', props.route);
 			    var routeProps = {
 			    	number: props.route.ext,
 			    	target: { oid: PbxObject.oid, name: PbxObject.name }

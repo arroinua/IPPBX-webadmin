@@ -63,8 +63,6 @@ var GdprSettingsComponent = React.createClass({
 	},
 
 	_onChange: function(profile) {
-		console.log('GdprSettingsComponent _onChange: ', profile);
-
 		var profiles = this.state.profiles;
 		profiles.splice(profile.id-1, 1, profile);
 
@@ -76,8 +74,6 @@ var GdprSettingsComponent = React.createClass({
 	},
 
 	_deleteProfile: function(id) {
-
-		console.log('_deleteProfile: ', id);
 
 		var profiles = this.state.profiles;
 		profiles = profiles.filter(function(item) {

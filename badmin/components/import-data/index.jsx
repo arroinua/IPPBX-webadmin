@@ -49,7 +49,6 @@ var ImportDataModalComponent = React.createClass({
 		var newParams = extend({}, this.state.params, params);
 		var errorState = ((!newParams.columns || !newParams.columns.length) || (!newParams.data || !newParams.data.length) || (newParams.columns.length !== newParams.data[0].length));
 		this.setState({ params: newParams, errorState: errorState });
-		console.log('_setParams:', params, newParams, errorState);
 	},
 
 	_getBody: function() {

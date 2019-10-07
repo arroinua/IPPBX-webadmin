@@ -22,12 +22,10 @@ function GetStarted(container) {
 
 			getExtensions(function(exts) {
 			    extensions = exts;
-			    console.log('extensions:', extensions);
 
 			    // getObjects(null, function(objs) {
 			    	// objects = objs;
 
-			    	console.log('objects:', objects);
 
 			    	// createWidget();
 

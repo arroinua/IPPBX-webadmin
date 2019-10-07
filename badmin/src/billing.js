@@ -10,7 +10,7 @@ function load_billing() {
 
 	BillingApi.getSubscription(function(err, response) {
 		if(err) return notify_about('error' , err.message);
-		sub = response.result;
+		sub = PbxObject.subscription = response.result;
 
 		init();
 		show_content();

@@ -1,6 +1,5 @@
 function load_customers(params) {
 
-	console.log('load_customers: ', PbxObject.kind, params);
 	var frases = PbxObject.frases;
 	var customers = [];
     // var importServices = [{ id: 'csv', name: '.csv' }, { id: 'Zendesk', name: 'Zendesk' }];
@@ -25,7 +24,6 @@ function load_customers(params) {
 
     function getCustomers() {
     	json_rpc_async('getCustomers', null, function(result, err) {
-    		console.log('getCustomers: ', err, result);
     		customers = sortByKey(result || [], 'name');
     		render(customers);
             show_content();
@@ -33,7 +31,6 @@ function load_customers(params) {
     }
 
     function onDelete(cid) {
-    	console.log('onDelete: ', cid);
     	ReactDOM.render(
     		DeleteObjectModalComponent({
     			frases: frases,
@@ -50,7 +47,6 @@ function load_customers(params) {
     	json_rpc_async('deleteCustomerData', {
     		customerid: cid
     	}, function(result, err) {
-    		console.log('deleteCustomerData result: ', err, result);
     		
     		customers = customers.filter(function(item) {
     			return item.id !== cid;
@@ -62,9 +58,7 @@ function load_customers(params) {
     }
 
     function getPrivacyPrefs(customerId, callback) {
-        console.log('getPrivacyPrefs: ', customerId);
         json_rpc_async('getCustomerConsent', { customerid: customerId }, function(response, err) {
-            console.log('getCustomerConsent: ', response);
             if(err) return notify_about('error', err);
             callback(response);
         });
@@ -99,7 +93,6 @@ function load_customers(params) {
         var method = params.service_id ? 'importContacts' : 'importCustomers';
 
         json_rpc_async(method, params, function(result, error) {
-            console.log('importCustomers error: ', error);
             if(error && error.message) {
                 var message = JSON.parse(error.message);
                 if(message.error.code === 401) {
@@ -149,10 +142,7 @@ function load_customers(params) {
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
         
-        console.log('authInService', params);
-
         $.ajax(params).then(function(data){
-            console.log('authInService: ', data);
             if(data) {
                 if(data.result.location) {
                     window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -170,8 +160,6 @@ function load_customers(params) {
             if(err.responseJSON.error && err.responseJSON.error.message) {
                 error = JSON.parse(err.responseJSON.error.message).error;
             }
-            
-            console.log('authInService error: ', error);
             
             if(error && error.redirection) {
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));

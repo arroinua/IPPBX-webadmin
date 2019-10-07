@@ -10,6 +10,7 @@ var LicensesComponent = React.createClass({
 		updateLicenses: React.PropTypes.func,
 		addCredits: React.PropTypes.func,
 		renewSub: React.PropTypes.func,
+		editCard: React.PropTypes.func,
 		extend: React.PropTypes.func,
 		addCoupon: React.PropTypes.func,
 		countSubAmount: React.PropTypes.func,
@@ -36,8 +37,6 @@ var LicensesComponent = React.createClass({
 		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
 
-		console.log('BillingComponent proration: ', cycleDays, proratedDays);
-
 		this.setState({
 			profile: this.props.profile,
 			sub: sub,
@@ -50,8 +49,6 @@ var LicensesComponent = React.createClass({
 	},
 
 	componentWillReceiveProps: function(props) {
-		console.log('componentWillReceiveProps: ', props);
-
 		var sub = props.sub ? JSON.parse(JSON.stringify(props.sub)) : {};
 		var cycleDays = moment(sub.nextBillingDate).diff(moment(sub.prevBillingDate), 'days');
 		var proratedDays = moment(sub.nextBillingDate).diff(moment(), 'days');
@@ -111,8 +108,6 @@ var LicensesComponent = React.createClass({
 		var newSubProration = null;
 		var getProration = this.props.utils.getProration;
 
-		console.log('_countPayAmount: ', currsub, newsub);
-
 		if(parseFloat(currAmount) <= 0 || currsub.plan.trialPeriod || currsub.plan.billingPeriod !== newsub.plan.billingPeriod || currsub.plan.billingPeriodUnit !== newsub.plan.billingPeriodUnit) {
 			newsub.nextBillingDate = moment().add(newsub.plan.billingPeriod, newsub.plan.billingPeriodUnit).valueOf();
 			newsub.prevBillingDate = Date.now();
@@ -129,14 +124,12 @@ var LicensesComponent = React.createClass({
 				chargeAmount = 0;
 			}
 
-			console.log('changePlan proration: ', currAmount, newAmount, currentSubProration, newSubProration, chargeAmount, proratedAmount);
 		}
 
 		return { newSubAmount: newAmount, totalAmount: (totalAmount > 0 ? totalAmount : 0), chargeAmount: chargeAmount };
 	},
 
 	_setUpdate: function(item) {
-		console.log('_setUpdate:', item);
 		var params = this.state;
 		if(item.min !== undefined && item.value < item.min) return;
 		if(item.max !== undefined && item.value > item.max) return;
@@ -145,8 +138,6 @@ var LicensesComponent = React.createClass({
 	},
 
 	_onPlanSelect: function(plan) {
-		console.log('_onPlanSelect 1: ', plan, this.state.sub);
-
 		var sub = JSON.parse(JSON.stringify(this.props.sub));
 		var nextBillingDate = sub.nextBillingDate;
 		var isTrial = plan.planId === 'trial';
@@ -154,8 +145,6 @@ var LicensesComponent = React.createClass({
 		sub.plan = plan;
 		sub.addOns = this._extendAddons(plan.addOns, sub.addOns);		
 		sub.amount = this.props.countSubAmount(sub);
-
-		console.log('_onPlanSelect 2: ', plan, sub);
 
 		var amounts = this._countNewPlanAmount(this.props.sub, sub);
 
@@ -194,8 +183,6 @@ var LicensesComponent = React.createClass({
 	// 		chargeAmount = proration > 1 ? proration : 1;
 	// 	}
 
-	// 	console.log('_updateLicenses: ', totalAmount, proration);
-
 	// 	this.props.updateLicenses({
 	// 		addOns: sub.addOns,
 	// 		quantity: sub.quantity,
@@ -221,12 +208,12 @@ var LicensesComponent = React.createClass({
 		this.props.editCard(function(result) {
 			if(!result) return;
 
-			var profile = this.state.profile;
-			profile.billingMethod = {
-				params: result.card
-			};
+			// var profile = this.state.profile;
+			// profile.billingMethod = {
+			// 	params: result.card
+			// };
 
-			this.setState({ profile: profile });
+			// this.setState({ profile: profile });
 
 			this.props.renewSub(function(err) {
 				if(err) return;

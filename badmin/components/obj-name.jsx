@@ -71,7 +71,6 @@ var ObjectName = React.createClass({
 		var state = !this.state.enabled;
 		this.setState({ enabled: state, pending: true });
 		this.props.onStateChange(state, function(err, result) {
-			console.log('ObjectName _toggleState: ', err, result);
 			this.setState({ pending: false });
 			if(err) this.setState({ enabled: !state });
 		}.bind(this))

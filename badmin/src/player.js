@@ -88,14 +88,12 @@ function Player(){
         link.setAttribute('download', oAudio.src);
         oAudio.play();
 
-        console.log('playTrack: ', trackIndex, global.playlist[trackIndex-1].file);
     },
 
     clickHandler = function(e){
         if(!e) e = window.event;
         var targ = e.target;
         if(targ.nodeName == 'I') targ = targ.parentNode;
-        // console.log(targ);
         if(targ.id == 'pl-play') global.playAudio();
         if(targ.id == 'pl-stop') global.stopAudio();
         if(targ.id == 'pl-prev') global.prevAudio();
@@ -154,7 +152,6 @@ function Player(){
                 link.href = this.audioURL;
                 link.setAttribute('download', this.audioFile);
             }
-            console.log('playAudio: ', oAudio.src, currentFile);
             //Tests the paused attribute and set state. 
             if (oAudio.paused) {
                 oAudio.play();

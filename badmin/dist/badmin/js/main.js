@@ -2,174 +2,66 @@ function load_application(result){
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
 
-    var enabled = document.getElementById('enabled');
-    var name = document.getElementById('objname');
-
-    if(result.name){
-        name.value = result.name;
-    }
-    
-    if(enabled) {
-        enabled.checked = result.enabled;
-        addEvent(enabled, 'change', function(){
-            setObjectState(result.oid, this.checked, function(result) {
-                if(!result) enabled.checked = !enabled.checked;
-            });
-        });
-    }
-    
-    // if(result.enabled)
-    //     document.getElementById('enabled').checked = result.enabled;
-    if(result.debug)
-        document.getElementById('debug').checked = result.debug;
-    // if(result.status)
-    //     document.getElementById('status').innerHTML = result.status;
-    if(result.dbconnection){
-        var db = result.dbconnection;
-        if(db.driver == 'sun.jdbc.odbc.JdbcOdbcDriver'){
-            document.getElementById('odbc').checked = true;
-            if(db.url)
-                document.getElementById('odbcurl').value = db.url;
-        }
-        else if(db.driver){
-            document.getElementById('jdbc').checked = true;
-            document.getElementById('jdbcdriver').value = db.driver;
-            if(db.url)
-                document.getElementById('jdbcurl').value = db.url;
-        }
-        if(db.schema)
-            document.getElementById('dbowner').value = db.schema;
-        if(db.username)
-            document.getElementById('dbuser').value = db.username;
-        if(db.password)
-            document.getElementById('dbpass').value = db.password;
-    }
-    
-    var vars = result.parameters;
-    if(vars.length){
-        for(var i=0; i<vars.length; i++){
-            add_app_row(vars[i]);
-        }
-    }
-    else{
-        add_app_row();
-    }
-
-    // Render route parameters
-    renderObjRoute({
-        routes: result.routes || [],
-        frases: PbxObject.frases,
-        onChange: setCurrObjRoute
-    });
+    init(result);
     
     show_content();
     set_page();
-}
 
-function set_application(){
-    show_loading_panel();
-    var tbody = document.getElementById('appvariables').getElementsByTagName('tbody')[0];
-    var name = document.getElementById('objname').value;
-    var jprms = '\"name\":\"'+name+'\",';
-    jprms += '"enabled":'+document.getElementById('enabled').checked+',';
-    if(PbxObject.oid) jprms += '\"oid\":\"'+PbxObject.oid+'\",';
-    
-    jprms += '\"parameters\":[';
-    var i, j;
-    for(i=0; i<tbody.children.length; i++){
-        var tr = tbody.children[i];
-        var inputs = tr.getElementsByTagName('input');
-        var str = '';
-        for(j=0;j<inputs.length;j++){
-            if(inputs[j].name == 'variable'){
-                str += '"key":"'+inputs[j].value+'",';
-            }
-            else if(inputs[j].name == 'value') {
-                str += '"value":"'+inputs[j].value+'",';
-            }
-            else 
-                continue;
+    function setObject(params, file) {
+        show_loading_panel();
+
+        var setParams = {};
+
+        if(file) {
+            setParams = extend(params, {method: 'setObject', id: 1, file: file, filename: file.name});
+            delete setParams.parameters;
+            request('POST', '/', setParams, onSetObject);
+        } else {
+            json_rpc_async('setObject', params, onSetObject);
         }
-        if(str != '') {
-            jprms += '{'+str+'},';
+            
+    }
+
+    function onSetObject(err, response) {
+        Utils.debug('onSetObject: ', err, response);
+        json_rpc_async('getObject', {oid: response.result.result}, function(result) {
+            set_object_success();
+            init(result);
+        });
+    }
+
+    function onNameChange(name) {
+        PbxObject.name = name;
+    }
+
+    function onStateChange(state) {
+        if(!PbxObject.name) return;
+        setObjectState(PbxObject.oid, state, function(result) {
+            return true;
+        });
+    }
+
+    function removeObject() {
+        delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+    }
+
+    function init(params) {
+        var componentParams = {
+            frases: PbxObject.frases,
+            params: params,
+            setObject: setObject,
+            onNameChange: onNameChange,
+            onStateChange: onStateChange
+        };
+
+        if(params.name) {
+            componentParams.removeObject = removeObject;
         }
+
+        ReactDOM.render(ApplicationComponent(componentParams), document.getElementById('el-loaded-content'));
     }
-    jprms += '],';
-    jprms += '"debug":'+document.getElementById('debug').checked+',';
-    jprms += '"dbconnection":{';
-    var driver, url;
-    if(document.getElementById('odbc').checked){
-        driver = 'sun.jdbc.odbc.JdbcOdbcDriver';
-        url = document.getElementById('odbcurl').value;
-    }
-    else{
-        driver = document.getElementById('jdbcdriver').value;
-        url = document.getElementById('jdbcurl').value;
-    }
-    jprms += '"driver":"'+driver+'",';
-    jprms += '"url":"'+url+'",';
-    
-    if(document.getElementById('dbowner'))
-        jprms += '"schema":"'+document.getElementById('dbowner').value+'",';
-    if(document.getElementById('dbuser'))
-        jprms += '"username":"'+document.getElementById('dbuser').value+'",';
-    if(document.getElementById('dbpass'))
-        jprms += '"password":"'+document.getElementById('dbpass').value+'",';
-    jprms += '},';
-    
-    json_rpc_async('setObject', jprms, function(result) {
-
-        set_object_success(result)
-
-        // Add new route to the object
-        if(result && getTempParams().ext) {
-            var routeParams = {
-                number: getTempParams().ext,
-                target: { oid: result, name: name }
-            };
-            if(getTempParams().oid) routeParams.oid = getTempParams().oid;
-
-            console.log('set route params: ', routeParams);
-            setObjRoute(routeParams);
-        }
-    });
-}
-
-function add_app_row(object){
-    
-    var table = document.getElementById('appvariables').getElementsByTagName('tbody')[0];
-    var tr = document.createElement('tr');
-    
-    var td = document.createElement('td');
-    var div = document.createElement('div');
-    div.className = 'form-group';
-    var cell = document.createElement('input');
-    cell.className = 'form-control';
-    cell.setAttribute('type', 'text');
-    cell.setAttribute('name', 'variable');
-    cell.setAttribute('disabled', 'disabled');
-    if(object && object.key) cell.value = object.key;
-    div.appendChild(cell);
-    td.appendChild(div);
-    tr.appendChild(td);
-    table.appendChild(tr);
-    
-    td = document.createElement('td');
-    div = document.createElement('div');
-    div.className = 'form-group';
-    cell = document.createElement('input');
-    cell.className = 'form-control';
-    cell.setAttribute('name', 'value');
-    if(object && object.value) cell.value = object.value;
-    div.appendChild(cell);
-    td.appendChild(div);
-    tr.appendChild(td);
-    table.appendChild(tr);
-    
-    table.appendChild(tr);
 }
 function load_attendant(result){
-    // console.log('attendant', result);
     PbxObject.oid = result ? result.oid : '';
     PbxObject.name = result ? result.name : '';
 
@@ -253,18 +145,15 @@ function setInitAttParams(){
 }
 
 // function initAttObjTour(type) {
-//     console.log('initAttObjTour: ', type);
 //     var tour = {};
 //     if(type === PbxObject.attendant.types.menu && getTempParams().menuTour) {
 //         tour = MyTour('attendantMenu', PbxObject.tours.attendantMenu());
-//         console.log('initAttObjTour menu tour: ', tour);
 
 //         tour.start();
 
 //         updateTempParams({ menuTour: false });
 //     } else if(type === PbxObject.attendant.types.mail && getTempParams().emailTour) {
 //         tour = MyTour('attendantEmail', PbxObject.tours.attendantEmail());
-//         console.log('initAttObjTour email tour: ', tour);
 
 //         tour.start();
 
@@ -656,8 +545,6 @@ function AttObject(params){
         wrapper = document.createElement('div'),
         oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0);
 
-    console.log('new AttObject params: ', params, data);
-
     wrapper.className = 'att-obj-wrapper';
     wrapper.innerHTML = rendered;
 
@@ -766,7 +653,6 @@ function removeObject(oid, deep){
                 // obj = objects[key];
                 // if(obj.type === PbxObject.attendant.types.menu){
                 //     if(obj.data && !obj.file)
-                //         console.log('/attendant/'+attName+'/'+obj.data);
                 //         // deleteFile('/attendant/'+attName+'/'+obj.data);
                 // }
                 delete objects[key];
@@ -814,7 +700,6 @@ function checkParams(params){
 }
 
 function showAttObjectSetts(params, object){
-    // console.log('showAttObjectSetts', params);
 
     // if(params.data && !params.file){
     //     params.dataUnchanged = true;
@@ -892,8 +777,6 @@ function showAttObjectSetts(params, object){
 function setAttObject(params, object){
 
     var attParams = collectAttParams(params);
-
-    console.log('setAttObject: ', attParams);
 
     if(!checkParams(attParams)) return;
     if(object){
@@ -1181,7 +1064,6 @@ function filterByPattern(array, pattern){
     if(pattern){
         var pt = new RegExp(pattern),
             newArr = array.filter(function(item){
-                // console.log(pattern, item.value, pt.test(item.value));
                 return pt.test(item.ext);
             });
         return newArr;
@@ -1276,7 +1158,6 @@ function set_attendant(){
     };
 
     jprms += '],';
-    // console.log(jprms);
 
     json_rpc_async('setObject', jprms, function(result) {
         
@@ -1291,7 +1172,6 @@ function set_attendant(){
         //     };
         //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-        //     console.log('set route params: ', routeParams);
         //     setObjRoute(routeParams);
         // }
     });
@@ -2582,7 +2462,6 @@ var BillingApi = {
 	},
 
 	getProration: function(sub, amount) {
-		console.log('getProration: ', sub, amount);
 		var now = Date.now();
 		var cycle = Math.floor((sub.nextBillingDate - sub.prevBillingDate) / 1000);
 		var left = sub.nextBillingDate > now ? Math.floor((sub.nextBillingDate - now) / 1000) : 0;
@@ -2632,8 +2511,8 @@ var BillingApi = {
 		this.request('updateSubscription', params, callback);
 	},
 
-	renewSubscription: function(callback) {
-		this.request('renewSubscription', null, callback);
+	renewSubscription: function(params, callback) {
+		this.request('renewSubscription', params, callback);
 	},
 
 	addCoupon: function(params, callback) {
@@ -2713,7 +2592,7 @@ function load_billing() {
 
 	BillingApi.getSubscription(function(err, response) {
 		if(err) return notify_about('error' , err.message);
-		sub = response.result;
+		sub = PbxObject.subscription = response.result;
 
 		init();
 		show_content();
@@ -2892,7 +2771,6 @@ function load_branch_options() {
 			delete newOptions.options.files;
 		}
 
-		console.log('saveOptions: ', options, newOptions, files);
 
 		// Upload audio files
 		if(files.length) {
@@ -2910,8 +2788,6 @@ function load_branch_options() {
 		json_rpc_async('setPbxOptions', newOptions, function(result) {
 			options = deepExtend(options, newOptions);
 			PbxObject.options = options;
-
-			console.log('setPbxOptions success: ', newOptions, options);
 
 			if(!newOptions.adminpass) {
 			    handler();
@@ -2948,9 +2824,15 @@ function load_branch_options() {
 		});
 	}
 
-	function saveBranchOptions(newOptions) {
-		console.log('saveBranchOptions: ', newOptions);
+	function deleteApiKey(params, callback) {
+		show_loading_panel();
+		json_rpc_async('deleteAPIKey', params, function(result) {
+			show_content();
+			callback(result);
+		});	
+	}
 
+	function saveBranchOptions(newOptions) {
 		json_rpc_async('setDeviceSettings', newOptions, null);
 	}
 
@@ -2962,10 +2844,9 @@ function load_branch_options() {
 		    branchParams: branchOptions,
 		    saveOptions: saveOptions,
 		    generateApiKey: generateApiKey,
+		    deleteApiKey: deleteApiKey,
 		    saveBranchOptions: saveBranchOptions
 		};
-
-		console.log('render: ', componentParams);
 
 		ReactDOM.render(OptionsComponent(componentParams), document.getElementById('el-loaded-content'));
 
@@ -3092,7 +2973,6 @@ function importCert(){
 function importNewCert(){
 	var certForm = document.getElementById('importCertForm');
 	var certInfo = retrieveFormData(certForm);
-	console.log('certInfo: ', certInfo);
 	if(certInfo && Object.keys(certInfo).length !== 0){
 	    json_rpc_async('setCertificate', certInfo, function(result){
 	    	if(result === 'OK'){
@@ -3178,7 +3058,6 @@ function ChannelRecords(){
 		onlineElements = {};
 		// combined = combineChannelData(data.records, data.events),
 
-	// console.log('combined: ', combined);
 
 	$('#channel-player-cont').affix({
 		offset: {
@@ -3211,19 +3090,16 @@ function ChannelRecords(){
 
 	function getChannelState(time){
 		json_rpc_async('getChannelState', {oid: window.location.hash.substr(window.location.hash.indexOf('?')+1), time: time}, function(result) {
-			console.log('getChannelState: ', time, result);
 			$(document).trigger('channelRecords:state', [result]);
 		});
 	}
 
 	function onNewData(e, data){
-		console.log('onNewData: ', data);
 
 		recsNum.innerText = data.records.length;
 		eventsNum.innerText = data.events.length;
 
 		combined = combineChannelData(data.records, data.events);
-		console.log('combined: ', combined);
 
 		if(!combined.length) return;
 		
@@ -3235,7 +3111,6 @@ function ChannelRecords(){
 	}
 
 	function onNewEvent(e, data){
-		console.log('onNewEvent: ', data);
 		if(lastEvents.indexOf(data.channelEvent.timecode) !== -1) return;
 		lastEvents.push(data.channelEvent.timecode);
 		addEventsTo([data.channelEvent], eventsCont);
@@ -3251,7 +3126,6 @@ function ChannelRecords(){
 	}
 
 	function onChannelState(e, data){
-		console.log('onChannelState: ', data);
 		clearTable(eventsCont);
 		clearTable(onlineEvents);
 		onlineElements = {};
@@ -3262,7 +3136,6 @@ function ChannelRecords(){
 	}
 
 	function addEventsTo(data, cont){
-		console.log('addEventsTo: ', data);
 		var fragment = document.createDocumentFragment();
 		data.forEach(function(item) {
 			fragment.insertBefore(addEventRow(item), fragment.firstChild);
@@ -3315,7 +3188,6 @@ function ChannelRecords(){
 	}
 
 	function triggerOnlineEvent(evt){
-		console.log(evt);
 		var el;
 		if(!onlineElements[evt.user]) {
 			el = createOnlineEventRow(evt);
@@ -3343,7 +3215,6 @@ function ChannelRecords(){
 	}
 
 	function onPlaying(e, data){
-		console.log('onPlaying: ', data, player.audio.currentTime);
 
 		if(data.trackIndex === 0 && !player.audio.currentTime) getChannelState(Math.floor(data.track.timecode+data.currentTime));
 		
@@ -3354,26 +3225,21 @@ function ChannelRecords(){
 	}
 
 	function onPause(){
-		console.log('onPause');
 		playBtn.innerHTML = '<i class="fa fa-fw fa-play"></i>';
 	}
 
 	function onSeeked(e, data){
-		console.log('onSeeked: ', data);
 		getChannelState(Math.floor( data.track.timecode + (data.currentTime || 0) ));
 	}
 
 	function onSeekedClick(e){
 		var currentTime = (player.duration * ((e.offsetX || e.layerX) / seek.clientWidth)).toFixed(2);
-		console.log('seek click: ', currentTime);
 		playByCurrentTime(currentTime);
 	}
 
 	function onInit(e, data){
-		console.log('onInit: ', data);
 		var lastTrack = data.playlist[data.playlist.length-1],
 		lastts = lastTrack.timecode + lastTrack.duration*1000;
-		console.log('onInit: ', lastTrack, lastts);
 		fileDuration.textContent =  moment(lastts).format('DD/MM/YY HH:mm:ss');
 	}
 
@@ -3387,7 +3253,6 @@ function ChannelRecords(){
 		var targ = e.target, timecode;
 		if(targ.nodeName === 'span') targ = targ.parentNode;
 		timecode = targ.getAttribute('data-event');
-		console.log(timecode);
 		playByTimecode(timecode);
 	}
 
@@ -3437,7 +3302,6 @@ function ChannelRecords(){
 
 	function setProgress(e, data){
 		var seekValue = data.currentTime === 0 ? 0 : Math.floor((100 / data.duration) * data.currentTime);
-		// console.log('player:timeupdate', data, seekValue);
 		seek.value = seekValue;
 	}
 
@@ -3449,7 +3313,6 @@ function ChannelRecords(){
 		getCurrEvents(combined[data.trackIndex].events, currTs);
 
 		fileTime.textContent = moment(currTs).format('DD/MM/YY HH:mm:ss');
-		// console.log('player:timeupdate', data, currTs, currEvents);
 	}
 
 	function playByCurrentTime(currentTime){
@@ -3457,7 +3320,6 @@ function ChannelRecords(){
 		combined.forEach(function(item, index, array) {
 			// if(ts >= item.timecode && ts < array[index+1].timecode) {
 			if(ts >= item.timecode && ts < item.timecode+item.duration*1000) {
-				console.log('playByCurrentTime: ', ts, item);
 				player.playTrack(index, (ts-item.timecode)/1000);
 			}
 		});
@@ -3466,7 +3328,6 @@ function ChannelRecords(){
 	function playByTimecode(ts){
 		combined.forEach(function(item, index, array) {
 			if(ts >= item.timecode && ts < array[index+1].timecode) {
-				console.log('playByTimecde: ', ts, index, item);
 				player.playTrack(index, (ts-item.timecode)/1000);
 			}
 		});
@@ -3583,7 +3444,6 @@ function load_channel_statistics(){
     // }
 
 	function init(params){
-		console.log('load_chats_report params: ', params);
 
 		var componentParams = {
 			frases: PbxObject.frases
@@ -3673,7 +3533,6 @@ ChannelPlayer.prototype = {
 		if(currentTime !== undefined) {
 			this.audio.currentTime = currentTime;
 		}
-		console.log('play: ', trackIndex, currentTime);
 		this.audio.play();
 	},
 
@@ -3721,7 +3580,6 @@ ChannelPlayer.prototype = {
 
 };
 function load_channels(result){
-    // console.log(result);
     var row,
         table = document.getElementById('channels').getElementsByTagName('tbody')[0],
         // passReveal = [].slice.call(document.querySelectorAll('.password-reveal')),
@@ -4086,6 +3944,12 @@ function load_chattrunk(params) {
 		name: frases.CHAT_TRUNK.WEBCALL.SERVICE_NAME,
 		icon: '/badmin/images/channels/webchat.png',
 		component: WebcallTrunkComponent
+	}, {
+		id: 'WebAPI',
+		name: frases.CHAT_TRUNK.WEBAPI.SERVICE_NAME,
+		// icon: '/badmin/images/channels/webapi.png',
+		iconClass: 'fa fa-2x fa-code',
+		component: WebApiComponent
 	}
 	// ,{
 	// 	id: 'Twitter',
@@ -4486,7 +4350,6 @@ function add_cli_row(object){
 }
 function load_customers(params) {
 
-	console.log('load_customers: ', PbxObject.kind, params);
 	var frases = PbxObject.frases;
 	var customers = [];
     // var importServices = [{ id: 'csv', name: '.csv' }, { id: 'Zendesk', name: 'Zendesk' }];
@@ -4511,7 +4374,6 @@ function load_customers(params) {
 
     function getCustomers() {
     	json_rpc_async('getCustomers', null, function(result, err) {
-    		console.log('getCustomers: ', err, result);
     		customers = sortByKey(result || [], 'name');
     		render(customers);
             show_content();
@@ -4519,7 +4381,6 @@ function load_customers(params) {
     }
 
     function onDelete(cid) {
-    	console.log('onDelete: ', cid);
     	ReactDOM.render(
     		DeleteObjectModalComponent({
     			frases: frases,
@@ -4536,7 +4397,6 @@ function load_customers(params) {
     	json_rpc_async('deleteCustomerData', {
     		customerid: cid
     	}, function(result, err) {
-    		console.log('deleteCustomerData result: ', err, result);
     		
     		customers = customers.filter(function(item) {
     			return item.id !== cid;
@@ -4548,9 +4408,7 @@ function load_customers(params) {
     }
 
     function getPrivacyPrefs(customerId, callback) {
-        console.log('getPrivacyPrefs: ', customerId);
         json_rpc_async('getCustomerConsent', { customerid: customerId }, function(response, err) {
-            console.log('getCustomerConsent: ', response);
             if(err) return notify_about('error', err);
             callback(response);
         });
@@ -4585,7 +4443,6 @@ function load_customers(params) {
         var method = params.service_id ? 'importContacts' : 'importCustomers';
 
         json_rpc_async(method, params, function(result, error) {
-            console.log('importCustomers error: ', error);
             if(error && error.message) {
                 var message = JSON.parse(error.message);
                 if(message.error.code === 401) {
@@ -4635,10 +4492,7 @@ function load_customers(params) {
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
         
-        console.log('authInService', params);
-
         $.ajax(params).then(function(data){
-            console.log('authInService: ', data);
             if(data) {
                 if(data.result.location) {
                     window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -4656,8 +4510,6 @@ function load_customers(params) {
             if(err.responseJSON.error && err.responseJSON.error.message) {
                 error = JSON.parse(err.responseJSON.error.message).error;
             }
-            
-            console.log('authInService error: ', error);
             
             if(error && error.redirection) {
                 window.sessionStorage.setItem('serviceParams', JSON.stringify(serviceParams));
@@ -4751,6 +4603,20 @@ function load_dashboard(){
         BillingApi.getCredits(callback);   
     }
 
+}
+function load_developer() {
+
+	init();
+	show_content();
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: PbxObject.options
+		};
+
+		ReactDOM.render(DeveloperComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
 }
 
 function EventEmitter() {
@@ -5015,10 +4881,10 @@ function get_extension(e){
             $.get('/badmin/views/extension.html', function(template){
                 PbxObject.templates = PbxObject.templates || {};
                 PbxObject.templates.extension = template;
-                json_rpc_async('getObject', '\"oid\":\"'+oid+'\"', load_extension);
+                json_rpc_async('getObject', {oid: oid}, load_extension);
             });
         } else {
-            json_rpc_async('getObject', '\"oid\":\"'+oid+'\"', load_extension);
+            json_rpc_async('getObject', {oid: oid}, load_extension);
         }
     }
 }
@@ -5475,7 +5341,7 @@ function getUserInfo(userid){
 
     btn.innerHTML = '<i class="fa fa-lg fa-spinner fa-spin"></i>';
     getPartial('userinfo', function(template){
-        json_rpc_async('getUserInfo', '"userid":"'+userid+'"', function(result){
+        json_rpc_async('getUserInfo', {userid: userid}, function(result){
             PbxObject.vars.infoShown = true;
             data = {
                 data: result,
@@ -5517,12 +5383,10 @@ function GetStarted(container) {
 
 			getExtensions(function(exts) {
 			    extensions = exts;
-			    console.log('extensions:', extensions);
 
 			    // getObjects(null, function(objs) {
 			    	// objects = objs;
 
-			    	console.log('objects:', objects);
 
 			    	// createWidget();
 
@@ -5704,7 +5568,6 @@ function load_guide() {
 }
 function load_hunting(params) {
 
-	console.log('load_hunting: ', params);
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
@@ -5729,7 +5592,7 @@ function load_hunting(params) {
 		objParams.enabled = state;
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+		    return true;
 		});
 	}
 
@@ -5737,13 +5600,11 @@ function load_hunting(params) {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
 	//     json_rpc_async('onAddMembers', params, function(result){
-	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
-		console.log('showAvailableUsers: ');
 		modalCont = document.getElementById('available-users-cont');
 
 		if(modalCont) {
@@ -5766,7 +5627,6 @@ function load_hunting(params) {
 
 	function addMembers(array) {
 		objParams.members = objParams.members.concat(array);
-		console.log('addMembers: ', array, objParams);
 
 		if(PbxObject.name) {
 			setObject(objParams, function(result) {
@@ -5781,7 +5641,6 @@ function load_hunting(params) {
 
 	function deleteMember(params) {
 		var oid = params.oid;
-		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
@@ -5801,8 +5660,6 @@ function load_hunting(params) {
 
 	    var objName = props.name || defaultName;
 
-	    console.log('setObject: ', props);
-
 		json_rpc_async('setObject', {
 			kind: PbxObject.kind,
 			oid: props.oid,
@@ -5815,7 +5672,6 @@ function load_hunting(params) {
 
 			// Upload audio files
 			if(props.files && props.files.length) {
-				console.log('upload Files: ', props.files);
 				props.files.forEach(function(item) {
 					uploadFile(item);
 				})
@@ -5823,7 +5679,6 @@ function load_hunting(params) {
 
 			// Add new route to the routing table
 			if(props.route && props.route.ext) {
-			    console.log('set route props: ', props.route);
 			    var routeProps = {
 			    	number: props.route.ext,
 			    	target: { oid: PbxObject.oid, name: PbxObject.name }
@@ -5870,7 +5725,6 @@ function load_hunting(params) {
 }
 function load_icd(params) {
 
-	console.log('load_icd: ', params);
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
@@ -5893,7 +5747,7 @@ function load_icd(params) {
 		objParams.enabled = state;
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+		    return true;
 		});
 	}
 
@@ -5901,13 +5755,11 @@ function load_icd(params) {
 	// 	var params = PbxObject.name ? { groupid: PbxObject.oid } : null;
 
 	//     json_rpc_async('onAddMembers', params, function(result){
-	// 		console.log('onAddMembers: ', result);
 	// 		showAvailableUsers(result);
 	// 	});
 	// }
 
 	function showAvailableUsers() {
-		console.log('showAvailableUsers: ', objParams);
 		modalCont = document.getElementById('available-users-cont');
 
 		if(modalCont) {
@@ -5929,7 +5781,6 @@ function load_icd(params) {
 
 	function addMembers(array) {
 		objParams.members = objParams.members.concat(array);
-		console.log('addMembers: ', array, objParams);
 
 		if(PbxObject.name) {
 			setObject(objParams, function(result) {
@@ -5945,7 +5796,6 @@ function load_icd(params) {
 
 	function deleteMember(params) {
 		var oid = params.oid;
-		console.log('deleteMember: ', oid);
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
@@ -5964,8 +5814,6 @@ function load_icd(params) {
 
 	    var objName = props.name || defaultName;
 
-	    console.log('setObject: ', props);
-
 		json_rpc_async('setObject', {
 			kind: PbxObject.kind,
 			oid: props.oid,
@@ -5981,7 +5829,6 @@ function load_icd(params) {
 
 			// Upload audio files
 			if(props.files && props.files.length) {
-				console.log('upload Files: ', props.files);
 				props.files.forEach(function(item) {
 					uploadFile(item);
 				})
@@ -5989,7 +5836,6 @@ function load_icd(params) {
 
 			// Add new route to the routing table
 			// if(props.route && props.route.ext) {
-			//     console.log('set route props: ', props.route);
 			//     var routeProps = {
 			//     	number: props.route.ext,
 			//     	target: { oid: PbxObject.oid, name: PbxObject.name }
@@ -6056,8 +5902,6 @@ function Ldap(options){
     //     available.unshift({ id: 0, text: '----------' });
     // }
 
-    console.log('new LDAP: ', options);
-
     return {
         options: options,
         getUsers: getUsers,
@@ -6070,9 +5914,7 @@ function Ldap(options){
     };
 
     function getUsers(authData, cb){
-        console.log('getUsers: ', authData);
         json_rpc_async('getDirectoryUsers', authData, function(result) {
-            console.log('getDirectoryUsers result: ', result);
             if(cb) cb(result);
         });
     }
@@ -6089,10 +5931,8 @@ function Ldap(options){
             params.data = 'username='+authData.username+'&password='+authData.password;
         }
         
-        console.log('getExternalUsers params', params);
 
         $.ajax(params).then(function(data, text, response){
-            console.log('getExternalUsers response: ', data);
 
             if(data && typeof data === 'string' && isLoginPage(data)) return logout();
 
@@ -6108,7 +5948,6 @@ function Ldap(options){
             else showUsers(data.result);
 
         }, function(err){
-            console.log('getExternalUsers error: ', err);
             var error = null;
 
             window.sessionStorage.removeItem('serviceParams');
@@ -6116,8 +5955,6 @@ function Ldap(options){
             if(err.responseJSON && err.responseJSON.error && err.responseJSON.error.message) {
                 error = JSON.parse(err.responseJSON.error.message).error;
             }
-            
-            console.log('getExternalUsers error: ', error);
             
             if(error && error.redirection) {
                 // window.sessionStorage.setItem('lastURL', lastURL);
@@ -6140,17 +5977,13 @@ function Ldap(options){
     }
 
     function setUsers(data, cb){
-        console.log('setDirectoryUsers: ', data);
         json_rpc_async('setDirectoryUsers', data, function(result) {
-            console.log('setDirectoryUsers result: ', result);
             if(cb) cb(result);
         });
     }
 
     function setExternalUsers(data, cb){
-        console.log('setExternalUsers: ', data);
         json_rpc_async('setExternalUsers', data, function(result, err) {
-            console.log('setExternalUsers result: ', result);
             if(err) return notify_about('error', (err.message || PbxObject.frases.ERROR));
             if(cb) cb(result);
         });
@@ -6167,7 +6000,6 @@ function Ldap(options){
     }
 
     function ldapAuth(data, modalObject){
-        console.log('ldapLogin: ', data, modalObject);
         var btn = modalObject.querySelector('button[data-type="submit"]'),
             prevhtml = btn.innerHTML;
         
@@ -6178,11 +6010,8 @@ function Ldap(options){
         
         options.auth = data;
 
-        console.log('ldapAuth options: ', options, data);
-
         if(options.external) {
             getExternalUsers(data, function(result){
-                console.log('getExternalUsers login result: ', result);
                 btn.prop('disabled', false);
                 btn.html(prevhtml);
 
@@ -6193,7 +6022,6 @@ function Ldap(options){
             });
         } else {
             getUsers(data, function(result) {
-                console.log('ldapLogin result: ', result);
                 btn.prop('disabled', false);
                 btn.html(prevhtml);
 
@@ -6234,7 +6062,6 @@ function Ldap(options){
 
     // function addLdapUsers(data, modalObject){
     function addLdapUsers(params){
-        console.log('addLdapUsers: ', params);
 
         if(params.deAssociationList && params.deAssociationList.length) {
             Utils.each(params.deAssociationList, function(cb, item) {
@@ -6253,14 +6080,12 @@ function Ldap(options){
 
     function deleteAssociation(params, callback) {
         json_rpc_async('deleteUserService', params, function(result, err) {
-            console.log('deleteAssociation:', result);
             if(err) return notify_about('error', err.message);
             callback();
         });
     }
 
     function onLdapModalClose(modalObject){
-        console.log('LDAP modal closed');
         // available = [];
         // ldapUsers = [];
         // selectedUsers = [];
@@ -6293,7 +6118,7 @@ function load_licenses() {
 
 	BillingApi.getSubscription(function(err, response) {
 		if(err) return notify_about('error' , err.message);
-		sub = response.result;
+		sub = PbxObject.subscription = response.result;
 
 		BillingApi.getAssignedDids(function(err, response) {
 			if(err) return notify_about('error' , err.message);
@@ -6320,6 +6145,7 @@ function load_licenses() {
 		    frases: PbxObject.frases,
 		    discounts: discounts,
 		    renewSub: renewSub,
+		    editCard: editPaymentMethod,
 		    onPlanSelect: changePlan,
 		    updateLicenses: onUpdateLicenses,
 		    addCredits: addCredits,
@@ -6338,11 +6164,14 @@ function load_licenses() {
 
 		show_loading_panel();
 
-		BillingApi.renewSubscription({ subId: sub._id }, function(err, response) {
+		var requestParams = { subId: sub._id };
+
+		BillingApi.renewSubscription(requestParams, function(err, response) {
 
 			show_content();
 
 			if(err || response.error) {
+				if(err.name === 'NO_PAYMENT_SOURCE') return updateBalance(requestParams, renewSub);
 				notify_about('error', err.message || response.error.message);
 			} else {
 				callback(err, response);
@@ -6352,12 +6181,18 @@ function load_licenses() {
 			
 	}
 
+	function editPaymentMethod(cb) {
+		updateBalance(null, function(result) {
+			cb(result);
+		})
+	}
+
 	function updateBalance(params, callbackFn) {
-		var paymentParams = {
+		var paymentParams = (params && params.payment) ? {
 			currency: params.payment.currency,
 			amount: params.payment.chargeAmount,
 			description: 'Update balance'
-		};
+		} : null;
 
 		PbxObject.PaymentsApi[profile.billingMethod ? 'authenticate' : 'open']({ profile: profile, payment: paymentParams }, function(err, result) {
 
@@ -6444,7 +6279,7 @@ function load_licenses() {
 				return;
 			}
 						
-			sub = response.result;
+			sub = PbxObject.subscription = response.result;
 
 			set_object_success();
 
@@ -6489,7 +6324,7 @@ function load_licenses() {
 				return;
 			}
 
-			sub = response.result;
+			sub = PbxObject.subscription = response.result;
 
 			set_object_success();
 			
@@ -6577,6 +6412,78 @@ function load_licenses() {
 	}
 
 }
+function load_location(params) {
+
+	var objParams = params;
+	var handler = null;
+	var defaultName = getDefaultName();
+	var modalCont;
+
+	PbxObject.oid = params.oid;
+	PbxObject.name = params.name;
+
+	function getDefaultName() {
+		var name = PbxObject.frases.ICD_GROUP.DEFAULT_NAME + ' ';
+		name += PbxObject.objects ? filterObject(PbxObject.objects, PbxObject.kind).length+1 : 1;
+		return name;
+	}
+
+	function onNameChange(name) {
+		objParams.name = name;
+	}
+
+	function setObject(props, callback) {
+	    if(PbxObject.name) {
+	    	handler = set_object_success;
+	    }
+
+	    var setParams = extend({}, props);
+	    setParams.kind = PbxObject.kind;
+	    setParams.name = props.name || defaultName;
+	    setParams.profile = {
+	    	anumbertransforms: props.profile.anumbertransforms || [],
+	    	bnumbertransforms: props.profile.bnumbertransforms || []
+	    };
+
+	    delete setParams.members;
+
+		json_rpc_async('setObject', setParams, function(result, err) {
+			
+			if(err) return notify_about('error', err.message);
+
+			PbxObject.name = objParams.name = setParams.name;
+
+			set_object_success();
+			init(setParams);
+			
+		});
+	}
+
+	function removeObject() {
+		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
+	}
+
+	function init(params) {
+		var componentParams = {
+			frases: PbxObject.frases,
+		    params: params,
+		    setObject: setObject,
+		    onNameChange: onNameChange,
+		    getExtension: getExtension
+		};
+
+		if(params.name) {
+			componentParams.removeObject = removeObject;
+		}
+
+		ReactDOM.render(LocationGroupComponent(componentParams), document.getElementById('el-loaded-content'));
+	}
+
+	init(objParams);
+	show_content();
+    set_page();
+
+}
 window.onerror = function(msg, url, linenumber) {
      console.error('Error message: '+msg+'\nURL: '+url+'\nLine number: '+linenumber);
  };
@@ -6641,7 +6548,6 @@ function logout() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/logout', true);
     xhr.onload = function (e) {
-        console.log('logout: ', e);
         window.location = '/';
     };
     xhr.send();
@@ -6656,12 +6562,10 @@ function createWebsocket(){
     var websocket = new WebSocket(protocol + '//'+window.location.host+'/','json.api.smile-soft.com'); //Init Websocket handshake
 
     websocket.onopen = function(e){
-        console.log('WebSocket opened: ', e);
         PbxObject.websocketTry = 1;
     };
     
     websocket.onmessage = function(e){
-        // console.log(e);
         handleMessage(e.data);
     };
     
@@ -6677,7 +6581,6 @@ function createWebsocket(){
 }
 
 function onWebsocketClose(e) {
-    console.log('WebSocket closed', e);
     // if(e.code === 1006) return window.location = '/';
     var time = generateInterval(PbxObject.websocketTry);
     setTimeout(function(){
@@ -6707,7 +6610,7 @@ function loadStripeJs() {
 }
 
 function configureStripe() {
-    PbxObject.PaymentsApi = PaymentsApi('pk_test_XIMDHl1xSezbHGKp3rraGp2y', PbxObject.frases, BillingApi);
+    PbxObject.PaymentsApi = PaymentsApi('pk_live_6EK33o0HpjJ1JuLUWVWgH1vT', PbxObject.frases, BillingApi);
     // var stripe = Stripe('pk_test_XIMDHl1xSezbHGKp3rraGp2y');
     // var elements = stripe.elements();
     
@@ -6722,7 +6625,6 @@ function configureStripe() {
     //     zipCode: true,
     //     locale: 'auto',
     //     token: function(token) {
-    //         console.log('stripe token: ', token);
     //         PbxObject.stripeToken = token;
     //     }
     // });
@@ -6762,20 +6664,25 @@ function json_rpc(method, params){
 
 function json_rpc_async(method, params, handler, id){
 
-
     var xhr = {};
     var jsonrpc = {};
     var parsedJSON = {};
     var requestTimer = null;
 
     if(params !== null){
-        if(typeof params === 'object'){
-            jsonrpc = '{\"method\":\"'+method+'\", \"params\":'+JSON.stringify(params)+', \"id\":'+1+'}';
-        } else{
-            jsonrpc = '{\"method\":\"'+method+'\", \"params\":{'+params+'}, \"id\":'+1+'}';    
+        if(typeof params === 'string') {
+            jsonrpc = '{\"method\":\"'+method+'\", \"params\":{'+params+'}, \"id\":'+1+'}';
+        } else {
+            jsonrpc = { method: method, params: params, id: 1 };
+            if(params.file) {
+                jsonrpc = toFormData(jsonrpc);
+            } else {
+                jsonrpc = JSON.stringify(jsonrpc);
+            }
         }
     } else{
-        jsonrpc = '{\"method\":\"'+method+'\", \"id\":'+1+'}';
+        jsonrpc = { method: method, id: 1 };
+        jsonrpc = JSON.stringify(jsonrpc);
     }
     
     xhr = new XMLHttpRequest();
@@ -6819,7 +6726,6 @@ function json_rpc_async(method, params, handler, id){
                     try {
                         parsedJSON = JSON.parse(xhr.responseText);
                     } catch(err) {
-                        console.log('response in not JSON');
                         if(isLoginPage(xhr.responseText)) return logout();
                     }
 
@@ -6837,8 +6743,8 @@ function json_rpc_async(method, params, handler, id){
             }
         }
     };
-
-    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        
+    if(!(jsonrpc instanceof FormData)) xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhr.send(jsonrpc);
 
 }
@@ -6847,11 +6753,13 @@ function json_rpc_async(method, params, handler, id){
  * Send request to the server via XMLHttpRequest
  */
 function request(method, url, data, options, callback){
-    var xhr, response, requestTimer, dataStr;
+    var xhr, response, requestTimer, dataStr, cb = callback;
+
+    if(typeof options === 'function') cb = options;
 
     xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
-    if(options && options.headers) {
+    if(options && typeof options !== 'function' && options.headers) {
         options.headers.forEach(function(header) {
             xhr.setRequestHeader(header.name, header.value);
         });
@@ -6871,13 +6779,12 @@ function request(method, url, data, options, callback){
                 try {
                     response = JSON.parse(response);
                 } catch(err) {
-                    console.log('response in not JSON');
                     if(isLoginPage(response)) return logout();
                 }
             }
 
             if(xhr.status === 200) {
-                if(callback) callback(null, response);
+                if(cb) cb(null, response);
 
             } else if(xhr.status >= 300 && xhr.status < 400) {
                 return window.location = xhr.getResponseHeader('Location');
@@ -6886,51 +6793,22 @@ function request(method, url, data, options, callback){
                 return logout();
             
             } else if(xhr.status >= 500) {
-                if(callback) return callback('The service is under maintenance. Please, try again later.');
+                if(cb) return cb('The service is under maintenance. Please, try again later.');
 
             } else {
-                if(callback) callback(response ? response.error : null);
+                if(cb) cb(response ? response.error : null);
 
             }
         }
     }
 
-    // xhr.onload = function(e) {
-        
-    //     clearTimeout(requestTimer);
-
-    //     // var redirect = e.target.getAllResponseHeaders();
-    //     var status = e.target.status;
-    //     var response = e.target.responseText;
-
-    //     console.log('request response: ', method, url, response, status);
-
-    //     if(response) {
-            
-    //     }
-
-    //     if(status === 200) {
-    //         if(callback) callback(null, response);
-
-    //     } else if(status === 302) {
-    //         return window.location = xhr.getResponseHeader('Location');
-
-    //     } else if(status === 403) {
-    //         return logout();
-        
-    //     } else if(status >= 500) {
-    //         if(callback) return callback('The service is under maintenance. Please, try again later.');
-
-    //     } else {
-    //         if(callback) callback(response.error);
-
-    //     }
-
-    // };
-
     if(data) {
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        dataStr = JSON.stringify(data);
+        if(data.file) {
+            dataStr = toFormData(data);
+        } else {
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            dataStr = JSON.stringify(data);
+        }
         xhr.send(dataStr);
     } else {
         xhr.send();
@@ -7011,7 +6889,6 @@ function handleMessage(data){
     
     if(data.method){ //if the message content has no "id" parameter, i.e. sent from the server without request
         var params = data.params;
-        console.log('handleMessage', data.method, params);
 
         if(method == 'stateChanged' || method == 'objectUpdated'){
             // updateExtensionRow(params);
@@ -7050,7 +6927,6 @@ function subscribeToEvents() {
     $(document).on('onmessage.object.update', updateExtensionRow);
     $(document).on('onmessage.object.update', updateMenu);
     $(document).on('onmessage.object.update', function(event, params) {
-        console.log('onmessage.object.update: ', PbxObject.oid, params);
         // if object's state change and object oid === params.oid
         if(PbxObject.oid === params.oid) objectStateUpdated(params);
         updateObjectCache(params);
@@ -7072,6 +6948,7 @@ function getPbxOptions(callback) {
 }
 
 function getInstanceMode() {
+    if(!window.localStorage.getItem('ringo_tid')) return 1;
     return PbxObject.options.mode;
 }
 
@@ -7080,6 +6957,7 @@ function setupPage() {
         lastURL = window.sessionStorage.getItem('lastURL'),
         query = location.hash.substring(1),
         profile = {},
+        sub = {},
         search = query.indexOf('?') !== -1 ? query.substring(query.indexOf('?')+1) : null;
 
     createWebsocket();
@@ -7099,46 +6977,56 @@ function setupPage() {
 
             // PbxObject.frases = translations;
 
+            Utils.debug('getInstanceMode', getInstanceMode());
+
             if(getInstanceMode() !== 1) { // if cloud branch
 
                 if(dataLayer) dataLayer.push({'event': 'is_cloud_branch'}); // fire custom tag manager event
 
-                BillingApi.getProfile(function(err, response) {
+                BillingApi.getSubscription(function(err, response) {
                     if(err) {
                         console.error(err);
                     } else {
-                        profile = PbxObject.profile = response.result;
-                        loadFSTracking(profile);
-                        loadStripeJs();
+                        sub = PbxObject.subscription = response.result;
 
-                        // if(isBranchPackage("business")) {
-                        //     loadSupportWidget(profile);
-                        // }
+                        BillingApi.getProfile(function(err, response) {
+                            if(err) {
+                                console.error(err);
+                            } else {
+                                profile = PbxObject.profile = response.result;
+                                loadFSTracking(profile);
+                                loadStripeJs();
+
+
+                                // if(isBranchPackage("business")) {
+                                //     loadSupportWidget(profile);
+                                // }
+                            }
+
+                            // if(lastURL) {
+                            //     window.sessionStorage.removeItem('lastURL');
+                            //     window.location = lastURL;
+                            // } else 
+
+                            if(window.sessionStorage.query && !window.opener) {
+
+                                window.location.hash = window.sessionStorage.query + (search ? search : "");
+                            }
+
+                            // if(profile._id) {
+                            //     analytics.identify(profile._id, {
+                            //       name: profile.name,
+                            //       email: profile.email,
+                            //       company: profile.company
+                            //     });
+                            // }
+
+                            init_page();
+
+                        });
+
                     }
-
-                    console.log('getProfile: ', err, response);
-
-                    // if(lastURL) {
-                    //     window.sessionStorage.removeItem('lastURL');
-                    //     window.location = lastURL;
-                    // } else 
-
-                    if(window.sessionStorage.query && !window.opener) {
-
-                        window.location.hash = window.sessionStorage.query + (search ? search : "");
-                    }
-
-                    // if(profile._id) {
-                    //     analytics.identify(profile._id, {
-                    //       name: profile.name,
-                    //       email: profile.email,
-                    //       company: profile.company
-                    //     });
-                    // }
-
-                    init_page();
-
-                });
+                })
             } else {
                 init_page();
             }
@@ -7229,7 +7117,6 @@ function renderHelpSidebar(contSelector) {
 
 // init tour
 function initTour(params) {
-    console.log('initTour: ', params, PbxObject.tours[params.kind]);
     var kind = params.kind || '';
     var tourOptions = params.tourOptions || {};
     tourOptions.frases = PbxObject.frases;
@@ -7280,7 +7167,6 @@ function set_listeners(){
 
 //             // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
 //             getObjects(kind, function(result){
-//                 console.log('showGroups: ', kind, result);
 
 //                 var li = document.createElement('li');
 //                 li.className = 'add-group-object';
@@ -7448,7 +7334,7 @@ function load_template(template, kind){
     if(kind === 'extensions' || kind === 'channels') {
         getExtensions(fn);
     } else if(PbxObject.oid) {
-        json_rpc_async('getObject', '\"oid\":\"'+PbxObject.oid+'\"', fn);
+        json_rpc_async('getObject', {oid: PbxObject.oid}, fn);
     } else {
         fn();
     }
@@ -7498,12 +7384,10 @@ function getTempParams() {
 }
 
 function updateTempParams(obj) {
-    console.log('updateTempParams: ', obj);
     PbxObject.currentObj = extend(PbxObject.currentObj || {}, obj);
 }
 
 function setTempParams(obj) {
-    console.log('setTempParams: ', obj);
     PbxObject.currentObj = extend(PbxObject.currentObj, obj);
 }
 
@@ -7520,7 +7404,6 @@ function setActiveMenuElement(kind, oid) {
     var menuItem = menu.querySelector('.nav-list li a[data-kind="'+kind+'"]');
     var item;
 
-    console.log('setActiveMenuElement', kind, oid, menuItem);
 
     if(!oid) hideGroups();
     if(!menuItem) return;
@@ -7546,8 +7429,6 @@ function setActiveMenuItemElement(menu, oid) {
         }
         return item;
     });
-    
-    console.log('setActiveMenuItemElement', menu.parentNode, items, oid);
     
 }
 
@@ -7633,7 +7514,6 @@ function set_page(){
             } else {
                 return;
             }
-            // console.log(to, from);
             move_list(to, from);
         }
     });
@@ -7679,7 +7559,6 @@ function setBreadcrumbs(){
 
 function getAvailablePool(cb) {
     json_rpc_async('getObject', { oid: 'user' }, function(result) {
-        console.log('getAvailablePool: ', result);
         cb(result.available.sort());
     });
 }
@@ -8005,7 +7884,6 @@ function filterObject(array, kind, reverse) {
         match = kinds.indexOf(item.kind) !== -1;
         return reverse ? !match : match;
 
-        // console.log('filterObject match: ', kind, match);
 
         // match = reverse ? !(item.kind.match(pattern)) : item.kind.match(pattern); 
 
@@ -8047,14 +7925,12 @@ function getObjects(kind, callback, reverse) {
 // }
 
 function addObjects(array, params, key) {
-    console.log('addObjects: ', array, params, key);
     array.push(params);
     return sortByKey(array, key);
 }
 
 
 function updateObjects(array, params, key) {
-    console.log('updateObjects: ', array, params, key);
     array = array.map(function(item, index, array) {
         if(item[key] === params[key]) {
             return extend(array[index], params);
@@ -8066,12 +7942,10 @@ function updateObjects(array, params, key) {
 }
 
 function deleteObjects(array, params, key) {
-    console.log('deleteObjects: ', array, params, key);
 
     array = array.filter(function(item, index, array) {
         return item[key] !== params[key];
     });
-    console.log('deleteObjects arrays: ', array);
     return array;
 }
 
@@ -8133,7 +8007,6 @@ function append_transform(e, tableid, transform){
         return;
     }
 
-    // console.log(tableid+' '+e);
 
     tbody = table.querySelector('tbody');
     lrow = tbody.rows.length,
@@ -8294,7 +8167,6 @@ function objectStateUpdated(params) {
         enabled.checked = params.enabled;
     }
 
-    console.log('objectStateUpdated: ', params);
     // if object is trunk and "up" property changed
     if(params.up !== undefined) {
         changeTrunkRegState(params.up);
@@ -8320,7 +8192,6 @@ function newObjectAdded(event, data){
 
     if(kind === 'phone' || kind === 'user') return;
 
-    console.log('newObjectAdded: ', nameEl, name);
     if(nameEl && name) nameEl.value = name;
     
     // if(ul){
@@ -8415,7 +8286,6 @@ function objectDeleted(data){
     var items = ulEl ? [].slice.call(ulEl.querySelectorAll('li ul li')) : [];
     var itemOid;
 
-    console.log('objectDeleted: ', data.kind, ulEl, items);
 
     items.forEach(function(item) {
         itemOid = item.getAttribute('data-oid');
@@ -8452,7 +8322,7 @@ function set_options_success_with_reload() {
 function delete_object(name, kind, oid, noConfirm){
     var c = noConfirm ? true : confirm(PbxObject.frases.DODELETE+' '+name+'?');
     if (c){
-        json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
+        json_rpc_async('deleteObject', {oid: oid}, function(){
             objectDeleted({name: name, kind: kind, oid: oid});
             setupInProgress(false);
             window.location.hash = kind+'/'+kind;
@@ -8506,7 +8376,7 @@ function delete_extension(e){
     PbxObject.available = PbxObject.available || [];
 
     if (c){
-        json_rpc_async('deleteObject', '\"oid\":\"'+oid+'\"', function(){
+        json_rpc_async('deleteObject', {oid: oid}, function(){
             if(anchor) {
                 anchor.removeAttribute('href');
                 removeEvent(anchor, 'click', get_extension);
@@ -8545,7 +8415,6 @@ function onObjectDelete(event, params) {
 
 function delete_extension_row(params){
     var table = document.getElementById('extensions') || document.getElementById('group-extensions');
-    // console.log(table);
     table = table.querySelector('tbody');
 
     var row = document.getElementById(params.oid);
@@ -8623,7 +8492,6 @@ function customize_upload(id, resultFilename){
     uplparent.insertBefore(uplbtn, upl);
     uplparent.insertBefore(uplname, upl);
     upl.onchange = function(){
-        console.log('upl onchange: ', this.files);
         if(this.files.length){
             filename = getFileName(this.files[0].name);
             uplname.innerHTML = filename;
@@ -8690,6 +8558,38 @@ function readFile(file, params, callback) {
 
 }
 
+function toFormData(obj, form, namespace) {
+    var formData = form || new FormData();
+    var formKey = '';
+    Object.keys(obj).map(function(key) {
+
+        if(obj.hasOwnProperty(key)) {
+
+            if(namespace) {
+                formKey = namespace + '[' + key + ']';
+            } else {
+                formKey = key;
+            }
+
+            if(key === 'file') {
+                formData.append(formKey, obj[key], obj.filename || '');
+            } else if(key === 'filename') {
+                return key
+            } else if(typeof obj[key] === 'object') {
+                toFormData(obj[key], formData, formKey);
+            } else {
+                formData.append(formKey, obj[key]);
+            }
+
+        }
+
+        return key;
+
+    });
+
+    return formData;
+}
+
 function upload(inputid, urlString){
     var upload;
     if(isElement(inputid))
@@ -8727,18 +8627,18 @@ function upload(inputid, urlString){
     // xmlhttp.setRequestHeader("X-File-Name", file.name);
     // xmlhttp.setRequestHeader("X-File-Size", file.size);
     xmlhttp.send(file);
-    console.log('upload', file, url);
 }
 
-function uploadFile(file, urlString){
+function uploadFile(file, urlString, callback){
     var upload;
+    var cb = typeof urlString === 'function' ? urlString : callback;
 
     if(!file){
         return false;
     }
 
     // var file = files[0];
-    var url = urlString ? urlString : '/'+file.name;
+    var url = (urlString && typeof urlString === 'string') ? urlString : '/'+file.name;
     var xmlhttp = new XMLHttpRequest();
     var requestTimer = setTimeout(function(){
         xmlhttp.abort();
@@ -8750,6 +8650,8 @@ function uploadFile(file, urlString){
             clearTimeout(requestTimer);
             if(xmlhttp.status != 200) {
                 notify_about('error', PbxObject.frases.ERROR);
+            } else {
+                if(cb) cb();
             }
         }
     };
@@ -8778,7 +8680,6 @@ function deleteFile(url){
     // xmlhttp.setRequestHeader("X-File-Name", file.name);
     // xmlhttp.setRequestHeader("X-File-Size", file.size);
     xmlhttp.send();
-    console.log('file deleted', url);
 }
 
 function b64EncodeUnicode(str) {
@@ -8856,6 +8757,23 @@ function isSmallScreen(){
     return $(window).width() < 768;
 }
 
+// Reference: https://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+function isTouchDevice() {
+  var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
+  var mq = function(query) {
+    return window.matchMedia(query).matches;
+  }
+
+  if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+    return true;
+  }
+
+  // include the 'heartz' as a way to have a non matching MQ to help terminate the join
+  // https://git.io/vznFH
+  var query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
+  return mq(query);
+}
+
 function convertBytes(value, fromUnits, toUnits){
     var coefficients = {
         'Byte': 1,
@@ -8914,15 +8832,14 @@ function revealPassword(targ) {
     }
 }
 
-function generatePassword(targ){
+function generatePassword(targ, length){
     // var e = e || window.event;
     // var button = e.currentTarget;
-    // console.log(e, button);
 
     var elgroup, input;
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     var pass = "";
-    var length = 14;
+    var length = length || 14;
     var i;
 
     for(var x=0; x<length; x++){
@@ -8990,7 +8907,6 @@ function switchDisabledState(e){
         chk = evt.target;
     }
     checked = chk.checked;
-    // console.log(checked);
     elname = chk.getAttribute('data-name');
     els = [].slice.call(document.querySelectorAll('input[name="'+elname+'"]'));
     els.forEach(function(item){
@@ -9082,7 +8998,6 @@ function formatDateString(date){
     var p = (parseInt(date)) !== 'NaN' ? parseInt(date) : date;
     // if(p === 'NaN') p = date;
     var strDate = new Date(p);
-    // console.log(p, strDate);
     var day = strDate.getDate() < 10 ? '0' + strDate.getDate() : strDate.getDate(),
         month = (strDate.getMonth()+1) < 10 ? '0' + (strDate.getMonth()+1) : strDate.getMonth()+1,
         hours = strDate.getHours() < 10 ? '0' + strDate.getHours() : strDate.getHours(),
@@ -9348,7 +9263,6 @@ function move_list(to, from){
 }
 
 function changeGroupType(grouptype){
-    // console.log(grouptype);
     var elements = [].slice.call(document.querySelectorAll('.object-type'));
     elements.forEach(function(el){
         if(el.classList.contains(grouptype)) {
@@ -9459,7 +9373,6 @@ function save_proto_opts(proto){
 }
 
 function updateConference(data){
-    // console.log(data);
     var pr = data.params;
     var row = document.getElementById(pr.oid);
     if(row){
@@ -9588,7 +9501,6 @@ function fill_group_choice(kind, groupid, select){
 
 function change_protocol(){
     var value = this.value || document.getElementById('protocols').value;
-    // console.log(value);
     if(value == 'h323') {
         document.getElementById('sip').parentNode.style.display = 'none';
         document.getElementById('h323').parentNode.style.display = '';
@@ -9608,7 +9520,12 @@ function setupInProgress(bool) {
 }
 
 function isBranchPackage(str) {
-    return PbxObject.options.package === str;
+    if(getInstanceMode() === 1) {
+        if(str === 'business') return true;
+        return false;
+    } else {
+        return PbxObject.subscription.plan.planId === str;
+    }
 }
 function load_new_trunk() {
 
@@ -9627,7 +9544,6 @@ function load_new_trunk() {
 	];
 
 	function init(params) {
-		console.log('init: ', params);
 
 		var componentParams = {
 			frases: PbxObject.frases,
@@ -9644,13 +9560,11 @@ function load_new_trunk() {
 }
 function load_numbers(params) {
 
-	console.log('load_numbers');
 
 	getCoutries();
 
 	function getCoutries() {
 		billingRequest('getDidCountries', null, function(err, response) {
-			console.log('getSubscription response: ', err, response.result);
 			if(err) return notify_about('error' , err.message);
 		});
 	}
@@ -9736,7 +9650,6 @@ function Pagination(options){
             } else if(target.className == 'last') {
                 page = this.options.pagnum;
                 if(page >= this.options.maxpagins) {
-                    // console.log(page-this.options.maxpagins+1, page);
                     // this._destroyPagination();
                     this.createPagination(page-this.options.maxpagins+1, page);
                 }
@@ -10351,14 +10264,12 @@ function Player(){
         link.setAttribute('download', oAudio.src);
         oAudio.play();
 
-        console.log('playTrack: ', trackIndex, global.playlist[trackIndex-1].file);
     },
 
     clickHandler = function(e){
         if(!e) e = window.event;
         var targ = e.target;
         if(targ.nodeName == 'I') targ = targ.parentNode;
-        // console.log(targ);
         if(targ.id == 'pl-play') global.playAudio();
         if(targ.id == 'pl-stop') global.stopAudio();
         if(targ.id == 'pl-prev') global.prevAudio();
@@ -10417,7 +10328,6 @@ function Player(){
                 link.href = this.audioURL;
                 link.setAttribute('download', this.audioFile);
             }
-            console.log('playAudio: ', oAudio.src, currentFile);
             //Tests the paused attribute and set state. 
             if (oAudio.paused) {
                 oAudio.play();
@@ -10521,7 +10431,7 @@ function load_realtime(){
 }
 function load_rec_settings(){
 
-	json_rpc_async('getVoiceRecordingList', '', function(result){
+	json_rpc_async('getVoiceRecordingList', null, function(result){
 		getRecObjects(result);
 	});
 
@@ -10542,7 +10452,7 @@ function getRecObjects(result){
 			fillSelects(obj);
 	}
 
-	json_rpc_async('getObjects', '\"kind\":\"trunk\"', function(trunks){
+	json_rpc_async('getObjects', {kind: "trunk"}, function(trunks){
 		if(result.trunks){
 			obj.trunks = trunks.filter(function(trunk){
 				return result.trunks.indexOf(trunk.name) == -1;
@@ -10554,7 +10464,6 @@ function getRecObjects(result){
 	});
 	json_rpc_async('getExtensions', null, function(exts){
 		var extresult = filterObject(exts, ['phone', 'user']);
-		console.log('getRecObjects: ', extresult);
 		if(result.extensions) {
 			obj.exts = extresult.filter(function(item){
 				return result.extensions.indexOf(item.ext) === -1;
@@ -10616,7 +10525,6 @@ function setRecObjects(){
 	jprms += '"trunksmode":'+trunksmode.value+',';
 	jprms += '"extmode":'+extmode.value+',';
 
-	// console.log(jprms);
 
 	json_rpc_async('setVoiceRecordingList', jprms, function(){
 		set_object_success();
@@ -10659,7 +10567,7 @@ function load_records(){
         
     }
 
-    json_rpc_async('getObjects', '\"kind\":\"trunk\"', function(result){
+    json_rpc_async('getObjects', {kind: "trunk"}, function(result){
         // var trunks = document.getElementById('searchtrunk');
         // var opt = document.createElement('option');
         // opt.value = PbxObject.frases.ALL;
@@ -10842,7 +10750,6 @@ function getRecords(params, cb) {
 }
 
 function showRecords(result){
-    // console.log(result);
     show_content();
 
     var table = document.getElementById('records-table').querySelector('tbody');
@@ -10880,7 +10787,6 @@ function showRecords(result){
 
 function getQos(recid, targ, e) {
     e.preventDefault();
-    console.log('getQos: ', recid, targ);
     if(!recid) return;
     // var targInitHtml = targ.innerHTML;
     var targInitHtml = targ.innerHTML;
@@ -10895,7 +10801,6 @@ function getQos(recid, targ, e) {
         qos: true,
         id: recid
     }, function(result) {
-        console.log('getQos result: ', result);
         targ.innerHTML = targInitHtml;
         targ.setAttribute('data-method', 'toggleRecQoS');
         showRecQoS(recid, result);
@@ -10903,7 +10808,6 @@ function getQos(recid, targ, e) {
 }
 
 function toggleRecQoS(recid) {
-    console.log('toggleRecQoS: ', recid);
     $('#'+recid+'-qos').collapse('toggle');
 }
 
@@ -10957,7 +10861,6 @@ function playRecord(src, targ, e){
 }
 function load_reg_history(params) {
 
-	console.log('load_reg_history: ', params);
 	init();
 
 	function init(params) {
@@ -10977,10 +10880,10 @@ function renderSidebar(params) {
 
 	var profile = PbxObject.profile;
 	var config = PbxObject.options.config || [];
+	var branchMode = getInstanceMode();
 
 	_init(params);
 
-	console.log('renderSidebar', params.branchOptions.config);
 
 	function hasConfig(item) {
 		return isBranchPackage(item);
@@ -11025,6 +10928,11 @@ function renderSidebar(params) {
 	            iconClass: 'fa fa-fw fa-sitemap',
 	            fetchKinds: ['attendant']
 	        }, {
+	            name: 'application',
+	            iconClass: 'fa fa-fw fa-cubes',
+	            shouldRender: hasConfig('business'),
+	            fetchKinds: ['application']
+	        }, {
 	            name: 'timer',
 	            iconClass: 'fa fa-fw fa-clock-o',
 	            fetchKinds: ['timer']
@@ -11033,9 +10941,23 @@ function renderSidebar(params) {
 	            iconClass: 'fa fa-fw fa-arrows',
 	            fetchKinds: ['routes']
 	        }, {
+	            name: 'location',
+	            iconClass: 'fa fa-fw fa-map-marker',
+	            shouldRender: hasConfig('business'),
+	            fetchKinds: ['location']
+	        }, {
 	            name: 'settings',
 	            shouldRender: false,
-	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'licenses' : ''), iconClass: 'fa fa-fw fa-key' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
+	            objects: [
+	            	{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, 
+	            	{ kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, 
+	            	{ kind: 'services', iconClass: 'fa fa-fw fa-plug' }, 
+	            	{ kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, 
+	            	{ kind: ((branchMode === 0 && !profile.partnerid) ? 'licenses' : ''), iconClass: 'fa fa-fw fa-key' }, 
+	            	{ kind: ((branchMode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, 
+	            	{ kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, 
+	            	{ kind: 'customers', iconClass: 'fa fa-fw fa-users' }
+	            ]
 	        }
 	    ];
 
@@ -11085,7 +11007,7 @@ function renderSidebar(params) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
 	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('extensions')) return 'users';
-	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers')) return 'settings';
+	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers|developer')) return 'settings';
 	    else return kind;
 	}
 
@@ -11176,7 +11098,6 @@ function chartOptions(timeFormat) {
             position: "ne",
             margin: 0,
             labelFormatter: function(label, series) {
-                console.log(series);
                 return '<span class="chart-label">'+label+'</span>';
             }
         },
@@ -11205,7 +11126,7 @@ function Reports(){
         interval = picker.interval;
         params = '\"begin\":'+start+', \"end\":'+end+', \"interval\":'+interval;
 
-        json_rpc_async('getCallStatisticsGraph', params, function(result){
+        json_rpc_async('getCallStatisticsGraph', JSON.parse(params), function(result){
             self.createGraph(result);
             show_content();
         });
@@ -11218,14 +11139,13 @@ function Reports(){
             interval = picker.interval,
             params = '\"begin\":'+start+', \"end\":'+end+', \"interval\":'+interval;
             
-        json_rpc_async('getCallStatisticsGraph', params, function(result){
+        json_rpc_async('getCallStatisticsGraph', JSON.parse(params), function(result){
             self.createGraph(result);
             $('#reports-cont').removeClass('faded');
         });
     };
 
     this.createGraph = function(data){
-        // console.log(data);
         if(!data.length){
             $("#outCalls-graph").html('<h3 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h3>');
             $("#inAndLost-graph").html('<h3 class="text-muted">'+PbxObject.frases.STATISTICS.NO_DATA+'</h3>');
@@ -11390,7 +11310,6 @@ function Reports(){
     this.init();
 }
 function load_routes(result){
-    // console.log(result);
     
     PbxObject.oid = result.oid;
     // PbxObject.kind = 'routes';
@@ -11514,7 +11433,6 @@ function set_routes(){
         if(str != '') jprms += '{'+str+'},';
     }
     jprms += ']';
-    // console.log(jprms);
     json_rpc_async('setObject', jprms, handler);
 }
 
@@ -11527,7 +11445,6 @@ function getRouteObjects(callback) {
 
         getExtensions(function(result) {
             objects = objects.concat(result.filter(function(item){ return item.kind.match(/user|phone/) }))
-            console.log('getRouteObjects: ', objects);
             callback(objects);
         });
             
@@ -11842,13 +11759,11 @@ function setRoute(data, callback){
     // jprms += '"priority":'+data.priority+',';
     // jprms += '"cost":'+data.cost+',';
     
-    console.log('setRoute: ', params);
     json_rpc_async('setRoute', params, cb);
 }
 
 function deleteRoute(routeOid){
     var jprms = '\"oid\":\"'+routeOid+'\"';
-    // console.log(jprms);
     json_rpc_async('deleteRoute', jprms, set_object_success);
 }
 function load_selector(params) {
@@ -11886,7 +11801,7 @@ function load_selector(params) {
 		objParams.enabled = state;
 		if(!PbxObject.name) return;
 		setObjectState(PbxObject.oid, state, function(result) {
-		    console.log('onStateChange: ', state, result);
+			return true;
 		});
 	}
 
@@ -12058,7 +11973,6 @@ function load_services() {
 	}
 
 	function getExternalUsers(serviceParams){
-		console.log('getExternalUsers:', serviceParams);
 
 		ldapConn = Ldap({
 		    service_id: serviceParams.id,
@@ -12081,8 +11995,6 @@ function load_services() {
 
 	function setExternalUsers(users){
 
-	    console.log('setExternalUsers: ', users);
-
 	    if(!users.length) return;
 
 	    show_loading_panel();
@@ -12091,7 +12003,6 @@ function load_services() {
 	        service_id: ldapConn.options.service_id,
 	        users: users
 	    }, function(result) {
-	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 			if(result === 'OK') set_object_success();
 	        // refreshUsersTable(function(availableUsers){
@@ -12101,7 +12012,6 @@ function load_services() {
 	}
 
 	function saveOptions(serviceOptions) {
-		console.log('saveOptions: ', serviceOptions);
 		// var params = {
 		// 	method: "setSubscription",
 		// 	params: serviceOptions
@@ -12114,8 +12024,6 @@ function load_services() {
 			str += "&"+key+"="+serviceOptions.props[key];
 			return str;
 		}, "");
-
-		console.log('saveOptions: ', serviceOptions, url);
 
 		request('GET', url, null, null, function(err, response) {
 			if(err) return notify_about('error', err);
@@ -12133,8 +12041,6 @@ function load_services() {
 					return item;
 				});
 
-				console.log('saveOptions saved: ', err, response, services);
-
 				render();
 			}
 
@@ -12148,7 +12054,6 @@ function load_services() {
 		// 		return item;
 		// 	});
 
-		// 	console.log('saveOptions saved: ', services);
 
 		// 	render();
 		// 	set_object_success();
@@ -12158,8 +12063,6 @@ function load_services() {
 	function saveLdapOptions(newOptions) {
 		json_rpc_async('setPbxOptions', { ldap: newOptions.props }, function() {
 			ldap = newOptions;
-
-			console.log('saveLdapOptions saved: ', newOptions);
 
 			render();
 			set_object_success();
@@ -12236,7 +12139,6 @@ function Statistics(){
 
         $('#trunks-qos-cont').addClass('faded');
         getTrunksQosData({ begin: picker.date.start,  end: picker.date.end }, function(data) {
-            console.log('openTrunksQosStat data: ', data);
             renderTrunksQosStat(data);
             $('#trunks-qos-cont').removeClass('faded');
         });
@@ -12356,7 +12258,6 @@ function Statistics(){
         start = picker.date.start;
         end = picker.date.end;
         params = '\"begin\":'+start+', \"end\":'+end+', \"kind\":"'+extStatKind+'"';
-        // console.log(params);
         json_rpc_async('getCallStatisticsExt', params, function(result){
             self._setExtStatistics(result);
             $('#extStat-cont').removeClass('faded');
@@ -12371,7 +12272,6 @@ function Statistics(){
         start = picker.date.start;
         end = picker.date.end;
         params = '\"begin\":'+start+', \"end\":'+end;
-        // console.log(params);
         json_rpc_async('getLostCalls', params, function(result){
             self._setLostStats(result);   
             $('#lostCalls-cont').removeClass('faded');
@@ -12398,7 +12298,6 @@ function Statistics(){
             var value = attr.split('.').reduce(objFromString, newdata);
             item.textContent = value;
         });
-        // console.log(newdata.trunks);
         self._build_trunks_statistics(newdata.trunks);
         show_content();
     };
@@ -12417,7 +12316,6 @@ function Statistics(){
         for(var i=0; i<data.length; i++){
             tRows.appendChild(self._buildLostCallsTable(data[i]));
         }
-        // console.log(data);
         tbody.appendChild(tRows);
     };
 
@@ -12429,8 +12327,6 @@ function Statistics(){
         var tickFormat = "%d-%m-%Y";
         var showXAxis = isSmallScreen() ? false : ((dayDiff >= 7 && !daily) ? false : true);
 
-        console.log('_setCharts:', picker, daily, sameDay, dayDiff);
-
         if(!daily) {
             if(sameDay) tickFormat = "%H:%M";
             else tickFormat = "%d-%m-%Y %H:%M";
@@ -12440,8 +12336,6 @@ function Statistics(){
         //     item['s'] = item.i - item.m;
         //     return item;
         // });
-
-        console.log('statistics charts data: ', data);
 
         var outChart = c3.generate({
             bindto: '#outbounds-chart',
@@ -12675,7 +12569,6 @@ function load_storages(){
 	}
 
 	function saveStorage(data, callback){
-		console.log('saveStorage: ', data);
 		if(!data.path) return;
 		if(!data.id) delete data.id;
 		if(data.maxsize !== undefined) data.maxsize = convertBytes(data.maxsize, 'GB', 'Byte');
@@ -12749,7 +12642,6 @@ function getTotalStorage(callback){
 
 function setUserStoreLimit(oid, limit, input){
 	json_rpc_async('setStoreLimit', { oid: oid, limit: convertBytes(parseFloat(limit), 'GB', 'Byte') }, function (result){
-		console.log(result);
 		input.value = convertBytes(result, 'Byte', 'GB').toFixed(2);
 	});
 }
@@ -12758,7 +12650,6 @@ function getFriendlyStorageState(state){
 	return PbxObject.frases.STORAGE.STATES[state];
 }
 function load_timer(result){
-    // console.log(result);
     PbxObject.oid = result.oid;
     PbxObject.name = result.name;
     // PbxObject.kind = 'timer';
@@ -12846,8 +12737,6 @@ function load_timer(result){
     var calendarWrapper = document.createElement('div');
     calendarWrapper.className = "timer-dates-wrapper no-weekdays no-years";
     document.body.appendChild(calendarWrapper);
-
-    console.log('load_timer: ', result.yeardays.map(yearDayToDate));
 
     // init yeardates picker
     pickr = flatpickr('#timer-dates', {
@@ -13182,7 +13071,7 @@ function MyTour(name, options) {
 	return tour;
 }
 function load_trunk(result){
-    // console.log(result);
+    console.log('load_trunk result', result);
     var type = result.type,
         types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
         // passanumberEl = document.getElementById('passanumber');
@@ -13399,8 +13288,6 @@ function getProtocolOptions(params) {
         }
     });
 
-    console.log('getProtocolOptions: ', params, type);
-
     get_protocol_opts(protocols.value, params, type);
 }
 
@@ -13612,7 +13499,6 @@ function set_trunk(){
     jprms += ', "outboundbnumbertransforms":';
     jprms += JSON.stringify(outBTrasf);
 
-    console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result) {
             if(handler) handler();
@@ -13627,7 +13513,6 @@ function set_trunk(){
 };
 function load_users(params) {
 
-	console.log('load_users: ', params);
 	var frases = PbxObject.frases;
 	// var driver;
 	// var driverSettings = {
@@ -13686,7 +13571,6 @@ function load_users(params) {
 	}
 
 	function openNewUserForm() {
-		console.log('openNewUserForm');
 
 		// if(driver) driver.reset(); // close the tour
 
@@ -13723,7 +13607,6 @@ function load_users(params) {
 	}
 
 	function addUser(params, callback) {
-		console.log('addUser: ', params);
 
 		var userParams = extend({}, params);
 
@@ -13771,7 +13654,6 @@ function load_users(params) {
 	}
 
 	// function onFirstUserCreated() {
-		// console.log('onFirstUserCreated');
 
 		// driverSettings.onReset = showGSLink;
 		// driver = new Driver(driverSettings);
@@ -13786,7 +13668,6 @@ function load_users(params) {
 	// }
 
 	function onImportUsers(serviceParams) {
-		console.log('onImportUsers: ', serviceParams);
 		if(serviceParams.id === 'MicrosoftAD') {
 			PbxObject.LdapConnection = Ldap({
 			    domains: serviceParams.props.directoryDomains.split(' '),
@@ -13807,8 +13688,6 @@ function load_users(params) {
 	        return;
 	    }
 
-	    console.log('onAddUsers: ', users);
-
 	    var ldapConn = PbxObject.LdapConnection;
 	        // availableSelect = document.getElementById('available-users');
 	    
@@ -13819,7 +13698,6 @@ function load_users(params) {
 	        domain: ldapConn.options.domain,
 	        users: users
 	    }, function(result) {
-	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 	        
 
@@ -13830,7 +13708,6 @@ function load_users(params) {
 	}
 
 	function getExternalUsers(serviceParams){
-		console.log('getExternalUsers:', serviceParams);
 
 		PbxObject.LdapConnection = Ldap({
 		    service_id: serviceParams.id,
@@ -13844,7 +13721,6 @@ function load_users(params) {
 	    PbxObject.LdapConnection.getExternalUsers();
 	    // } else {
 	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
-	    //         console.log('getExternalUsers result: ', result);
 	    //         if(result) PbxObject.LdapConnection.showUsers(result);
 	    //     });
 	    // }
@@ -13858,8 +13734,6 @@ function load_users(params) {
 
 	    show_loading_panel();
 
-	    console.log('setExternalUsers: ', users);
-
 	    var ldapConn = PbxObject.LdapConnection;
 
 	    ldapConn.setExternalUsers({
@@ -13867,7 +13741,6 @@ function load_users(params) {
 	        service_id: ldapConn.options.service_id,
 	        users: users
 	    }, function(result) {
-	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 			if(result === 'OK') set_object_success();
 	        // refreshUsersTable(function(availableUsers){
@@ -13912,8 +13785,6 @@ function load_users(params) {
 	    	members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
 	    };
 
-	    console.log('setObject: ', props);
-
 		json_rpc_async('setObject', groupParams, function(result) {
 			PbxObject.name = objParams.name = objName;
 
@@ -13931,7 +13802,6 @@ function load_users(params) {
 	// }
 
 	// function initSteps() {
-	// 	console.log('initSteps: ', driverSteps);
 	// 	if(PbxObject.tourStarted && driverSteps.length) {
 	// 		tourStarted = true;
 	// 		driverSettings.onReset = showGSLink;
@@ -13942,7 +13812,6 @@ function load_users(params) {
 	// }
 
 	// function showGSLink() {
-	// 	console.log('showGSLink');
 	// 	driver = new Driver({
 	// 		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
 	// 		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
@@ -13960,7 +13829,6 @@ function load_users(params) {
 	// }
 
 	function updateUsersList(e, object) {
-		console.log('updateUsersList: ', object);
 		if(object.ext === undefined) return;
 		objParams.members.push(object);
 		init(objParams);
@@ -14023,5 +13891,17 @@ var Utils = {
 		return string.replace(/{{(\w*)}}/g, function(match, param, offset, result) {
 			if(params[param]) return params[param];
 		})
+	},
+	htmlDecode: function(str){
+		var regex = /(&lt;)(&gt;)/
+		return str.replace(regex, '<', '>');
+	},
+	debug: function() {
+		if(window.localStorage.getItem('swc.debug')) {
+		    [].forEach.call(arguments, function(arg){
+		        window.console.log(arg);
+		    });
+		    return;
+		}
 	}
 };

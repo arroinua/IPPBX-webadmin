@@ -122,8 +122,9 @@ var SubscriptionPriceComponent = React.createClass({
 				<div className="col-xs-12 text-center">
 					<a
 						href="#"
-						className="text-uppercase" 
-						onClick={this._updateLicenses} 
+						className="text-uppercase btn btn-link" 
+						onClick={sub.status === 'active' && this._updateLicenses} 
+						disabled={sub.status !== 'active'}
 					>{frases.BILLING.MANAGE_LICENSES_BTN}</a>
 				</div>
 

@@ -23,7 +23,6 @@
 	},
 
 	// componentDidMount: function() {
-	// 	console.log('GroupMembersComponent componentDidMount');
 	// 	var frases = this.props.frases;
 
 	// 	if(this.props.addSteps) {
@@ -105,7 +104,6 @@
 	},
 
 	_tableRef: function(el) {
-		console.log('_tableRef: ', el);
 		if(this.props.sortable) return new Sortable(el);
 	},
 
@@ -127,8 +125,6 @@
 			el = el.id;
 			return el;
 		});
-
-		console.log('_onSortEnd', target, order, this._reorderMembers(this.props.members, order))
 
 		this.props.onSort(this._reorderMembers(this.props.members, order));
 	},
@@ -158,9 +154,13 @@
 			    			) : null
 			    		}
 			    	</div>
-			    	<div className="col-sm-6">
-						<FilterInputComponent items={members} onChange={this._onFilter} />
-			    	</div>
+			    	{
+			    		this.props.doSort ? (
+			    			<div className="col-sm-6">
+								<FilterInputComponent items={members} onChange={this._onFilter} />
+					    	</div>
+			    		) : null
+			    	}
 			    </div>
 			    <div className="row">
 			    	<div className="col-xs-12">

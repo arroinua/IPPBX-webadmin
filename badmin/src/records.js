@@ -34,7 +34,7 @@ function load_records(){
         
     }
 
-    json_rpc_async('getObjects', '\"kind\":\"trunk\"', function(result){
+    json_rpc_async('getObjects', {kind: "trunk"}, function(result){
         // var trunks = document.getElementById('searchtrunk');
         // var opt = document.createElement('option');
         // opt.value = PbxObject.frases.ALL;
@@ -217,7 +217,6 @@ function getRecords(params, cb) {
 }
 
 function showRecords(result){
-    // console.log(result);
     show_content();
 
     var table = document.getElementById('records-table').querySelector('tbody');
@@ -255,7 +254,6 @@ function showRecords(result){
 
 function getQos(recid, targ, e) {
     e.preventDefault();
-    console.log('getQos: ', recid, targ);
     if(!recid) return;
     // var targInitHtml = targ.innerHTML;
     var targInitHtml = targ.innerHTML;
@@ -270,7 +268,6 @@ function getQos(recid, targ, e) {
         qos: true,
         id: recid
     }, function(result) {
-        console.log('getQos result: ', result);
         targ.innerHTML = targInitHtml;
         targ.setAttribute('data-method', 'toggleRecQoS');
         showRecQoS(recid, result);
@@ -278,7 +275,6 @@ function getQos(recid, targ, e) {
 }
 
 function toggleRecQoS(recid) {
-    console.log('toggleRecQoS: ', recid);
     $('#'+recid+'-qos').collapse('toggle');
 }
 

@@ -58,8 +58,6 @@
 		var data = this.state.data;
 		var Component = this.props.component;
 
-		console.log('GetAndRenderAnalyticsDataComponent: ', this.props.method, data);
-
 		return (
 			data ? <Component frases={frases} fetching={this.state.fetching} data={data} onLoad={this.props.onComponentLoad} onUpdate={this.props.onComponentUpdate} /> : null
 		)

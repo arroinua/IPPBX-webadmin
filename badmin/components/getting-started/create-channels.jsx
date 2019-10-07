@@ -20,7 +20,6 @@ var GSCreateChannelsComponent = React.createClass({
 	},
 
 	_nextStep: function() {
-		console.log('_nextStep >>>');
 		this.props._nextStep();
 	},
 

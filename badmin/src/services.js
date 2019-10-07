@@ -36,7 +36,6 @@ function load_services() {
 	}
 
 	function getExternalUsers(serviceParams){
-		console.log('getExternalUsers:', serviceParams);
 
 		ldapConn = Ldap({
 		    service_id: serviceParams.id,
@@ -59,8 +58,6 @@ function load_services() {
 
 	function setExternalUsers(users){
 
-	    console.log('setExternalUsers: ', users);
-
 	    if(!users.length) return;
 
 	    show_loading_panel();
@@ -69,7 +66,6 @@ function load_services() {
 	        service_id: ldapConn.options.service_id,
 	        users: users
 	    }, function(result) {
-	        console.log('addLdapUsers result: ', result);
 	        ldapConn.close();
 			if(result === 'OK') set_object_success();
 	        // refreshUsersTable(function(availableUsers){
@@ -79,7 +75,6 @@ function load_services() {
 	}
 
 	function saveOptions(serviceOptions) {
-		console.log('saveOptions: ', serviceOptions);
 		// var params = {
 		// 	method: "setSubscription",
 		// 	params: serviceOptions
@@ -92,8 +87,6 @@ function load_services() {
 			str += "&"+key+"="+serviceOptions.props[key];
 			return str;
 		}, "");
-
-		console.log('saveOptions: ', serviceOptions, url);
 
 		request('GET', url, null, null, function(err, response) {
 			if(err) return notify_about('error', err);
@@ -111,8 +104,6 @@ function load_services() {
 					return item;
 				});
 
-				console.log('saveOptions saved: ', err, response, services);
-
 				render();
 			}
 
@@ -126,7 +117,6 @@ function load_services() {
 		// 		return item;
 		// 	});
 
-		// 	console.log('saveOptions saved: ', services);
 
 		// 	render();
 		// 	set_object_success();
@@ -136,8 +126,6 @@ function load_services() {
 	function saveLdapOptions(newOptions) {
 		json_rpc_async('setPbxOptions', { ldap: newOptions.props }, function() {
 			ldap = newOptions;
-
-			console.log('saveLdapOptions saved: ', newOptions);
 
 			render();
 			set_object_success();

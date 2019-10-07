@@ -15,7 +15,6 @@ function load_new_trunk() {
 	];
 
 	function init(params) {
-		console.log('init: ', params);
 
 		var componentParams = {
 			frases: PbxObject.frases,

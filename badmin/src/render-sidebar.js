@@ -2,10 +2,10 @@ function renderSidebar(params) {
 
 	var profile = PbxObject.profile;
 	var config = PbxObject.options.config || [];
+	var branchMode = getInstanceMode();
 
 	_init(params);
 
-	console.log('renderSidebar', params.branchOptions.config);
 
 	function hasConfig(item) {
 		return isBranchPackage(item);
@@ -50,6 +50,11 @@ function renderSidebar(params) {
 	            iconClass: 'fa fa-fw fa-sitemap',
 	            fetchKinds: ['attendant']
 	        }, {
+	            name: 'application',
+	            iconClass: 'fa fa-fw fa-cubes',
+	            shouldRender: hasConfig('business'),
+	            fetchKinds: ['application']
+	        }, {
 	            name: 'timer',
 	            iconClass: 'fa fa-fw fa-clock-o',
 	            fetchKinds: ['timer']
@@ -58,9 +63,23 @@ function renderSidebar(params) {
 	            iconClass: 'fa fa-fw fa-arrows',
 	            fetchKinds: ['routes']
 	        }, {
+	            name: 'location',
+	            iconClass: 'fa fa-fw fa-map-marker',
+	            shouldRender: hasConfig('business'),
+	            fetchKinds: ['location']
+	        }, {
 	            name: 'settings',
 	            shouldRender: false,
-	            objects: [{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, { kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, { kind: 'services', iconClass: 'fa fa-fw fa-plug' }, { kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'licenses' : ''), iconClass: 'fa fa-fw fa-key' }, { kind: ((params.branchOptions.mode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, { kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, { kind: 'customers', iconClass: 'fa fa-fw fa-users' }]
+	            objects: [
+	            	{ kind: 'branch_options', iconClass: 'fa fa-fw fa-sliders' }, 
+	            	{ kind: 'rec_settings', iconClass: 'fa fa-fw fa-microphone' }, 
+	            	{ kind: 'services', iconClass: 'fa fa-fw fa-plug' }, 
+	            	{ kind: 'storages', iconClass: 'fa fa-fw fa-hdd-o' }, 
+	            	{ kind: ((branchMode === 0 && !profile.partnerid) ? 'licenses' : ''), iconClass: 'fa fa-fw fa-key' }, 
+	            	{ kind: ((branchMode === 0 && !profile.partnerid) ? 'billing' : ''), iconClass: 'fa fa-fw fa-credit-card' }, 
+	            	{ kind: 'certificates', iconClass: 'fa fa-fw fa-lock' }, 
+	            	{ kind: 'customers', iconClass: 'fa fa-fw fa-users' }
+	            ]
 	        }
 	    ];
 
@@ -110,7 +129,7 @@ function renderSidebar(params) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
 	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
 	    else if(kind.match('extensions')) return 'users';
-	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers')) return 'settings';
+	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers|developer')) return 'settings';
 	    else return kind;
 	}
 

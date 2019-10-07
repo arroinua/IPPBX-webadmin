@@ -75,8 +75,6 @@ var UsersGroupComponent = React.createClass({
 
 		profile.transforms = params;
 
-		console.log('_onTransformsChange: ', profile.transforms);
-
 		this.setState({
 			state: state
 		});
@@ -87,8 +85,6 @@ var UsersGroupComponent = React.createClass({
 		var params = this.state.params;
 		var members = params.members || [];
 		var filteredMembers = this.state.filteredMembers || [];
-
-		console.log('remder: ', params.name);
 
 		return (
 			<div>
@@ -132,6 +128,16 @@ var UsersGroupComponent = React.createClass({
 								</div>
 
 								<div role="tabpanel" className="tab-pane fade" id="tab-group-outrules">
+									<div className="col-sm-12">
+										<div className="alert alert-info" role="alert">
+											<button type="button" className="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+											<p><strong>{frases.NUMBER_TRANSFORMS.NUMBER_TRANSFORMS}</strong></p>
+											<p>{frases.NUMBER_TRANSFORMS.HELPERS.NUMBER}</p>
+											<p>{frases.NUMBER_TRANSFORMS.HELPERS.STRIP}</p>
+											<p>{frases.NUMBER_TRANSFORMS.HELPERS.PREFIX}</p>
+											<p>{frases.NUMBER_TRANSFORMS.HELPERS.DOLLAR}</p>
+										</div>
+									</div>
 									<NumberTransformsComponent frases={frases} type="outboundb" transforms={params.profile.bnumbertransforms} onChange={this._onTransformsChange} />
 								</div>
 							</div>

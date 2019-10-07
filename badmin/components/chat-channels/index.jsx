@@ -62,7 +62,6 @@
 	},
 
 	_onFilter: function(items) {
-		console.log('_onFilter: ', items);
 		this.setState({
 			filteredMembers: items
 		});
@@ -78,8 +77,6 @@
 		var members = params.members || [];
 		var filteredMembers = this.state.filteredMembers || [];
 		var itemState = {};
-
-		console.log('remder: ', params.name);
 
 		return (
 			<div>

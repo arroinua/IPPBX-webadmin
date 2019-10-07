@@ -36,8 +36,6 @@ var GsStep = React.createClass({
 				// 	break;
 			};
 
-			console.log('loadStep: ', step, comp);
-
 			if(!comp) return null;
 			else {
 				return (

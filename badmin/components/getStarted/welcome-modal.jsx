@@ -18,7 +18,6 @@ var WelcomeModal = React.createClass({
 	// },
 
 	_startTour: function() {
-		console.log('_startTour: ', this.props.startTour);
 		this.props.startTour();
 		this._dismissModal()
 	},

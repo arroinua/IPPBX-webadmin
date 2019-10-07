@@ -19,8 +19,6 @@ function WebchatTrunkCallbackSettsComponent(props) {
 		props.toggleFeature('callback', !checked, (checked ? false : { task: 'callback', message: '', time: false }));
 	}
 
-	console.log('WebchatTrunkCallbackSettsComponent:', params, featureOn);
-	
 	// {
 	// 	featureOn ? (
 	// 		<div>

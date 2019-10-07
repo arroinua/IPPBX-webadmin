@@ -1,5 +1,5 @@
 function load_trunk(result){
-    // console.log(result);
+    console.log('load_trunk result', result);
     var type = result.type,
         types = [].slice.call(document.querySelectorAll('[name="trunkType"]'));
         // passanumberEl = document.getElementById('passanumber');
@@ -216,8 +216,6 @@ function getProtocolOptions(params) {
         }
     });
 
-    console.log('getProtocolOptions: ', params, type);
-
     get_protocol_opts(protocols.value, params, type);
 }
 
@@ -429,7 +427,6 @@ function set_trunk(){
     jprms += ', "outboundbnumbertransforms":';
     jprms += JSON.stringify(outBTrasf);
 
-    console.log(jprms);
     json_rpc_async('setObject', jprms, function(result){
         if(result) {
             if(handler) handler();

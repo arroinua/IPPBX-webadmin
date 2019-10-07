@@ -45,8 +45,6 @@ var LdapOptionsComponent = React.createClass({
 		
 		update.props[target.name] = value !== null ? value : "";;
 
-		console.log('ServiceItemComponent _onChange', update);
-
 		this.setState({
 			params: update
 		});

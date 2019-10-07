@@ -353,7 +353,15 @@
 		"OUTBARGING" : "Заборона зовнішніх вихідних дзвінків",
 		"COSTBARGING" : "Заборона платних напрямків",
 		"LDAP": "LDAP",
-		"TIMEZONE": "Часовий пояс"
+		"TIMEZONE": "Часовий пояс",
+		"API_KEYS": {
+			"DESC": "Створіть ключі API для доступу до методів API. Ключ API повинен бути відправлений в HTTP-заголовку авторизації, наприклад: <code>Authorization: Bearer API_Key</code>",
+			"WARNING": "<strong>ВАЖЛИВО</strong>: Ключі API повинні завжди зберігатися у таємниці. Не використовуйте їх в середовищі, де вони можуть бути скомпрометовані (наприклад, в браузері). Якщо ви вважаєте, що один з ваших ключів API скомпрометований, видаліть його і згенеруйте новий.",
+			"KEY_NAME_LABEL": "Ім'я ключа",
+			"CREATE_KEY_BTN": "Створити API Ключ",
+			"EMPTY_NAME_WARNING": "Будь ласка, вкажіть ім'я ключа",
+			"DELETE_WARNING": "Ви дійсно бажаєте видалити API Ключ {{key}}?"
+		}
 	},
 	"MENU": "Меню",
 	"OPTIONS" : "Опції",
@@ -683,6 +691,8 @@
     "KINDS": {
     	"guide": "Початок роботи",
     	"branch_options": "Налаштування",
+    	"developer": "Розробник",
+    	"location": "Локація",
     	"services": "Інтеграції",
         "trunk": "Транки",
         "users": "Групи користувачів",
@@ -789,7 +799,7 @@
     },
     "APPSETTS" : "Налаштування Додатку",
     "APPNAME" : "Ім'я аплікації",
-    "DEBUG" : "Налагодження",
+    "DEBUG" : "Увімкнути логування",
     "VAR" : "Змінна",
     "VALUE" : "Значення",
     "DBCONN" : "Підключення до БД",
@@ -946,7 +956,7 @@
     },
     "CHAT_CHANNEL": {
     	"DEFAULT_NAME": "Група обслуговування",
-    	"NO_MEMBERS": "Немає учасників в групі",
+    	"NO_MEMBERS": "Немає учасників...",
     	"ADD_MEMBERS": "Додати учасників",
     	"ADD_SELECTED": "Зберегти зміни",
     	"MEMBERS": "Учасників",
@@ -1112,6 +1122,11 @@
     		"CODE_SNIPPET_MODAL_TEXT": "Додайте цей скрипт на кожну веб-сторінку, де ви хочете, щоб віджет з'явився. Ви можете помістити скрипт в будь-якому місці в межах <HEAD> або <BODY> тегів.",
     		"CODE_SNIPPET_MODAL_COPY_BTN": "Скопіювати в буфер",
     		"CODE_SNIPPET_MODAL_COPIED_BTN": "Скопійовано"
+    	},
+    	"WEBAPI": {
+    		"SERVICE_NAME": "Web API",
+    		"PROFILEID_LABEL": "Profile ID",
+    		"NO_PROFILEID": "Створіть канал, щоб отримати Profile ID"
     	}
     },
     "CHANNEL_STATISTICS": {
@@ -1167,6 +1182,13 @@
     	"REMOVE_ELEMENT" : "Видалити елемент",
     	"REMOVE_ELEMENTS_TREE" : "Видалити дерево елемента",
     	"DATA_PLACEHOLDER" : "Виберіть коннектор або введіть значення"
+    },
+    "APPLICATIONS": {
+    	"APPLICATION": "Додаток",
+    	"APPLICATIONS": "Додатки",
+    	"UPLOAD_APP_DESC": "Завантажте файл <strong>.application</strong> створений у Visual CTI Studio:",
+    	"DEBUG" : "Включити логування",
+    	"APP_PARAMETERS_HEADER": "Параметри додатку"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Налаштування сховища",
@@ -1394,7 +1416,8 @@
     	"SELECT_PARAMETER_OPTION": "Виберіть параметр",
     	"ERRORS": {
     		"wrongSize": "Перевищено максимальний розмір файлу",
-    		"wrongFile": "Тип файлу повинен відповідати text/csv"
+    		"wrongFile": "Тип файлу повинен відповідати text/csv",
+    		"wrongFormat": "Невірний тип файлу"
     	}
     },
     "LIGHTBOX": {

@@ -76,7 +76,6 @@ var BillingApi = {
 	},
 
 	getProration: function(sub, amount) {
-		console.log('getProration: ', sub, amount);
 		var now = Date.now();
 		var cycle = Math.floor((sub.nextBillingDate - sub.prevBillingDate) / 1000);
 		var left = sub.nextBillingDate > now ? Math.floor((sub.nextBillingDate - now) / 1000) : 0;
@@ -126,8 +125,8 @@ var BillingApi = {
 		this.request('updateSubscription', params, callback);
 	},
 
-	renewSubscription: function(callback) {
-		this.request('renewSubscription', null, callback);
+	renewSubscription: function(params, callback) {
+		this.request('renewSubscription', params, callback);
 	},
 
 	addCoupon: function(params, callback) {

@@ -37,7 +37,6 @@ function ChannelRecords(){
 		onlineElements = {};
 		// combined = combineChannelData(data.records, data.events),
 
-	// console.log('combined: ', combined);
 
 	$('#channel-player-cont').affix({
 		offset: {
@@ -70,19 +69,16 @@ function ChannelRecords(){
 
 	function getChannelState(time){
 		json_rpc_async('getChannelState', {oid: window.location.hash.substr(window.location.hash.indexOf('?')+1), time: time}, function(result) {
-			console.log('getChannelState: ', time, result);
 			$(document).trigger('channelRecords:state', [result]);
 		});
 	}
 
 	function onNewData(e, data){
-		console.log('onNewData: ', data);
 
 		recsNum.innerText = data.records.length;
 		eventsNum.innerText = data.events.length;
 
 		combined = combineChannelData(data.records, data.events);
-		console.log('combined: ', combined);
 
 		if(!combined.length) return;
 		
@@ -94,7 +90,6 @@ function ChannelRecords(){
 	}
 
 	function onNewEvent(e, data){
-		console.log('onNewEvent: ', data);
 		if(lastEvents.indexOf(data.channelEvent.timecode) !== -1) return;
 		lastEvents.push(data.channelEvent.timecode);
 		addEventsTo([data.channelEvent], eventsCont);
@@ -110,7 +105,6 @@ function ChannelRecords(){
 	}
 
 	function onChannelState(e, data){
-		console.log('onChannelState: ', data);
 		clearTable(eventsCont);
 		clearTable(onlineEvents);
 		onlineElements = {};
@@ -121,7 +115,6 @@ function ChannelRecords(){
 	}
 
 	function addEventsTo(data, cont){
-		console.log('addEventsTo: ', data);
 		var fragment = document.createDocumentFragment();
 		data.forEach(function(item) {
 			fragment.insertBefore(addEventRow(item), fragment.firstChild);
@@ -174,7 +167,6 @@ function ChannelRecords(){
 	}
 
 	function triggerOnlineEvent(evt){
-		console.log(evt);
 		var el;
 		if(!onlineElements[evt.user]) {
 			el = createOnlineEventRow(evt);
@@ -202,7 +194,6 @@ function ChannelRecords(){
 	}
 
 	function onPlaying(e, data){
-		console.log('onPlaying: ', data, player.audio.currentTime);
 
 		if(data.trackIndex === 0 && !player.audio.currentTime) getChannelState(Math.floor(data.track.timecode+data.currentTime));
 		
@@ -213,26 +204,21 @@ function ChannelRecords(){
 	}
 
 	function onPause(){
-		console.log('onPause');
 		playBtn.innerHTML = '<i class="fa fa-fw fa-play"></i>';
 	}
 
 	function onSeeked(e, data){
-		console.log('onSeeked: ', data);
 		getChannelState(Math.floor( data.track.timecode + (data.currentTime || 0) ));
 	}
 
 	function onSeekedClick(e){
 		var currentTime = (player.duration * ((e.offsetX || e.layerX) / seek.clientWidth)).toFixed(2);
-		console.log('seek click: ', currentTime);
 		playByCurrentTime(currentTime);
 	}
 
 	function onInit(e, data){
-		console.log('onInit: ', data);
 		var lastTrack = data.playlist[data.playlist.length-1],
 		lastts = lastTrack.timecode + lastTrack.duration*1000;
-		console.log('onInit: ', lastTrack, lastts);
 		fileDuration.textContent =  moment(lastts).format('DD/MM/YY HH:mm:ss');
 	}
 
@@ -246,7 +232,6 @@ function ChannelRecords(){
 		var targ = e.target, timecode;
 		if(targ.nodeName === 'span') targ = targ.parentNode;
 		timecode = targ.getAttribute('data-event');
-		console.log(timecode);
 		playByTimecode(timecode);
 	}
 
@@ -296,7 +281,6 @@ function ChannelRecords(){
 
 	function setProgress(e, data){
 		var seekValue = data.currentTime === 0 ? 0 : Math.floor((100 / data.duration) * data.currentTime);
-		// console.log('player:timeupdate', data, seekValue);
 		seek.value = seekValue;
 	}
 
@@ -308,7 +292,6 @@ function ChannelRecords(){
 		getCurrEvents(combined[data.trackIndex].events, currTs);
 
 		fileTime.textContent = moment(currTs).format('DD/MM/YY HH:mm:ss');
-		// console.log('player:timeupdate', data, currTs, currEvents);
 	}
 
 	function playByCurrentTime(currentTime){
@@ -316,7 +299,6 @@ function ChannelRecords(){
 		combined.forEach(function(item, index, array) {
 			// if(ts >= item.timecode && ts < array[index+1].timecode) {
 			if(ts >= item.timecode && ts < item.timecode+item.duration*1000) {
-				console.log('playByCurrentTime: ', ts, item);
 				player.playTrack(index, (ts-item.timecode)/1000);
 			}
 		});
@@ -325,7 +307,6 @@ function ChannelRecords(){
 	function playByTimecode(ts){
 		combined.forEach(function(item, index, array) {
 			if(ts >= item.timecode && ts < array[index+1].timecode) {
-				console.log('playByTimecde: ', ts, index, item);
 				player.playTrack(index, (ts-item.timecode)/1000);
 			}
 		});
