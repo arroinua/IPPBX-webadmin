@@ -61,7 +61,7 @@ function load_hunting(params) {
 		objParams.members = objParams.members.concat(array);
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -76,7 +76,7 @@ function load_hunting(params) {
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -85,14 +85,14 @@ function load_hunting(params) {
 			
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
 
 	    var objName = props.name || defaultName;
 
-		json_rpc_async('setObject', {
+		setObject({
 			kind: PbxObject.kind,
 			oid: props.oid,
 			name: objName,
@@ -135,7 +135,7 @@ function load_hunting(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    onAddMembers: showAvailableUsers,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,

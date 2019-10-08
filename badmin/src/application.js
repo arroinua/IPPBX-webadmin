@@ -7,7 +7,7 @@ function load_application(result){
     show_content();
     set_page();
 
-    function setObject(params, file) {
+    function saveObject(params, file) {
         show_loading_panel();
 
         var setParams = {};
@@ -26,6 +26,8 @@ function load_application(result){
         Utils.debug('onSetObject: ', err, response);
         json_rpc_async('getObject', {oid: response.result.result}, function(result) {
             set_object_success();
+            PbxObject.query = result.kind+'/'+result.oid;
+            window.location.href = '#'+PbxObject.query;
             init(result);
         });
     }
@@ -49,7 +51,7 @@ function load_application(result){
         var componentParams = {
             frases: PbxObject.frases,
             params: params,
-            setObject: setObject,
+            setObject: saveObject,
             onNameChange: onNameChange,
             onStateChange: onStateChange
         };

@@ -427,7 +427,7 @@ function set_trunk(){
     jprms += ', "outboundbnumbertransforms":';
     jprms += JSON.stringify(outBTrasf);
 
-    json_rpc_async('setObject', jprms, function(result){
+    setObject(jprms, function(result){
         if(result) {
             if(handler) handler();
         } else {

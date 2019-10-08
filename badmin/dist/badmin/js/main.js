@@ -7,7 +7,7 @@ function load_application(result){
     show_content();
     set_page();
 
-    function setObject(params, file) {
+    function saveObject(params, file) {
         show_loading_panel();
 
         var setParams = {};
@@ -26,6 +26,8 @@ function load_application(result){
         Utils.debug('onSetObject: ', err, response);
         json_rpc_async('getObject', {oid: response.result.result}, function(result) {
             set_object_success();
+            PbxObject.query = result.kind+'/'+result.oid;
+            window.location.href = '#'+PbxObject.query;
             init(result);
         });
     }
@@ -49,7 +51,7 @@ function load_application(result){
         var componentParams = {
             frases: PbxObject.frases,
             params: params,
-            setObject: setObject,
+            setObject: saveObject,
             onNameChange: onNameChange,
             onStateChange: onStateChange
         };
@@ -1159,7 +1161,7 @@ function set_attendant(){
 
     jprms += '],';
 
-    json_rpc_async('setObject', jprms, function(result) {
+    setObject(jprms, function(result) {
         
         set_object_success(result);
         setupInProgress(false);
@@ -3805,7 +3807,7 @@ function load_chatchannel(params) {
 
 	    var objName = params.name || defaultName;
 
-		json_rpc_async('setObject', {
+		setObject({
 			kind: PbxObject.kind,
 			oid: params.oid,
 			name: objName,
@@ -3942,7 +3944,7 @@ function load_chattrunk(params) {
 	}, {
 		id: 'Webcall',
 		name: frases.CHAT_TRUNK.WEBCALL.SERVICE_NAME,
-		icon: '/badmin/images/channels/webchat.png',
+		icon: '/badmin/images/channels/webcall.png',
 		component: WebcallTrunkComponent
 	}, {
 		id: 'WebAPI',
@@ -3996,7 +3998,7 @@ function load_chattrunk(params) {
 		});
 	}
 
-	function setObject(params, cb) {
+	function saveObject(params, cb) {
 
 		// driver.reset();
 
@@ -4004,7 +4006,7 @@ function load_chattrunk(params) {
 
 	    params.directref = true;
 
-		json_rpc_async('setObject', params, function(result, err) {
+		setObject(params, function(result, err) {
 			if(err) {
 				return notify_about('error', err.message);
 			}
@@ -4071,48 +4073,6 @@ function load_chattrunk(params) {
 		});
 	}
 
-	// function updateBalance(params, callback) {
-	// 	PbxObject.stripeHandler.open({
-	// 		// name: 'Ringotel',
-	// 		// zipCode: true,
-	// 		// locale: 'auto',
-	// 		panelLabel: "Pay",
-	// 		allowRememberMe: false,
-	// 		// currency: params.currency,
-	// 		amount: params.chargeAmount*100,
-	// 		closed: function(result) {
-
-	// 			if(!PbxObject.stripeToken) return;
-
-	// 			var reqParams = {
-	// 				currency: params.currency,
-	// 				amount: params.chargeAmount,
-	// 				description: 'Update balance',
-	// 				token: PbxObject.stripeToken.id
-	// 			};
-
-	// 			show_loading_panel();
-
-	// 			BillingApi.updateBalance(reqParams, function(err, response) {
-
-	// 				remove_loading_panel();
-
-	// 				if(err) {
-	// 					notify_about('error', err.message);
-	// 				} else {
-
-	// 					if(callback) callback(params);
-
-	// 					PbxObject.stripeToken = null;		
-
-	// 				}	
-
-	// 			});
-
-	// 		}
-	// 	});
-	// }
-
 	function confirmPayment(params, noConfirm, callback) {
 		if(noConfirm) return callback(params);
 
@@ -4129,40 +4089,6 @@ function load_chattrunk(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
 	}
 
-	// function addSteps(stepParams) {
-	// 	driverSteps = driverSteps.concat(stepParams);
-	// }
-
-	// function nextStep(stepParams) {
-	// 	driver.moveNext();
-	// }
-
-	// function highlightStep(stepParams) {
-	// 	driver.highlight(stepParams);
-	// }
-
-	// function initSteps() {
-	// 	if(!PbxObject.tourStarted) return;
-
-	// 	driverSteps.push({
-	// 		element: '.object-name-cont .btn-success',
-	// 		popover: {
-	// 			title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
-	// 			description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
-	// 			position: 'bottom'
-	// 		}
-	// 	});
-
-	// 	setTimeout(function() {
-	// 		driver.defineSteps(driverSteps);
-	// 		driver.start();
-	// 	}, 500);
-	// }
-
-	// function onTokenReceived(token) {
-	// 	PbxObject.userAccessToken = token;
-	// }
-
 	function render(type, params) {
 		var componentParams = {
 			type: type,
@@ -4172,16 +4098,11 @@ function load_chattrunk(params) {
 		    selected: queryParams.channel,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    updateBalance: updateBalance,
 		    confirmRemoveObject: confirmRemoveObject,
 		    removeObject: removeObject,
-		    confirmPayment: confirmPayment,
-		    // initSteps: initSteps,
-		    // addSteps: addSteps,
-		    // nextStep: nextStep,
-		    // highlightStep: highlightStep
-		    // onTokenReceived: onTokenReceived
+		    confirmPayment: confirmPayment
 		};
 
 		ReactDOM.render(ChatTrunkComponent(componentParams), document.getElementById('el-loaded-content'));
@@ -4287,7 +4208,7 @@ function set_cli(){
     }
     jprms += ']';
         
-    json_rpc_async('setObject', jprms, handler);
+    setObject(jprms, handler);
 }
 
 function add_cli_row(object){
@@ -4994,7 +4915,7 @@ function set_extension_update(e){
     if(groupid) jprms += '\"groupid\":\"'+groupid+'\",';
     if(reg && reg.value) jprms += '\"followme\":\"'+reg.value+'\",';
     // jprms += '}';
-    json_rpc_async('setObject', jprms, function(){
+    setObject(jprms, function(){
         row.parentNode.removeChild(row);
         trow.style.display = 'table-row';
     }); 
@@ -5253,7 +5174,7 @@ function set_extension(kind){
         json_rpc_async('setUserInfo', userInfo, null);
     }
     
-    json_rpc_async('setObject', jprms, function(){
+    setObject(jprms, function(){
         $('#el-extension').modal('hide');
     });
 
@@ -5629,7 +5550,7 @@ function load_hunting(params) {
 		objParams.members = objParams.members.concat(array);
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -5644,7 +5565,7 @@ function load_hunting(params) {
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -5653,14 +5574,14 @@ function load_hunting(params) {
 			
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
 
 	    var objName = props.name || defaultName;
 
-		json_rpc_async('setObject', {
+		setObject({
 			kind: PbxObject.kind,
 			oid: props.oid,
 			name: objName,
@@ -5703,7 +5624,7 @@ function load_hunting(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    onAddMembers: showAvailableUsers,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
@@ -5783,7 +5704,7 @@ function load_icd(params) {
 		objParams.members = objParams.members.concat(array);
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -5799,7 +5720,7 @@ function load_icd(params) {
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -5807,14 +5728,14 @@ function load_icd(params) {
 		}
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
 
 	    var objName = props.name || defaultName;
 
-		json_rpc_async('setObject', {
+		setObject({
 			kind: PbxObject.kind,
 			oid: props.oid,
 			name: objName,
@@ -5860,7 +5781,7 @@ function load_icd(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    onAddMembers: showAvailableUsers,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
@@ -6432,7 +6353,7 @@ function load_location(params) {
 		objParams.name = name;
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
@@ -6447,7 +6368,7 @@ function load_location(params) {
 
 	    delete setParams.members;
 
-		json_rpc_async('setObject', setParams, function(result, err) {
+		setObject(setParams, function(result, err) {
 			
 			if(err) return notify_about('error', err.message);
 
@@ -6467,7 +6388,7 @@ function load_location(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onNameChange: onNameChange,
 		    getExtension: getExtension
 		};
@@ -6932,7 +6853,7 @@ function subscribeToEvents() {
         updateObjectCache(params);
     });
     $(document).on('onmessage.object.add', newObjectAdded);
-    $(document).on('onmessage.object.delete', onObjectDelete);
+    // $(document).on('onmessage.object.delete', onObjectDelete);
 }
 
 function getPbxOptions(callback) {
@@ -7872,30 +7793,55 @@ function filterObject(array, kind, reverse) {
     var newArray = [],
         match = false,
         kinds = !kind ? [] : (Array.isArray(kind) ? kind : [kind]);
-        // pattern = kind ? 
-        //     (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
-        //     '';
-
-    // pattern = new RegExp(pattern);
     
     if(!kinds.length) return array;
 
     newArray = array.filter(function(item) {
         match = kinds.indexOf(item.kind) !== -1;
         return reverse ? !match : match;
-
-
-        // match = reverse ? !(item.kind.match(pattern)) : item.kind.match(pattern); 
-
-        // if(!kind) {
-        //     return true;
-        // } else {
-        //     return Array.isArray(kind) ? (kind.indexOf(match[0]) !== -1) : (kind === match[0]);
-        // }
-        // return reverse ? !(pattern.test(item.kind)) : pattern.test(item.kind);
     });
 
     return newArray;
+}
+
+function setObject(params, props, callback) {
+    var cb = typeof props === 'function' ? props : callback;
+    var oid = params.oid || PbxObject.oid;
+    var kind = params.kind || PbxObject.kind;
+    json_rpc_async('setObject', params, function(result, err) {
+
+        if(err) {
+            if(cb) cb(null, err);
+            else notify_about('error', err.message);
+            return;
+        }
+
+        // if(!callback) {
+        //     return notify_about('success', PbxObject.frases.SAVED);
+        // }
+
+        if(!props || props.changeUrl !== false && (kind !== 'user' && kind !== 'phone')) {
+            PbxObject.query = kind+'/'+oid;
+            window.location.href = '#'+PbxObject.query;
+        }
+
+        if(cb) cb(result);    
+        
+    });
+}
+
+function getObject(oid, callback, fetch) {
+    if(!fetch && Array.isArray(PbxObject.objects)) {
+        var result = PbxObject.objects.filter(function(item) {
+            return item.oid === oid;
+        });
+
+        if(result.length) return callback(result[0]);
+        return json_rpc_async('getObject', { oid: oid }, callback);
+    }
+
+    json_rpc_async('getObject', { oid: oid }, callback);
+
 }
 
 function getObjects(kind, callback, reverse) {
@@ -8211,10 +8157,10 @@ function newObjectAdded(event, data){
         };
     }
 
-    if(kind !== 'application'){
-        PbxObject.query = kind+'/'+oid;
-        window.location.href = '#'+PbxObject.query;
-    }
+    // if(kind !== 'application'){
+        // PbxObject.query = kind+'/'+oid;
+        // window.location.href = '#'+PbxObject.query;
+    // }
 
     if(setobj) 
         setobj.innerHTML = "<i class=\"fa fa-check fa-fw\"></i> " + PbxObject.frases.SAVE;
@@ -8355,6 +8301,8 @@ function deleteExtension(params){
             // add extension to available
             PbxObject.available.push(ext);
             PbxObject.available.sort();
+
+            onObjectDelete(params);
         });        
     } else {
         return;
@@ -8393,6 +8341,7 @@ function delete_extension(e){
             PbxObject.available.push(ext);
             PbxObject.available.sort();
             // table.removeChild(row);
+            onObjectDelete({ kind: PbxObject.kind, ext: ext, group: group, oid: oid });
         });
         
         // newRow = createExtRow(ext);
@@ -8404,7 +8353,7 @@ function delete_extension(e){
     }
 }
 
-function onObjectDelete(event, params) {
+function onObjectDelete(params) {
     if(params.ext && (/extensions|equipment/.test(PbxObject.kind)) ) {
         delete_extension_row(params);
         PbxObject.extensions = deleteObjects(PbxObject.extensions, params, 'ext');
@@ -10894,29 +10843,37 @@ function renderSidebar(params) {
 	        {
 	            name: 'dashboard',
 	            iconClass: 'fa fa-fw fa-pie-chart',
-				objects: [{ kind: 'guide', iconClass: 'fa fa-fw fa-arrow-circle-o-right', standout: true }, { kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
+				objects: [
+					{ kind: 'guide', iconClass: 'fa fa-fw fa-arrow-circle-o-right', standout: true }, 
+					{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, 
+					{ kind: 'records', iconClass: 'fa fa-fw fa-phone' }, 
+					{ kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, 
+					{ kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, 
+					{ kind: 'extensions', iconClass: 'icon-uniE908' },
+					{ kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }
+				]
 	        }, {
 	            name: 'users',
 	            iconClass: 'icon-contact',
-	            objects: [{ kind: 'extensions' }],
+	            // objects: [{ kind: 'extensions' }],
 	            type: "group",
 	            // shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['users']
 	        }, {
 	            name: 'equipment',
-	            iconClass: 'fa fa-fw fa-fax',
+	            iconClass: 'icon-landline',
 	            type: "group",
 	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'servicegroup',
-	            iconClass: 'icon-chats',
+	            iconClass: 'icon-headset_mic',
 	            type: "group",
 	            // iconClass: 'fa fa-fw fa-users',
 	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
-	            iconClass: 'icon-channels',
+	            iconClass: 'icon-perm_phone_msg',
 	            shouldRender: !hasConfig('team'),
 	            fetchKinds: ['chattrunk']
 	        }, {
@@ -10930,7 +10887,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'application',
 	            iconClass: 'fa fa-fw fa-cubes',
-	            shouldRender: hasConfig('business'),
+	            shouldRender: hasConfig('enterprise'),
 	            fetchKinds: ['application']
 	        }, {
 	            name: 'timer',
@@ -10943,7 +10900,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'location',
 	            iconClass: 'fa fa-fw fa-map-marker',
-	            shouldRender: hasConfig('business'),
+	            shouldRender: hasConfig('enterprise'),
 	            fetchKinds: ['location']
 	        }, {
 	            name: 'settings',
@@ -10981,8 +10938,13 @@ function renderSidebar(params) {
 		// }
 
 		if(menu.fetchKinds && menu.fetchKinds.length) {
-		    window.getObjects(menu.fetchKinds, function(result) {
+		    getObjects(menu.fetchKinds, function(result) {
 		    	objects = result ? objects.concat(result) : objects;
+		    	if(menu.fetchKinds.indexOf('trunk') !== -1) {
+		    		objects = objects.filter(function(item) { 
+		    			return item.type !== 'service'; 
+		    		})
+		    	}
 		        return callback(objects);
 		    });
 		} else {
@@ -11005,7 +10967,7 @@ function renderSidebar(params) {
 
 	function _getActiveKind(kind) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
-	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|extensions|reg_history')) return 'dashboard';
 	    else if(kind.match('extensions')) return 'users';
 	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers|developer')) return 'settings';
 	    else return kind;
@@ -11433,7 +11395,7 @@ function set_routes(){
         if(str != '') jprms += '{'+str+'},';
     }
     jprms += ']';
-    json_rpc_async('setObject', jprms, handler);
+    setObject(jprms, handler);
 }
 
 function getRouteObjects(callback) {
@@ -11839,7 +11801,7 @@ function load_selector(params) {
 		objParams.members = objParams.members.concat(array);
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -11854,7 +11816,7 @@ function load_selector(params) {
 		objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
 
 		if(PbxObject.name) {
-			setObject(objParams, function(result) {
+			saveObject(objParams, function(result) {
 				init(objParams);
 			});
 		} else {
@@ -11863,7 +11825,7 @@ function load_selector(params) {
 			
 	}
 
-	function setObject(newParams, callback) {
+	function saveObject(newParams, callback) {
 
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
@@ -11874,7 +11836,7 @@ function load_selector(params) {
 
 		props.members = props.members.reduce(function(array, item) { array = array.concat([item.ext]); return array; }, []);
 
-		json_rpc_async('setObject', {
+		setObject({
 			kind: PbxObject.kind,
 			oid: props.oid,
 			name: objName,
@@ -11919,7 +11881,7 @@ function load_selector(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    onAddMembers: showAvailableUsers,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onNameChange: onNameChange,
 		    onStateChange: onStateChange,
 		    getInfoFromState: getInfoFromState,
@@ -12851,7 +12813,7 @@ function set_timer(){
     }
     jprms += ']';
     
-    json_rpc_async('setObject', jprms, handler); 
+    setObject(jprms, handler); 
 }
 
 function timer_target_row(oid, name, action){
@@ -13499,7 +13461,7 @@ function set_trunk(){
     jprms += ', "outboundbnumbertransforms":';
     jprms += JSON.stringify(outBTrasf);
 
-    json_rpc_async('setObject', jprms, function(result){
+    setObject(jprms, function(result){
         if(result) {
             if(handler) handler();
         } else {
@@ -13611,7 +13573,7 @@ function load_users(params) {
 		var userParams = extend({}, params);
 
 		if(!PbxObject.name) {
-			return setObject({
+			return saveObject({
 				name: objParams.name,
 				profile: objParams.profile,
 				members: []
@@ -13623,7 +13585,7 @@ function load_users(params) {
 		userParams.kind = objParams.kind === 'users' ? 'user' : 'phone';
 		userParams.groupid = objParams.oid;
 
-		json_rpc_async('setObject', userParams, function(result, error) {
+		setObject(userParams, function(result, error) {
 
 			if(error) {
 				callback(error);
@@ -13769,7 +13731,7 @@ function load_users(params) {
 			
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
@@ -13785,7 +13747,7 @@ function load_users(params) {
 	    	members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
 	    };
 
-		json_rpc_async('setObject', groupParams, function(result) {
+		setObject(groupParams, function(result) {
 			PbxObject.name = objParams.name = objName;
 
 			if(handler) handler();
@@ -13838,7 +13800,7 @@ function load_users(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onAddMembers: openNewUserForm,
 		    onNameChange: onNameChange,
 		    getExtension: getExtension,

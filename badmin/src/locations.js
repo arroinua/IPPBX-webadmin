@@ -18,7 +18,7 @@ function load_location(params) {
 		objParams.name = name;
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
@@ -33,7 +33,7 @@ function load_location(params) {
 
 	    delete setParams.members;
 
-		json_rpc_async('setObject', setParams, function(result, err) {
+		setObject(setParams, function(result, err) {
 			
 			if(err) return notify_about('error', err.message);
 
@@ -53,7 +53,7 @@ function load_location(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onNameChange: onNameChange,
 		    getExtension: getExtension
 		};

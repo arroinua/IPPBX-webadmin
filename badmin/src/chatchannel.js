@@ -95,7 +95,7 @@ function load_chatchannel(params) {
 
 	    var objName = params.name || defaultName;
 
-		json_rpc_async('setObject', {
+		setObject({
 			kind: PbxObject.kind,
 			oid: params.oid,
 			name: objName,

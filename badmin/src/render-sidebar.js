@@ -16,29 +16,37 @@ function renderSidebar(params) {
 	        {
 	            name: 'dashboard',
 	            iconClass: 'fa fa-fw fa-pie-chart',
-				objects: [{ kind: 'guide', iconClass: 'fa fa-fw fa-arrow-circle-o-right', standout: true }, { kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, { kind: 'records', iconClass: 'fa fa-fw fa-phone' }, { kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, { kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, { kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }]
+				objects: [
+					{ kind: 'guide', iconClass: 'fa fa-fw fa-arrow-circle-o-right', standout: true }, 
+					{ kind: 'realtime', iconClass: 'fa fa-fw fa-tachometer' }, 
+					{ kind: 'records', iconClass: 'fa fa-fw fa-phone' }, 
+					{ kind: 'statistics', iconClass: 'fa fa-fw fa-table' }, 
+					{ kind: 'channel_statistics', iconClass: 'fa fa-fw fa-area-chart' }, 
+					{ kind: 'extensions', iconClass: 'icon-uniE908' },
+					{ kind: 'reg_history', iconClass: 'fa fa-fw fa-history' }
+				]
 	        }, {
 	            name: 'users',
 	            iconClass: 'icon-contact',
-	            objects: [{ kind: 'extensions' }],
+	            // objects: [{ kind: 'extensions' }],
 	            type: "group",
 	            // shouldRender: !hasConfig('no-users'),
 	            fetchKinds: ['users']
 	        }, {
 	            name: 'equipment',
-	            iconClass: 'fa fa-fw fa-fax',
+	            iconClass: 'icon-landline',
 	            type: "group",
 	            fetchKinds: ['equipment']
 	        }, {
 	            name: 'servicegroup',
-	            iconClass: 'icon-chats',
+	            iconClass: 'icon-headset_mic',
 	            type: "group",
 	            // iconClass: 'fa fa-fw fa-users',
 	            fetchKinds: ['hunting', (hasConfig('team') ? '' : 'icd'), (hasConfig('team') ? '' : 'chatchannel')]
 	            // fetchKinds: ['hunting', 'icd', 'chatchannel', 'selector']
 	        }, {
 	            name: 'chattrunk',
-	            iconClass: 'icon-channels',
+	            iconClass: 'icon-perm_phone_msg',
 	            shouldRender: !hasConfig('team'),
 	            fetchKinds: ['chattrunk']
 	        }, {
@@ -52,7 +60,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'application',
 	            iconClass: 'fa fa-fw fa-cubes',
-	            shouldRender: hasConfig('business'),
+	            shouldRender: hasConfig('enterprise'),
 	            fetchKinds: ['application']
 	        }, {
 	            name: 'timer',
@@ -65,7 +73,7 @@ function renderSidebar(params) {
 	        }, {
 	            name: 'location',
 	            iconClass: 'fa fa-fw fa-map-marker',
-	            shouldRender: hasConfig('business'),
+	            shouldRender: hasConfig('enterprise'),
 	            fetchKinds: ['location']
 	        }, {
 	            name: 'settings',
@@ -103,8 +111,13 @@ function renderSidebar(params) {
 		// }
 
 		if(menu.fetchKinds && menu.fetchKinds.length) {
-		    window.getObjects(menu.fetchKinds, function(result) {
+		    getObjects(menu.fetchKinds, function(result) {
 		    	objects = result ? objects.concat(result) : objects;
+		    	if(menu.fetchKinds.indexOf('trunk') !== -1) {
+		    		objects = objects.filter(function(item) { 
+		    			return item.type !== 'service'; 
+		    		})
+		    	}
 		        return callback(objects);
 		    });
 		} else {
@@ -127,7 +140,7 @@ function renderSidebar(params) {
 
 	function _getActiveKind(kind) {
 	    if(kind.match('hunting|icd|chatchannel|selector')) return 'servicegroup';
-	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|reg_history')) return 'dashboard';
+	    else if(kind.match('guide|realtime|statistics|channel_statistics|records|extensions|reg_history')) return 'dashboard';
 	    else if(kind.match('extensions')) return 'users';
 	    else if(kind.match('branch_options|rec_settings|services|storages|licenses|billing|certificates|customers|developer')) return 'settings';
 	    else return kind;

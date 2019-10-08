@@ -200,7 +200,7 @@ function set_timer(){
     }
     jprms += ']';
     
-    json_rpc_async('setObject', jprms, handler); 
+    setObject(jprms, handler); 
 }
 
 function timer_target_row(oid, name, action){

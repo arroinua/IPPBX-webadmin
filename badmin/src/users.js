@@ -98,7 +98,7 @@ function load_users(params) {
 		var userParams = extend({}, params);
 
 		if(!PbxObject.name) {
-			return setObject({
+			return saveObject({
 				name: objParams.name,
 				profile: objParams.profile,
 				members: []
@@ -110,7 +110,7 @@ function load_users(params) {
 		userParams.kind = objParams.kind === 'users' ? 'user' : 'phone';
 		userParams.groupid = objParams.oid;
 
-		json_rpc_async('setObject', userParams, function(result, error) {
+		setObject(userParams, function(result, error) {
 
 			if(error) {
 				callback(error);
@@ -256,7 +256,7 @@ function load_users(params) {
 			
 	}
 
-	function setObject(props, callback) {
+	function saveObject(props, callback) {
 	    if(PbxObject.name) {
 	    	handler = set_object_success;
 	    }
@@ -272,7 +272,7 @@ function load_users(params) {
 	    	members: (props.members.length ? props.members.reduce(function(prev, next) { prev.push(next.number || next.ext); return prev; }, []) : [])
 	    };
 
-		json_rpc_async('setObject', groupParams, function(result) {
+		setObject(groupParams, function(result) {
 			PbxObject.name = objParams.name = objName;
 
 			if(handler) handler();
@@ -325,7 +325,7 @@ function load_users(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    onAddMembers: openNewUserForm,
 		    onNameChange: onNameChange,
 		    getExtension: getExtension,

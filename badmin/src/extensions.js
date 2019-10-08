@@ -337,7 +337,7 @@ function set_extension_update(e){
     if(groupid) jprms += '\"groupid\":\"'+groupid+'\",';
     if(reg && reg.value) jprms += '\"followme\":\"'+reg.value+'\",';
     // jprms += '}';
-    json_rpc_async('setObject', jprms, function(){
+    setObject(jprms, function(){
         row.parentNode.removeChild(row);
         trow.style.display = 'table-row';
     }); 
@@ -596,7 +596,7 @@ function set_extension(kind){
         json_rpc_async('setUserInfo', userInfo, null);
     }
     
-    json_rpc_async('setObject', jprms, function(){
+    setObject(jprms, function(){
         $('#el-extension').modal('hide');
     });
 
