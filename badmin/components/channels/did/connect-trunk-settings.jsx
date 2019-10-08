@@ -15,6 +15,7 @@ var ConnectTrunkSettings = React.createClass({
 			selectedTrunk: {},
 			phoneNumber: "",
 			fetching: false,
+			trunkModalLoaded: false,
 			showNewTrunkModal: false
 		};
 	},
@@ -22,10 +23,11 @@ var ConnectTrunkSettings = React.createClass({
 	componentWillMount: function() {
 		var state = { fetching: true };
 		var selectedTrunk = null;
-		
+
 		this.setState(state);
 
 		this._getTrunks(function(result) {
+
 			state.trunks = result;
 
 			if(this.props.pageid) {
@@ -82,11 +84,12 @@ var ConnectTrunkSettings = React.createClass({
 
 	_showNewTrunkSettings: function(e) {
 		e.preventDefault();
-		this.setState({ showNewTrunkModal: true });
+		var state = { showNewTrunkModal: true };
+		if(!this.state.trunkModalLoaded) state.trunkModalLoaded = true;
+		this.setState(state);
 	},
 
 	_onTrunkAdd: function(params) {
-		Utils.debug('ConnectTrunkSettings', params);
 		var trunks = [].concat(this.state.trunks, [params]);
 		this.setState({ trunks: trunks, selectedTrunk: params, showNewTrunkModal: false });
 	},
@@ -142,12 +145,15 @@ var ConnectTrunkSettings = React.createClass({
 
 
 				{
-					<TrunkSettingsModalComponent 
-						frases={frases} 
-						open={this.state.showNewTrunkModal}
-						onSubmit={this._onTrunkAdd} 
-						onClose={ function() { this.setState({ showNewTrunkModal: false }) }.bind(this) } 
-					/>
+					this.state.trunkModalLoaded ? (
+						<TrunkSettingsModalComponent 
+							frases={frases} 
+							open={this.state.showNewTrunkModal}
+							onSubmit={this._onTrunkAdd} 
+							onClose={ function() { this.setState({ showNewTrunkModal: false }) }.bind(this) } 
+						/>
+					) : null
+						
 				}
 			</div>
 		);

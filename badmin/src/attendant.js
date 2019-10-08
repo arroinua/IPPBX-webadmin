@@ -1096,7 +1096,7 @@ function set_attendant(){
 
     jprms += '],';
 
-    json_rpc_async('setObject', jprms, function(result) {
+    setObject(jprms, function(result) {
         
         set_object_success(result);
         setupInProgress(false);

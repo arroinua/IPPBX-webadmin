@@ -13,7 +13,10 @@ var SelectedDidNumberComponent = React.createClass({
 		return {
 			number: {},
 			fetchingStatus: false,
-			fetchingRegistration: false
+			statusUpdates: 0,
+			regUpdates: 0,
+			maxStatusUpdates: 10,
+			maxRegUpdates: 10
 		};
 	},
 
@@ -22,25 +25,13 @@ var SelectedDidNumberComponent = React.createClass({
 		this.setState({ number: number });
 
 		if(number.status !== 'active') {
-			this.updateStatusInterval = window.setInterval(function() {
-				this._fetchUpdateStatus(number.number);
-			}.bind(this), 1000);
-			// BillingApi.updateDidStatus({ number: this.props.number.number }, function(err, response) {
-			// 	if(err) return notify_about('error', err);
-			// 	this._updateStatus(response.result.status);
-			// }.bind(this));
-			// state.fetchingStatus = true;
+			this._fetchUpdateStatus(number.number);
+
 		}
 
 		if(number.awaitingRegistration) {
-			this.updateRegInterval = window.setInterval(function() {
-				this._fetchUpdateRegistration(number.number);
-			}.bind(this), 1000);
-			// BillingApi.updateDidRegistration({ number: this.props.number.number }, function(err, response) {
-			// 	if(err) return notify_about('error', err);
-			// 	this._updateRegistration(response.result.awaitingRegistration);
-			// }.bind(this));
-			// state.fetchingRegistration = true;
+			this._fetchUpdateRegistration(number.number);
+
 		}
 		
 	},
@@ -49,7 +40,6 @@ var SelectedDidNumberComponent = React.createClass({
 		BillingApi.updateDidStatus({ number: number }, function(err, response) {
 			if(err) return notify_about('error', err);
 			this._updateStatus(response.result.status);
-			if(response.result.status === 'active') window.clearInterval(this.updateStatusInterval);
 		}.bind(this));
 
 		this.setState({ fetchingStatus: true });
@@ -59,10 +49,8 @@ var SelectedDidNumberComponent = React.createClass({
 		BillingApi.updateDidRegistration({ number: number }, function(err, response) {
 			if(err) return notify_about('error', err);
 			this._updateRegistration(response.result.awaitingRegistration);
-			if(!response.result.awaitingRegistration) window.clearInterval(this.updateRegInterval);
 		}.bind(this));
 
-		this.setState({ fetchingRegistration: true });
 	},
 
 	_updateStatus: function(status) {
@@ -75,7 +63,6 @@ var SelectedDidNumberComponent = React.createClass({
 	_updateRegistration: function(awaitingRegistration) {
 		var state = this.state;
 		state.number.awaitingRegistration = awaitingRegistration;
-		state.fetchingRegistration = false;
 		this.setState(state);
 	},
 
@@ -84,7 +71,7 @@ var SelectedDidNumberComponent = React.createClass({
 		var selectedNumber = this.state.number;
 		
 		return (
-			<div>
+			<form className="form-horizontal">
 				<div className="form-group">
 					<label className="col-sm-4 control-label">{frases.CHAT_TRUNK.DID.LOCATION}</label>
 					<div className="col-sm-4">
@@ -126,7 +113,7 @@ var SelectedDidNumberComponent = React.createClass({
 						</div>
 					)
 				}
-			</div>
+			</form>
 		);
 		
 	}

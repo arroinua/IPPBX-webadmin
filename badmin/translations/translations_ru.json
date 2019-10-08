@@ -484,6 +484,7 @@
 	"AUTHNAME" : "Имя для авторизации",
 	"REGEXPIRES" : "Период авторизации",
 	"CONNECTED_TO": "Подключение к",
+	"DOMAIN_OR_IP_ADDRESS": "Домен или IP адрес",
 	"ADDRESS" : "Адрес",
 	"PROXY" : "Прокси",
 	"NETWORK": "Сеть",
@@ -884,7 +885,8 @@
     	"OUT_ROUTE": "Разрешить вызовы",
     	"ADVANCED_SETTINGS_BTN": "Расширенные настройки",
     	"ADD_RULE": "Добавить правило",
-    	"PASSANUMBER": "Отправлять Caller ID в заголовке From"
+    	"PASSANUMBER": "Отправлять Caller ID в заголовке From",
+    	"CREATE_NEW_TRUNK_MODAL_HEADER": "Новое подключение"
     },
     "USERS_GROUP": {
     	"DEFAULT_NAME": "Группа пользователей",
@@ -1011,10 +1013,11 @@
     		"NUMBER": "Номер",
     		"STATUS": "Статус",
     		"ADD_NUMBER_BTN": "Добавить номер",
-    		"CONNECT_TRUNK_BTN": "Привязать транк",
+    		"CONNECT_TRUNK_BTN": "У меня есть номер",
+    		"NEW_SIP_CONNECTION_BTN": "Подключить транк",
     		"SELECT_TRUNK_LABEL": "Выбрать транк",
     		"SELECTED_TRUNK_LABEL": "Выбранный транк",
-    		"TRUNK_NUMBER_LABEL": "Телефонный номер транка",
+    		"TRUNK_NUMBER_LABEL": "Телефонный номер",
     		"NO_CREATED_TRUNKS": "Транк еще не создан",
     		"BUY_NUMBER_BTN": "Купить номер",
     		"SELECT_COUNTRY": "Виберите страну",

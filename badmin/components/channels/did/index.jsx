@@ -18,72 +18,50 @@ var DidTrunkComponent = React.createClass({
 			isTrial: null,
 			totalAmount: 0,
 			chargeAmount: 0,
-			numbers: null,
 			countries: [],
-			regions: null,
-			locations: null,
-			didTypes: ['Local'],
-			availableNumbers: null,
-			selectedCountry: {},
-			selectedRegion: {},
-			selectedLocation: {},
-			selectedAvailableNumber: {},
-			selectedPriceObject: {},
-			selectedType: 'Local',
 			selectedNumber: {},
 			selectedTrunk: {},
 			limitReached: false,
 			showNewDidSettings: false,
-			showConnectTrunkSettings: false,
-			fetchingCountries: false
+			showConnectTrunkSettings: false
 		};
 	},
 
 	componentWillMount: function() {
-		var sub = {};
+		var state = { fetch: true };
 
-		if(!this.props.properties || (!this.props.properties.number && !this.props.properties.id)) 
-			return this.setState({ init: true });
+		this.setState(state);
 
-		if(this.props.properties.number) {
-			this.setState({ fetch: true });
+		if(this.props.properties && this.props.properties.number) {
 
-			BillingApi.getSubscription(function(err, response) {
-				if(err) {
-					this.setState({ fetch: false });
-					return notify_about('error' , err.message);
+			this._getDid(this.props.properties.number, function(err, response) {
+				if(err) return notify_about('error', err);
+				state = {
+					init: true,
+					showNewDidSettings: true,
+					selectedNumber: response.result
 				}
-
-				sub = response.result;
-
-				this._getDid(this.props.properties.number, function(err, response) {
-					if(err) {
-						this.setState({ fetch: false });
-						return notify_about('error', err);
-					}
-
-					this.setState({
-						init: true,
-						isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0),
-						sub: response.result,
-						fetch: false,
-						showNewDidSettings: true,
-						selectedNumber: response.result	
-					});
-				}.bind(this));
-
+				this.setState(state);
 			}.bind(this));
-		} else if(this._isTrunkChannel(this.props.properties.id)) {
-			this.setState({
+
+		} else {
+			state = {
 				init: true,
-				showConnectTrunkSettings: true
-			});
+				fetch: false
+			};
+
+			if(this._isTrunkChannel(this.props.properties.id) || getInstanceMode() === 1) {
+				state.showConnectTrunkSettings = true;
+				this.setState(state);
+			} else {
+				this.setState(state);
+			}
 		}
 
 	},
 
 	componentWillReceiveProps: function(props) {
-		if(this.state.fetch && props.properties && props.properties.number) {
+		if(this.props.isNew && !props.isNew && props.properties && props.properties.number) {
 			this.setState({ fetch: false });
 
 			this._getDid(props.properties.number, function(err, response) {
@@ -91,7 +69,7 @@ var DidTrunkComponent = React.createClass({
 				this.setState({ selectedNumber: response.result });
 
 			}.bind(this));
-		} else if(this._isTrunkChannel(props.properties.id)) {
+		} else if(this._isTrunkChannel(props.properties.id) || getInstanceMode() === 1) {
 			this.setState({ 
 				fetch: false,
 				showConnectTrunkSettings: true
@@ -100,224 +78,53 @@ var DidTrunkComponent = React.createClass({
 				
 	},
 
-	_onChange: function() {
-
-		var params = {
-			poid: this.state.selectedPriceObject ? this.state.selectedPriceObject._id : null,
-			dgid: this.state.selectedLocation ? this.state.selectedLocation._id : null,
-			anid: this.state.selectedAvailableNumber ? this.state.selectedAvailableNumber.id : null,
-			totalAmount: this.state.totalAmount,
-			chargeAmount: this.state.chargeAmount,
-			newSubAmount: this.state.newSubAmount,
-			nextBillingDate: this.state.nextBillingDate,
-			currency: this._currencyNameToSymbol(this.state.sub.plan.currency)
-		};
-		
-		this.props.onChange(params);
-	},
-
 	_isTrunkChannel: function(str) {
 		return (str ? str.indexOf('@') !== -1 : false);
 	},
-
-	_currencyNameToSymbol: function(name) {
-		var symbol = "";
-
-		switch(name.toLowerCase()) {
-			case "eur":
-				symbol = "€";
-				break;
-			case "usd":
-				symbol = "$";
-				break;
-			default:
-				symbol = "€";
-				break;
-		}
-
-		return symbol;
-	},
-
-	// _setSelectedNumber: function(number) {
-	// 	// var data = this.state.data;
-	// 	var selectedNumber = this.state.numbers.filter(function(item) { return item.number === number })[0];
-	// 	// data.number = data.id = number;
-
-	// 	// this.setState({ data: data, selectedNumber: selectedNumber });
-	// 	this.setState({ selectedNumber: selectedNumber });
-	// 	// this.props.onChange(data);
-	// },
-
-	_onCountrySelect: function(e) {
-		var value = e.target.value;
-		var state = this.state;
-		var country = this.state.countries.filter(function(item) { return item.id === value })[0] || {};
-		
-		state.selectedCountry = country;
-		state.selectedLocation = {};
-		state.selectedRegion = {};
-		state.selectedLocation = {};
-		state.selectedAvailableNumber = {};
-		state.regions = null;
-		state.locations = null;
-		state.needRegion = (country.attributes.iso === 'US' || country.attributes.iso === 'CA');
-
-		this.setState(state);
-
-		if(!value) return;
-
-		if(state.needRegion) {
-			BillingApi.request('getDidRegions', { country: country.id }, function(err, response) {
-				this.setState({ regions: response.result || [] });
-			}.bind(this));
-		} else {
-			this._getDidLocations({ country: country.id, type: state.selectedType }, function(err, response) {
-				if(err) return notify_about('error', err);
-				this.setState({ locations: response.result || [] });
-			}.bind(this));
-		}
-
-	},
-
-	_onRegionSelect: function(e) {
-		var value = e.target.value;
-		var state = this.state;
-		var region = this.state.regions.filter(function(item) { return item.id === value })[0] || {};
-
-		state.selectedRegion = region;
-		state.selectedLocation = {};
-		state.selectedAvailableNumber = {};
-		state.locations = null;
-
-		this.setState(state);
-
-		this._getDidLocations({ country: state.selectedCountry.id, region: region.id, type: state.selectedType }, function(err, response) {
-			if(err) return notify_about('error', err);
-			this.setState({ locations: response.result || [] });
-		}.bind(this));
-	},
-
-	_onLocationSelect: function(e) {
-		var value = e.target.value;
-		var state = this.state;
-
-		var selectedLocation = {};
-		var selectedPriceObject = {};
-
-		if(value) {
-			selectedLocation = state.locations.filter(function(item) { return item._id === value; })[0];
-		}
-
-		state.selectedLocation = selectedLocation;
-		state.selectedPriceObject = selectedPriceObject;
-		state.selectedAvailableNumber = {};
-		state.availableNumbers = null;
-
-		this.setState(state);
-
-		this._getAvailableNumbers({ dgid: selectedLocation._id }, function(err, response) {
-			if(err) return notify_about('error', err);
-
-			this.setState({  availableNumbers: response.result });
-		}.bind(this));
-
-	},
-
-	_onAvailableNumberSelect: function(e) {
-		var value = e.target.value;
-		var state = this.state;
-
-		if(value) {
-			state.selectedAvailableNumber = state.availableNumbers.filter(function(item) { return item.id === value; })[0];
-		}
-
-		this.setState(state);
-
-		this._getDidPrice({ iso: state.selectedCountry.attributes.iso, areaCode: state.selectedLocation.areaCode }, function(err, response) {
-			if(err) return notify_about('error', err);
-			this._setDidPrice(response.result);
-			
-		}.bind(this));
-	},
-
-	_setDidPrice: function(priceObj) {
-		var sub = this.state.sub;
-		var amount = this.state.isTrial ? 0 : this._getDidAmount(sub.plan.billingPeriodUnit, priceObj);
-		// var proratedAmount = BillingApi.getProration(sub, amount);
-		// var proratedAmount = (amount * (this.state.proratedDays / this.state.cycleDays)).toFixed(2);
-
-		this.setState({
-			selectedPriceObject: priceObj,
-			totalAmount: amount,
-			chargeAmount: amount,
-			newSubAmount: (parseFloat(sub.amount) + amount),
-			nextBillingDate: moment(sub.nextBillingDate).format('DD/MM/YY')
-		});
-
-		this._onChange();
-	},
-
-	// _getAssignedDids: function(callback) {
-	// 	BillingApi.('getAssignedDids', null, callback);
-	// },
 
 	_getDid: function(number, callback) {
 		BillingApi.getDid({ number: number }, callback);
 	},
 
-	_getDidCountries: function(callback) {
-		BillingApi.getDidCountries(callback);
-	},
+	// _getCreatedTrunks: function() {
+	// 	this.props.getObjects('trunk', function(result) {
+	// 		this.setState({
+	// 			trunks: result || []
+	// 		});
+	// 	});
+	// },
 
-	_getDidLocations: function(params, callback) {
-		BillingApi.getDidLocations(params, callback);
-	},
-
-	_getAvailableNumbers: function(params, callback) {
-		BillingApi.request('getAvailableNumbers', params, callback);
-	},
-
-	_getDidPrice: function(params, callback) {
-		BillingApi.request('getDidPrice', params, callback);
-	},
-
-	_getDidAmount: function(billingPeriodUnit, priceObj) {
-		var state = this.state;
-		var amount = 0;
-		if(!billingPeriodUnit || !priceObj) return amount;
-		amount = (billingPeriodUnit === 'years' ? priceObj.annualPrice : priceObj.monthlyPrice);
-		return amount ? parseFloat(amount) : 0;
-	},
-
-	_getCreatedTrunks: function() {
-		this.props.getObjects('trunk', function(result) {
-			this.setState({
-				trunks: result || []
-			});
-		});
+	_getSubscription: function(callback) {
+		var sub = this.state.sub;
+		if(sub) return callback(null, sub);
+		BillingApi.getSubscription(function(err, response) {
+			if(!err && response.result) {
+				sub = response.result;
+				this.setState({ sub: sub, isTrial: (sub.plan.planId === 'trial' || sub.plan.numId === 0) });
+				callback(null, sub);
+			}
+		}.bind(this));
 	},
 
 	_showNewDidSettings: function(e) {
 		e.preventDefault();
-		this.setState({ showNewDidSettings: !this.state.showNewDidSettings, fetchingCountries: true });
+		this.setState({ showNewDidSettings: !this.state.showNewDidSettings });
 
-		var sub = this.state.sub;
-		var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
+		this._getSubscription(function(err, response) {
 
-		BillingApi.hasDids(function(err, count) {
-			if(err) return notify_about('error', err);
+			var sub = response;
+			var maxdids = sub.plan.attributes ? sub.plan.attributes.maxdids : sub.plan.customData.maxdids;
 
-			if(count.result >= maxdids) {
-				this.setState({ limitReached: true, countries: [], fetchingCountries: false });
-				return;
-			}
+			BillingApi.hasDids(function(err, count) {
+				if(err) return notify_about('error', err);
 
-			if(!this.state.countries.length) {
-				this._getDidCountries(function(err, response) {
-					if(err) return notify_about('error', err);
-					this.setState({ countries: response.result, fetchingCountries: false });
-				}.bind(this));
-			}
+				if(count.result >= maxdids) {
+					this.setState({ limitReached: true });
+					return;
+				}
+
+			}.bind(this));
+
 		}.bind(this));
 				
 	},
@@ -326,23 +133,8 @@ var DidTrunkComponent = React.createClass({
 		this.setState({ showNewDidSettings: false, showConnectTrunkSettings: true, fetchingTrunks: true });
 	},
 
-	_onTrunkSelect: function(params) {
-		this.props.onChange(params);
-	},
-
-	// function getBody() {
-	// 	return (
-	// 		<div className="col-sm-8 col-sm-offset-4">
-	// 			<p>{frases.BILLING.CONFIRM_PAYMENT.ADD_NUMBER_NEW_AMOUNT} <strong>€{ amount }</strong>. {frases.BILLING.CONFIRM_PAYMENT.TODAY_CHARGE_MSG} <strong>€{ proratedAmount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
-	// 			<p>{frases.BILLING.CONFIRM_PAYMENT.NEW_SUB_AMOUNT} <strong>€{ parseFloat(sub.amount) + amount }</strong> {frases.BILLING.CONFIRM_PAYMENT.PLUS_TAXES}.</p>
-	// 			{
-	// 				selectedPriceObject.restrictions && (
-	// 					<DidRestrictionsComponent frases={frases} list={selectedPriceObject.restrictions.split(',')} />
-	// 				) 
-	// 			}
-	// 			<p><button className="btn btn-primary" onClick={this._buyDidNumber}>{frases.CHAT_TRUNK.DID.BUY_NUMBER_BTN}</button></p>
-	// 		</div>
-	// 	)
+	// _onTrunkSelect: function(params) {
+	// 	this.props.onChange(params);
 	// },
 
 	render: function() {
@@ -374,40 +166,45 @@ var DidTrunkComponent = React.createClass({
 				getObjects={this.props.getObjects} 
 				pageid={properties.id}
 				frases={this.props.frases} 
-				onChange={this._onTrunkSelect}
+				onChange={this.props.onChange}
 				isNew={this.props.isNew}
 			/>
 		}
 
 		if(!this.state.showNewDidSettings && !this.state.showConnectTrunkSettings) {
 			return (
-				<div className="row">
-					<div className="col-sm-offset-4 col-sm-4 col-xs-6 text-center">
+				<div className="row" style={{ position: 'relative' }}>
+					<div className={"col-sm-6 " + (isSmallScreen() ? 'text-center' : 'text-right')}>
 					    <a 
 					    	href="#" 
-					    	style={{ textDecoration: "none", width: "50px", height: "150px", border: "1px solid #eee" }}
+					    	className="chattrunk-service-cont"
+					    	style={{ textDecoration: "none", maxWidth: "300px", minHeight: "150px" }}
 					    	onClick={this._showNewDidSettings}
 					    >
 			    			<span 
-			    				className="fa fa-plus-circle"
+			    				className="icon-add_call"
 			    				style={{ fontSize: "2em", color: "#333", padding: "5px 0" }}
 			    			></span>
-			    			<br/>
-					    	<span>Buy a new number</span>
+					    	<h4>Get a new number</h4>
+					    	<p>Rent a local number from more than 50 countries</p>
 					    </a>
 					</div>
-					<div className="col-sm-4 col-xs-6 text-center">
+					<div className="col-sm-1 text-center" style={{ position: "absolute", display: "inline-block", width: "1px", height: "100%", backgroundColor: "#eee", padding: "0" }}></div>
+					<div className={"col-sm-5 " + (isSmallScreen() ? 'text-center' : 'text-left')}>
 					    <a 
 					    	href="#" 
-					    	style={{ textDecoration: "none", width: "50px", height: "150px", border: "1px solid #eee" }}
+					    	className="chattrunk-service-cont"
+					    	style={{textDecoration: "none",  maxWidth: "300px", minHeight: "150px" }}
 					    	onClick={this._showConnectTrunkSettings}
 					    >
-			    			<span 
-			    				className="fa fa-plug"
-			    				style={{ fontSize: "2em", color: "#333", padding: "5px 0" }}
-			    			></span>
-			    			<br/>
-					    	<span>I already have a number</span>
+					    	<div>
+				    			<span 
+				    				className="icon-dialer_sip"
+				    				style={{ fontSize: "2em", color: "#333", padding: "5px 0" }}
+				    			></span>
+				    		</div>
+					    	<h4>I already have a number</h4>
+					    	<p>Connect to any SIP provider and route calls to any extension, group or IVR</p>
 					    </a>
 					</div>
 				</div>

@@ -122,7 +122,7 @@ function set_routes(){
         if(str != '') jprms += '{'+str+'},';
     }
     jprms += ']';
-    json_rpc_async('setObject', jprms, handler);
+    setObject(jprms, handler);
 }
 
 function getRouteObjects(callback) {

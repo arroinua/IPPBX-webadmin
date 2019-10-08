@@ -78,16 +78,16 @@
 	_getKindIcon: function(kind) {
 		var icon = '';
 
-		if(kind === 'user') icon = 'fa-user';
-		else if(kind === 'phone') icon = 'fa-fax';
-		else if(kind === 'chatchannel') icon = 'fa-comments-o';
-		else if(kind === 'hunting') icon = 'icon-find_replace';
+		if(kind === 'user') icon = 'icon-contact';
+		else if(kind === 'phone') icon = 'icon-landline';
+		else if(kind === 'chatchannel') icon = 'icon-headset_mic';
+		else if(kind === 'hunting') icon = 'icon-headset_mic';
 		else if(kind === 'icd') icon = 'icon-headset_mic';
-		else if(kind === 'selector') icon = 'fa-line-chart';
-		else if(kind === 'attendant') icon = 'icon-room_service';
-		else if(kind === 'trunk') icon = 'fa-cloud';
-		else if(kind === 'chattrunk') icon = 'fa-whatsapp';
-		else if(kind === 'timer') icon = 'fa-calendar';
+		else if(kind === 'selector') icon = 'icon-headset_mic';
+		else if(kind === 'attendant') icon = 'fa fa-fw fa-sitemap';
+		else if(kind === 'trunk') icon = 'icon-dialer_sip';
+		else if(kind === 'chattrunk') icon = 'icon-perm_phone_msg';
+		else if(kind === 'timer') icon = 'fa fa-fw fa-clock-o';
 		else if(kind === 'routes') icon = 'fa-arrows';
 		else if(kind === 'channel') icon = 'fa-rss';
 		else if(kind === 'conference') icon = 'icon-call_split';

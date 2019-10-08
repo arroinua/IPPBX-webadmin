@@ -446,7 +446,7 @@ function subscribeToEvents() {
         updateObjectCache(params);
     });
     $(document).on('onmessage.object.add', newObjectAdded);
-    $(document).on('onmessage.object.delete', onObjectDelete);
+    // $(document).on('onmessage.object.delete', onObjectDelete);
 }
 
 function getPbxOptions(callback) {
@@ -1386,30 +1386,55 @@ function filterObject(array, kind, reverse) {
     var newArray = [],
         match = false,
         kinds = !kind ? [] : (Array.isArray(kind) ? kind : [kind]);
-        // pattern = kind ? 
-        //     (Array.isArray(kind) ? kind.reduce(arrayToPattern) : kind) :
-        //     '';
-
-    // pattern = new RegExp(pattern);
     
     if(!kinds.length) return array;
 
     newArray = array.filter(function(item) {
         match = kinds.indexOf(item.kind) !== -1;
         return reverse ? !match : match;
-
-
-        // match = reverse ? !(item.kind.match(pattern)) : item.kind.match(pattern); 
-
-        // if(!kind) {
-        //     return true;
-        // } else {
-        //     return Array.isArray(kind) ? (kind.indexOf(match[0]) !== -1) : (kind === match[0]);
-        // }
-        // return reverse ? !(pattern.test(item.kind)) : pattern.test(item.kind);
     });
 
     return newArray;
+}
+
+function setObject(params, props, callback) {
+    var cb = typeof props === 'function' ? props : callback;
+    var oid = params.oid || PbxObject.oid;
+    var kind = params.kind || PbxObject.kind;
+    json_rpc_async('setObject', params, function(result, err) {
+
+        if(err) {
+            if(cb) cb(null, err);
+            else notify_about('error', err.message);
+            return;
+        }
+
+        // if(!callback) {
+        //     return notify_about('success', PbxObject.frases.SAVED);
+        // }
+
+        if(!props || props.changeUrl !== false && (kind !== 'user' && kind !== 'phone')) {
+            PbxObject.query = kind+'/'+oid;
+            window.location.href = '#'+PbxObject.query;
+        }
+
+        if(cb) cb(result);    
+        
+    });
+}
+
+function getObject(oid, callback, fetch) {
+    if(!fetch && Array.isArray(PbxObject.objects)) {
+        var result = PbxObject.objects.filter(function(item) {
+            return item.oid === oid;
+        });
+
+        if(result.length) return callback(result[0]);
+        return json_rpc_async('getObject', { oid: oid }, callback);
+    }
+
+    json_rpc_async('getObject', { oid: oid }, callback);
+
 }
 
 function getObjects(kind, callback, reverse) {
@@ -1725,10 +1750,10 @@ function newObjectAdded(event, data){
         };
     }
 
-    if(kind !== 'application'){
-        PbxObject.query = kind+'/'+oid;
-        window.location.href = '#'+PbxObject.query;
-    }
+    // if(kind !== 'application'){
+        // PbxObject.query = kind+'/'+oid;
+        // window.location.href = '#'+PbxObject.query;
+    // }
 
     if(setobj) 
         setobj.innerHTML = "<i class=\"fa fa-check fa-fw\"></i> " + PbxObject.frases.SAVE;
@@ -1869,6 +1894,8 @@ function deleteExtension(params){
             // add extension to available
             PbxObject.available.push(ext);
             PbxObject.available.sort();
+
+            onObjectDelete(params);
         });        
     } else {
         return;
@@ -1907,6 +1934,7 @@ function delete_extension(e){
             PbxObject.available.push(ext);
             PbxObject.available.sort();
             // table.removeChild(row);
+            onObjectDelete({ kind: PbxObject.kind, ext: ext, group: group, oid: oid });
         });
         
         // newRow = createExtRow(ext);
@@ -1918,7 +1946,7 @@ function delete_extension(e){
     }
 }
 
-function onObjectDelete(event, params) {
+function onObjectDelete(params) {
     if(params.ext && (/extensions|equipment/.test(PbxObject.kind)) ) {
         delete_extension_row(params);
         PbxObject.extensions = deleteObjects(PbxObject.extensions, params, 'ext');

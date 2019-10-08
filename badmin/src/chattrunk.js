@@ -93,7 +93,7 @@ function load_chattrunk(params) {
 	}, {
 		id: 'Webcall',
 		name: frases.CHAT_TRUNK.WEBCALL.SERVICE_NAME,
-		icon: '/badmin/images/channels/webchat.png',
+		icon: '/badmin/images/channels/webcall.png',
 		component: WebcallTrunkComponent
 	}, {
 		id: 'WebAPI',
@@ -147,7 +147,7 @@ function load_chattrunk(params) {
 		});
 	}
 
-	function setObject(params, cb) {
+	function saveObject(params, cb) {
 
 		// driver.reset();
 
@@ -155,7 +155,7 @@ function load_chattrunk(params) {
 
 	    params.directref = true;
 
-		json_rpc_async('setObject', params, function(result, err) {
+		setObject(params, function(result, err) {
 			if(err) {
 				return notify_about('error', err.message);
 			}
@@ -222,48 +222,6 @@ function load_chattrunk(params) {
 		});
 	}
 
-	// function updateBalance(params, callback) {
-	// 	PbxObject.stripeHandler.open({
-	// 		// name: 'Ringotel',
-	// 		// zipCode: true,
-	// 		// locale: 'auto',
-	// 		panelLabel: "Pay",
-	// 		allowRememberMe: false,
-	// 		// currency: params.currency,
-	// 		amount: params.chargeAmount*100,
-	// 		closed: function(result) {
-
-	// 			if(!PbxObject.stripeToken) return;
-
-	// 			var reqParams = {
-	// 				currency: params.currency,
-	// 				amount: params.chargeAmount,
-	// 				description: 'Update balance',
-	// 				token: PbxObject.stripeToken.id
-	// 			};
-
-	// 			show_loading_panel();
-
-	// 			BillingApi.updateBalance(reqParams, function(err, response) {
-
-	// 				remove_loading_panel();
-
-	// 				if(err) {
-	// 					notify_about('error', err.message);
-	// 				} else {
-
-	// 					if(callback) callback(params);
-
-	// 					PbxObject.stripeToken = null;		
-
-	// 				}	
-
-	// 			});
-
-	// 		}
-	// 	});
-	// }
-
 	function confirmPayment(params, noConfirm, callback) {
 		if(noConfirm) return callback(params);
 
@@ -280,40 +238,6 @@ function load_chattrunk(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid, true);
 	}
 
-	// function addSteps(stepParams) {
-	// 	driverSteps = driverSteps.concat(stepParams);
-	// }
-
-	// function nextStep(stepParams) {
-	// 	driver.moveNext();
-	// }
-
-	// function highlightStep(stepParams) {
-	// 	driver.highlight(stepParams);
-	// }
-
-	// function initSteps() {
-	// 	if(!PbxObject.tourStarted) return;
-
-	// 	driverSteps.push({
-	// 		element: '.object-name-cont .btn-success',
-	// 		popover: {
-	// 			title: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].TITLE,
-	// 			description: PbxObject.frases.GET_STARTED.STEPS.OBJECT_NAME["2"].DESC,
-	// 			position: 'bottom'
-	// 		}
-	// 	});
-
-	// 	setTimeout(function() {
-	// 		driver.defineSteps(driverSteps);
-	// 		driver.start();
-	// 	}, 500);
-	// }
-
-	// function onTokenReceived(token) {
-	// 	PbxObject.userAccessToken = token;
-	// }
-
 	function render(type, params) {
 		var componentParams = {
 			type: type,
@@ -323,16 +247,11 @@ function load_chattrunk(params) {
 		    selected: queryParams.channel,
 		    getObjects: getObjects,
 		    onStateChange: onStateChange,
-		    setObject: setObject,
+		    setObject: saveObject,
 		    updateBalance: updateBalance,
 		    confirmRemoveObject: confirmRemoveObject,
 		    removeObject: removeObject,
-		    confirmPayment: confirmPayment,
-		    // initSteps: initSteps,
-		    // addSteps: addSteps,
-		    // nextStep: nextStep,
-		    // highlightStep: highlightStep
-		    // onTokenReceived: onTokenReceived
+		    confirmPayment: confirmPayment
 		};
 
 		ReactDOM.render(ChatTrunkComponent(componentParams), document.getElementById('el-loaded-content'));

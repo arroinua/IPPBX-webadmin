@@ -95,7 +95,7 @@ function set_cli(){
     }
     jprms += ']';
         
-    json_rpc_async('setObject', jprms, handler);
+    setObject(jprms, handler);
 }
 
 function add_cli_row(object){
