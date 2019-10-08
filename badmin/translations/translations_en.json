@@ -1007,6 +1007,10 @@
     	},
     	"DID": {
     		"SERVICE_NAME": "Telephony",
+    		"RENT_NUMBER_BTN_LABEL": "Get a new number",
+    		"RENT_NUMBER_BTN_DESC": "Rent a local number from more than 50 countries",
+    		"CONNECT_NUMBER_BTN_LABEL": "I already have a number",
+    		"CONNECT_NUMBER_BTN_DESC": "Connect to any SIP provider and route calls to any extension, group or IVR",
     		"LOCATION": "Location",
     		"NUMBER": "Number",
     		"STATUS": "Status",

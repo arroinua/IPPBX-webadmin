@@ -185,8 +185,8 @@ var DidTrunkComponent = React.createClass({
 			    				className="icon-add_call"
 			    				style={{ fontSize: "2em", color: "#333", padding: "5px 0" }}
 			    			></span>
-					    	<h4>Get a new number</h4>
-					    	<p>Rent a local number from more than 50 countries</p>
+					    	<h4>{frases.CHAT_TRUNK.DID.RENT_NUMBER_BTN_LABEL}</h4>
+					    	<p>{frases.CHAT_TRUNK.DID.RENT_NUMBER_BTN_DESC}</p>
 					    </a>
 					</div>
 					<div className="col-sm-1 text-center" style={{ position: "absolute", display: "inline-block", width: "1px", height: "100%", backgroundColor: "#eee", padding: "0" }}></div>
@@ -203,8 +203,8 @@ var DidTrunkComponent = React.createClass({
 				    				style={{ fontSize: "2em", color: "#333", padding: "5px 0" }}
 				    			></span>
 				    		</div>
-					    	<h4>I already have a number</h4>
-					    	<p>Connect to any SIP provider and route calls to any extension, group or IVR</p>
+					    	<h4>{frases.CHAT_TRUNK.DID.CONNECT_NUMBER_BTN_LABEL}</h4>
+					    	<p>{frases.CHAT_TRUNK.DID.CONNECT_NUMBER_BTN_DESC}</p>
 					    </a>
 					</div>
 				</div>
