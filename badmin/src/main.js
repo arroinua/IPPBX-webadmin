@@ -1444,11 +1444,21 @@ function getObjects(kind, callback, reverse) {
     } else {
         json_rpc_async('getObjects', { kind: 'all' }, function(result) {
             sortByKey(result, 'name');
-            PbxObject.objects = result;
+            PbxObject.objects = filterTrunks(result);;
             if(kind) callback(filterObject(PbxObject.objects, kind, reverse));
             else callback(result);
         });
     }
+}
+
+function filterTrunks(array) {
+    return array.filter(function(item) {
+        if(item.kind === 'trunk') {
+            return item.type !== 'service';
+        } else {
+            return true;
+        }
+    });
 }
 
 // function getAllowedObjects(type, callback) {
