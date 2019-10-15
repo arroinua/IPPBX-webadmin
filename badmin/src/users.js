@@ -1,26 +1,14 @@
 function load_users(params) {
 
 	var frases = PbxObject.frases;
-	// var driver;
-	// var driverSettings = {
-	// 	nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-	// 	prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-	// 	doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-	// 	closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-	// };
-	// var driverSteps = [];
 	var objParams = params;
 	var handler = null;
 	var defaultName = getDefaultName();
 	var modalCont = document.getElementById('modal-cont');
-	var activeServices = PbxObject.options.services.filter(function(service){
+	var activeServices = PbxObject.options.services ? PbxObject.options.services.filter(function(service){
 	    return service.state;
-	});
-	// var tourStarted = false;
+	}) : [];
 	var serviceParams = window.sessionStorage.serviceParams;
-
-	// $(document).off('onmessage.object.add', updateUsersList);
-	// $(document).on('onmessage.object.add', updateUsersList);
 
 	if(PbxObject.options.ldap && PbxObject.options.ldap.directoryServer.trim().length) {
 		activeServices.unshift({
@@ -59,8 +47,6 @@ function load_users(params) {
 
 	function openNewUserForm() {
 
-		// if(driver) driver.reset(); // close the tour
-
 		modalCont = document.getElementById('modal-cont');
 
 		if(modalCont) {
@@ -77,8 +63,6 @@ function load_users(params) {
 
 	function rednerNewUserModal() {
 		var options = PbxObject.options;
-		// var maxusers = options.maxusers;
-		// var storelimit = Math.ceil(convertBytes(options.storelimit, 'Byte', 'GB'));
 		var storeperuser = options.storelimit / options.maxusers;
 
 		objParams.storelimit = storeperuser;
@@ -117,8 +101,6 @@ function load_users(params) {
 				return notify_about('error', error.message);
 			}
 
-			// $('#modal-cont .modal').modal('hide');
-
 			userParams.oid = result;
 			userParams.reg = "";
 			userParams.state = 0;
@@ -131,28 +113,10 @@ function load_users(params) {
 
 			init(objParams);
 
-			// if(tourStarted) {
-			// 	onFirstUserCreated();
-			// }
-
 			if(callback) callback(null, result);
 
 		});
 	}
-
-	// function onFirstUserCreated() {
-
-		// driverSettings.onReset = showGSLink;
-		// driver = new Driver(driverSettings);
-		// driver.highlight({
-		// 	element: '#group-extensions',
-		// 	popover: {
-		// 		title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
-		// 		description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["2"].TITLE,
-		// 		position: 'bottom'
-		// 	}
-		// });
-	// }
 
 	function onImportUsers(serviceParams) {
 		if(serviceParams.id === 'MicrosoftAD') {
@@ -176,7 +140,6 @@ function load_users(params) {
 	    }
 
 	    var ldapConn = PbxObject.LdapConnection;
-	        // availableSelect = document.getElementById('available-users');
 	    
 	    ldapConn.setUsers({
 	        groupid: PbxObject.oid,
@@ -187,10 +150,6 @@ function load_users(params) {
 	    }, function(result) {
 	        ldapConn.close();
 	        
-
-	        // refreshUsersTable(function(availableUsers){
-	        //     ldapConn.options.available = availableUsers;
-	        // });
 	    });
 	}
 
@@ -204,13 +163,7 @@ function load_users(params) {
 		    members: objParams.members
 		});
 
-	    // if((serviceParams.type & 1 !== 0) || (serviceParams.types & 1 !== 0)) {
 	    PbxObject.LdapConnection.getExternalUsers();
-	    // } else {
-	    //     json_rpc_async('getExternalUsers', { service_id: serviceParams.id }, function(result) {
-	    //         if(result) PbxObject.LdapConnection.showUsers(result);
-	    //     });
-	    // }
 	}
 
 	function setExternalUsers(users){
@@ -230,9 +183,6 @@ function load_users(params) {
 	    }, function(result) {
 	        ldapConn.close();
 			if(result === 'OK') set_object_success();
-	        // refreshUsersTable(function(availableUsers){
-	        //     ldapConn.options.available = availableUsers;
-	        // });
 	    });
 	}
 
@@ -248,10 +198,6 @@ function load_users(params) {
 				init(objParams);
 			});
 			
-			// objParams.members = objParams.members.filter(function(item) { return item.oid !== oid; });
-			// setObject(objParams, function(result) {
-				// init(objParams);
-			// });
 		}
 			
 	}
@@ -284,37 +230,6 @@ function load_users(params) {
 		delete_object(PbxObject.name, PbxObject.kind, PbxObject.oid);
 	}
 
-	// function addSteps(stepParams) {
-	// 	driverSteps = driverSteps.concat(stepParams);
-	// }
-
-	// function initSteps() {
-	// 	if(PbxObject.tourStarted && driverSteps.length) {
-	// 		tourStarted = true;
-	// 		driverSettings.onReset = showGSLink;
-	// 		driver = new Driver(driverSettings);
-	// 		driver.defineSteps(driverSteps);
-	// 		driver.start();
-	// 	}
-	// }
-
-	// function showGSLink() {
-	// 	driver = new Driver({
-	// 		nextBtnText: frases.GET_STARTED.STEPS.NEXT_BTN,
-	// 		prevBtnText: frases.GET_STARTED.STEPS.PREV_BTN,
-	// 		doneBtnText: frases.GET_STARTED.STEPS.DONE_BTN,
-	// 		closeBtnText: frases.GET_STARTED.STEPS.CLOSE_BTN
-	// 	});
-	// 	driver.highlight({
-	// 		element: '.init-gs-btn',
-	// 		popover: {
-	// 			title: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].TITLE,
-	// 			description: PbxObject.frases.GET_STARTED.CREATE_USERS.STEPS["3"].DESC,
-	// 			position: 'right'
-	// 		}
-	// 	});
-	// }
-
 	function updateUsersList(e, object) {
 		if(object.ext === undefined) return;
 		objParams.members.push(object);
@@ -325,18 +240,16 @@ function load_users(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    setObject: saveObject,
+		    setObject: (PbxObject.isUserAccount ? (checkPermissions('users', (PbxObject.name ? 3 : 7)) ? saveObject : null) : saveObject),
 		    onAddMembers: openNewUserForm,
 		    onNameChange: onNameChange,
 		    getExtension: getExtension,
 		    activeServices: activeServices,
-		    onImportUsers: onImportUsers,
-		    deleteMember: deleteMember
-		    // addSteps: addSteps
-		    // initSteps: initSteps
+		    onImportUsers: (PbxObject.isUserAccount ? (checkPermissions('users', (PbxObject.name ? 3 : 7)) ? onImportUsers : null) : onImportUsers),
+		    deleteMember: (PbxObject.isUserAccount ? (checkPermissions('users', 15) ? deleteMember : null) : deleteMember)
 		};
 
-		if(params.name) {
+		if(params.name && (PbxObject.isUserAccount ? (checkPermissions('users', 15) ? true : null) : true)) {
 			componentParams.removeObject = removeObject;
 		}
 

@@ -37,7 +37,7 @@ var CustomersComponent = React.createClass({
 					<div className="col-xs-12">
 						<FilterInputComponent frases={frases} items={params} onChange={this._onFilter} />
 						{
-							(this.props.importServices && this.props.importServices.length) ? (
+							(this.props.import && this.props.importServices && this.props.importServices.length) ? (
 			    				<ImportUsersButtonsComponent frases={frases} services={this.props.importServices} onClick={this.props.import} />
 			    			) : null
 						}

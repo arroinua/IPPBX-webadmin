@@ -212,6 +212,10 @@ input[type="checkbox"]:checked + .help-block {
     overflow: hidden;
     border: 1px solid #eee;
     border-radius: $global-radius;
+    background-image: url("/badmin/images/avatar.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .avatar-cont img{
     height: 100%;

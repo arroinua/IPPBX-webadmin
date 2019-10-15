@@ -10,6 +10,12 @@ var WebApiComponent = React.createClass({
 		validationError: React.PropTypes.bool
 	},
 
+	getInitialState: function() {
+		return {
+			inBuffer: null
+		};
+	},
+
 	_copyToClipboard: function() {
 		this.el.focus();
 		this.el.select();

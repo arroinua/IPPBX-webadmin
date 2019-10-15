@@ -124,7 +124,7 @@ var ObjectName = React.createClass({
 				    />
 				    
 				    {
-				    	props.enabled !== undefined && (
+				    	(props.enabled !== undefined && props.onStateChange) && (
 				    		<span className="input-group-addon">
 						        <div className="switch switch-md">
 						            <input 

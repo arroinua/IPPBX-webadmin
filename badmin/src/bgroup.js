@@ -1,5 +1,4 @@
 function load_bgroup(result){
-    console.log('load_bgroup: ', result);
     switch_presentation(result.kind);
     // switch_tab(result.kind);
     var i, cl,
@@ -17,6 +16,15 @@ function load_bgroup(result){
 
     var maxusers = PbxObject.options.maxusers; 
     var storelimit = PbxObject.options.storelimit; 
+    var setObjectBtn = document.getElementById('el-set-object');
+    var removeObjectBtn = document.getElementById('el-delete-object');
+    var addMembersBtn = document.getElementById('services-cont');
+
+    if(PbxObject.isUserAccount && !checkPermissions('equipment', 3)) {
+        setObjectBtn.parentNode.removeChild(setObjectBtn);
+        addMembersBtn.parentNode.removeChild(addMembersBtn);
+    }
+    if(PbxObject.isUserAccount && !checkPermissions('equipment', 15)) removeObjectBtn.parentNode.removeChild(removeObjectBtn);
 
     if(availableUsers) {
         availableUsers = availableUsers.sort();
@@ -198,7 +206,6 @@ function load_bgroup(result){
             if(PbxObject.options.mode !== 1 || PbxObject.options.prefix) {
                 devselect.removeChild(devselect.children[devselect.children.length-1]);
                 $enabledCont.hide();
-                console.log($enabledCont);
             } else {
                 switchVisibility($enabledCont, eqtype === 'trunk');
             }
@@ -473,7 +480,6 @@ function load_bgroup(result){
 
         if(addUserForm.storelimit && storelimit && maxusers) 
             addUserForm.storelimit.value = (convertBytes(storelimit, 'Byte', 'GB') / maxusers).toFixed(2);
-            console.log('storelimit=', storelimit, maxusers, (convertBytes(storelimit, 'Byte', 'GB') / maxusers));
 
         
         if(activeServices.length) {
@@ -500,8 +506,6 @@ function onAddLdapUsers(users){
         return;
     }
 
-    console.log('onAddUsers: ', users);
-
     var ldapConn = PbxObject.LdapConnection,
         availableSelect = document.getElementById('available-users');
     
@@ -512,7 +516,6 @@ function onAddLdapUsers(users){
         domain: ldapConn.options.domain,
         users: users
     }, function(result) {
-        console.log('addLdapUsers result: ', result);
         ldapConn.close();
         
         refreshUsersTable(function(availableUsers){
@@ -554,7 +557,6 @@ function getExternalUsers(params){
         // $.ajax({
         //     url: '/services/'+id+'/Users'
         // }).then(function(data){
-        //     console.log('getExternalUsers: ', data);
         //     PbxObject.LdapConnection = Ldap({
         //         service_id: id,
         //         available: PbxObject.available,
@@ -562,7 +564,6 @@ function getExternalUsers(params){
         //     });
         //     PbxObject.LdapConnection.showUsers(data.result);
         // }, function(err){
-        //     console.log('getExternalUsers error: ', err);
         //     if(err.responseJSON.error.code === 401) {
         //         PbxObject.LdapConnection = Ldap({
         //             service_id: id,
@@ -579,7 +580,6 @@ function getExternalUsers(params){
         // });
     } else {
         json_rpc_async('getExternalUsers', { service_id: params.id }, function(result) {
-            console.log('getExternalUsers result: ', result);
             if(result) PbxObject.LdapConnection.showUsers(result);
         });
     }
@@ -591,8 +591,6 @@ function setExternalUsers(users){
         return;
     }
 
-    console.log('setExternalUsers: ', users);
-
     var ldapConn = PbxObject.LdapConnection;
     //     params = {
     //         groupid: PbxObject.oid,
@@ -603,13 +601,11 @@ function setExternalUsers(users){
     // if(ldapConn.options.password) params.password = ldapConn.options.password;
     // if(ldapConn.options.domain) params.domain = ldapConn.options.domain;
     
-    // console.log('setExternalUsers params: ', params);
     ldapConn.setExternalUsers({
         groupid: PbxObject.oid,
         service_id: ldapConn.options.service_id,
         users: users
     }, function(result) {
-        console.log('addLdapUsers result: ', result);
         ldapConn.close();
         
         refreshUsersTable(function(availableUsers){
@@ -948,11 +944,9 @@ function set_bgroup(param, callback){
         //     };
         //     if(getTempParams().oid) routeParams.oid = getTempParams().oid;
 
-        //     console.log('set route params: ', routeParams);
         //     setObjRoute(routeParams);
         // }
     });
-    // console.log(jprms);
 }
 
 // function setObjRoute(params) {
@@ -973,7 +967,6 @@ function renderObjRoute(params) {
 }
 
 // function setCurrObjRoute(route) {
-//     console.log('setCurrObjRoute: ', route);
 //     updateTempParams(route);
 // }
 
@@ -1020,14 +1013,18 @@ function addMembersRow(data){
     cell.setAttribute('data-cell', 'status');
     cell.innerHTML = '<span class="label label-'+info.className+'">'+status+'</span>';
 
-    cell = row.insertCell(5);
-    button = document.createElement('button');
-    button.className = 'btn btn-link btn-danger btn-md';
-    button.innerHTML = '<i class="fa fa-trash"></i>';
-    addEvent(button, 'click', delete_extension);
-    cell.appendChild(button);
+    if(PbxObject.isUserAccount && !checkPermissions('equipment', 3)) {
+        return row;
+    } else {
+        cell = row.insertCell(5);
+        button = document.createElement('button');
+        button.className = 'btn btn-link btn-danger btn-md';
+        button.innerHTML = '<i class="fa fa-trash"></i>';
+        addEvent(button, 'click', delete_extension);
+        cell.appendChild(button);
 
-    return row;
+        return row;
+    }
 }
 
 function addUser(type, cb){
@@ -1086,7 +1083,6 @@ function addUser(type, cb){
     //     jprms += '"followme":"'+followme.value+'",';
     //     data.followme = followme.value;
     // }
-    // console.log(jprms);
     json_rpc_async('setObject', jprms, function(result, error){
 
         if(result) {
@@ -1104,7 +1100,6 @@ function addUser(type, cb){
                 //         // nextrow > rows[i].id ? nextrow : rows[i].id;
                 //     } 
                 // }
-                // console.log(nextrow);
                 // table.insertBefore(newrow, document.getElementById(nextrow));
                 table.insertBefore(newrow, table.firstChild);
             }

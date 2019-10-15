@@ -134,16 +134,16 @@ function load_icd(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    onAddMembers: showAvailableUsers,
-		    setObject: saveObject,
+		    onAddMembers: (PbxObject.isUserAccount ? (checkPermissions('icd', 3) ? showAvailableUsers : null) : showAvailableUsers),
+		    setObject: (PbxObject.isUserAccount ? (checkPermissions('icd', 3) ? saveObject : null) : saveObject),
 		    onNameChange: onNameChange,
-		    onStateChange: onStateChange,
+		    onStateChange: (PbxObject.isUserAccount ? (checkPermissions('icd', 3) ? onStateChange : null) : onStateChange),
 		    getInfoFromState: getInfoFromState,
 		    getExtension: getExtension,
-		    deleteMember: deleteMember
+		    deleteMember: (PbxObject.isUserAccount ? (checkPermissions('icd', 3) ? deleteMember : null) : deleteMember)
 		};
 
-		if(params.name) {
+		if(params.name && (PbxObject.isUserAccount ? (checkPermissions('icd', 15) ? true : null) : true)) {
 			componentParams.removeObject = removeObject;
 		}
 

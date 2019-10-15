@@ -27,7 +27,6 @@ var UsersGroupComponent = React.createClass({
 		this.setState({
 			params: this.props.params || {},
 			// options: this.props.params.options,
-			removeObject: this.props.removeObject,
 			filteredMembers: this.props.params.members
 		});
 	},
@@ -40,7 +39,6 @@ var UsersGroupComponent = React.createClass({
 		this.setState({
 			params: props.params,
 			// options: this.props.params.options,
-			removeObject: props.removeObject,
 			filteredMembers: props.params.members
 		});
 	},
@@ -93,8 +91,8 @@ var UsersGroupComponent = React.createClass({
 			    	frases={frases} 
 			    	// enabled={params.enabled || false}
 			    	onChange={this._onNameChange}
-			    	onSubmit={this._setObject}
-			    	onCancel={this.state.removeObject}
+			    	onSubmit={this.props.setObject ? this._setObject : null}
+			    	onCancel={this.props.removeObject || null}
 			    	// addSteps={this.props.addSteps}
 			    />
 			    <div className="row">
@@ -106,7 +104,7 @@ var UsersGroupComponent = React.createClass({
 			    			members={members}
 			    			kind={params.kind}
 			    			getExtension={this.props.getExtension} 
-			    			onAddMembers={this.props.onAddMembers} 
+			    			onAddMembers={this.props.setObject ? this.props.onAddMembers : null} 
 			    			onImportUsers={this.props.onImportUsers} 
 			    			activeServices={this.props.activeServices}
 			    			deleteMember={this.props.deleteMember} 

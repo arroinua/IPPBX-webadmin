@@ -5,13 +5,6 @@
                 <div class="panel-body">
                     <div class="input-group object-name">
                         <input type="text" id="objname" class="form-control" placeholder="{{GROUPSNAME}}" autofocus>
-                        <span class="input-group-addon object-route view-1" id="object-route-cont"></span>
-                        <span class="input-group-addon">
-                            <div class="switch switch-md pl-kind pl-all pl-no-users">
-                                <input id="enabled" class="cmn-toggle cmn-toggle-round" type="checkbox" checked="checked">
-                                <label for="enabled" data-toggle="tooltip" title="{{OBJECT__STATE}}"></label>
-                            </div>
-                        </span>
                     </div>
                 </div>
                 <div class="panel-footer">
@@ -222,20 +215,12 @@
                                 <span class="pl-kind pl-users">{{CREATE_USERS}}</span>
                                 <span class="pl-kind pl-equipment">{{CREATE_EXTENSIONS}}</span>
                             </button>
-                            <!-- <button type="button" id="add-external-user" class="btn btn-default ellipsis pl-kind pl-users" data-toggle="collapse" data-target="#services-cont" aria-expanded="false" aria-controls="services-cont">
-                               <i class="fa fa-sitemap"></i><span> {{IMPORT_USERS}}</span>
-                            </button> -->
                             <button type="button" class="btn btn-primary padding-lg pl-users" id="from-directory-btn">
                                 <span>{{IMPORT_USERS_FROM}} </span><strong>Active Directory</strong>
                             </button>
                         </div>
                     </div>
                     <div class="row" style="padding: 20px 0;">
-                        <!-- <div class="col-xs-12 pl-kind pl-users" id="services-cont">
-                            <button class="btn btn-primary padding-lg ellipsis" id="from-directory-btn">
-                                <i class="fa fa-sitemap"></i><span class="hidden-xs"> Active Directory</span>
-                            </button>
-                        </div> -->
                         <form class="form-horizontal collapse col-xs-12" name="new-user-form" id="new-user-form" autocomplete="off">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">
@@ -290,15 +275,6 @@
                             </div>
                             
                             <div class="pl-kind pl-users">
-                                <!-- <div class="form-group">
-                                    <label class="col-sm-4 control-label">{{STORAGE.LIMIT_STORAGE_TRIGGER}}</label>
-                                    <div class="col-sm-8">
-                                        <div class="switch switch-md">
-                                            <input id="trigger-storelimit" class="cmn-toggle cmn-toggle-round" type="checkbox">
-                                            <label for="trigger-storelimit"></label>
-                                        </div>
-                                    </div>
-                                </div> -->
                                 <div class="form-group" id="storelimit-cont">
                                     <label class="col-sm-4 control-label">
                                         {{STORAGE.MAXSIZE}}
@@ -316,7 +292,6 @@
                                     <button type="submit" class="btn btn-success btn-md" id="add-user">
                                         <span>{{CREATE}}</span>
                                     </button>
-                                    <!-- <button type="button" class="btn btn-default btn-md" id="clear-input" onclick="cleanForm('new-user-form')">{{CLEAR}}</button> -->
                                 </div>
                             </div>
                             <br><br>
@@ -394,20 +369,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <!-- <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="forwarding"> {{FORWARDING.FORWARDING}}
-                                        </label>
-                                    </div>
-                                </div> -->
-                                <!-- <div class="col-sm-12 pl-kind pl-users">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="voicemail"> {{FUNCTIONS.VOICEMAIL}}
-                                        </label>
-                                    </div>
-                                </div> -->
                             </div>
                             <div class="col-sm-6 col-xs-12">
                                 <div class="col-sm-12">
@@ -438,27 +399,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <!-- <div class="col-sm-12 pl-kind pl-users">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="hiderecind"> {{FUNCTIONS.HIDE_REC_IND}}
-                                        </label>
-                                    </div>
-                                </div> -->
-                                <!-- <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
-                                        </label>
-                                    </div>
-                                </div> -->
                             </div>
                         </div>
                     </form>
@@ -471,25 +411,6 @@
                     <i class="fa fa-chevron-down"></i>
                 </div>
                 <div class="panel-body">
-                    <!-- <form class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-lg-6">
-                                <div class="checkbox">
-                                    <label data-toggle="tooltip" title="{{GRP_OUTBARGING}}">
-                                        <input type="checkbox" id="outcallbarring"> {{SETTINGS.OUTBARGING}}
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="checkbox">
-                                    <label data-toggle="tooltip" title="{{GRP_COSTBARGING}}">
-                                        <input type="checkbox" id="costroutebarring"> {{SETTINGS.COSTBARGING}}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <hr> -->
                     <form class="form-horizontal" autocomplete="off">
                         <div class="form-group">
                             <div class="col-xs-12">
@@ -535,301 +456,6 @@
         </div>
     </div>
     <div class="row">
-        <!-- <div class="col-md-6 col-xs-12 col-custom pl-kind pl-all pl-no-users pl-no-equipment">
-            <div class="panel">
-                <div class="panel-header">{{EXTALLOCATION}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <div class="selectable-cont">
-                        <div class="selectable-box selectable-ext">
-                            <p class="panel-header">{{AVAILABLE}}
-                                <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="available">
-                            </p>
-                            <ul id="available" class="available"></ul>
-                        </div>
-                        <div>
-                            <p><button type="button" class="btn btn-default btn-sm assign-all">>></button></p>
-                            <p><button type="button" class="btn btn-default btn-sm unassign-all"><<</button></p> -->
-                            <!-- <span class="glyphicon glyphicon-transfer"></span> -->
-                        <!-- </div>
-                        <div class="selectable-box selectable-ext">
-                            <p class="panel-header">{{SELECTED}}
-                                <input type="text" class="form-control custom-input el-search" placeholder="{{SEARCH}}" data-element="members">
-                            </p>
-                            <ul id="members" class="el-sortable members"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xs-12 col-custom pl-kind pl-unit">
-            <div class="panel">
-                <div class="panel-header">{{GROUPSETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal" autocomplete="off">
-                        <div class="form-group">    
-                            <label class="col-lg-4 control-label">
-                                {{PICKUP__NUMBER}}
-                            </label>
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control" id="groupno1">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{HUNTINGTYPE.HUNTINGTYPE}}
-                            </label>
-                            <div class="col-lg-4">
-                                <select id="huntmode1" class="form-control">
-                                    <option value="0">{{HUNTINGTYPE.OFF}}</option>
-                                    <option value="1">{{HUNTINGTYPE.CIRCULAR}}</option>
-                                    <option value="2">{{HUNTINGTYPE.TERMINATED}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="huntmodesetts">
-                            <div class="form-group">
-                                <label class="col-lg-4 control-label">
-                                    {{HUNT_TOUT}}
-                                </label>
-                                <div class="col-lg-4">
-                                    <input type="text" class="form-control" id="timeout1">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-offset-4 col-lg-8">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="huntfwd1"> {{FORWFROMHUNT}}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{GREETNAME}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="unit-greeting" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{WAIT_MUSIC}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="unit-waitmusic" class="upload-custom">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="col-md-6 col-xs-12 col-custom pl-kind pl-hunting">
-            <div class="panel">
-                <div class="panel-header">{{GROUPSETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{HUNTINGTYPE.HUNTINGTYPE}}
-                            </label>
-                            <div class="col-lg-4">
-                                <select id="huntmode2" class="form-control">
-                                    <option value="1">{{HUNTINGTYPE.SERIAL}}</option>
-                                    <option value="3">{{HUNTINGTYPE.PARALLEL}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{HUNT_TOUT}}
-                            </label>
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control" id="timeout2">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-lg-offset-4 col-lg-8">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="huntfwd2"> {{FORWFROMHUNT}}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{GREETNAME}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="hunt-greeting" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{WAIT_MUSIC}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="hunt-waitmusic" class="upload-custom">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="col-md-6 col-xs-12 col-custom pl-kind pl-pickup">
-            <div class="panel">
-                <div class="panel-header">{{GROUPSETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal" autocomplete="off">
-                        <div class="form-group">    
-                            <label class="col-lg-4 control-label">
-                                {{GROUPNUM}}
-                            </label>
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control" id="groupno2">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
-        <!-- <div class="col-md-6 col-xs-12 col-custom pl-kind pl-icd">
-            <div class="panel">
-                <div class="panel-header">{{GROUPSETTS}}
-                    <i class="fa fa-chevron-down"></i>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{PRIORITY}}
-                            </label>
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control" id="priority">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{SETTINGS.MAXCONN}}
-                            </label>
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control" id="maxlines">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{NOANSTOUT}}
-                            </label>
-                            <div class="col-lg-8">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="natimeout">
-                                    <span class="input-group-addon">{{SECONDS}}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{RESUMETIME}}
-                            </label>
-                            <div class="col-lg-8">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="resumetime">
-                                    <span class="input-group-addon">{{SECONDS}}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{ROUTEMETH.ROUTEMETH}}
-                            </label>
-                            <div class="col-lg-8">
-                                <select id="method" class="form-control">
-                                    <option value="0">{{ROUTEMETH.UNIFORM}}</option>
-                                    <option value="1">{{ROUTEMETH.PRIORITY}}</option>
-                                    <option value="2">{{ROUTEMETH.RANDOM}}</option>
-                                    <option value="3">{{ROUTEMETH.CALLER_ID}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{GREETNAME}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="greeting" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{QUEUEPROMPT}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="queueprompt" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{QUEUEMUSIC}}:
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="file" id="queuemusic" class="upload-custom">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-lg-offset-4 col-lg-8">
-                                <div class="input-group">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" id="autologin"> {{AUTOREG}}
-                                        </label>
-                                    </div>
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default" id="open-autologin-options" style="display: none;">
-                                            <i class="fa fa-cog fa-fw"></i>
-                                        </button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-lg-offset-4 col-lg-8">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="canpickup"> {{ALLOW_PICKUP}}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{GROUPNUM}}
-                            </label>
-                            <div class="col-lg-4">
-                                <input type="text" class="form-control" id="groupno">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">
-                                {{APPLICATION}}
-                            </label>
-                            <div class="col-lg-8">
-                                <input type="text" class="form-control" id="icd-app">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> -->
         <div class="col-md-6 col-xs-12 col-custom pl-kind pl-conference pl-selector pl-channel">
             <div class="panel">
                 <div class="panel-header">{{INITCONN}}
@@ -996,90 +622,5 @@
             </div>
         </div>
     </div>
-    <!-- <div class="row" id="options">
-        <div class="pl-kind pl-icd">
-            <div class="col-xs-12 col-custom">
-                <div class="panel">
-                    <div class="panel-header">{{QUEUESETTS}}
-                        <i class="fa fa-chevron-down"></i>
-                    </div>
-                    <div class="panel-body">
-                        <form class="form-horizontal">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{QUEUELEN}}
-                                        </label>
-                                        <div class="col-lg-4">
-                                            <input type="text" class="form-control" id="queuelen">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{OVERFLOWREDIR}}
-                                        </label>
-                                        <div class="col-lg-8">
-                                            <input type="text" class="form-control" id="overflowredirect">
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="col-xs-12">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{MAXQWAIT}}
-                                        </label>
-                                        <div class="col-lg-8">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" id="maxqwait">
-                                                <span class="input-group-addon">{{SECONDS}}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{OVERTIMEREDIR}}
-                                        </label>
-                                        <div class="col-lg-8">
-                                            <input type="text" class="form-control" id="overtimeredirect">
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="col-xs-12">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{INDICMODE}}
-                                        </label>
-                                        <div class="col-lg-3">
-                                            <input type="text" class="form-control" id="indicationmode">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-lg-4 control-label">
-                                            {{INDICTIME}}
-                                        </label>
-                                        <div class="col-lg-8">
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" id="indicationtime">
-                                                <span class="input-group-addon">{{SECONDS}}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
 </div>
             

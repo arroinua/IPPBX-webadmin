@@ -36,7 +36,11 @@ function GroupMemberComponent(props) {
 	    	}
 	    	<td data-cell="reg">{item.reg}</td>
 	    	<td style={{ "textAlign": "right" }}>
-	    		<button className="btn btn-link btn-danger btn-md" onClick={deleteMember}><i className="fa fa-trash"></i></button>
+	    		{
+	    			props.deleteMember && (
+			    		<button className="btn btn-link btn-danger btn-md" onClick={deleteMember}><i className="fa fa-trash"></i></button>
+	    			)
+	    		}
 	    	</td>
 	    </tr>
 	);

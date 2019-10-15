@@ -29,7 +29,6 @@
 	componentWillMount: function() {
 		this.setState({
 			params: this.props.params || {},
-			removeObject: this.props.removeObject,
 			filteredMembers: this.props.params.members
 		});
 	},
@@ -37,7 +36,6 @@
 	componentWillReceiveProps: function(props) {
 		this.setState({
 			params: props.params,
-			removeObject: props.removeObject,
 			filteredMembers: props.params.members
 		});
 	},
@@ -67,10 +65,6 @@
 		});
 	},
 
-	_onAddMembers: function() {
-		this.props.onAddMembers();
-	},
-
 	render: function() {
 		var frases = this.props.frases;
 		var params = this.state.params;
@@ -84,12 +78,12 @@
 			    	name={params.name}
 			    	frases={frases} 
 			    	enabled={params.enabled}
-			    	onStateChange={this._onStateChange}
+			    	onStateChange={this.props.onStateChange && this._onStateChange}
 			    	onChange={this._onNameChange}
-			    	onSubmit={this._setObject}
-			    	onCancel={this.state.removeObject}
+			    	onSubmit={this.props.setObject && this._setObject}
+			    	onCancel={this.props.removeObject}
 			    />
-			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} onAddMembers={this._onAddMembers} deleteMember={this.props.deleteMember} />
+			    <GroupMembersComponent frases={frases} members={members} getExtension={this.props.getExtension} onAddMembers={this.props.onAddMembers} deleteMember={this.props.deleteMember} />
 			</div>
 		);
 	}

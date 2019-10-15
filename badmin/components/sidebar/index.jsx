@@ -10,12 +10,22 @@ var SideBarComponent = React.createClass({
 		frases: React.PropTypes.object
 	},
 
+	componentWillMount: function() {
+		this.setState({ availableItems: this.props.menuItems.map(function(item) { return item.name }) });
+	},
+
 	componentDidMount: function() {
     	$('.side-panel [data-toggle="tooltip"]').tooltip({
     		delay: { "show": 200 },
     		trigger: 'hover'
     	});
 
+	},
+
+	getInitialState: function() {
+		return {
+			availableItems: []
+		};
 	},
 
 	_logOut: function() {
@@ -97,6 +107,7 @@ var SideBarComponent = React.createClass({
 		var objects = this.props.objects;
 		var sortedObjects = this._sortObjects(objects);
 
+		if(!this.state.availableItems.length) return null;
 		return (
 			<div className="sidebar-wrapper">
 				<div className="side-panel">
@@ -107,13 +118,17 @@ var SideBarComponent = React.createClass({
 						<SideMenuComponent frases={frases} menuItems={this.props.menuItems} selectMenu={this._selectMenu} activeKind={activeKind} />
 					</div>
 					<div className="nav-bottom">
-						<a 
-							href="#" 
-							className={"nav-link " + (activeKind === 'settings' ? 'active' : '')} 
-							onClick={function(e) { e.preventDefault(); this._selectMenu('settings')}.bind(this)}
-							data-toggle="tooltip" data-placement="right"
-							title={frases.KINDS['settings']}
-						><i className="fa fa-fw fa-cog"></i></a>
+						{
+							this.state.availableItems.indexOf('settings') !== -1 && (
+								<a 
+									href="#" 
+									className={"nav-link " + (activeKind === 'settings' ? 'active' : '')} 
+									onClick={function(e) { e.preventDefault(); this._selectMenu('settings')}.bind(this)}
+									data-toggle="tooltip" data-placement="right"
+									title={frases.KINDS['settings']}
+								><i className="fa fa-fw fa-cog"></i></a>
+							)
+						}
 						<a 
 							href="#" 
 							className="nav-link" 
@@ -161,7 +176,11 @@ var SideBarComponent = React.createClass({
 								return (
 									<ul key={kind}>
 										<li><span className="nav-header">{ frases.KINDS[kind] }</span></li>
-										<li><a href={"#"+kind+"/"+kind} className="nav-link"><i className="fa fa-fw fa-plus-circle"></i> {selectedMenu.type === 'group' ? frases.CREATE_GROUP : frases.CREATE}</a></li>
+										{
+											(PbxObject.permissionsObject && PbxObject.permissionsObject[kind] < 7) ? null : (
+												<li><a href={"#"+kind+"/"+kind} className="nav-link"><i className="fa fa-fw fa-plus-circle"></i> {selectedMenu.type === 'group' ? frases.CREATE_GROUP : frases.CREATE}</a></li>
+											)
+										}
 										{ sortedObjects[kind] ? (this._buildItemsMenu(sortedObjects[kind], activeItem)) : null }
 									</ul>
 								)

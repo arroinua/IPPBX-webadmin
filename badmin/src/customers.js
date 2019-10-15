@@ -3,7 +3,7 @@ function load_customers(params) {
 	var frases = PbxObject.frases;
 	var customers = [];
     // var importServices = [{ id: 'csv', name: '.csv' }, { id: 'Zendesk', name: 'Zendesk' }];
-    var importServices = PbxObject.options.services;
+    var importServices = PbxObject.options.services || [];
     var availableServices = [{ id: 'csv', name: '.csv' }].concat(filterServices(importServices));
 	var modalCont = document.getElementById('modal-cont');
 	if(!modalCont) {
@@ -69,7 +69,7 @@ function load_customers(params) {
     		CustomerInfoModalComponent({
     			frases: frases,
     			params: params,
-    			onDelete: onDelete,
+    			onDelete: (PbxObject.isUserAccount ? (checkPermissions('customers', 15) ? onDelete : null) : onDelete),
                 getPrivacyPrefs: getPrivacyPrefs
     		}),
     		modalCont
@@ -207,7 +207,7 @@ function load_customers(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-            import: importFromService,
+            import: (PbxObject.isUserAccount ? (checkPermissions('customers', 7) ? importFromService : null) : importFromService),
             importServices: availableServices,
 		    openCustomerInfo: openCustomerInfo
 		};

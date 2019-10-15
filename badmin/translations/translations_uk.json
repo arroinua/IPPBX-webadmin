@@ -363,6 +363,26 @@
 			"DELETE_WARNING": "Ви дійсно бажаєте видалити API Ключ {{key}}?"
 		}
 	},
+	"PERMISSIONS": {
+		"PERMISSIONS": "Дозволи",
+		"PERMISSION": "Дозвіл",
+		"OPERATIONS": "Операції",
+		"TYPES": {
+			"statistics": "Статистика",
+			"records": "Записи розмов",
+			"customers": "Клієнти",
+			"users": "Користувачі",
+			"equipment": "Обладнання",
+			"channels": "Канали"
+		},
+		"LEVELS": {
+			"none": "Немає",
+			"read": "Читання",
+			"read_write": "Читання/Запис",
+			"read_write_create": "Читання/Запис/Створення",
+			"all_operations": "Усі операції"
+		}
+	},
 	"MENU": "Меню",
 	"OPTIONS" : "Опції",
 	"LOGOUT": "Вийти",
@@ -904,6 +924,8 @@
     	"NEW_USER_MODAL_TITLE": "Новий користувач",
     	"FUNCTIONS": {
     		"FUNCTIONS" : "Функції",
+    		"HUNTING" : "Пошук номеру",
+    		"HUNTING_NUMBERS" : "Номера пошуку",
     		"DND" : "Не турбувати",
     		"DNDOVER" : "Подолання режиму \"Не турбувати\"",
     		"CLIR" : "Приховування зворотного номера",

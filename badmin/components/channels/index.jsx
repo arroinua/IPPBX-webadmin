@@ -275,10 +275,10 @@
 			    	placeholder={frases.CHAT_TRUNK.OBJ_NAME_PLACEHOLDER}
 					enabled={params.enabled || false}
 					submitDisabled={this.state.submitDisabled}
-					onStateChange={this._onStateChange}
+					onStateChange={this.props.onStateChange && this._onStateChange}
 					onChange={this._onNameChange}
-					onSubmit={this._setObject}
-					onCancel={this.state.params.pageid ? this._removeObject : null}
+					onSubmit={this.props.setObject && this._setObject}
+					onCancel={(this.state.params.pageid && this.props.removeObject) ? this._removeObject : null}
 					// addSteps={this.props.addSteps}
 				/>
 				<PanelComponent>

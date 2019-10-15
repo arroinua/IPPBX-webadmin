@@ -116,16 +116,16 @@ function load_chatchannel(params) {
 		var componentParams = {
 			frases: PbxObject.frases,
 		    params: params,
-		    onAddMembers: showAvailableUsers,
-		    setObject: setChatChannel,
+		    onAddMembers: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? showAvailableUsers : null) : showAvailableUsers),
+		    setObject: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? saveObject : null) : saveObject),
 		    onNameChange: onNameChange,
-		    onStateChange: onStateChange,
+		    onStateChange: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? onStateChange : null) : onStateChange),
 		    getInfoFromState: getInfoFromState,
 		    getExtension: getExtension,
-		    deleteMember: deleteMember
+		    deleteMember: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? deleteMember : null) : deleteMember)
 		};
 
-		if(params.name) {
+		if(params.name && (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 15) ? true : null) : true)) {
 			componentParams.removeObject = removeChatChannel;
 		}
 

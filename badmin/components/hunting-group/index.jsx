@@ -24,18 +24,14 @@ var HuntingGroupComponent = React.createClass({
 	componentWillMount: function() {
 		this.setState({
 			params: this.props.params || {},
-			options: this.props.params.options,
-			removeObject: this.props.removeObject
-			// filteredMembers: this.props.params.members
+			options: this.props.params.options
 		});		
 	},
 
 	componentWillReceiveProps: function(props) {
 		this.setState({
 			params: props.params,
-			options: this.props.params.options,
-			removeObject: props.removeObject
-			// filteredMembers: props.params.members
+			options: this.props.params.options
 		});
 	},
 
@@ -59,10 +55,6 @@ var HuntingGroupComponent = React.createClass({
 		params.name = value;
 		this.setState({ params: params });
 		this.props.onNameChange(value);
-	},
-
-	_onAddMembers: function() {
-		this.props.onAddMembers();
 	},
 
 	_handleOnChange: function(e) {
@@ -157,14 +149,14 @@ var HuntingGroupComponent = React.createClass({
 			    	name={params.name}
 			    	frases={frases} 
 			    	enabled={params.enabled || false}
-			    	onStateChange={this._onStateChange}
+			    	onStateChange={this.props.onStateChange && this._onStateChange}
 			    	onChange={this._onNameChange}
-			    	onSubmit={this._setObject}
-			    	onCancel={this.state.removeObject}
+			    	onSubmit={this.props.setObject && this._setObject}
+			    	onCancel={this.props.removeObject}
 			    />
 			    <div className="row">
 			    	<div className="col-xs-12">
-			    		<GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} onAddMembers={this._onAddMembers} deleteMember={this.props.deleteMember} />
+			    		<GroupMembersComponent frases={frases} sortable={true} onSort={this._onSortMember} members={members} getExtension={this.props.getExtension} onAddMembers={this.props.onAddMembers} deleteMember={this.props.deleteMember} />
 			    	</div>
 			    	<div className="col-xs-12">
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>

@@ -466,6 +466,10 @@ function getInstanceMode() {
     return PbxObject.options.mode;
 }
 
+function checkPermissions(kind, level) {
+    return PbxObject.permissionsObject[kind] >= level;
+}
+
 function setupPage() {
     var language, 
         lastURL = window.sessionStorage.getItem('lastURL'),
@@ -476,7 +480,7 @@ function setupPage() {
 
     createWebsocket();
 
-    getSystemTime();
+    // getSystemTime();
 
     getPbxOptions(function(options) {
 
@@ -484,6 +488,12 @@ function setupPage() {
 
         language = options.lang || 'en';
         moment.locale(language);
+
+        if(options.profile) {
+            window.localStorage.removeItem('ringo_tid');
+            PbxObject.isUserAccount = true;
+            PbxObject.permissionsObject = options.permissions.reduce(function(result, item) { result[item.name] = item.grant; return result; }, {});
+        }
         
         getTranslations(language, function(err, translations) {
 
@@ -493,7 +503,7 @@ function setupPage() {
 
             Utils.debug('getInstanceMode', getInstanceMode());
 
-            if(getInstanceMode() !== 1) { // if cloud branch
+            if(getInstanceMode() !== 1 && !PbxObject.isUserAccount) { // if cloud branch
 
                 if(dataLayer) dataLayer.push({'event': 'is_cloud_branch'}); // fire custom tag manager event
 
@@ -573,7 +583,7 @@ function init_page(){
     var mainrend = Mustache.render(maintemp, PbxObject.frases);
     $('#pagecontainer').html(mainrend);
 
-    switchMode(PbxObject.options);
+    if(PbxObject.options.config) switchMode(PbxObject.options);
     document.getElementsByTagName('title')[0].innerHTML = 'Ringotel | ' + PbxObject.frases.PBXADMIN;
 
     setPageHeight();
@@ -605,7 +615,7 @@ function init_page(){
     
     //set default loading page
     if(!location.hash.substring(1))
-        location.hash = 'realtime';
+        location.hash = PbxObject.isUserAccount ? 'profile' : 'realtime';
 
     // load_pbx_options(PbxObject.options);
     
@@ -2389,7 +2399,7 @@ function generatePassword(targ, length){
     // var button = e.currentTarget;
 
     var elgroup, input;
-    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+";
     var pass = "";
     var length = length || 14;
     var i;
@@ -3009,11 +3019,11 @@ function getQueryParams(str){
     return (str || document.location.search).replace(/(^\?)/,'').split("&").map(function(n){return n = n.split("="),this[n[0]] = n[1],this}.bind({}))[0];
 }
 
-function getSystemTime(){
-    json_rpc_async('getSystemTime', null, function (result){
-        PbxObject.systime = result;
-    });
-}
+// function getSystemTime(){
+//     json_rpc_async('getSystemTime', null, function (result){
+//         PbxObject.systime = result;
+//     });
+// }
 
 function fill_group_choice(kind, groupid, select){
     // var result = json_rpc('getObjects', '\"kind\":\"'+kind+'\"');
@@ -3072,10 +3082,10 @@ function setupInProgress(bool) {
 }
 
 function isBranchPackage(str) {
-    if(getInstanceMode() === 1) {
-        if(str === 'business') return true;
+    if(getInstanceMode() === 1 || !PbxObject.subscription || !PbxObject.subscription.plan) {
+        if(!!'enterprise'.match(str) || !!'business'.match(str)) return true;
         return false;
     } else {
-        return PbxObject.subscription.plan.planId === str;
+        return !!PbxObject.subscription.plan.planId.match(str);
     }
 }

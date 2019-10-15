@@ -85,6 +85,9 @@ table.table > tbody > tr > td {
 /*
     Forms custom styles
 */
+.input-group-addon {
+  border: none; }
+
 /*
     Buttons custom styles
 */
@@ -1701,7 +1704,11 @@ input[type="checkbox"]:checked + .help-block {
   margin-top: 10px;
   overflow: hidden;
   border: 1px solid #eee;
-  border-radius: 4px; }
+  border-radius: 4px;
+  background-image: url("/badmin/images/avatar.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; }
 
 .avatar-cont img {
   height: 100%;

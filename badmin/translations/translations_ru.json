@@ -219,6 +219,8 @@
 	},
 	"FUNCTIONS" : {
 		"FUNCTIONS" : "Функции",
+		"HUNTING" : "Поиск номера",
+		"HUNTING_NUMBERS" : "Номера поиска",
 		"DND" : "Не беспокоить",
 		"DNDOVER" : "Преодоление режима \"Не беспокоить\"",
 		"CLIR" : "Сокрытие обратного номера",
@@ -360,6 +362,26 @@
 			"CREATE_KEY_BTN": "Создать API Ключ",
 			"EMPTY_NAME_WARNING": "Пожалуйста, укажите имя ключа",
 			"DELETE_WARNING": "Вы действительно хотите удалить API Ключ {{key}}?"
+		}
+	},
+	"PERMISSIONS": {
+		"PERMISSIONS": "Разрешения",
+		"PERMISSION": "Разрешение",
+		"OPERATIONS": "Операции",
+		"TYPES": {
+			"statistics": "Статистика",
+			"records": "Записи разговоров",
+			"customers": "Клиенты",
+			"users": "Пользователи",
+			"equipment": "Оборудование",
+			"channels": "Каналы"
+		},
+		"LEVELS": {
+			"none": "Нет",
+			"read": "Чтение",
+			"read_write": "Чтение/Запись",
+			"read_write_create": "Чтение/Запись/Создание",
+			"all_operations": "Все операции"
 		}
 	},
 	"MENU": "Меню",

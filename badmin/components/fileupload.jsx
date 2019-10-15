@@ -2,10 +2,17 @@ var FileUpload = React.createClass({
   
 	propTypes: {
 		frases: React.PropTypes.object,
+		options: React.PropTypes.object,
 		value: React.PropTypes.string,
 		name: React.PropTypes.string,
 		accept: React.PropTypes.string,
 		onChange: React.PropTypes.func
+	},
+
+	getDefaultProps: function() {
+		return {
+			options: {}
+		}
 	},
 
 	componentWillMount: function() {
@@ -48,6 +55,7 @@ var FileUpload = React.createClass({
 		this.props.onChange({
 			name: e.target.name,
 			filename: filename,
+			el: e.target,
 			file: file
 		});
 		// this.props.onChange(e);
@@ -68,8 +76,25 @@ var FileUpload = React.createClass({
 	    }
 	    return '';
 	},
+
+	_getButtonEl: function() {
+		var props = this.props;
+		return (
+			<div>
+				<button className={"btn btn-"+(props.options.buttonType ? props.options.buttonType : 'default')} role="button" onClick={this._onClick}>{ props.options.text || props.frases.UPLOAD }</button>
+				<input 
+					type="file" 
+					name={this.props.name} 
+					className="hidden" 
+					onChange={this._onFileSelect} 
+					accept={this.props.accept || ''} 
+				/>
+			</div>
+		)
+	},
   
 	render: function() {
+		if(this.props.options.noInput) return this._getButtonEl();
 		return (
 			<div className="input-group">
 				<input type="text" className="form-control" value={ this.state.value } readOnly />

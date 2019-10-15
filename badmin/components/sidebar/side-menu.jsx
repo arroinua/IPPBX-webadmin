@@ -16,11 +16,11 @@ function SideMenuComponent(props) {
 					return (
 						<li key={item.name}>
 							<a 
-								href="#" 
+								href={item.link ? item.link : "#"} 
 								className={ getItemClass(item) } 
 								data-toggle="tooltip" data-placement="right"
 								title={props.frases.KINDS[item.name]}
-								onClick={function(e) { e.preventDefault(); props.selectMenu(item.name) }}>
+								onClick={function(e) { if(e.target.href === '#') e.preventDefault(); props.selectMenu(item.name) }}>
 								<i className={item.iconClass}></i>
 							</a>
 						</li>

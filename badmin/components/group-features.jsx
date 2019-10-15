@@ -45,8 +45,6 @@
 		var frases = this.props.frases;
 		var params = this.state.params;
 
-		console.log('GroupFeaturesComponent: ', params);
-
 		return (
 			<form className="form-horizontal">
 				<div className="row">

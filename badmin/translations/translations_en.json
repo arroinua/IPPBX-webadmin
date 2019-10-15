@@ -219,6 +219,8 @@
 	},
 	"FUNCTIONS" : {
 		"FUNCTIONS" : "Functions",
+		"HUNTING" : "Call hunting",
+		"HUNTING_NUMBERS" : "Hunting numbers",
 		"DND" : "Do not disturb",
 		"DNDOVER" : "Override of \"Do not disturb\" mode",
 		"CLIR" : "Hide calling number",
@@ -359,6 +361,26 @@
 			"CREATE_KEY_BTN": "Create API Key",
 			"EMPTY_NAME_WARNING": "Please specify a key name",
 			"DELETE_WARNING": "Do you really want to delete API Key {{key}}?"
+		}
+	},
+	"PERMISSIONS": {
+		"PERMISSIONS": "Permissions",
+		"PERMISSION": "Permission",
+		"OPERATIONS": "Operations",
+		"TYPES": {
+			"statistics": "Statistics",
+			"records": "Records",
+			"customers": "Customers",
+			"users": "Users",
+			"equipment": "Equipment",
+			"channels": "Channels"
+		},
+		"LEVELS": {
+			"none": "None",
+			"read": "Read",
+			"read_write": "Read/Write",
+			"read_write_create": "Read/Write/Create",
+			"all_operations": "All operations"
 		}
 	},
 	"MENU": "Menu",

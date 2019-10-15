@@ -7,6 +7,7 @@ var ModalComponent = React.createClass({
 		size: React.PropTypes.string,
 		type: React.PropTypes.string,
 		title: React.PropTypes.string,
+		titleObj: React.PropTypes.object,
 		submitText: React.PropTypes.string,
 		cancelText: React.PropTypes.string,
 		closeOnSubmit: React.PropTypes.bool,
@@ -89,14 +90,22 @@ var ModalComponent = React.createClass({
 			<div className="modal fade" ref={this._onRef} tabIndex="-1" role="dialog" aria-labelledby={this.props.title}>
 				<div className={"modal-dialog "+(this.props.size ? "modal-"+this.props.size : "")} role="document">
 					<div className="modal-content">
-						{ this.props.title ?
-						<div className="modal-header">
-							<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 className="modal-title">{this.props.title}</h4>
-						</div> : 
-						<div className="modal-header standalone">
-							<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						</div>
+						{ 
+							this.props.title ? (
+								<div className="modal-header">
+									<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 className="modal-title">{this.props.title}</h4>
+								</div>	
+							) : this.props.titleObj ? (
+								<div className="modal-header">
+									<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 className="modal-title">{this.props.titleObj}</h4>
+								</div>
+							) : (
+								<div className="modal-header standalone">
+									<button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								</div>
+							)
 						}
 						<div className="modal-body">
 							{this.props.body || this.props.children}

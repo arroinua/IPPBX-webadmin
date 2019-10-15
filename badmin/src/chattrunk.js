@@ -246,11 +246,11 @@ function load_chattrunk(params) {
 		    params: params,
 		    selected: queryParams.channel,
 		    getObjects: getObjects,
-		    onStateChange: onStateChange,
-		    setObject: saveObject,
-		    updateBalance: updateBalance,
+		    onStateChange: (PbxObject.isUserAccount ? (checkPermissions('chattrunk', 3) ? onStateChange : null) : onStateChange),
+		    setObject: (PbxObject.isUserAccount ? (checkPermissions('chattrunk', 3) ? saveObject : null) : saveObject),
+		    updateBalance: !PbxObject.isUserAccount && updateBalance,
 		    confirmRemoveObject: confirmRemoveObject,
-		    removeObject: removeObject,
+		    removeObject: (PbxObject.isUserAccount ? (checkPermissions('chattrunk', 15) ? removeObject : null) : removeObject),
 		    confirmPayment: confirmPayment
 		};
 
