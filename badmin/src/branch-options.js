@@ -56,30 +56,33 @@ function load_branch_options() {
 			options = deepExtend(options, newOptions);
 			PbxObject.options = options;
 
-			if(!newOptions.adminpass) {
+			// if(!newOptions.adminpass) {
 			    handler();
-			} else {
-			    if(window.localStorage['ringo_tid'] && !singleBranch) {
-			        BillingApi.changePassword({ login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
-			            if(!err) {
-			            	handler();
-			            	if(callback) callback();
-			            }
-			        });
+			// } 
+			// else {
+			    // if(window.localStorage['ringo_tid'] && !singleBranch) {
+			    //     BillingApi.changePassword({ login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
+			    //         if(!err) {
+			    //         	handler();
+			    //         	if(callback) callback();
+			    //         }
+			    //     });
 
-			    } else {
-			        handler();
-			        if(callback) callback();
-			    }
-			}
+			    // } else {
+			        // handler();
+			    // }
+			// }
 
-			if(window.localStorage['ringo_tid'] && !singleBranch) {
-				if(newOptions.email) {
-					BillingApi.changeAdminEmail({ email: newOptions.email }, function(err, result) {
-					    if(err) notify_about('error', err);
-					});
-				}
-			}
+			if(callback) callback();
+
+
+			// if(window.localStorage['ringo_tid'] && !singleBranch) {
+			// 	if(newOptions.email) {
+			// 		BillingApi.changeAdminEmail({ email: newOptions.email }, function(err, result) {
+			// 		    if(err) notify_about('error', err);
+			// 		});
+			// 	}
+			// }
 		});
 	}
 
@@ -103,6 +106,29 @@ function load_branch_options() {
 		json_rpc_async('setDeviceSettings', newOptions, null);
 	}
 
+	function updatePassword(params, callback) {
+		json_rpc_async('setPbxOptions', params, function(result, err) {
+			if(!err && !result.error) set_object_success();
+			if(callback) callback(err, result);
+		});
+	}
+
+	function showChangePassSettings() {
+		var modalCont = document.getElementById('modal-cont');
+
+		if(modalCont) modalCont.parentNode.removeChild(modalCont);
+
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+
+		ReactDOM.render(ChangePasswordComponent({
+			frases: PbxObject.frases,
+			open: true,
+			onSubmit: updatePassword
+		}), modalCont);
+	}
+
 	function render() {
 		var componentParams = {
 			frases: PbxObject.frases,
@@ -112,7 +138,8 @@ function load_branch_options() {
 		    saveOptions: saveOptions,
 		    generateApiKey: generateApiKey,
 		    deleteApiKey: deleteApiKey,
-		    saveBranchOptions: saveBranchOptions
+		    saveBranchOptions: saveBranchOptions,
+		    showChangePassSettings: showChangePassSettings
 		};
 
 		ReactDOM.render(OptionsComponent(componentParams), document.getElementById('el-loaded-content'));

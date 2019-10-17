@@ -14,22 +14,24 @@ function load_application(result){
 
         if(file) {
             setParams = extend(params, {method: 'setObject', id: 1, file: file, filename: file.name});
-            delete setParams.parameters;
             request('POST', '/', setParams, onSetObject);
         } else {
-            json_rpc_async('setObject', params, onSetObject);
+            setParams = extend({}, {method: 'setObject', id: 1, params: params});
+            request('POST', '/', setParams, set_object_success);
+            // json_rpc_async('setObject', params, onSetObject);
         }
             
     }
 
     function onSetObject(err, response) {
-        Utils.debug('onSetObject: ', err, response);
-        json_rpc_async('getObject', {oid: response.result.result}, function(result) {
-            set_object_success();
-            PbxObject.query = result.kind+'/'+result.oid;
-            window.location.href = '#'+PbxObject.query;
-            init(result);
-        });
+        if(response.result && !response.result.error) {
+            json_rpc_async('getObject', {oid: response.result}, function(result) {
+                set_object_success();
+                PbxObject.query = result.kind+'/'+result.oid;
+                window.location.href = '#'+PbxObject.query;
+                init(result);
+            });
+        }
     }
 
     function onNameChange(name) {
@@ -2786,30 +2788,33 @@ function load_branch_options() {
 			options = deepExtend(options, newOptions);
 			PbxObject.options = options;
 
-			if(!newOptions.adminpass) {
+			// if(!newOptions.adminpass) {
 			    handler();
-			} else {
-			    if(window.localStorage['ringo_tid'] && !singleBranch) {
-			        BillingApi.changePassword({ login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
-			            if(!err) {
-			            	handler();
-			            	if(callback) callback();
-			            }
-			        });
+			// } 
+			// else {
+			    // if(window.localStorage['ringo_tid'] && !singleBranch) {
+			    //     BillingApi.changePassword({ login: newOptions.adminname, password: newOptions.adminpass }, function(err, result) {
+			    //         if(!err) {
+			    //         	handler();
+			    //         	if(callback) callback();
+			    //         }
+			    //     });
 
-			    } else {
-			        handler();
-			        if(callback) callback();
-			    }
-			}
+			    // } else {
+			        // handler();
+			    // }
+			// }
 
-			if(window.localStorage['ringo_tid'] && !singleBranch) {
-				if(newOptions.email) {
-					BillingApi.changeAdminEmail({ email: newOptions.email }, function(err, result) {
-					    if(err) notify_about('error', err);
-					});
-				}
-			}
+			if(callback) callback();
+
+
+			// if(window.localStorage['ringo_tid'] && !singleBranch) {
+			// 	if(newOptions.email) {
+			// 		BillingApi.changeAdminEmail({ email: newOptions.email }, function(err, result) {
+			// 		    if(err) notify_about('error', err);
+			// 		});
+			// 	}
+			// }
 		});
 	}
 
@@ -2833,6 +2838,29 @@ function load_branch_options() {
 		json_rpc_async('setDeviceSettings', newOptions, null);
 	}
 
+	function updatePassword(params, callback) {
+		json_rpc_async('setPbxOptions', params, function(result, err) {
+			if(!err && !result.error) set_object_success();
+			if(callback) callback(err, result);
+		});
+	}
+
+	function showChangePassSettings() {
+		var modalCont = document.getElementById('modal-cont');
+
+		if(modalCont) modalCont.parentNode.removeChild(modalCont);
+
+		modalCont = document.createElement('div');
+		modalCont.id = "modal-cont";
+		document.body.appendChild(modalCont);
+
+		ReactDOM.render(ChangePasswordComponent({
+			frases: PbxObject.frases,
+			open: true,
+			onSubmit: updatePassword
+		}), modalCont);
+	}
+
 	function render() {
 		var componentParams = {
 			frases: PbxObject.frases,
@@ -2842,7 +2870,8 @@ function load_branch_options() {
 		    saveOptions: saveOptions,
 		    generateApiKey: generateApiKey,
 		    deleteApiKey: deleteApiKey,
-		    saveBranchOptions: saveBranchOptions
+		    saveBranchOptions: saveBranchOptions,
+		    showChangePassSettings: showChangePassSettings
 		};
 
 		ReactDOM.render(OptionsComponent(componentParams), document.getElementById('el-loaded-content'));

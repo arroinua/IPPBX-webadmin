@@ -22,15 +22,17 @@
 	},
 
 	componentWillReceiveProps: function(props) {
+		var stateUpdate = { params: props.params };
 		if(props.params.name && !this.props.params.name) {
-			this.setState({
-				params: props.params
-			});
+			stateUpdate.file = null;
 		}
+
+		this.setState(stateUpdate);
 	},
 
 	_setObject: function() {
-		if(!this.props.name && !this.state.file) return alert('Please add .application file first');
+		var frases = this.props.frases;
+		if(!this.props.params.name && !this.state.file) return alert(frases.APPLICATIONS.NO_APP_ERROR);
 		this.props.setObject(this.state.params, this.state.file);
 	},
 
@@ -62,16 +64,16 @@
 	},
 
 	_handleOnParametersChange: function(e) {
-		var state = extend({}, this.state);
+		var params = extend({}, this.state.params);
+		var parameters = [].concat(params.parameters);
 		var target = e.target;
 		var type = target.getAttribute('data-type') || target.type;
 		var value = type === 'checkbox' ? target.checked : target.value;
 
-		state.params.parameters[target.name] = type === 'number' ? parseFloat(value) : value;
+		parameters = parameters.map(function(item) { if(item.key === target.name) return { key: item.key, value: target.value }; return item; })
+		params.parameters = parameters;
 
-		this.setState({
-			state: state
-		});
+		this.setState({ params: params });
 	},
 
 	_onFileUpload: function(file) {
@@ -102,7 +104,7 @@
 			    		<PanelComponent header={frases.SETTINGS.SETTINGS}>
 	    					<div>
 				    			<p dangerouslySetInnerHTML={{ __html: Utils.htmlDecode(frases.APPLICATIONS.UPLOAD_APP_DESC) }}></p>
-				    			<DragAndDropComponent frases={frases} onChange={this._onFileUpload} params={{ allowedTypes: ['.application'] }} />
+				    			<DragAndDropComponent frases={frases} onChange={this._onFileUpload} params={{ filename: params.filename, allowedTypes: ['.application'] }} />
 		    				</div>
 			    			<form className="form-horizontal">
 			    				<div className="form-group">
@@ -120,19 +122,19 @@
 			    		{
 			    			this.props.params.name && (
 			    				<PanelComponent header={frases.APPLICATIONS.APP_PARAMETERS_HEADER}>
-									<form className="form-horizontal">
+									<form className="form-horizontal" onChange={ this._handleOnParametersChange }>
 										{
 											<div>
 												{
-													this.props.params.parameters.map(function(item) {
+													params.parameters.map(function(item) {
 														return (
 
-															<div className="form-group">
+															<div key={item.key} className="form-group">
 															    <label className="col-sm-4 control-label">
 															        <span>{item.key}</span>
 															    </label>
 															    <div className="col-sm-8">
-															        <input type="text" className="form-control" name={item.key} value={ item.value } onChange={ this._handleOnParametersChange } />
+															        <input type="text" className="form-control" name={item.key} value={ item.value } />
 															    </div>
 															</div>				
 

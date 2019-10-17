@@ -279,6 +279,14 @@
 		"ADMIN_EMAIL": "Admin email",
 		"CHANGE_PASSWORD": "Change password",
 		"CONFIRM_PASSWORD": "Confirm password",
+		"OLD_PASSWORD": "Old password",
+		"NEW_PASSWORD": "New password",
+		"CONFIRM_NEW_PASSWORD": "Confirm new password",
+		"CHANGE_PASSWORD_ERROR": {
+			"password_mismatch": "Passwords do not match",
+			"invalid_parameter": "Wrong password",
+			"generic_decline": "Can't change the password at the moment, please try again later"
+		},
 		"SIP" : "SIP",
 		"SIPS" : "SIPS",
 		"WSS" : "WSS",
@@ -340,6 +348,7 @@
 		"BRANCH_SETTS" : "System",
 		"BRANCH_SERVICES" : "Integrations",
 		"NUMTRANSFORM" : "Number transforms",
+		"DIAL_TIMEOUT": "Dial number timeout",
 		"REMINTERVAL" : "Remind interval",
 		"RETINTERVAL" : "Return interval",
 		"RETNUMBER" : "Return number", 
@@ -1215,7 +1224,8 @@
     	"APPLICATIONS": "Applications",
     	"UPLOAD_APP_DESC": "Upload a <strong>.application</strong> file created in Visual CTI Studio:",
     	"DEBUG" : "Enable debug",
-    	"APP_PARAMETERS_HEADER": "Application parameters"
+    	"APP_PARAMETERS_HEADER": "Application parameters",
+    	"NO_APP_ERROR": "Please add .application file first"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Storage settings",
@@ -1430,7 +1440,7 @@
     	"DRAG_AND_DROP_TITLE_1": "Drag a file",
     	"DRAG_AND_DROP_TITLE_2": "Drop a file",
     	"DRAG_AND_DROP_SUBTITLE": "or",
-    	"DRAG_AND_DROP_INFO": "Max file size 2MB",
+    	"DRAG_AND_DROP_INFO": "Max file size {{maxFilesize}}MB",
     	"OPTIONS": {
     		"ENCODING": "Encoding",
     		"DELIMITER": "Delimiter",

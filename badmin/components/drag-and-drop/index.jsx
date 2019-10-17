@@ -12,9 +12,10 @@ var DragAndDropComponent = React.createClass({
 			errors: [],
 			fileDragged: false,
 			file: null,
+			filename: null,
 			fileStr: null,
 			allowedTypes: [],
-			maxSize: 2000000
+			maxSize: 5000000
 		};
 	},
 
@@ -72,7 +73,7 @@ var DragAndDropComponent = React.createClass({
 			errors = this._checkErrorState(file);
 			if(errors.length) this._setErrorState(errors);
 			else {
-				this.setState({ file: file, errors: [] });
+				this.setState({ file: file, filename: file.name, errors: [] });
 				this.props.onChange(file);
 			}
 		}
@@ -81,13 +82,14 @@ var DragAndDropComponent = React.createClass({
 		this._onFileDragLeave();
 	},
 
-	_onFileSelect: function(e) {
-        var input = e.target;
-        var filelist = input.files;
-        var file = filelist[0];
+	_onFileSelect: function(params) {
+        // var input = e.target;
+        // var filelist = input.files;
+        // var file = filelist[0];
+        var file = params.file;
 		
 		this.props.onChange(file);
-        this.setState({ file: file });
+        this.setState({ file: file, filename: file.name });
 	},
 
 	_removeDragData: function(e) {
@@ -106,8 +108,6 @@ var DragAndDropComponent = React.createClass({
 		var frases = this.props.frases;
 		var touchDevice = isTouchDevice();
 
-		Utils.debug('render', this.state, this.props);
-
 		return (
 			<div>
 				{
@@ -121,10 +121,9 @@ var DragAndDropComponent = React.createClass({
 							onDragEnter={this._onFileDragEnter} 
 							onDragLeave={this._onFileDragLeave}
 						>
-							<p>{this.state.file ? this.state.file.name : (this.state.fileDragged ? frases.IMPORT_DATA.DRAG_AND_DROP_TITLE_1 : frases.IMPORT_DATA.DRAG_AND_DROP_TITLE_2)}</p>
-							<p><strong>{frases.IMPORT_DATA.DRAG_AND_DROP_SUBTITLE}</strong></p>
-							<p><input type="file" accept={this.state.allowedTypes.join(',')} onChange={this._onFileSelect} /></p>
-							<p className="text-muted"><em>{frases.IMPORT_DATA.DRAG_AND_DROP_INFO}</em></p>
+							<p>{this.state.filename ? this.state.filename : (this.state.fileDragged ? frases.IMPORT_DATA.DRAG_AND_DROP_TITLE_1 : frases.IMPORT_DATA.DRAG_AND_DROP_TITLE_2)}</p>
+							<p><strong>---</strong></p>
+							<FileUpload frases={frases} accept={this.state.allowedTypes.join(',')} onChange={this._onFileSelect} options={{ noInput: true }} />
 						</div>		
 					)
 				}

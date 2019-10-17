@@ -4,7 +4,8 @@ var GeneralOptionsComponent = React.createClass({
 		frases: React.PropTypes.object,
 		params: React.PropTypes.object,
 		singleBranch: React.PropTypes.bool,
-		onChange: React.PropTypes.func
+		onChange: React.PropTypes.func,
+		showChangePassSettings: React.PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -128,23 +129,9 @@ var GeneralOptionsComponent = React.createClass({
 			    </div>
 			    <div className="form-group">
 				    <div className="col-sm-4 col-sm-offset-4">
-				    	<button type="button" className="btn btn-default btn-block" role="button" data-toggle="collapse" data-target="#change-pass-cont" aria-expanded="false" aria-controls="change-pass-cont">{frases.SETTINGS.CHANGE_PASSWORD}</button>
+				    	<button type="button" className="btn btn-default btn-block" role="button" onClick={this.props.showChangePassSettings}>{frases.SETTINGS.CHANGE_PASSWORD}</button>
 				    </div>
 				</div>
-			    <div id="change-pass-cont" className="collapse">
-			        <div className="form-group">
-			            <label htmlFor="adminpass" className="col-sm-4 control-label" data-toggle="tooltip" title={frases.OPTS__PWD}>{frases.PASSWORD}</label>
-			            <div className="col-sm-4">
-			                <input type="password" className="form-control" name="adminpass" value={params.adminpass} placeholder={frases.PASSWORD} autoComplete="off" onChange={this._onChange} />
-			            </div>
-			        </div>
-			        <div className="form-group">
-			            <label htmlFor="confirmpass" className="col-sm-4 control-label" data-toggle="tooltip" title={frases.OPTS__CONFIRM_PWD}>{frases.CONFIRM} {frases.PASSWORD}</label>
-			            <div className="col-sm-4">
-			                <input type="password" className="form-control" name="confirmpass" value={params.confirmpass} placeholder={frases.SETTINGS.CONFIRM_PASSWORD} autoComplete="off" onChange={this._onChange} />
-			            </div>
-			        </div>
-			    </div>
 			</form>
 		);
 	}

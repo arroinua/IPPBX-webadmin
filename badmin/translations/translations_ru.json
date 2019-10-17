@@ -278,6 +278,14 @@
 		"TO_MAIN_TAB_BTN" : "Назад",
 		"CHANGE_PASSWORD": "Изменить пароль",
 		"CONFIRM_PASSWORD": "Подтвердить пароль",
+		"OLD_PASSWORD": "Старый пароль",
+		"NEW_PASSWORD": "Новый пароль",
+		"CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль",
+		"CHANGE_PASSWORD_ERROR": {
+			"password_mismatch": "Пароли не совпадают",
+			"invalid_parameter": "Неверный пароль",
+			"generic_decline": "В данный момент невозможно поменять пароль, пожалуйста, повторите позже"
+		},
 		"ADMIN_EMAIL": "Email администратора",
 		"SIP" : "SIP",
 		"SIPS" : "SIPS",
@@ -340,6 +348,7 @@
 		"BRANCH_SETTS" : "Система",
 		"BRANCH_SERVICES" : "Интеграции",
 		"NUMTRANSFORM" : "Преобразование номеров",
+		"DIAL_TIMEOUT": "Таймаут набора номера",
 		"REMINTERVAL" : "Интервал напоминания",
 		"RETINTERVAL" : "Интервал возврата",
 		"RETNUMBER" : "Номер возврата", 
@@ -1217,7 +1226,8 @@
     	"APPLICATIONS": "Приложения",
     	"UPLOAD_APP_DESC": "Загрузите файл <strong>.application</strong> сделанный в Visual CTI Studio:",
     	"DEBUG" : "Включить логирование",
-    	"APP_PARAMETERS_HEADER": "Параметры приложения"
+    	"APP_PARAMETERS_HEADER": "Параметры приложения",
+    	"NO_APP_ERROR": "Пожалуйста, сначала добавьте файл .application"
     },
     "STORAGE" : {
     	"STORAGE_SETTINGS" : "Настройки хранилища",
@@ -1432,7 +1442,7 @@
     	"DRAG_AND_DROP_TITLE_1": "Перенесите файл",
     	"DRAG_AND_DROP_TITLE_2": "Перенесите файл",
     	"DRAG_AND_DROP_SUBTITLE": "или",
-    	"DRAG_AND_DROP_INFO": "Макс. размер файла 2МБ",
+    	"DRAG_AND_DROP_INFO": "Макс. размер файла {{maxFilesize}}МБ",
     	"OPTIONS": {
     		"ENCODING": "Кодировка",
     		"DELIMITER": "Разделитель",

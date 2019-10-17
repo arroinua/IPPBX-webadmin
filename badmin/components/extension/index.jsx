@@ -8,7 +8,7 @@ var ExtensionComponent = React.createClass({
 		convertBytes: React.PropTypes.func,
 		onChange: React.PropTypes.func,
 		onSubmit: React.PropTypes.func,
-		isUserAccount: React.PropTypes.boolean,
+		isUserAccount: React.PropTypes.bool,
 		onAvatarChange: React.PropTypes.func
 	},
 

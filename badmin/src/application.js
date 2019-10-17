@@ -14,22 +14,24 @@ function load_application(result){
 
         if(file) {
             setParams = extend(params, {method: 'setObject', id: 1, file: file, filename: file.name});
-            delete setParams.parameters;
             request('POST', '/', setParams, onSetObject);
         } else {
-            json_rpc_async('setObject', params, onSetObject);
+            setParams = extend({}, {method: 'setObject', id: 1, params: params});
+            request('POST', '/', setParams, set_object_success);
+            // json_rpc_async('setObject', params, onSetObject);
         }
             
     }
 
     function onSetObject(err, response) {
-        Utils.debug('onSetObject: ', err, response);
-        json_rpc_async('getObject', {oid: response.result.result}, function(result) {
-            set_object_success();
-            PbxObject.query = result.kind+'/'+result.oid;
-            window.location.href = '#'+PbxObject.query;
-            init(result);
-        });
+        if(response.result && !response.result.error) {
+            json_rpc_async('getObject', {oid: response.result}, function(result) {
+                set_object_success();
+                PbxObject.query = result.kind+'/'+result.oid;
+                window.location.href = '#'+PbxObject.query;
+                init(result);
+            });
+        }
     }
 
     function onNameChange(name) {
