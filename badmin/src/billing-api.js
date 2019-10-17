@@ -93,14 +93,6 @@ var BillingApi = {
 		this.request('updateBalance', params, callback);	
 	},
 
-	changeAdminEmail: function(params, callback) {
-		this.request('changeAdminEmail', params, callback);	
-	},
-
-	changePassword: function(params, callback) {
-		this.request('changePassword', params, callback);	
-	},
-
 	addCard: function(params, callback) {
 		this.request('addCard', params, callback);	
 	},

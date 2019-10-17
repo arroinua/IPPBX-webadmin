@@ -62,7 +62,7 @@ function renderSidebar(params) {
 	            name: 'chattrunk',
 	            iconClass: 'icon-perm_phone_msg',
 	            // shouldRender: !hasConfig('team'),
-	            shouldRender: shouldRender('chattrunk', 'trial|business|enterprise'),
+	            shouldRender: shouldRender('chattrunk', 'free|trial|business|enterprise'),
 	            fetchKinds: ['chattrunk']
 	        }, {
 	            name: 'trunk',

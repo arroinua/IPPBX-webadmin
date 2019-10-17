@@ -93,12 +93,14 @@ var ChangePasswordComponent = React.createClass({
 	render: function() {
 		var frases = this.props.frases;
 		var body = this._getBody();
+		var params = this.state.params;
 
 		return (
 			<ModalComponent 
 				size="sm"
 				type="success"
 				title={frases.SETTINGS.CHANGE_PASSWORD}
+				disabled={!params.adminpass || !params.confirmadminpass || !params.oldadminpass}
 				submitText={frases.SUBMIT} 
 				cancelText={frases.CANCEL} 
 				submit={this._saveChanges} 
