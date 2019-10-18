@@ -62,6 +62,9 @@ var ConnectTrunkSettings = React.createClass({
 	_selectTrunk: function(oid) {
 		var trunk = this.state.trunks.filter(function(item) { return item.oid === oid });
 		this.setState({ selectedTrunk:  trunk[0] });
+		this.props.onChange({
+			id: (this.state.phoneNumber+"@"+trunk[0].oid)
+		});
 	},
 
 	_onTrunkSelect: function(e) {
