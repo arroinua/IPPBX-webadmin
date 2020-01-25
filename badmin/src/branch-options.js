@@ -31,20 +31,22 @@ function load_branch_options() {
 	function saveOptions(newOptions, callback) {
 
 		var handler;
-		var files = [];
+		// var files = [];
 
-		if(newOptions.options && newOptions.options.files) {
-			files = [].concat(newOptions.options.files);
-			delete newOptions.options.files;
+		if(newOptions.files) {
+			newOptions.files.forEach(function(item) {
+				uploadFile(item);
+			})
+			delete newOptions.files;
 		}
 
 
 		// Upload audio files
-		if(files.length) {
-			files.forEach(function(item) {
-				uploadFile(item);
-			})
-		}
+		// if(files.length) {
+		// 	files.forEach(function(item) {
+		// 		uploadFile(item);
+		// 	})
+		// }
 
 		if(newOptions.lang && newOptions.lang !== initLang) {	    
 		    handler = set_options_success_with_reload;
@@ -90,6 +92,7 @@ function load_branch_options() {
 		show_loading_panel();
 		json_rpc_async('createAPIKey', params, function(result) {
 			show_content();
+			if(result) set_object_success();
 			callback(result);
 		});
 	}
@@ -98,6 +101,7 @@ function load_branch_options() {
 		show_loading_panel();
 		json_rpc_async('deleteAPIKey', params, function(result) {
 			show_content();
+			set_object_success();
 			callback(result);
 		});	
 	}

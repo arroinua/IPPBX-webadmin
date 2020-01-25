@@ -150,6 +150,10 @@ var ExtensionComponent = React.createClass({
 					    	    <label>{frases.NAME}</label>
 					    	    <input type="text" name="name" className="form-control" placeholder="James Douton" value={params.name} />
 					    	</div>
+					    	<div className="form-group">
+					    	    <label>{frases.DISPLAY}</label>
+					    	    <input type="text" name="display" className="form-control" placeholder="James Douton - IT Department" value={params.display} />
+					    	</div>
 					    	<div className={"form-group " + (params.kind !== 'user' ? 'hidden' : '')}>
 					    	    <label>{frases.GROUP}</label>
 					    	    <select name="groupid" className="form-control" value={params.groupid} disabled={this.props.isUserAccount}>

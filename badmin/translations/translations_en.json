@@ -795,7 +795,7 @@
         "28": "invalid number format",
         "29": "facility rejected",
         "30": "normal unspecified",
-        "31": "temporary unavailable",
+        "31": "normal clearing",
         "34": "no channel available",
         "38": "network out of order",
         "41": "temporary failure",
@@ -1217,7 +1217,8 @@
     	"ALLOW_MULT_DIGITS" : "Allow multiple digits",
     	"REMOVE_ELEMENT" : "Remove element",
     	"REMOVE_ELEMENTS_TREE" : "Remove element's tree",
-    	"DATA_PLACEHOLDER" : "Select a connector or enter a value"
+    	"DATA_PLACEHOLDER" : "Select a connector or enter a value",
+    	"CALL_SUBJECT" : "Call subject"
     },
     "APPLICATIONS": {
     	"APPLICATION": "Application",

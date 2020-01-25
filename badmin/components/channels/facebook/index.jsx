@@ -140,7 +140,7 @@ var FacebookTrunkComponent = React.createClass({
 	},
 
 	_apiCall: function(path, data, callback) {
-		request('GET', 'https://graph.facebook.com/v3.1/'+path+'?access_token='+this.state.userAccessToken, data, null, callback);
+		request('GET', 'https://graph.facebook.com/v3.2/'+path+'?access_token='+this.state.userAccessToken, data, null, callback);
 	},
 
 	_getSubscriptions: function() {

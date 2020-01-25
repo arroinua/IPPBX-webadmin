@@ -796,7 +796,7 @@
         "28": "неверный формат",
         "29": "facility rejected",
         "30": "normal unspecified",
-        "31": "временно недоступен",
+        "31": "вызов завершен",
         "34": "no channel available",
         "38": "network out of order",
         "41": "temporary failure",
@@ -854,7 +854,7 @@
 	    "NUMBER_OF_CALLS" : "Количество вызовов",
 	    "EXT_STATS" : "Статистика внутренних номеров",
 	    "NO_DATA" : "За выбранный период данных нет",
-	    "LINES_PAYLOAD" : "Загрузка линий",
+	    "LINES_PAYLOAD" : "Загрузка портов",
 	    "LOST_AND_SERVED" : "Потерянные и соединенные",
 	    "INCOMING_CALLS": "Входящие",
 	    "OUTGOING_CALLS": "Исходящие",
@@ -1219,7 +1219,8 @@
     	"ALLOW_MULT_DIGITS" : "Ввод нескольких цифр",
     	"REMOVE_ELEMENT" : "Удалить элемент",
     	"REMOVE_ELEMENTS_TREE" : "Удалить дерево элемента",
-    	"DATA_PLACEHOLDER" : "Выберите коннектор или введите значение"
+    	"DATA_PLACEHOLDER" : "Выберите коннектор или введите значение",
+    	"CALL_SUBJECT" : "Тема звонка"
     },
     "APPLICATIONS": {
     	"APPLICATION": "Приложение",
@@ -1263,7 +1264,7 @@
     	},
     	"LINES": {
     		"AVAILABLE": "Доступно",
-    		"USAGE_ITEM": "Линий"
+    		"USAGE_ITEM": "Порты"
     	},
     	"CANT_UPDATE_MSG": "Чтобы добавить лицензии, пожалуйста, измените подписку."
     },
@@ -1309,16 +1310,16 @@
     		"AVAILABLE_LICENSES": "Доступные лицензии",
     		"USERS": "Пользователи",
     		"STORAGE": "Дополнительное хранилище (GB)",
-    		"LINES": "Линии"
+    		"LINES": "Порты"
     	},
     	"INCLUDED_IN_PLAN": "включено в план",
     	"CANCEL_LICENSE_UPDATE": "Отмена",
     	"UPDATE_LICENSES": "Обновить лицензии",
     	"PLANS": {
-    		"LINES": "линий",
+    		"LINES": "портов",
     		"USERS": "пользователей",
     		"PER_USER": "за пользователя",
-    		"PER_LINE": "за линию",
+    		"PER_LINE": "за порт",
     		"PER_MONTH": "месяц",
     		"PER_YEAR": "год",
     		"MONTHLY_PLANS": "Ежемесячная оплата",

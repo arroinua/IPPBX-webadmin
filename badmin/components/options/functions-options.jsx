@@ -15,14 +15,15 @@ function FunctionsOptionsComponent(props) {
 	}
 
 	function _onFileUpload(params) {
-		var update = extend({}, params);
-		var files = [];
+		// var update = extend({}, params);
+		// var update = {};
+		// var files = [];
 
-		files.push(params);
-		update.files = files;
-		update[params.name] = params.filename;
+		// files.push(params);
+		// update.files = files;
+		// update[params.name] = params.filename;
 
-		props.onChange(update);
+		props.onChange(params);
 	}
 
 	return (

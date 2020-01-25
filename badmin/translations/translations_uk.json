@@ -795,7 +795,7 @@
         "28": "невірний формат",
         "29": "facility rejected",
         "30": "normal unspecified",
-        "31": "тимчасово недоступний",
+        "31": "виклик завершився",
         "34": "no channel available",
         "38": "network out of order",
         "41": "temporary failure",
@@ -853,7 +853,7 @@
 	    "NUMBER_OF_CALLS" : "Кількість викликів",
 	    "EXT_STATS" : "Статистика внутрішніх номерів",
 	    "NO_DATA" : "За обраний період немає даних",
-	    "LINES_PAYLOAD" : "Завантаження ліній",
+	    "LINES_PAYLOAD" : "Завантаження портів",
 	    "LOST_AND_SERVED" : "Втрачені та з'єднані",
 	    "INCOMING_CALLS": "Вхідні",
 	    "OUTGOING_CALLS": "Вихідні",
@@ -1219,7 +1219,8 @@
     	"ALLOW_MULT_DIGITS" : "Введення декількох цифр",
     	"REMOVE_ELEMENT" : "Видалити елемент",
     	"REMOVE_ELEMENTS_TREE" : "Видалити дерево елемента",
-    	"DATA_PLACEHOLDER" : "Виберіть коннектор або введіть значення"
+    	"DATA_PLACEHOLDER" : "Виберіть коннектор або введіть значення",
+    	"CALL_SUBJECT" : "Тема дзвінка"
     },
     "APPLICATIONS": {
     	"APPLICATION": "Додаток",
@@ -1263,7 +1264,7 @@
     	},
     	"LINES": {
     		"AVAILABLE": "Доступно",
-    		"USAGE_ITEM": "Ліній"
+    		"USAGE_ITEM": "Портів"
     	},
     	"CANT_UPDATE_MSG": "Щоб додати ліцензії, будь ласка, змініть підписку."
     },
@@ -1309,16 +1310,16 @@
     		"AVAILABLE_LICENSES": "Доступні ліцензії",
     		"USERS": "Користувачі",
     		"STORAGE": "Додаткове сховище (GB)",
-    		"LINES": "Лінії"
+    		"LINES": "Порти"
     	},
     	"INCLUDED_IN_PLAN": "включено у план",
     	"CANCEL_LICENSE_UPDATE": "Відміна",
     	"UPDATE_LICENSES": "Оновити ліцензії",
     	"PLANS": {
-    		"LINES": "ліній",
+    		"LINES": "портів",
     		"USERS": "користувачів",
     		"PER_USER": "за користувача",
-    		"PER_LINE": "за лінію",
+    		"PER_LINE": "за порт",
     		"PER_MONTH": "місяць",
     		"PER_YEAR": "рік",
     		"MONTHLY_PLANS": "Щомісячна сплата",

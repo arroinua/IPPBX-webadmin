@@ -17,7 +17,7 @@ function load_services() {
 			config = result.config;
 			services = filterServices(result.services, config);
 
-			if(isBranchPackage('premium')) {
+			if(isBranchPackage('enterprise')) {
 				ldap = {};
 				ldap.props = result.ldap || {};
 				ldap.name = 'Microsoft Active Directory';

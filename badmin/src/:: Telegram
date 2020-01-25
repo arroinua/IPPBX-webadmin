@@ -1,0 +1,178 @@
+// Telegram
+
+{
+	"text": "Please, leave your feedback about our service. How satisfied are you (from 1 to 5)?",
+	"reply_markup": {
+		"inline_keyboard": [
+			[
+				{
+					"text": "1",
+					"callback_data": "1"
+				}, {
+					"text": "2",
+					"callback_data": "2"
+				}, {
+					"text": "3",
+					"callback_data": "3"
+				}, {
+					"text": "4",
+					"callback_data": "4"
+				}, {
+					"text": "5",
+					"callback_data": "5"
+				}
+			]
+		]
+	}
+}
+
+
+{
+	"text": "",
+	"reply_markup": {
+		"one_time_keyboard": true,
+		"resize_keyboard": true,
+		"keyboard": [
+			[{
+				"text": "1"
+			},
+			{
+				"text": "2"
+			},
+			{
+				"text": "3"
+			},
+			{
+				"text": "4"
+			},
+			{
+				"text": "5"
+			}]
+		]
+	}
+}
+
+
+// Viber
+
+{
+	"keyboard": {
+		"Type":"keyboard",
+		"DefaultHeight": true,
+		"Buttons": [
+			{
+				"Columns":6,
+            	"Rows":1,
+            	"BgColor": "#e1e5e4",
+            	"TextHAlign": "center",
+				"TextVAlign": "center",
+				"ActionType":"reply",
+	            "ActionBody":"5",
+	            "Text":"5",
+	            "TextSize":"large"
+			}, {
+				"Columns":6,
+            	"Rows":1,
+            	"BgColor": "#e1e5e4",
+            	"TextHAlign": "center",
+				"TextVAlign": "center",
+				"ActionType":"reply",
+	            "ActionBody":"4",
+	            "Text":"4",
+	            "TextSize":"large"
+			}, {
+				"Columns":6,
+            	"Rows":1,
+            	"BgColor": "#e1e5e4",
+            	"TextHAlign": "center",
+				"TextVAlign": "center",
+				"ActionType":"reply",
+	            "ActionBody":"3",
+	            "Text":"3",
+	            "TextSize":"large"
+			}, {
+				"Columns":6,
+            	"Rows":1,
+            	"BgColor": "#e1e5e4",
+            	"TextHAlign": "center",
+				"TextVAlign": "center",
+				"ActionType":"reply",
+	            "ActionBody":"2",
+	            "Text":"2",
+	            "TextSize":"large"
+			}, {
+				"Columns":6,
+            	"Rows":1,
+            	"BgColor": "#e1e5e4",
+            	"TextHAlign": "center",
+				"TextVAlign": "center",
+				"ActionType":"reply",
+	            "ActionBody":"1",
+	            "Text":"1",
+	            "TextSize":"large"
+			},
+		]
+	}
+}
+
+
+// Messenger
+
+{
+    "text": "",
+    "quick_replies":[
+      {
+        "content_type":"text",
+        "title":"1",
+        "payload":"1"
+      },{
+        "content_type":"text",
+        "title":"2",
+        "payload":"2"
+      },{
+        "content_type":"text",
+        "title":"3",
+        "payload":"3"
+      },{
+        "content_type":"text",
+        "title":"4",
+        "payload":"4"
+      },{
+        "content_type":"text",
+        "title":"5",
+        "payload":"5"
+      }
+    ]
+}
+
+
+// Webchat
+
+{
+	"sid": "",
+	"message": {
+		"text": "",
+	    "quick_replies":[
+	      {
+	        "text":"1",
+	        "callback": ""
+	      },{
+	        "content_type":"text",
+	        "title":"4",
+	        "payload":"4"
+	      },{
+	        "content_type":"text",
+	        "title":"3",
+	        "payload":"3"
+	      },{
+	        "content_type":"text",
+	        "title":"2",
+	        "payload":"2"
+	      },{
+	        "content_type":"text",
+	        "title":"1",
+	        "payload":"1"
+	      }
+	    ]
+	}
+}

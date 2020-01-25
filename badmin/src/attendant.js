@@ -670,7 +670,7 @@ function showAttObjectSetts(params, object){
         
         if(params.type === PbxObject.attendant.types.menu) {
             customize_upload('audioFile', (params.data || ''));
-        } else if(params.type === PbxObject.attendant.types.mail) {
+        } else if(params.type === PbxObject.attendant.types.mail || params.type === PbxObject.attendant.types.commutator) {
             customize_upload('audioFile', (params.audio || ''));
         }
 
@@ -727,7 +727,9 @@ function setAttObject(params, object){
 
 function collectAttParams(instParams){
     var cont = document.getElementById('att-setts-cont'),
+        // oid = null,
         objType = instParams.type,
+        fileName = '',
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
         // data = cont.querySelector(el+'[name="data"]').value,
         connectorName,
@@ -738,6 +740,8 @@ function collectAttParams(instParams){
     else params.button = null;
     params.name = cont.querySelector('input[name="name"]').value || generateAttObjName(objType, params.button);
     params.type = objType;
+    // oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0);
+
     // if(data) params.data = data;
 
     if(objType === PbxObject.attendant.types.menu){
@@ -746,9 +750,12 @@ function collectAttParams(instParams){
 
         if(fileEl){
             if(fileEl.files.length){
+                fileName = fileEl.files[0].name;
+                // fileName = fileName[0]+'_'+oid+'.'+fileName[1];
                 // params.file = fileEl.cloneNode(false); //clone element that holds audio file and pass it as a parameter
                 params.file = fileEl;
-                params.data = fileEl.files[0].name;
+                // params.data = fileEl.files[0].name;
+                params.data = fileName;
                 // data = fileEl.files[0].name;
             } else if(instParams.file){
                 params.file = instParams.file;
@@ -758,7 +765,11 @@ function collectAttParams(instParams){
         //     params.data = data;
         // }
         if(!params.data && instParams.file){
-            params.data = instParams.file.files[0].name;
+            fileName = instParams.file.files[0].name;
+            // fileName = fileName[0]+'_'+oid+'.'+fileName[1];
+
+            params.data = fileName;
+            // params.data = instParams.file.files[0].name;
             // params.data = instParams.file.value;
         }
         // else{
@@ -775,7 +786,7 @@ function collectAttParams(instParams){
         // params.data = getConnectorNumber(data);
     }
 
-    if(objType === PbxObject.attendant.types.mail){
+    if(objType === PbxObject.attendant.types.mail || objType === PbxObject.attendant.types.commutator){
         var subject = cont.querySelector('input[name="subject"]'),
             body = cont.querySelector('textarea[name="body"]'),
             fileEl = cont.querySelector('input[type="file"]');
@@ -793,8 +804,8 @@ function collectAttParams(instParams){
             params.audio = instParams.file.files[0].name;
         }
 
-        params.subject = subject.value;
-        params.body = body.value;
+        if(subject) params.subject = subject.value;
+        if(body) params.body = body.value;
     }
 
     return params;
@@ -1061,13 +1072,20 @@ function set_attendant(){
     jprms += '\"value\":"'+algdir+'"';
     jprms += '},';
 
-    var file;
+    var file, fileName;
     for(var key in objects){
         if(objects.hasOwnProperty(key)){
             file = objects[key].file;
             if(file){
-                if(file.files.length)
-                    upload(file, '/attendant/'+oid+'/'+file.files[0].name);
+                if(file.files.length) {
+                    fileName = file.files[0].name.split('.');
+                    fileName = fileName[0]+'_'+objects[key].oid+'.'+fileName[1];
+                    
+                    if(objects[key].audio) objects[key].audio = fileName;
+                    else objects[key].data = fileName;
+                    
+                    upload(file, '/attendant/'+oid+'/'+fileName);
+                }
                 
                 delete objects[key].file;
             }

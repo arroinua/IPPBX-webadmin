@@ -80,7 +80,7 @@ var ChannelRouteComponent = React.createClass({
 	_getAvailableRoutes: function(type, callback) {
 		// var type = this.props.type;
 		var isTelephonyChannel = (type === 'Telephony' || type === 'Webcall');
-		var groupType = isTelephonyChannel ? ['hunting', 'icd', 'attendant'] : ['chatchannel'];
+		var groupType = isTelephonyChannel ? ['hunting', 'icd', 'attendant', 'application'] : ['chatchannel', 'application'];
 		var routes = [];
 
 

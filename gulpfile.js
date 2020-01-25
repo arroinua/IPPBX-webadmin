@@ -25,7 +25,7 @@ var getDateString = function(){
 
 }
 
-gulp.task('styles', function() {
+function styles() {
   return gulp.src('badmin/styles/*.scss', { style: 'expanded' })
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
@@ -34,7 +34,7 @@ gulp.task('styles', function() {
     .pipe(minifycss())
     .pipe(gulp.dest('badmin/dist/badmin/css'));
     // .pipe(notify({ message: 'Styles task complete' }));
-});
+}
 
 // gulp.task('styles2', function() {
 //   return sass('badmin/styles/init.scss', { style: 'expanded' })
@@ -47,9 +47,9 @@ gulp.task('styles', function() {
 //     // .pipe(notify({ message: 'Styles2 task complete' }));
 // });
 
-gulp.task('scripts', function() {
+function scripts(cb) {
   // return gulp.src(['badmin/src/*.js'])
-  return gulp.src(['badmin/src/*.js', '!badmin/src/vendors/**', 'badmin/src/**/*.js'])
+  gulp.src('badmin/src/*.js')
     // .pipe(jshint('.jshintrc'))
     // .pipe(jshint.reporter('default'))
     .pipe(concat('main.js'))
@@ -58,10 +58,12 @@ gulp.task('scripts', function() {
     .pipe(uglify())
     .pipe(gulp.dest('badmin/dist/badmin/js'))
     .pipe(notify({ message: 'Scripts task complete' }));
-});
 
-gulp.task('components', function(cb) {
-  return gulp.src(['badmin/components/**/*.jsx'])
+    cb();
+}
+
+function components(cb) {
+  gulp.src(['badmin/components/**/*.jsx'])
     // .pipe(sourcemaps.init())
     .pipe(babel({
       presets: ['react']
@@ -72,10 +74,10 @@ gulp.task('components', function(cb) {
     .pipe(notify({ message: 'Components task complete' }));
 
     cb();
-});
+}
 
-gulp.task('public-components', function() {
-  return gulp.src('public/components/**/*.jsx')
+function publicComponents(cb) {
+  gulp.src('public/components/**/*.jsx')
     // .pipe(sourcemaps.init())
     .pipe(babel({
       presets: ['react']
@@ -83,43 +85,41 @@ gulp.task('public-components', function() {
     .pipe(concat('components.js'))
     // .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('badmin/dist/public/scripts'))
-});
 
-gulp.task('zip', function() {
-  return gulp.src('badmin/dist/**')
+    cb()
+}
+
+function zip(cb) {
+  gulp.src('badmin/dist/**')
     .pipe(zip('webadmin_'+getDateString()+'.zip')).
     pipe(gulp.dest('./archives'));
-});
 
-gulp.task('flot', function() {
-  return gulp.src('badmin/src/vendors/flot/*.js')
-    .pipe(concat('flot.all.js'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(uglify())
-    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'));
-    // .pipe(notify({ message: 'Flot task complete' }));
-});
+    cb()
+}
 
-gulp.task('flatpickr', function() {
-  return gulp.src('badmin/src/vendors/flatpickr/*.js')
-    .pipe(concat('flatpickr.all.js'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(uglify())
-    .pipe(gulp.dest('badmin/dist/badmin/js/vendors'));
-    // .pipe(notify({ message: 'Flatpickr task complete' }));
-});
+// gulp.task('flot', function() {
+//   return gulp.src('badmin/src/vendors/flot/*.js')
+//     .pipe(concat('flot.all.js'))
+//     .pipe(rename({suffix: '.min'}))
+//     .pipe(uglify())
+//     .pipe(gulp.dest('badmin/dist/badmin/js/vendors'));
+//     // .pipe(notify({ message: 'Flot task complete' }));
+// });
 
-gulp.task('views', function() {
+// gulp.task('flatpickr', function() {
+//   return gulp.src('badmin/src/vendors/flatpickr/*.js')
+//     .pipe(concat('flatpickr.all.js'))
+//     .pipe(rename({suffix: '.min'}))
+//     .pipe(uglify())
+//     .pipe(gulp.dest('badmin/dist/badmin/js/vendors'));
+//     // .pipe(notify({ message: 'Flatpickr task complete' }));
+// });
+
+function views(cb) {
   gulp.src('badmin/branch.html')
   .pipe(gulp.dest('badmin/dist/badmin/'));
 
-  gulp.src('*.html')
-  .pipe(gulp.dest('badmin/dist/'));
-
-  gulp.src('*.ico')
-  .pipe(gulp.dest('badmin/dist/'));
-
-  gulp.src('init.js')
+  gulp.src(['*.html', '*.ico', 'init.js'])
   .pipe(gulp.dest('badmin/dist/'));
 
   gulp.src(['public/**/*', '!public/{components,components/*}'])
@@ -146,22 +146,18 @@ gulp.task('views', function() {
 
   gulp.src('badmin/images/**/*')
   .pipe(gulp.dest('badmin/dist/badmin/images/'));
-});
 
-gulp.task('clean', function(cb) {
+  cb()
+}
+
+function clean(cb) {
     del(['badmin/dist/badmin/**', 'badmin/dist/badmin/css', 'badmin/dist/badmin/js'], cb);
-});
+}
 
-gulp.task('default', ['clean'], function() {
-    gulp.start('styles', 'scripts', 'views', 'flot', 'flatpickr');
-});
+exports.styles = styles;
+exports.scripts = scripts;
+exports.components = components;
+exports.publicComponents = publicComponents;
+exports.views = views;
+exports.zip = zip;
 
-gulp.task('watch', function() {
-
-  // Watch .scss files
-  gulp.watch('badmin/styles/**/*.scss', ['styles']);
-
-  // Watch .js files
-  gulp.watch('badmin/src/**/*.js', ['scripts']);
-
-});

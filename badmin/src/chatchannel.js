@@ -117,7 +117,7 @@ function load_chatchannel(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    onAddMembers: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? showAvailableUsers : null) : showAvailableUsers),
-		    setObject: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? saveObject : null) : saveObject),
+		    setObject: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? setChatChannel : null) : setChatChannel),
 		    onNameChange: onNameChange,
 		    onStateChange: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? onStateChange : null) : onStateChange),
 		    getInfoFromState: getInfoFromState,

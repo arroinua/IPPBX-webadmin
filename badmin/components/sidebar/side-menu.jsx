@@ -20,7 +20,7 @@ function SideMenuComponent(props) {
 								className={ getItemClass(item) } 
 								data-toggle="tooltip" data-placement="right"
 								title={props.frases.KINDS[item.name]}
-								onClick={function(e) { if(e.target.href === '#') e.preventDefault(); props.selectMenu(item.name) }}>
+								onClick={function(e) { if(!item.link) e.preventDefault(); props.selectMenu(item.name) }}>
 								<i className={item.iconClass}></i>
 							</a>
 						</li>

@@ -24,7 +24,7 @@ var UsersRegHistoryComponent = React.createClass({
 	_getUsers: function() {
 		var users = [];
 		getExtensions(function(result) {
-			users = filterObject(result, 'user')
+			users = filterObject(result, ['user', 'phone'])
 			users = sortByKey(users, 'name');
 			this.setState({ users: users });
 		}.bind(this));

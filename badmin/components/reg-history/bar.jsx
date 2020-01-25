@@ -19,7 +19,7 @@ var UsersRegHistoryBarComponent = React.createClass({
 	render: function() {
 		var users = this.props.users.map(function(item) {
 			item.value = item.userid;
-			item.label = item.name + (item.info && item.info.email ? (" (" + item.info.email + ")"  ) : "");
+			item.label = (item.ext ? (item.ext + ' - ') : '') + item.name + (item.info && item.info.email ? (" (" + item.info.email + ")"  ) : "");
 			return item;
 		});
 

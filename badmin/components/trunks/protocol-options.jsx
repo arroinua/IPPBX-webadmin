@@ -102,6 +102,13 @@ function TrunkProtocolOptionsComponent(props) {
 		                	}
 		                </div>
 		            </div>
+		            <div className="col-sm-offset-4 col-sm-8">
+		                <div className="checkbox">
+		                    <label>
+		                        <input type="checkbox" name="directrtp" checked={params.directrtp} /> Direct RTP
+		                    </label>
+		                </div>
+		            </div>
 		            {
 		            	props.params.protocol === 'h323' ? (
 		            		<div>

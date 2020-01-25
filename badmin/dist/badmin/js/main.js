@@ -737,7 +737,7 @@ function showAttObjectSetts(params, object){
         
         if(params.type === PbxObject.attendant.types.menu) {
             customize_upload('audioFile', (params.data || ''));
-        } else if(params.type === PbxObject.attendant.types.mail) {
+        } else if(params.type === PbxObject.attendant.types.mail || params.type === PbxObject.attendant.types.commutator) {
             customize_upload('audioFile', (params.audio || ''));
         }
 
@@ -794,7 +794,9 @@ function setAttObject(params, object){
 
 function collectAttParams(instParams){
     var cont = document.getElementById('att-setts-cont'),
+        // oid = null,
         objType = instParams.type,
+        fileName = '',
         el = objType === PbxObject.attendant.types.menu ? 'input' : 'select',
         // data = cont.querySelector(el+'[name="data"]').value,
         connectorName,
@@ -805,6 +807,8 @@ function collectAttParams(instParams){
     else params.button = null;
     params.name = cont.querySelector('input[name="name"]').value || generateAttObjName(objType, params.button);
     params.type = objType;
+    // oid = PbxObject.attendant.currentPid + (params.button ? params.button : 0);
+
     // if(data) params.data = data;
 
     if(objType === PbxObject.attendant.types.menu){
@@ -813,9 +817,12 @@ function collectAttParams(instParams){
 
         if(fileEl){
             if(fileEl.files.length){
+                fileName = fileEl.files[0].name;
+                // fileName = fileName[0]+'_'+oid+'.'+fileName[1];
                 // params.file = fileEl.cloneNode(false); //clone element that holds audio file and pass it as a parameter
                 params.file = fileEl;
-                params.data = fileEl.files[0].name;
+                // params.data = fileEl.files[0].name;
+                params.data = fileName;
                 // data = fileEl.files[0].name;
             } else if(instParams.file){
                 params.file = instParams.file;
@@ -825,7 +832,11 @@ function collectAttParams(instParams){
         //     params.data = data;
         // }
         if(!params.data && instParams.file){
-            params.data = instParams.file.files[0].name;
+            fileName = instParams.file.files[0].name;
+            // fileName = fileName[0]+'_'+oid+'.'+fileName[1];
+
+            params.data = fileName;
+            // params.data = instParams.file.files[0].name;
             // params.data = instParams.file.value;
         }
         // else{
@@ -842,7 +853,7 @@ function collectAttParams(instParams){
         // params.data = getConnectorNumber(data);
     }
 
-    if(objType === PbxObject.attendant.types.mail){
+    if(objType === PbxObject.attendant.types.mail || objType === PbxObject.attendant.types.commutator){
         var subject = cont.querySelector('input[name="subject"]'),
             body = cont.querySelector('textarea[name="body"]'),
             fileEl = cont.querySelector('input[type="file"]');
@@ -860,8 +871,8 @@ function collectAttParams(instParams){
             params.audio = instParams.file.files[0].name;
         }
 
-        params.subject = subject.value;
-        params.body = body.value;
+        if(subject) params.subject = subject.value;
+        if(body) params.body = body.value;
     }
 
     return params;
@@ -1128,13 +1139,20 @@ function set_attendant(){
     jprms += '\"value\":"'+algdir+'"';
     jprms += '},';
 
-    var file;
+    var file, fileName;
     for(var key in objects){
         if(objects.hasOwnProperty(key)){
             file = objects[key].file;
             if(file){
-                if(file.files.length)
-                    upload(file, '/attendant/'+oid+'/'+file.files[0].name);
+                if(file.files.length) {
+                    fileName = file.files[0].name.split('.');
+                    fileName = fileName[0]+'_'+objects[key].oid+'.'+fileName[1];
+                    
+                    if(objects[key].audio) objects[key].audio = fileName;
+                    else objects[key].data = fileName;
+                    
+                    upload(file, '/attendant/'+oid+'/'+fileName);
+                }
                 
                 delete objects[key].file;
             }
@@ -1831,7 +1849,7 @@ function set_bgroup(param, callback){
     if(oid) jprms += '"oid":"'+oid+'",';
     if(kind) jprms += '"kind":"'+kind+'",';
 
-    jprms += '\"enabled\":'+enabled.checked+',';
+    if(enabled) jprms += '\"enabled\":'+enabled.checked+',';
 
     if(kind != 'users' && kind != 'equipment'){
         jprms += '"members":[';
@@ -2755,20 +2773,22 @@ function load_branch_options() {
 	function saveOptions(newOptions, callback) {
 
 		var handler;
-		var files = [];
+		// var files = [];
 
-		if(newOptions.options && newOptions.options.files) {
-			files = [].concat(newOptions.options.files);
-			delete newOptions.options.files;
+		if(newOptions.files) {
+			newOptions.files.forEach(function(item) {
+				uploadFile(item);
+			})
+			delete newOptions.files;
 		}
 
 
 		// Upload audio files
-		if(files.length) {
-			files.forEach(function(item) {
-				uploadFile(item);
-			})
-		}
+		// if(files.length) {
+		// 	files.forEach(function(item) {
+		// 		uploadFile(item);
+		// 	})
+		// }
 
 		if(newOptions.lang && newOptions.lang !== initLang) {	    
 		    handler = set_options_success_with_reload;
@@ -2814,6 +2834,7 @@ function load_branch_options() {
 		show_loading_panel();
 		json_rpc_async('createAPIKey', params, function(result) {
 			show_content();
+			if(result) set_object_success();
 			callback(result);
 		});
 	}
@@ -2822,6 +2843,7 @@ function load_branch_options() {
 		show_loading_panel();
 		json_rpc_async('deleteAPIKey', params, function(result) {
 			show_content();
+			set_object_success();
 			callback(result);
 		});	
 	}
@@ -3845,7 +3867,7 @@ function load_chatchannel(params) {
 			frases: PbxObject.frases,
 		    params: params,
 		    onAddMembers: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? showAvailableUsers : null) : showAvailableUsers),
-		    setObject: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? saveObject : null) : saveObject),
+		    setObject: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? setChatChannel : null) : setChatChannel),
 		    onNameChange: onNameChange,
 		    onStateChange: (PbxObject.isUserAccount ? (checkPermissions('chatchannel', 3) ? onStateChange : null) : onStateChange),
 		    getInfoFromState: getInfoFromState,
@@ -3884,8 +3906,10 @@ function load_chattrunk(params) {
 		name: frases.CHAT_TRUNK.FACEBOOK.SERVICE_NAME,
 		icon: '/badmin/images/channels/facebook.png',
 		params: {
+			// appId: '2496316903945172',
 			appId: '1920629758202993',
 			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
+			// redirectUri: 'https://m3.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
 	// }, {
@@ -6444,6 +6468,8 @@ function json_rpc_async(method, params, handler, id){
     var jsonrpc = {};
     var parsedJSON = {};
     var requestTimer = null;
+
+    Utils.debug('json_rpc_async: ', method, params);
 
     if(params !== null){
         if(typeof params === 'string') {
@@ -9191,6 +9217,8 @@ function save_proto_opts(proto){
         opts.noprogress = document.getElementById('noprogress').checked;
         opts.noredirectinfo = document.getElementById('noredirectinfo').checked;
         opts.passanumber = document.getElementById('passanumber').checked;
+
+        opts.directrtp = document.getElementById('directrtp') ? document.getElementById('directrtp').checked : false;
     }
     
     $('#el-protocol').modal('hide');
@@ -11828,7 +11856,7 @@ function load_services() {
 			config = result.config;
 			services = filterServices(result.services, config);
 
-			if(isBranchPackage('premium')) {
+			if(isBranchPackage('enterprise')) {
 				ldap = {};
 				ldap.props = result.ldap || {};
 				ldap.name = 'Microsoft Active Directory';

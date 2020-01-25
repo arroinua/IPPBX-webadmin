@@ -15,6 +15,7 @@ var OptionsComponent = React.createClass({
 
 	getInitialState: function() {
 		return {
+			files: [],
 			params: {},
 			options: {},
 			branchParams: {}
@@ -41,6 +42,7 @@ var OptionsComponent = React.createClass({
 		var params = this.state.params ? extend({}, this.state.params) : {};
 		var branchParams = this.state.branchParams;
 		var options = this.state.options;
+		var files = [].concat(this.state.files);
 
 		if(params.adminpass && params.adminpass !== params.confirmpass) {
 			return alert(this.props.frases.OPTS__PWD_UNMATCH);
@@ -51,6 +53,7 @@ var OptionsComponent = React.createClass({
 		params.extensions = this._poolToArray(this.poolEl.value);
 
 		if(options) params.options = options;
+		if(files) params.files = files;
 
 		this.props.saveOptions(params, function() {
 			delete this.state.params.adminpass;
@@ -77,12 +80,20 @@ var OptionsComponent = React.createClass({
 
 	_handleOnFuncOptionsChange: function(params) {
 		var keys = Object.keys(params);
+		var state = extend({}, this.state.options);
+		var files = [].concat(this.state.files);
 
 		if(!keys || !keys.length) return;
 		// var state = extend({}, this.state.options, params);
 		// var newState = this.state.newOptions || {};
 
-		if(params.files) params.files = params.files.reduce(function(array, item) { array.push(item.file); return array; }, []);
+		// if(params.file) params.files = params.files.reduce(function(array, item) { array.push(item.file); return array; }, []);
+		if(params.file !== undefined) {
+			if(params.file) files = files.concat([params.file]);
+			state[params.name] = params.filename;
+		} else {
+			state = extend(state, params);
+		}
 
 		// keys.forEach(function(key) {
 		// 	state[key] = params[key];
@@ -90,7 +101,7 @@ var OptionsComponent = React.createClass({
 		// });
 		// newState[keys[0]] = params[keys[0]];
 
-		this.setState({ options: params });
+		this.setState({ options: state, files: files });
 	},
 
 	_handleOnGdprSettsChange: function(gdprParams) {

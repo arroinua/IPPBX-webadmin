@@ -58,6 +58,19 @@
                     <p name="data" class="form-control-static nowrap">{{data.connector}}</p>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="subject" class="control-label col-xs-5">{{frases.ATTENDANT.CALL_SUBJECT}}</label>
+                <div class="col-xs-7">
+                    <p name="subject" class="form-control-static nowrap">{{data.subject}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="hidden"><input type="file"></div>
+                <label for="audio" class="control-label col-xs-5">{{frases.ATTENDANT.AUDIO_FILE}}</label>
+                <div class="col-xs-7">
+                    <p name="audio" class="form-control-static nowrap">{{data.audio}}</p>
+                </div>
+            </div>
             {{/typeCommutator}}
             {{#pid}}
             <div class="form-group">

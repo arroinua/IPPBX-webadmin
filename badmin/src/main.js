@@ -183,6 +183,8 @@ function json_rpc_async(method, params, handler, id){
     var parsedJSON = {};
     var requestTimer = null;
 
+    Utils.debug('json_rpc_async: ', method, params);
+
     if(params !== null){
         if(typeof params === 'string') {
             jsonrpc = '{\"method\":\"'+method+'\", \"params\":{'+params+'}, \"id\":'+1+'}';
@@ -2929,6 +2931,8 @@ function save_proto_opts(proto){
         opts.noprogress = document.getElementById('noprogress').checked;
         opts.noredirectinfo = document.getElementById('noredirectinfo').checked;
         opts.passanumber = document.getElementById('passanumber').checked;
+
+        opts.directrtp = document.getElementById('directrtp') ? document.getElementById('directrtp').checked : false;
     }
     
     $('#el-protocol').modal('hide');

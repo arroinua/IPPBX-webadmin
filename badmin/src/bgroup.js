@@ -648,7 +648,7 @@ function set_bgroup(param, callback){
     if(oid) jprms += '"oid":"'+oid+'",';
     if(kind) jprms += '"kind":"'+kind+'",';
 
-    jprms += '\"enabled\":'+enabled.checked+',';
+    if(enabled) jprms += '\"enabled\":'+enabled.checked+',';
 
     if(kind != 'users' && kind != 'equipment'){
         jprms += '"members":[';

@@ -17,8 +17,10 @@ function load_chattrunk(params) {
 		name: frases.CHAT_TRUNK.FACEBOOK.SERVICE_NAME,
 		icon: '/badmin/images/channels/facebook.png',
 		params: {
+			// appId: '2496316903945172',
 			appId: '1920629758202993',
 			redirectUri: 'https://main.ringotel.net/chatbot/FacebookMessenger'
+			// redirectUri: 'https://m3.ringotel.net/chatbot/FacebookMessenger'
 		},
 		component: FacebookTrunkComponent
 	// }, {

@@ -29,7 +29,7 @@ var ChangePasswordComponent = React.createClass({
 
 		this.setState({ fetching: true, validationError: false });
 
-		this.props.onSubmit({ oldadminpass: params.oldadminpass, adminpass: params.adminpass }, function(err, result) {
+		this.props.onSubmit({ oldadminpass: params.oldadminpass || '', adminpass: params.adminpass }, function(err, result) {
 			if(err) {
 				if(err.message === 'Invalid parameter') {
 					this.setState({ errors: errors.concat({ code: 'invalid_parameter' }), fetching: false })
@@ -100,7 +100,7 @@ var ChangePasswordComponent = React.createClass({
 				size="sm"
 				type="success"
 				title={frases.SETTINGS.CHANGE_PASSWORD}
-				disabled={!params.adminpass || !params.confirmadminpass || !params.oldadminpass}
+				disabled={!params.adminpass || !params.confirmadminpass}
 				submitText={frases.SUBMIT}
 				cancelText={frases.CANCEL}
 				submit={this._saveChanges}
